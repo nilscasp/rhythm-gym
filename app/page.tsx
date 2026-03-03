@@ -70,12 +70,36 @@ export default function Home() {
         .btn-filled:hover{background:var(--cream)}
         #waveform{display:flex;align-items:flex-end;gap:6px;height:80px}
         #beatLabels{display:flex;gap:6px;margin-top:8px}
+        .nav-desktop{display:flex;gap:36px;align-items:center;list-style:none}
+        .nav-mobile-cta{display:none}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:60px;align-items:start}
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+        .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:60px;max-width:800px}
+        .hero-actions{margin-top:48px;display:flex;align-items:center;gap:24px;position:relative;zIndex:1}
+        @media(max-width:768px){
+          .nav-desktop{display:none!important}
+          .nav-mobile-cta{display:block!important}
+          .nav-pad{padding:16px 20px!important}
+          .hero-pad{padding:100px 24px 60px!important}
+          .waveform-pad{padding:0 24px 50px!important}
+          .stats-grid{grid-template-columns:repeat(2,1fr)!important;padding:24px 20px!important}
+          .stat-item{padding:16px 12px!important;border-right:none!important;border-bottom:1px solid var(--border)}
+          .stat-item:nth-child(odd){border-right:1px solid var(--border)!important}
+          .stat-item:nth-child(3),.stat-item:nth-child(4){border-bottom:none!important}
+          .section-pad{padding:60px 24px!important}
+          .two-col{grid-template-columns:1fr!important;gap:40px!important}
+          .pricing-grid{grid-template-columns:1fr!important}
+          .manifesto-pad{padding:80px 24px!important}
+          .footer-pad{padding:30px 24px!important;flex-direction:column!important;gap:12px!important;text-align:center!important}
+          .hero-actions{flex-direction:column!important;align-items:flex-start!important;gap:16px!important}
+          .btn-primary{width:100%!important;justify-content:center!important}
+        }
       `}</style>
 
       <div style={{backgroundColor:'var(--black)',color:'var(--text)',fontFamily:"'Barlow',sans-serif",fontWeight:300,overflowX:'hidden'}}>
 
         {/* NAV */}
-        <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,padding:'20px 48px',display:'flex',alignItems:'center',justifyContent:'space-between',background:'linear-gradient(to bottom, rgba(10,9,7,0.95), transparent)'}}>
+        <nav className="nav-pad" style={{position:'fixed',top:0,left:0,right:0,zIndex:100,padding:'20px 48px',display:'flex',alignItems:'center',justifyContent:'space-between',background:'linear-gradient(to bottom, rgba(10,9,7,0.95), transparent)'}}>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
               <rect x="2" y="22" width="3" height="12" rx="1" fill="#F5A623"/>
@@ -88,16 +112,17 @@ export default function Home() {
             </svg>
             <span style={{fontFamily:"'Anton',sans-serif",fontSize:20,letterSpacing:2,color:'var(--cream)'}}>RHYTHM<span style={{color:'var(--amber)'}}>GYM</span></span>
           </div>
-          <ul style={{listStyle:'none',display:'flex',gap:36,alignItems:'center'}}>
+          <ul className="nav-desktop">
             <li><a href="#training" className="nav-link">Training</a></li>
             <li><a href="#patterns" className="nav-link">Pattern Library</a></li>
             <li><a href="#community" className="nav-link">Community</a></li>
             <li><Link href="/auth/login" className="nav-link nav-cta">Start Free</Link></li>
           </ul>
+          <Link href="/auth/login" className="nav-mobile-cta" style={{display:'none',background:'var(--amber)',color:'var(--black)',textDecoration:'none',padding:'8px 18px',borderRadius:2,fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,fontWeight:700,letterSpacing:2,textTransform:'uppercase'}}>Start Free</Link>
         </nav>
 
         {/* HERO */}
-        <section style={{minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'center',padding:'120px 48px 80px',position:'relative',overflow:'hidden'}}>
+        <section className="hero-pad" style={{minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'center',padding:'120px 48px 80px',position:'relative',overflow:'hidden'}}>
           <div style={{position:'absolute',inset:0,backgroundImage:'linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px)',backgroundSize:'40px 40px',pointerEvents:'none'}}/>
           <div style={{position:'absolute',top:-200,right:-200,width:700,height:700,background:'radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%)',pointerEvents:'none'}}/>
           <div className="fade-1" style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,letterSpacing:4,textTransform:'uppercase',color:'var(--amber)',marginBottom:24,display:'flex',alignItems:'center',gap:12}}>
@@ -110,14 +135,14 @@ export default function Home() {
           <p className="fade-3" style={{marginTop:36,fontSize:18,fontWeight:300,lineHeight:1.65,color:'var(--muted)',maxWidth:480,position:'relative',zIndex:1}}>
             Nicht noch ein Kurs. Ein <strong style={{color:'var(--text)',fontWeight:600}}>tägliches Training</strong> — wie ein Gym für dein rhythmisches Verständnis. Pattern verstehen, nicht kopieren.
           </p>
-          <div className="fade-3" style={{marginTop:48,display:'flex',alignItems:'center',gap:24,position:'relative',zIndex:1}}>
+          <div className="fade-3 hero-actions">
             <Link href="/auth/login" className="btn-primary">Kostenlos starten <span>→</span></Link>
             <a href="#training" className="btn-secondary">Wie es funktioniert</a>
           </div>
         </section>
 
         {/* WAVEFORM */}
-        <div style={{padding:'0 48px 80px',position:'relative',zIndex:1}}>
+        <div className="waveform-pad" style={{padding:'0 48px 80px',position:'relative',zIndex:1}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:11,letterSpacing:3,textTransform:'uppercase',color:'var(--muted)',marginBottom:16}}>16-Step Training Grid — interaktiv</div>
           <div id="waveform"/>
           <div id="beatLabels"/>
@@ -135,14 +160,14 @@ export default function Home() {
         </div>
 
         {/* STATS */}
-        <div style={{borderTop:'1px solid var(--border)',borderBottom:'1px solid var(--border)',padding:'32px 48px',display:'grid',gridTemplateColumns:'repeat(4,1fr)'}}>
+        <div className="stats-grid" style={{borderTop:'1px solid var(--border)',borderBottom:'1px solid var(--border)',padding:'32px 48px'}}>
           {[
             {num:'600', suffix:'+', label:'Pattern im Library'},
             {num:'6', suffix:'', label:'Wochen Transformation'},
             {num:'15', suffix:'min', label:'Daily Training'},
             {num:'9', suffix:'€', label:'Pro Monat'},
           ].map(({num, suffix, label}, i) => (
-            <div key={i} style={{padding:'0 24px', borderRight: i < 3 ? '1px solid var(--border)' : 'none'}}>
+            <div key={i} className="stat-item" style={{padding:'0 24px', borderRight: i < 3 ? '1px solid var(--border)' : 'none'}}>
               <div style={{fontFamily:"'Anton',sans-serif",fontSize:48,lineHeight:1,color:'var(--cream)'}}>
                 {num}<span style={{color:'var(--amber)'}}>{suffix}</span>
               </div>
@@ -152,12 +177,12 @@ export default function Home() {
         </div>
 
         {/* WHAT IS */}
-        <section id="training" style={{padding:'100px 48px'}}>
+        <section id="training" className="section-pad" style={{padding:'100px 48px'}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,letterSpacing:4,textTransform:'uppercase',color:'var(--amber)',marginBottom:20}}>Was ist Rhythm Gym?</div>
           <h2 style={{fontFamily:"'Anton',sans-serif",fontSize:'clamp(36px,5vw,72px)',lineHeight:0.95,color:'var(--cream)',maxWidth:700}}>
             DAS GYM FÜR<br/><em style={{fontStyle:'normal',color:'var(--amber)'}}>DEIN TIMING.</em>
           </h2>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:80,marginTop:60,alignItems:'start'}}>
+          <div className="two-col">
             <div style={{fontSize:17,lineHeight:1.75,color:'var(--muted)'}}>
               <p>Ein Fitnessstudio gehst du nicht einmal im Monat. Du gehst <strong style={{color:'var(--text)',fontWeight:600}}>jeden Tag</strong> — kurz, fokussiert, konstant. Genau so funktioniert Rhythm Gym.</p>
               <p style={{marginTop:20}}>Keine langen Theorie-Videos. Kein Konsumieren. Stattdessen: <strong style={{color:'var(--text)',fontWeight:600}}>tägliche Trainingseinheiten</strong>, die dein rhythmisches Verständnis aufbauen wie Muskelgedächtnis.</p>
@@ -183,12 +208,12 @@ export default function Home() {
         </section>
 
         {/* PRICING */}
-        <section id="patterns" style={{padding:'100px 48px',background:'var(--dark)',borderTop:'1px solid var(--border)'}}>
+        <section id="patterns" className="section-pad" style={{padding:'100px 48px',background:'var(--dark)',borderTop:'1px solid var(--border)'}}>
           <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:12,letterSpacing:4,textTransform:'uppercase',color:'var(--amber)',marginBottom:20}}>Mitgliedschaft</div>
           <h2 style={{fontFamily:"'Anton',sans-serif",fontSize:'clamp(36px,5vw,72px)',lineHeight:0.95,color:'var(--cream)'}}>
             WÄHLE DEIN<br/><em style={{fontStyle:'normal',color:'var(--amber)'}}>LEVEL.</em>
           </h2>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:2,marginTop:60,maxWidth:800}}>
+          <div className="pricing-grid">
             <div className="price-card">
               <div style={{fontFamily:"'Barlow Condensed',sans-serif",fontSize:13,letterSpacing:3,textTransform:'uppercase',color:'var(--muted)',marginBottom:20}}>Free Member</div>
               <div style={{fontFamily:"'Anton',sans-serif",fontSize:56,lineHeight:1,color:'var(--cream)'}}>0 <span style={{fontFamily:"'Barlow',sans-serif",fontSize:20,fontWeight:300,color:'var(--muted)'}}>€/Monat</span></div>
@@ -219,7 +244,7 @@ export default function Home() {
         </section>
 
         {/* MANIFESTO */}
-        <section id="community" style={{padding:'120px 48px',textAlign:'center',position:'relative',overflow:'hidden'}}>
+        <section id="community" className="manifesto-pad" style={{padding:'120px 48px',textAlign:'center',position:'relative',overflow:'hidden'}}>
           <div style={{position:'absolute',fontFamily:"'Anton',sans-serif",fontSize:300,color:'rgba(245,166,35,0.03)',top:'50%',left:'50%',transform:'translate(-50%,-50%)',whiteSpace:'nowrap',pointerEvents:'none',letterSpacing:-10}}>RHYTHM</div>
           <div style={{fontFamily:"'Anton',sans-serif",fontSize:'clamp(28px,4vw,54px)',lineHeight:1.1,color:'var(--cream)',maxWidth:800,margin:'0 auto',position:'relative',zIndex:1}}>
             „Rythmik ist nicht was du fühlst.<br/>Es ist was du <em style={{fontStyle:'normal',color:'var(--amber)'}}>trainierst.</em>"
@@ -231,7 +256,7 @@ export default function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer style={{borderTop:'1px solid var(--border)',padding:'40px 48px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <footer className="footer-pad" style={{borderTop:'1px solid var(--border)',padding:'40px 48px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{fontFamily:"'Anton',sans-serif",fontSize:16,letterSpacing:3,color:'var(--muted)'}}>RHYTHM<span style={{color:'var(--amber)'}}>GYM</span></div>
           <p style={{fontSize:13,color:'var(--border)'}}>Ein Projekt von <a href="https://nilscaspar.de" style={{color:'var(--muted)',textDecoration:'none'}}>nilscaspar.de</a> — Handpan Schule des Lebens</p>
           <p style={{fontSize:12,color:'var(--border)'}}>© 2025 Nils Caspar Böhm · Eching</p>
