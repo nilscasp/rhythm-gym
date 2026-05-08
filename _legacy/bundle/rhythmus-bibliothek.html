@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhythmus Bibliothek — Rhythm Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:   #0A0907;
+  --dark:    #131109;
+  --card:    #1C1A14;
+  --card2:   #242016;
+  --border:  #2E2A1E;
+  --border2: #3A3428;
+  --amber:   #F5A623;
+  --amber2:  #E8920F;
+  --amber-dim: rgba(245,166,35,0.12);
+  --amber-glow: rgba(245,166,35,0.06);
+  --warm:    #FF6B35;
+  --cream:   #F5EDD8;
+  --muted:   #7A7060;
+  --muted2:  #9A9080;
+  --text:    #D4C9AD;
+  --max:     1120px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--black);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  line-height: 1.65;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* ── Ambient background ── */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(245,166,35,0.04), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -100px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,107,53,0.03), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px 120px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TOP NAV ── */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10,9,7,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.topnav-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.logo-text {
+  font-family: 'Anton', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--cream);
+}
+.logo-text span { color: var(--amber); }
+.logo-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border2);
+  margin: 0 4px;
+}
+.logo-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.topnav-scroll {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex-wrap: nowrap;
+}
+.topnav-scroll::-webkit-scrollbar { display: none; }
+.topnav-scroll a {
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.topnav-scroll a:hover {
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 72px 0 48px;
+  text-align: center;
+}
+.hero-kicker {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(36px, 6vw, 64px);
+  letter-spacing: 2px;
+  color: var(--cream);
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--amber);
+}
+.hero-sub {
+  color: var(--muted2);
+  max-width: 60ch;
+  margin: 0 auto;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+/* ── LAYER SYSTEM ── */
+.layer-map {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+  margin: 48px 0 56px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.layer-map a {
+  text-decoration: none;
+  padding: 16px 8px;
+  text-align: center;
+  background: var(--card);
+  border: 1px solid transparent;
+  transition: all 0.25s;
+  position: relative;
+}
+.layer-map a::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--amber);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.layer-map a:hover {
+  background: var(--card2);
+  border-color: var(--border2);
+}
+.layer-map a:hover::after { opacity: 1; }
+.layer-map .lm-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 22px;
+  color: var(--amber);
+  display: block;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.layer-map .lm-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+}
+
+/* ── SECTIONS ── */
+.layer-section {
+  margin-bottom: 64px;
+  scroll-margin-top: 70px;
+}
+.layer-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.layer-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 42px;
+  color: var(--amber);
+  line-height: 1;
+  opacity: 0.3;
+}
+.layer-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: 1px;
+  color: var(--cream);
+}
+.layer-desc {
+  color: var(--muted2);
+  margin: 12px 0 24px;
+  max-width: 70ch;
+  font-size: 15px;
+}
+
+/* ── ENTRY CARDS ── */
+.entries {
+  display: grid;
+  gap: 12px;
+}
+.entry {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+  transition: all 0.2s;
+}
+.entry:hover {
+  border-color: var(--border2);
+  background: var(--card2);
+}
+.entry-main { min-width: 0; }
+.entry-term {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--cream);
+  margin-bottom: 4px;
+}
+.entry-def {
+  color: var(--muted2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.entry-def strong { color: var(--text); font-weight: 500; }
+.entry-example {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+}
+.entry-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--amber);
+  background: var(--amber-dim);
+  padding: 4px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* ── TOOL LINK (future) ── */
+.entry-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--amber);
+  opacity: 0.5;
+  cursor: default;
+}
+.entry-tool svg { width: 14px; height: 14px; }
+
+/* ── HIGHLIGHT BOX ── */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(245,166,35,0.06), rgba(255,107,53,0.03));
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 6px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.highlight-box .hb-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+.highlight-box p {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.highlight-box p strong { color: var(--cream); font-weight: 600; }
+
+/* ── COMPARISON TABLE ── */
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.comp-table th {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.comp-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(46,42,30,0.5);
+  font-size: 14px;
+  vertical-align: top;
+}
+.comp-table td:first-child {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  color: var(--cream);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.comp-table tr:last-child td { border-bottom: none; }
+
+/* ── PILL ROW ── */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.pill {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+.pill:hover { border-color: var(--border2); }
+.pill strong {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cream);
+}
+.pill span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── SECTION DIVIDER ── */
+.section-rule {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 0 0 64px;
+}
+
+/* ── QUICK REF ── */
+.quick-ref {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 28px;
+  margin: 48px 0;
+}
+.quick-ref .qr-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: var(--cream);
+  margin-bottom: 20px;
+}
+.quick-ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+.qr-item {
+  text-align: center;
+  padding: 16px 8px;
+  background: rgba(10,9,7,0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(46,42,30,0.4);
+}
+.qr-item .qr-num {
+  font-family: 'Anton', sans-serif;
+  font-size: 28px;
+  color: var(--amber);
+  line-height: 1;
+}
+.qr-item .qr-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.qr-item .qr-val {
+  font-size: 13px;
+  color: var(--muted2);
+  margin-top: 2px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+.footer-brand {
+  font-family: 'Anton', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.footer-brand span { color: var(--amber); }
+.footer a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+}
+.footer a:hover { color: var(--amber); }
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── POEM ── */
+.poem {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 16px;
+  line-height: 2.2;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 48px 0;
+}
+.poem-author {
+  margin-top: 16px;
+  font-style: normal;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .layer-map { grid-template-columns: repeat(3, 1fr); }
+  .entry { grid-template-columns: 1fr; }
+  .entry-tag { justify-self: start; }
+  .topnav-inner { flex-wrap: wrap; }
+  .topnav-scroll { margin-left: 0; width: 100%; }
+  .quick-ref-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 500px) {
+  .layer-map { grid-template-columns: repeat(2, 1fr); }
+  .quick-ref-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ── NAV ── -->
+<div class="topnav">
+  <div class="topnav-inner">
+    <a class="logo" href="https://www.rhythmgym.io">
+      <div class="logo-text">RHYTHM<span>GYM</span></div>
+      <div class="logo-divider"></div>
+      <div class="logo-sub">Bibliothek</div>
+    </a>
+    <div class="topnav-scroll">
+      <a href="#zeitbasis">Zeitbasis</a>
+      <a href="#aufloesung">Auflösung</a>
+      <a href="#gestaltung">Gestaltung</a>
+      <a href="#timing">Timing</a>
+      <a href="#mehrschicht">Mehrschichtigkeit</a>
+      <a href="#praxis">Praxis</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-kicker">Rhythm Gym · Wissen</div>
+  <h1>RHYTHMUS<br><em>BIBLIOTHEK</em></h1>
+  <p class="hero-sub">
+    Alle Begriffe, Konzepte und Zusammenhänge an einem Ort.
+    Von Puls bis Polyrhythmus — klar definiert, sauber getrennt, bereit zum Üben.
+  </p>
+</div>
+
+<!-- ── LAYER MAP ── -->
+<div class="layer-map">
+  <a href="#zeitbasis">
+    <span class="lm-num">01</span>
+    <span class="lm-label">Zeitbasis</span>
+  </a>
+  <a href="#aufloesung">
+    <span class="lm-num">02</span>
+    <span class="lm-label">Auflösung</span>
+  </a>
+  <a href="#gestaltung">
+    <span class="lm-num">03</span>
+    <span class="lm-label">Gestaltung</span>
+  </a>
+  <a href="#timing">
+    <span class="lm-num">04</span>
+    <span class="lm-label">Timing</span>
+  </a>
+  <a href="#mehrschicht">
+    <span class="lm-num">05</span>
+    <span class="lm-label">Mehrschichtigkeit</span>
+  </a>
+  <a href="#praxis">
+    <span class="lm-num">06</span>
+    <span class="lm-label">Praxis</span>
+  </a>
+</div>
+
+<!-- ── KERNIDEE ── -->
+<div class="highlight-box">
+  <div class="hb-title">Die Kernidee</div>
+  <p>
+    Ein <strong>Puls</strong> kann in <strong>unterschiedlicher Auflösung</strong> gespielt werden (Subdivision).
+    <strong>Rhythmus</strong> entsteht durch die Gestaltung dieser Zeit.
+    <strong>Spannung</strong> entsteht durch Gegenrhythmus (Cross-Rhythmus).
+    <strong>Mehrdimensionale Zeit</strong> entsteht erst durch gleichwertige Zeitordnungen (Polyrhythmus).
+  </p>
+</div>
+
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- 01 · ZEITBASIS -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="layer-section" id="zeitbasis">
+  <div class="layer-header">
+    <div class="layer-num">01</div>
+    <div class="layer-title">ZEITBASIS</div>
+  </div>
+  <p class="layer-desc">
+    Alles beginnt hier. Puls, Tempo und Metrum bilden das Fundament, auf dem jeder Rhythmus aufbaut.
+  </p>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Puls / Beat</div>
+        <div class="entry-def">
+          Der gleichmäßige Grundschlag, auf dem alle rhythmischen Ereignisse beruhen. Fühlbar, nicht zwingend hörbar — wie ein innerer Herzschlag der Musik.
+        </div>
+        <div class="entry-tool">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Im Rhythm Tool üben — bald verfügbar
+        </div>
+      </div>
+      <div class="entry-tag">Fundament</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Tempo</div>
+        <div class="entry-def">
+          Die Geschwindigkeit des Pulses, gemessen in <strong>BPM</strong> (Beats per Minute). Tempoänderung = die gesamte Zeit wird schneller oder langsamer.
+        </div>
+        <div class="entry-example">z. B. 60 BPM = ein Schlag pro Sekunde · 120 BPM = zwei Schläge pro Sekunde</div>
+      </div>
+      <div class="entry-tag">Geschwindigkeit</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Takt / Metrum</div>
+        <div class="entry-def">
+          Periodische Gruppierung des Pulses in wiederkehrende Einheiten. Der Takt organisiert den Puls — <strong>Puls = gleichmäßig, Takt = strukturiert</strong>.
+        </div>
+        <div class="entry-example">z. B. 4/4 = vier Viertelnoten pro Takt · 3/4 = drei Viertelnoten pro Takt</div>
+      </div>
+      <div class="entry-tag">Ordnung</div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">Taktarten im Überblick</div>
+    <table class="comp-table">
+      <tr><th>Typ</th><th>Beispiele</th><th>Charakter</th></tr>
+      <tr><td>Einfach</td><td>2/4 · 3/4 · 4/4</td><td>Marsch, Walzer, Pop/Rock — klare Betonungsmuster</td></tr>
+      <tr><td>Zusammengesetzt</td><td>6/8 · 9/8 · 12/8</td><td>Hauptschläge in Dreier-Gruppen — fließend, tänzerisch</td></tr>
+      <tr><td>Ungerade</td><td>5/4 · 7/8 · 11/8</td><td>Asymmetrische Gruppen (z. B. 3+2 oder 2+2+3) — spannend, unvorhersehbar</td></tr>
+    </table>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- 02 · AUFLÖSUNG -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="layer-section" id="aufloesung">
+  <div class="layer-header">
+    <div class="layer-num">02</div>
+    <div class="layer-title">AUFLÖSUNG</div>
+  </div>
+  <p class="layer-desc">
+    Subdivision teilt den Puls in kleinere Einheiten auf. Je feiner die Auflösung, desto mehr Möglichkeiten für rhythmische Gestaltung.
+  </p>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Subdivision</div>
+        <div class="entry-def">
+          Gleichmäßige Aufteilung eines Pulses in kleinere Einheiten. Subdivision erzeugt <strong>keine neue Zeitordnung</strong> — sie verfeinert die bestehende.
+        </div>
+        <div class="entry-tool">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Im Rhythm Tool üben — bald verfügbar
+        </div>
+      </div>
+      <div class="entry-tag">Auflösung</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Subdivision-Wechsel</div>
+        <div class="entry-def">
+          Wechsel der Unterteilung bei <strong>gleichbleibendem Puls, Tempo und Takt</strong> (z. B. Achtel → Sechzehntel). Kein Tempowechsel, keine neue Zeitordnung.
+        </div>
+      </div>
+      <div class="entry-tag">Kontrolle</div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">Notenwerte & Auflösung</div>
+    <table class="comp-table">
+      <tr><th>Notenwert</th><th>Dauer (in 4/4)</th><th>Auflösung</th></tr>
+      <tr><td>Ganze</td><td>4 Schläge</td><td>1 pro Takt</td></tr>
+      <tr><td>Halbe</td><td>2 Schläge</td><td>2 pro Takt</td></tr>
+      <tr><td>Viertel</td><td>1 Schlag</td><td>4 pro Takt — der Puls</td></tr>
+      <tr><td>Achtel</td><td>½ Schlag</td><td>8 pro Takt</td></tr>
+      <tr><td>Sechzehntel</td><td>¼ Schlag</td><td>16 pro Takt</td></tr>
+      <tr><td>32tel</td><td>⅛ Schlag</td><td>32 pro Takt</td></tr>
+    </table>
+  </div>
+
+  <div class="entries" style="margin-top:16px">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Punktierung</div>
+        <div class="entry-def">
+          Verlängert einen Notenwert um die Hälfte seiner Dauer. Eine punktierte Viertel = 1½ Schläge.
+        </div>
+      </div>
+      <div class="entry-tag">Dauer</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Triolen & Tuplets</div>
+        <div class="entry-def">
+          <strong>Triole</strong> teilt einen Schlag in drei gleiche Teile statt zwei. Weitere Tuplets: Quintolen (5), Sextolen (6), Septolen (7) — sie brechen das binäre Raster auf.
+        </div>
+        <div class="entry-example">Merkhilfe: „A-na-nas" = Triole</div>
+      </div>
+      <div class="entry-tag">Unterteilung</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- 03 · GESTALTUNG -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="layer-section" id="gestaltung">
+  <div class="layer-header">
+    <div class="layer-num">03</div>
+    <div class="layer-title">GESTALTUNG</div>
+  </div>
+  <p class="layer-desc">
+    Hier wird aus Zeitstruktur Musik. Patterns, Synkopen, Akzente und Betonungen formen den konkreten Rhythmus — das, was du hörst und spielst.
+  </p>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Rhythmus</div>
+        <div class="entry-def">
+          Die konkrete Abfolge von Klang und Stille innerhalb von Puls und Takt. Rhythmus ist <strong>„was passiert"</strong> — die Gestaltung der Zeit.
+        </div>
+      </div>
+      <div class="entry-tag">Kernelement</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Pattern</div>
+        <div class="entry-def">
+          Ein wiederkehrendes rhythmisches Muster. Patterns können einfach sein (Viertelpuls) oder komplex (Sechzehntel-Kombinationen). Sie sind die Bausteine des rhythmischen Spiels.
+        </div>
+        <div class="entry-tool">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Im Rhythm Tool üben — bald verfügbar
+        </div>
+      </div>
+      <div class="entry-tag">Baustein</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Synkope</div>
+        <div class="entry-def">
+          Betonung auf einer eigentlich <strong>unbetonten Zählzeit</strong>. Synkopen erzeugen Vorwärtsbewegung und überraschen das rhythmische Erwartungsmuster.
+        </div>
+      </div>
+      <div class="entry-tag">Spannung</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Akzentverschiebung</div>
+        <div class="entry-def">
+          Betonungen wandern bei gleicher Subdivision. Die <strong>Struktur bleibt, die Wirkung verändert sich</strong>. Eng verwandt mit Synkopierung, aber nicht identisch.
+        </div>
+      </div>
+      <div class="entry-tag">Wahrnehmung</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Ostinato</div>
+        <div class="entry-def">
+          Eine rhythmische (oder melodische) Figur, die sich beharrlich wiederholt und als „Boden" fungiert. Auf der Handpan oft die Grundlage für alles Weitere.
+        </div>
+      </div>
+      <div class="entry-tag">Fundament</div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">Stilistische Pattern-Familien</div>
+    <table class="comp-table">
+      <tr><th>Stil</th><th>Charakteristik</th><th>Typisches Merkmal</th></tr>
+      <tr><td>Rock / Pop</td><td>Backbeat — Betonung auf 2 und 4</td><td>Geradlinig, energetisch</td></tr>
+      <tr><td>Jazz</td><td>Swing-Rhythmus, Walking-Feel</td><td>Triolische Interpretation der Achtel</td></tr>
+      <tr><td>Latin</td><td>Clave-Pattern, Bossa Nova, Samba</td><td>Zyklisch, polyrhythmisch angelegt</td></tr>
+      <tr><td>Funk</td><td>Synkopierte Groove-Patterns</td><td>Sechzehntel-basiert, „in den Lücken"</td></tr>
+    </table>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- 04 · TIMING & GROOVE -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="layer-section" id="timing">
+  <div class="layer-header">
+    <div class="layer-num">04</div>
+    <div class="layer-title">TIMING & GROOVE</div>
+  </div>
+  <p class="layer-desc">
+    Was einen Rhythmus lebendig macht: die Qualität der Platzierung. Hier trennt sich mechanisches Spielen von musikalischem Ausdruck.
+  </p>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Timing</div>
+        <div class="entry-def">
+          Qualität und Präzision, mit der rhythmische Ereignisse relativ zum Puls platziert werden. <strong>Timing ≠ Tempo.</strong> Tempo ist die Geschwindigkeit, Timing ist die Genauigkeit.
+        </div>
+      </div>
+      <div class="entry-tag">Platzierung</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Groove</div>
+        <div class="entry-def">
+          Das Gefühl von fließender, organischer Zeit innerhalb eines rhythmischen Systems. Groove ist, was dich zum Bewegen bringt — er entsteht durch das Zusammenspiel aller Timing-Elemente.
+        </div>
+      </div>
+      <div class="entry-tag">Gefühl</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Mikrotiming</div>
+        <div class="entry-def">
+          Minimale Timing-Abweichungen vom mathematischen Raster im Millisekundenbereich. Diese Abweichungen machen Musik lebendig statt maschinell.
+        </div>
+      </div>
+      <div class="entry-tag">Mikrorhythmik</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Laid Back / On Top</div>
+        <div class="entry-def">
+          <strong>Laid Back</strong> = minimal hinter dem Beat (entspannt, breiter). <strong>On Top</strong> = minimal vor dem Beat (drängend, energisch). Beide sind bewusste Timing-Entscheidungen, keine Fehler.
+        </div>
+      </div>
+      <div class="entry-tag">Platzierung</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Pocket</div>
+        <div class="entry-def">
+          Der „Sweet Spot" — der gemeinsame Zeitkorridor, in dem alles sitzt. Wenn mehrere Musiker „in the pocket" spielen, entsteht maximaler Groove.
+        </div>
+      </div>
+      <div class="entry-tag">Sweet Spot</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Human Feel</div>
+        <div class="entry-def">
+          Natürliche Zeitbewegung statt Maschinenraster. Kein Mensch spielt mathematisch exakt — und genau das macht Musik menschlich.
+        </div>
+      </div>
+      <div class="entry-tag">Ausdruck</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- 05 · MEHRSCHICHTIGKEIT -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="layer-section" id="mehrschicht">
+  <div class="layer-header">
+    <div class="layer-num">05</div>
+    <div class="layer-title">MEHRSCHICHTIGKEIT</div>
+  </div>
+  <p class="layer-desc">
+    Wenn rhythmische Ebenen sich überlagern. Hier wird Zeit mehrdimensional — und die Unterscheidung der Konzepte besonders wichtig.
+  </p>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Cross-Rhythmus</div>
+        <div class="entry-def">
+          Ein Rhythmus liegt <strong>quer zum dominanten Puls/Metrum</strong> und erzeugt Spannung. Entscheidend: der dominante Puls bleibt bestehen und bleibt spürbar.
+        </div>
+        <div class="entry-example">z. B. eine 3er-Figur über einem 4/4-Puls</div>
+      </div>
+      <div class="entry-tag">Reibung</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Polyrhythmus</div>
+        <div class="entry-def">
+          Gleichzeitigkeit <strong>mehrerer unabhängiger Unterteilungen</strong> über denselben Zeitraum. Mehrere gleichwertige Zeitordnungen existieren nebeneinander — keine ist dominant.
+        </div>
+        <div class="entry-example">z. B. 3:2 — drei gegen zwei Schläge im selben Zeitraum</div>
+        <div class="entry-tool">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Im Rhythm Tool üben — bald verfügbar
+        </div>
+      </div>
+      <div class="entry-tag">Koexistenz</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Hemiola</div>
+        <div class="entry-def">
+          Vorübergehender Wechsel der metrischen Betonung. Die Wahrnehmung kippt kurzzeitig — z. B. fühlt sich 6/8 plötzlich wie 3/4 an (oder umgekehrt).
+        </div>
+      </div>
+      <div class="entry-tag">Kippmoment</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Metrische Modulation</div>
+        <div class="entry-def">
+          Eine Subdivision wird zur <strong>neuen Zeitbasis</strong> — der Puls selbst wird neu definiert. Das ist mehr als ein Subdivision-Wechsel: es ist eine Transformation der gesamten Zeitstruktur.
+        </div>
+        <div class="entry-example">z. B. bisherige Achtel werden zum neuen Viertelpuls</div>
+      </div>
+      <div class="entry-tag">Transformation</div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">Entscheidende Klarstellung</div>
+    <p>
+      <strong>4 + 8 + 16 = Subdivision</strong> — gleicher Puls, feinere Auflösung.<br>
+      <strong>3 gegen 4 = Polyrhythmus</strong> — zwei gleichwertige Zeitordnungen.<br>
+      <strong>3 über 4 = Cross-Rhythmus</strong> — Spannung gegen den dominanten Puls.
+    </p>
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<!-- 06 · PRAXIS -->
+<!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+<section class="layer-section" id="praxis">
+  <div class="layer-header">
+    <div class="layer-num">06</div>
+    <div class="layer-title">PRAXIS</div>
+  </div>
+  <p class="layer-desc">
+    Rhythmus in der Anwendung: wie du zählst, wie Rhythmus in Musik wirkt, und welche Begriffe aus dem musikalischen Kontext wichtig sind.
+  </p>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Melodischer Rhythmus</div>
+        <div class="entry-def">
+          Die rhythmische Gestaltung von Melodien und Phrasierung. Rhythmus und Melodie sind untrennbar — die gleichen Töne in anderem Rhythmus ergeben eine andere Melodie.
+        </div>
+      </div>
+      <div class="entry-tag">Kontext</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Harmonischer Rhythmus</div>
+        <div class="entry-def">
+          Die Geschwindigkeit, mit der Akkorde wechseln. Langsamer harmonischer Rhythmus = ruhig und offen. Schneller = dicht und treibend.
+        </div>
+      </div>
+      <div class="entry-tag">Kontext</div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-main">
+        <div class="entry-term">Riffs & Licks</div>
+        <div class="entry-def">
+          Wiedererkennbare rhythmisch-melodische Motive. <strong>Riff</strong> = tragendes Element (wiederholt sich). <strong>Lick</strong> = kürzere, oft improvisierte Figur.
+        </div>
+      </div>
+      <div class="entry-tag">Motiv</div>
+    </div>
+
+  </div>
+
+  <div class="highlight-box">
+    <div class="hb-title">Zählweisen</div>
+    <table class="comp-table">
+      <tr><th>Methode</th><th>System</th><th>Einsatz</th></tr>
+      <tr><td>Klassisch</td><td>1 – 2 – 3 – 4</td><td>Grundlage für alles</td></tr>
+      <tr><td>Achtel-Sub</td><td>1 und 2 und 3 und 4 und</td><td>Achtel-basierte Patterns</td></tr>
+      <tr><td>16tel-Sub</td><td>1 e + a 2 e + a</td><td>Sechzehntel-Figuren, Funk</td></tr>
+      <tr><td>Silben</td><td>Ta-Ka-Di-Mi</td><td>Indisches System, sehr intuitiv</td></tr>
+      <tr><td>Wortbasiert</td><td>„A-na-nas" (Triole)</td><td>Merkhilfe für Unterteilungen</td></tr>
+      <tr><td>Körperbasiert</td><td>Schritt + Stimme</td><td>Zeit in den Körper legen</td></tr>
+      <tr><td>Gruppen</td><td>3+2 · 2+2+3</td><td>Ungerade Taktarten (5er, 7er)</td></tr>
+      <tr><td>Phrasen</td><td>Über mehrere Takte fühlen</td><td>Große Bögen, Form</td></tr>
+      <tr><td>Hand-Wechsel</td><td>Links/Rechts als Zeitstruktur</td><td>Sehr handpan-nah</td></tr>
+    </table>
+  </div>
+
+  <div class="highlight-box" style="margin-top:12px;">
+    <div class="hb-title">Pragmatisch</div>
+    <p>
+      Zählen ist ein Trainingsrad. Ziel ist, dass du es irgendwann nicht mehr brauchst — weil der <strong>Puls im Körper sitzt</strong>.
+    </p>
+  </div>
+</section>
+
+
+<!-- ── QUICK REF ── -->
+<div class="quick-ref">
+  <div class="qr-title">LEHRTAFEL — 7 KERNBEGRIFFE</div>
+  <div class="quick-ref-grid">
+    <div class="qr-item">
+      <div class="qr-num">1</div>
+      <div class="qr-label">Puls</div>
+      <div class="qr-val">Gleichmäßiger Grundschlag</div>
+    </div>
+    <div class="qr-item">
+      <div class="qr-num">2</div>
+      <div class="qr-label">Subdivision</div>
+      <div class="qr-val">Unterteilung (4→8→16)</div>
+    </div>
+    <div class="qr-item">
+      <div class="qr-num">3</div>
+      <div class="qr-label">Sub-Wechsel</div>
+      <div class="qr-val">Gleicher Puls, andere Auflösung</div>
+    </div>
+    <div class="qr-item">
+      <div class="qr-num">4</div>
+      <div class="qr-label">Rhythmus</div>
+      <div class="qr-val">Die gespielte Struktur</div>
+    </div>
+    <div class="qr-item">
+      <div class="qr-num">5</div>
+      <div class="qr-label">Timing</div>
+      <div class="qr-val">Wie präzise du platzierst</div>
+    </div>
+    <div class="qr-item">
+      <div class="qr-num">6</div>
+      <div class="qr-label">Cross-Rhythmus</div>
+      <div class="qr-val">Spannung gegen den Puls</div>
+    </div>
+    <div class="qr-item">
+      <div class="qr-num">7</div>
+      <div class="qr-label">Polyrhythmus</div>
+      <div class="qr-val">Zeitordnungen gleichzeitig</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── POEM ── -->
+<div class="poem">
+  Am Ende finde ich dich,<br>
+  pulsierend wie das Leuchten der Sterne,<br>
+  mitten in mir, in allem was ist.<br>
+  Auf deiner Melodie spielt meine Seele.
+  <div class="poem-author">— Nils Caspar</div>
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  <div class="footer-brand">RHYTHM<span>GYM</span></div>
+  <div class="footer-links">
+    <a href="https://www.rhythmgym.io">rhythmgym.io</a>
+    <a href="https://www.nilscaspar.de">nilscaspar.de</a>
+  </div>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "_comment": "Vorlage für Rhythmus-Fundament-Patterns Zyklus 2. Claude Code soll diese Struktur mit Nils gemeinsam ausfüllen und in `data/course-patterns.ts` als typisiertes Array speichern.",
+
+  "_notation_legend": {
+    ".": "Pause",
+    "x": "Fingersnap (leichter Schlag)",
+    "X": "Hand Clap (Akzent)",
+    "!": "Bass Drum (starker Akzent)"
+  },
+
+  "_format_per_pattern": {
+    "id": "string — eindeutige ID, z. B. 'rf_z2_w3_grundgroove' (Rhythmus Fundament Zyklus 2 Woche 3)",
+    "name": "string — Anzeigename, z. B. 'Pattern 5 — Verschobener Backbeat'",
+    "weekOrPhase": "string optional — z. B. 'Woche 3' oder 'Phase B'",
+    "steps": "string — exakt 16 Zeichen aus der Notation (.xX!) — ein Takt 4/4 in 16tel-Auflösung",
+    "handsatz": "optional — 'rlrl' | 'lrlr' | 'rrll' | 'llrr' | 'paradiddle' | 'paradiddleL' | 'rlrr' | 'rllr' | 'frei'",
+    "bpmRecommended": "optional — Zahl, z. B. 60 (Start-Tempo)",
+    "bpmTarget": "optional — Zahl, z. B. 90 (Ziel-Tempo)",
+    "note": "optional — kurze pädagogische Notiz, z. B. 'Achte auf den Akzent auf der 3'",
+    "difficulty": "optional — 1 | 2 | 3 | 4 | 5"
+  },
+
+  "_example_entries_to_replace": [
+    {
+      "id": "rf_z2_w1_grundgroove",
+      "name": "Pattern 1 — Grundgroove",
+      "weekOrPhase": "Woche 1",
+      "steps": "X..x.X..X..x.X..",
+      "handsatz": "rlrl",
+      "bpmRecommended": 60,
+      "bpmTarget": 80,
+      "note": "Klassischer Backbeat — Hand Clap auf 2 und 4, Fingersnaps zwischen den Zählzeiten",
+      "difficulty": 1
+    },
+    {
+      "id": "rf_z2_w2_synkope",
+      "name": "Pattern 2 — Erste Synkope",
+      "weekOrPhase": "Woche 2",
+      "steps": "!..x..X.!..x..X.",
+      "handsatz": "rlrl",
+      "bpmRecommended": 70,
+      "bpmTarget": 90,
+      "note": "Bass auf 1 — verschobener Akzent zwischen den Schlägen 3 und 4",
+      "difficulty": 2
+    }
+  ],
+
+  "_target_typescript_format": "// data/course-patterns.ts\nexport interface CoursePattern {\n  id: string;\n  name: string;\n  weekOrPhase?: string;\n  steps: string;            // genau 16 Zeichen aus '.xX!'\n  handsatz?: 'rlrl' | 'lrlr' | 'rrll' | 'llrr' | 'paradiddle' | 'paradiddleL' | 'rlrr' | 'rllr' | 'frei';\n  bpmRecommended?: number;\n  bpmTarget?: number;\n  note?: string;\n  difficulty?: 1 | 2 | 3 | 4 | 5;\n}\n\nexport const coursePatterns: CoursePattern[] = [\n  // ... von Nils im Chat eingegeben\n];\n",
+
+  "_instructions_for_claude_code": [
+    "Frag Nils Pattern für Pattern ab — nicht alle auf einmal.",
+    "Wenn Nils eine Notation in Worten gibt (z. B. 'Bass auf 1, Snap auf jeder Achtel'), übersetze in die 16-Step-Symbolkette und LESE SIE IHM ZUR BESTÄTIGUNG VOR.",
+    "Wenn ein Pattern unklar ist, frag konkret: 'Auf welchen Zählzeiten kommen die Akzente?' oder 'Ist das ein klassischer Backbeat oder verschoben?'",
+    "Validiere: jeder steps-String muss exakt 16 Zeichen lang sein und nur '.', 'x', 'X', '!' enthalten.",
+    "Speichere am Ende als typisiertes Array in `data/course-patterns.ts`."
+  ]
+}

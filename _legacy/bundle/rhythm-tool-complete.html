@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rhythmus-Tool - Vollständige Pattern-Bibliothek</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #4ecdc4;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .subtitle {
+            color: #95a5a6;
+            font-size: 1.1em;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .nav-tab {
+            background: rgba(78, 205, 196, 0.1);
+            color: #4ecdc4;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-tab:hover {
+            background: rgba(78, 205, 196, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.4);
+        }
+
+        /* Overview Section */
+        .overview-section {
+            display: none;
+        }
+
+        .overview-section.active {
+            display: block;
+        }
+
+        .category-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #4ecdc4;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.2);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .category-name {
+            font-size: 1.5em;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .category-count {
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .category-description {
+            color: #95a5a6;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .category-examples {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .example-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            color: #e0e0e0;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(78, 205, 196, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            color: #95a5a6;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* Legend */
+        .legend {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .legend h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-symbol {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.4em;
+        }
+
+        /* Filters */
+        .filters {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            color: #4ecdc4;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        select, input[type="text"] {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            color: #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 0.95em;
+            min-width: 180px;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a8a0 100%);
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        /* Pattern Grid */
+        .pattern-grid {
+            display: grid;
+            gap: 25px;
+        }
+
+        .pattern-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .pattern-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #4ecdc4;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.2);
+        }
+
+        .pattern-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pattern-id {
+            font-size: 0.85em;
+            color: #4ecdc4;
+            font-weight: bold;
+        }
+
+        .pattern-name {
+            font-size: 1.3em;
+            color: #e0e0e0;
+            margin: 8px 0;
+        }
+
+        .archetype-badge {
+            background: #4ecdc4;
+            color: #1a1a2e;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* Rhythm Display */
+        .rhythm-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .counting-row {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .count-cell {
+            text-align: center;
+            color: #4ecdc4;
+            font-weight: bold;
+            padding: 5px 0;
+        }
+
+        .count-main {
+            font-size: 1.2em;
+        }
+
+        .count-sub {
+            color: #95a5a6;
+            font-size: 0.85em;
+        }
+
+        .rhythm-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+        }
+
+        .step {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            font-size: 2em;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .step.empty {
+            background: rgba(255, 255, 255, 0.02);
+            color: #3a3a4a;
+        }
+
+        .step.normal {
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+            border-color: rgba(78, 205, 196, 0.4);
+        }
+
+        .step.accent {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            border-color: rgba(255, 107, 107, 0.5);
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+        }
+
+        .step.strong {
+            background: rgba(255, 195, 0, 0.4);
+            color: #ffc300;
+            border-color: rgba(255, 195, 0, 0.6);
+            box-shadow: 0 0 15px rgba(255, 195, 0, 0.4);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .step.beat-1, .step.beat-5, .step.beat-9, .step.beat-13 {
+            border-left: 3px solid #4ecdc4;
+        }
+
+        .characteristics {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .char-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            color: #95a5a6;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .category-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .rhythm-display {
+                overflow-x: scroll;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥁 Rhythmus-Tool</h1>
+            <p class="subtitle">Vollständige systematische Pattern-Bibliothek für 4/4-Takt • 82 Pattern in 8 Kategorien</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav>
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="showSection('overview')">📊 Übersicht</div>
+                <div class="nav-tab" onclick="showSection('archetypen')">🎯 Archetypen (A1-A8)</div>
+                <div class="nav-tab" onclick="showSection('positionen')">📍 Positionen</div>
+                <div class="nav-tab" onclick="showSection('mix')">🔀 Gemischte Pattern</div>
+                <div class="nav-tab" onclick="showSection('clave')">🎵 Clave</div>
+                <div class="nav-tab" onclick="showSection('latin')">🌎 Latin</div>
+                <div class="nav-tab" onclick="showSection('funk')">🎸 Funk</div>
+                <div class="nav-tab" onclick="showSection('alle')">📚 Alle Pattern</div>
+            </div>
+        </nav>
+
+        <!-- Overview Section -->
+        <div id="overview-section" class="content-section overview-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">82</div>
+                    <div class="stat-label">Gesamt Pattern</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Archetypen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">16</div>
+                    <div class="stat-label">Steps pro Takt</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Akzentstufen</div>
+                </div>
+            </div>
+
+            <div class="legend">
+                <h3>Legende</h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-symbol" style="background: rgba(255, 255, 255, 0.02); color: #3a3a4a; border: 1px solid rgba(255, 255, 255, 0.1);">.</div>
+                        <span>Pause (0)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol" style="background: rgba(78, 205, 196, 0.2); color: #4ecdc4; border: 1px solid rgba(78, 205, 196, 0.4);">x</div>
+                        <span>Normal (1)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol" style="background: rgba(255, 107, 107, 0.3); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.5);">X</div>
+                        <span>Akzent (2)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol" style="background: rgba(255, 195, 0, 0.4); color: #ffc300; border: 1px solid rgba(255, 195, 0, 0.6);">!</div>
+                        <span>Starker Akzent (3)</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="color: #4ecdc4; margin-bottom: 20px; font-size: 1.8em;">Kategorien</h2>
+            <div class="category-overview">
+                <div class="category-card" onclick="showSection('archetypen')">
+                    <div class="category-header">
+                        <div class="category-name">🎯 Archetypen</div>
+                        <div class="category-count">34 Pattern</div>
+                    </div>
+                    <div class="category-description">
+                        Die 8 fundamentalen rhythmischen Bausteine (A1-A8) mit je 4-5 Akzent-Variationen. Basis aller Pattern.
+                    </div>
+                    <div class="category-examples">
+                        <div class="example-badge">Viertel</div>
+                        <div class="example-badge">Achtel</div>
+                        <div class="example-badge">Sechzehntel</div>
+                        <div class="example-badge">Synkope</div>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showSection('positionen')">
+                    <div class="category-header">
+                        <div class="category-name">📍 Positionen</div>
+                        <div class="category-count">14 Pattern</div>
+                    </div>
+                    <div class="category-description">
+                        Archetypen an spezifischen Positionen im Takt. Sparse Patterns mit gezielten Betonungen.
+                    </div>
+                    <div class="category-examples">
+                        <div class="example-badge">1+4</div>
+                        <div class="example-badge">2+3</div>
+                        <div class="example-badge">1+3</div>
+                        <div class="example-badge">Backbeat</div>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showSection('mix')">
+                    <div class="category-header">
+                        <div class="category-name">🔀 Gemischte Pattern</div>
+                        <div class="category-count">8 Pattern</div>
+                    </div>
+                    <div class="category-description">
+                        Kombinationen verschiedener Archetypen innerhalb eines Taktes für komplexere Grooves.
+                    </div>
+                    <div class="category-examples">
+                        <div class="example-badge">Viertel+Achtel</div>
+                        <div class="example-badge">Achtel+Synkope</div>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showSection('clave')">
+                    <div class="category-header">
+                        <div class="category-name">🎵 Clave</div>
+                        <div class="category-count">6 Pattern</div>
+                    </div>
+                    <div class="category-description">
+                        Klassische afro-kubanische Clave-Pattern: Son, Rumba, Bossa in 3-2 und 2-3 Orientierung.
+                    </div>
+                    <div class="category-examples">
+                        <div class="example-badge">Son 3-2</div>
+                        <div class="example-badge">Rumba 3-2</div>
+                        <div class="example-badge">2-3</div>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showSection('latin')">
+                    <div class="category-header">
+                        <div class="category-name">🌎 Latin</div>
+                        <div class="category-count">10 Pattern</div>
+                    </div>
+                    <div class="category-description">
+                        Lateinamerikanische Rhythmen: Tresillo, Bossa Nova, Samba, Salsa, Merengue.
+                    </div>
+                    <div class="category-examples">
+                        <div class="example-badge">Tresillo</div>
+                        <div class="example-badge">Bossa</div>
+                        <div class="example-badge">Samba</div>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showSection('funk')">
+                    <div class="category-header">
+                        <div class="category-name">🎸 Funk</div>
+                        <div class="category-count">10 Pattern</div>
+                    </div>
+                    <div class="category-description">
+                        Funky Grooves mit Ghost Notes, Synkopen und One-Drop. Hochdichte Pattern.
+                    </div>
+                    <div class="category-examples">
+                        <div class="example-badge">Ghost Notes</div>
+                        <div class="example-badge">One Drop</div>
+                        <div class="example-badge">Breakbeat</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section (für alle anderen Sections) -->
+        <div id="filter-section" class="filters" style="display: none;">
+            <div class="filter-group">
+                <label for="search">Suche</label>
+                <input type="text" id="search" placeholder="Pattern-Name..." onkeyup="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label for="density-filter">Dichte</label>
+                <select id="density-filter" onchange="applyFilters()">
+                    <option value="all">Alle</option>
+                    <option value="low">Niedrig</option>
+                    <option value="medium">Mittel</option>
+                    <option value="high">Hoch</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="symmetry-filter">Symmetrie</label>
+                <select id="symmetry-filter" onchange="applyFilters()">
+                    <option value="all">Alle</option>
+                    <option value="full">Vollständig</option>
+                    <option value="half">Halb</option>
+                    <option value="none">Keine</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button onclick="resetFilters()">Filter zurücksetzen</button>
+            </div>
+        </div>
+
+        <!-- Pattern Container -->
+        <div id="pattern-container" class="pattern-grid"></div>
+    </div>
+
+    <script>
+        // ===== PATTERN DATA =====
+        const patterns = [
+            // ARCHETYP A1: Viertel
+            { id: "P_A1_POS_ALL_V1", archetype: "A1", category: "archetypen", name: "Viertel - alle normal", steps: [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0], characteristics: { density: "low", symmetry: "full", feel: "steady_pulse" }},
+            { id: "P_A1_POS_ALL_V2", archetype: "A1", category: "archetypen", name: "Viertel - alternierende Akzente", steps: [2,0,0,0, 1,0,0,0, 2,0,0,0, 1,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "march_like" }},
+            { id: "P_A1_POS_ALL_V3", archetype: "A1", category: "archetypen", name: "Viertel - Downbeat-Betonung", steps: [3,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0], characteristics: { density: "low", symmetry: "none", feel: "emphatic_start" }},
+            { id: "P_A1_POS_ALL_V4", archetype: "A1", category: "archetypen", name: "Viertel - Backbeat (2+4)", steps: [1,0,0,0, 2,0,0,0, 1,0,0,0, 2,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "backbeat" }},
+
+            // ARCHETYP A2: Achtel-Paar
+            { id: "P_A2_POS_ALL_V1", archetype: "A2", category: "archetypen", name: "Achtel-Paar - alle normal", steps: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0], characteristics: { density: "medium", symmetry: "full", feel: "steady_eighth" }},
+            { id: "P_A2_POS_ALL_V2", archetype: "A2", category: "archetypen", name: "Achtel-Paar - Downbeats betont", steps: [2,0,1,0, 2,0,1,0, 2,0,1,0, 2,0,1,0], characteristics: { density: "medium", symmetry: "full", feel: "walking" }},
+            { id: "P_A2_POS_ALL_V3", archetype: "A2", category: "archetypen", name: "Achtel-Paar - Upbeats betont", steps: [1,0,2,0, 1,0,2,0, 1,0,2,0, 1,0,2,0], characteristics: { density: "medium", symmetry: "full", feel: "offbeat" }},
+            { id: "P_A2_POS_ALL_V4", archetype: "A2", category: "archetypen", name: "Achtel-Paar - 1+3 stark betont", steps: [3,0,1,0, 2,0,1,0, 3,0,1,0, 2,0,1,0], characteristics: { density: "medium", symmetry: "half", feel: "strong_downbeats" }},
+            { id: "P_A2_POS_ALL_V5", archetype: "A2", category: "archetypen", name: "Achtel-Paar - Offbeat-Charakter", steps: [1,0,2,0, 1,0,3,0, 1,0,2,0, 1,0,3,0], characteristics: { density: "medium", symmetry: "half", feel: "reggae_like" }},
+
+            // ARCHETYP A3: Sechzehntel
+            { id: "P_A3_POS_ALL_V1", archetype: "A3", category: "archetypen", name: "Sechzehntel - alle normal", steps: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1], characteristics: { density: "high", symmetry: "full", feel: "continuous" }},
+            { id: "P_A3_POS_ALL_V2", archetype: "A3", category: "archetypen", name: "Sechzehntel - Downbeats betont", steps: [2,1,1,1, 2,1,1,1, 2,1,1,1, 2,1,1,1], characteristics: { density: "high", symmetry: "full", feel: "running" }},
+            { id: "P_A3_POS_ALL_V3", archetype: "A3", category: "archetypen", name: "Sechzehntel - 4er-Gruppen", steps: [2,1,1,1, 1,2,1,1, 1,1,2,1, 1,1,1,2], characteristics: { density: "high", symmetry: "none", feel: "cascading" }},
+            { id: "P_A3_POS_ALL_V4", archetype: "A3", category: "archetypen", name: "Sechzehntel - 3+3+3+3+4 Overlay", steps: [2,1,1,1, 1,1,2,1, 1,1,2,1, 1,1,2,1], characteristics: { density: "high", symmetry: "none", feel: "polyrhythmic" }},
+
+            // ARCHETYP A4: Synkope
+            { id: "P_A4_POS_ALL_V1", archetype: "A4", category: "archetypen", name: "Synkope - alle normal", steps: [1,0,0,1, 1,0,0,1, 1,0,0,1, 1,0,0,1], characteristics: { density: "medium", symmetry: "full", feel: "anticipation" }},
+            { id: "P_A4_POS_ALL_V2", archetype: "A4", category: "archetypen", name: "Synkope - Downbeats betont", steps: [2,0,0,1, 2,0,0,1, 2,0,0,1, 2,0,0,1], characteristics: { density: "medium", symmetry: "full", feel: "syncopated_march" }},
+            { id: "P_A4_POS_ALL_V3", archetype: "A4", category: "archetypen", name: "Synkope - Synkopen betont", steps: [1,0,0,2, 1,0,0,2, 1,0,0,2, 1,0,0,2], characteristics: { density: "medium", symmetry: "full", feel: "push_forward" }},
+            { id: "P_A4_POS_ALL_V4", archetype: "A4", category: "archetypen", name: "Synkope - alternierend stark", steps: [3,0,0,1, 2,0,0,1, 3,0,0,1, 2,0,0,1], characteristics: { density: "medium", symmetry: "half", feel: "emphatic_syncopation" }},
+
+            // ARCHETYP A5: Offbeat
+            { id: "P_A5_POS_ALL_V1", archetype: "A5", category: "archetypen", name: "Offbeat - alle normal", steps: [0,1,0,1, 0,1,0,1, 0,1,0,1, 0,1,0,1], characteristics: { density: "medium", symmetry: "full", feel: "pure_offbeat" }},
+            { id: "P_A5_POS_ALL_V2", archetype: "A5", category: "archetypen", name: "Offbeat - 'e' betont", steps: [0,2,0,1, 0,2,0,1, 0,2,0,1, 0,2,0,1], characteristics: { density: "medium", symmetry: "full", feel: "early_offbeat" }},
+            { id: "P_A5_POS_ALL_V3", archetype: "A5", category: "archetypen", name: "Offbeat - 'a' betont", steps: [0,1,0,2, 0,1,0,2, 0,1,0,2, 0,1,0,2], characteristics: { density: "medium", symmetry: "full", feel: "late_offbeat" }},
+            { id: "P_A5_POS_ALL_V4", archetype: "A5", category: "archetypen", name: "Offbeat - alternierende Betonung", steps: [0,2,0,1, 0,1,0,2, 0,2,0,1, 0,1,0,2], characteristics: { density: "medium", symmetry: "half", feel: "shifting_offbeat" }},
+
+            // ARCHETYP A6: Doppel-Sechzehntel
+            { id: "P_A6_POS_ALL_V1", archetype: "A6", category: "archetypen", name: "Doppel-Sechzehntel - alle normal", steps: [1,1,0,0, 1,1,0,0, 1,1,0,0, 1,1,0,0], characteristics: { density: "medium", symmetry: "full", feel: "double_stroke" }},
+            { id: "P_A6_POS_ALL_V2", archetype: "A6", category: "archetypen", name: "Doppel-Sechzehntel - erste betont", steps: [2,1,0,0, 2,1,0,0, 2,1,0,0, 2,1,0,0], characteristics: { density: "medium", symmetry: "full", feel: "flam_like" }},
+            { id: "P_A6_POS_ALL_V3", archetype: "A6", category: "archetypen", name: "Doppel-Sechzehntel - zweite betont", steps: [1,2,0,0, 1,2,0,0, 1,2,0,0, 1,2,0,0], characteristics: { density: "medium", symmetry: "full", feel: "grace_note" }},
+            { id: "P_A6_POS_ALL_V4", archetype: "A6", category: "archetypen", name: "Doppel-Sechzehntel - starke erste", steps: [3,1,0,0, 2,1,0,0, 3,1,0,0, 2,1,0,0], characteristics: { density: "medium", symmetry: "half", feel: "emphatic_double" }},
+
+            // ARCHETYP A7: Punktierung >
+            { id: "P_A7_POS_ALL_V1", archetype: "A7", category: "archetypen", name: "Punktierung > - alle normal", steps: [1,0,1,1, 1,0,1,1, 1,0,1,1, 1,0,1,1], characteristics: { density: "high", symmetry: "full", feel: "dotted" }},
+            { id: "P_A7_POS_ALL_V2", archetype: "A7", category: "archetypen", name: "Punktierung > - erste betont", steps: [2,0,1,1, 2,0,1,1, 2,0,1,1, 2,0,1,1], characteristics: { density: "high", symmetry: "full", feel: "skip_rhythm" }},
+            { id: "P_A7_POS_ALL_V3", archetype: "A7", category: "archetypen", name: "Punktierung > - Doppelschlag betont", steps: [1,0,2,1, 1,0,2,1, 1,0,2,1, 1,0,2,1], characteristics: { density: "high", symmetry: "full", feel: "triplet_feel" }},
+            { id: "P_A7_POS_ALL_V4", archetype: "A7", category: "archetypen", name: "Punktierung > - Galop", steps: [1,0,1,2, 1,0,1,2, 1,0,1,2, 1,0,1,2], characteristics: { density: "high", symmetry: "full", feel: "galloping" }},
+
+            // ARCHETYP A8: Punktierung <
+            { id: "P_A8_POS_ALL_V1", archetype: "A8", category: "archetypen", name: "Punktierung < - alle normal", steps: [1,1,0,1, 1,1,0,1, 1,1,0,1, 1,1,0,1], characteristics: { density: "high", symmetry: "full", feel: "reverse_dotted" }},
+            { id: "P_A8_POS_ALL_V2", archetype: "A8", category: "archetypen", name: "Punktierung < - erste betont", steps: [2,1,0,1, 2,1,0,1, 2,1,0,1, 2,1,0,1], characteristics: { density: "high", symmetry: "full", feel: "scotch_snap" }},
+            { id: "P_A8_POS_ALL_V3", archetype: "A8", category: "archetypen", name: "Punktierung < - letzte betont", steps: [1,1,0,2, 1,1,0,2, 1,1,0,2, 1,1,0,2], characteristics: { density: "high", symmetry: "full", feel: "push_to_beat" }},
+            { id: "P_A8_POS_ALL_V4", archetype: "A8", category: "archetypen", name: "Punktierung < - Doppelschlag betont", steps: [2,1,0,1, 1,2,0,1, 2,1,0,1, 1,2,0,1], characteristics: { density: "high", symmetry: "half", feel: "alternating_emphasis" }},
+
+            // POSITIONEN - A2
+            { id: "P_A2_POS_14_V1", archetype: "A2", category: "positionen", name: "Achtel - nur Position 1+4", steps: [2,0,1,0, 0,0,0,0, 0,0,0,0, 2,0,1,0], characteristics: { density: "low", symmetry: "none", feel: "sparse_frame" }},
+            { id: "P_A2_POS_23_V1", archetype: "A2", category: "positionen", name: "Achtel - nur Position 2+3", steps: [0,0,0,0, 2,0,1,0, 2,0,1,0, 0,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "middle_emphasis" }},
+            { id: "P_A2_POS_13_V1", archetype: "A2", category: "positionen", name: "Achtel - nur Position 1+3", steps: [2,0,1,0, 0,0,0,0, 2,0,1,0, 0,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "strong_beats" }},
+            { id: "P_A2_POS_24_V1", archetype: "A2", category: "positionen", name: "Achtel - nur Position 2+4 (Backbeat)", steps: [0,0,0,0, 2,0,1,0, 0,0,0,0, 2,0,1,0], characteristics: { density: "low", symmetry: "half", feel: "classic_backbeat" }},
+
+            // POSITIONEN - A4
+            { id: "P_A4_POS_14_V1", archetype: "A4", category: "positionen", name: "Synkope - nur Position 1+4", steps: [2,0,0,1, 0,0,0,0, 0,0,0,0, 2,0,0,1], characteristics: { density: "low", symmetry: "none", feel: "bookend_syncopation" }},
+            { id: "P_A4_POS_23_V1", archetype: "A4", category: "positionen", name: "Synkope - nur Position 2+3", steps: [0,0,0,0, 2,0,0,1, 2,0,0,1, 0,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "middle_syncopation" }},
+            { id: "P_A4_POS_13_V1", archetype: "A4", category: "positionen", name: "Synkope - nur Position 1+3", steps: [2,0,0,1, 0,0,0,0, 2,0,0,1, 0,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "strong_syncopation" }},
+            { id: "P_A4_POS_24_V1", archetype: "A4", category: "positionen", name: "Synkope - nur Position 2+4", steps: [0,0,0,0, 2,0,0,1, 0,0,0,0, 2,0,0,1], characteristics: { density: "low", symmetry: "half", feel: "backbeat_syncopation" }},
+
+            // POSITIONEN - A6
+            { id: "P_A6_POS_14_V1", archetype: "A6", category: "positionen", name: "Doppel - nur Position 1+4", steps: [2,1,0,0, 0,0,0,0, 0,0,0,0, 2,1,0,0], characteristics: { density: "low", symmetry: "none", feel: "sparse_double" }},
+            { id: "P_A6_POS_23_V1", archetype: "A6", category: "positionen", name: "Doppel - nur Position 2+3", steps: [0,0,0,0, 2,1,0,0, 2,1,0,0, 0,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "middle_double" }},
+            { id: "P_A6_POS_13_V1", archetype: "A6", category: "positionen", name: "Doppel - nur Position 1+3", steps: [2,1,0,0, 0,0,0,0, 2,1,0,0, 0,0,0,0], characteristics: { density: "low", symmetry: "half", feel: "strong_double" }},
+            { id: "P_A6_POS_24_V1", archetype: "A6", category: "positionen", name: "Doppel - nur Position 2+4", steps: [0,0,0,0, 2,1,0,0, 0,0,0,0, 2,1,0,0], characteristics: { density: "low", symmetry: "half", feel: "backbeat_double" }},
+
+            // POSITIONEN - A7
+            { id: "P_A7_POS_13_V1", archetype: "A7", category: "positionen", name: "Punktierung > - nur Position 1+3", steps: [2,0,1,1, 0,0,0,0, 2,0,1,1, 0,0,0,0], characteristics: { density: "medium", symmetry: "half", feel: "sparse_dotted" }},
+            { id: "P_A7_POS_24_V1", archetype: "A7", category: "positionen", name: "Punktierung > - nur Position 2+4", steps: [0,0,0,0, 2,0,1,1, 0,0,0,0, 2,0,1,1], characteristics: { density: "medium", symmetry: "half", feel: "backbeat_dotted" }},
+
+            // GEMISCHTE PATTERN
+            { id: "P_MIX_A1A2_V1", archetype: "MIX", category: "mix", name: "Mix: Viertel + Achtel alternierend", steps: [2,0,0,0, 1,0,1,0, 2,0,0,0, 1,0,1,0], characteristics: { density: "medium", symmetry: "half", feel: "varied_subdivision" }},
+            { id: "P_MIX_A2A4_V1", archetype: "MIX", category: "mix", name: "Mix: Achtel + Synkope", steps: [2,0,1,0, 1,0,0,1, 2,0,1,0, 1,0,0,1], characteristics: { density: "medium", symmetry: "half", feel: "syncopated_walk" }},
+            { id: "P_MIX_A6A7_V1", archetype: "MIX", category: "mix", name: "Mix: Doppel + Punktierung", steps: [2,1,0,0, 1,0,1,1, 2,1,0,0, 1,0,1,1], characteristics: { density: "high", symmetry: "half", feel: "complex_groove" }},
+            { id: "P_MIX_A1A3_V1", archetype: "MIX", category: "mix", name: "Mix: Viertel + Sechzehntel", steps: [2,0,0,0, 1,1,1,1, 2,0,0,0, 1,1,1,1], characteristics: { density: "high", symmetry: "half", feel: "fill_pattern" }},
+            { id: "P_MIX_A4A5_V1", archetype: "MIX", category: "mix", name: "Mix: Synkope + Offbeat", steps: [1,0,0,1, 0,1,0,1, 1,0,0,1, 0,1,0,1], characteristics: { density: "high", symmetry: "half", feel: "dense_syncopation" }},
+            { id: "P_MIX_A2A6_V1", archetype: "MIX", category: "mix", name: "Mix: Achtel + Doppel", steps: [2,0,1,0, 2,1,0,0, 2,0,1,0, 2,1,0,0], characteristics: { density: "high", symmetry: "half", feel: "varied_density" }},
+            { id: "P_MIX_A1A4_V1", archetype: "MIX", category: "mix", name: "Mix: Viertel + Synkope", steps: [2,0,0,0, 1,0,0,1, 2,0,0,0, 1,0,0,1], characteristics: { density: "low", symmetry: "half", feel: "sparse_syncopation" }},
+            { id: "P_MIX_A7A8_V1", archetype: "MIX", category: "mix", name: "Mix: Beide Punktierungen", steps: [2,0,1,1, 1,1,0,1, 2,0,1,1, 1,1,0,1], characteristics: { density: "high", symmetry: "half", feel: "complex_dotted" }},
+
+            // CLAVE PATTERN
+            { id: "P_CLAVE_SON_32", archetype: "CLAVE", category: "clave", name: "Son Clave (3-2)", steps: [2,0,0,1, 0,0,2,0, 0,1,0,0, 2,0,1,0], characteristics: { density: "medium", symmetry: "none", feel: "son_clave" }},
+            { id: "P_CLAVE_SON_23", archetype: "CLAVE", category: "clave", name: "Son Clave (2-3)", steps: [2,0,1,0, 0,0,0,0, 2,0,0,1, 0,0,2,0], characteristics: { density: "medium", symmetry: "none", feel: "reverse_son" }},
+            { id: "P_CLAVE_RUMBA_32", archetype: "CLAVE", category: "clave", name: "Rumba Clave (3-2)", steps: [2,0,0,1, 0,0,2,0, 1,0,0,0, 2,0,1,0], characteristics: { density: "medium", symmetry: "none", feel: "rumba_clave" }},
+            { id: "P_CLAVE_RUMBA_23", archetype: "CLAVE", category: "clave", name: "Rumba Clave (2-3)", steps: [2,0,1,0, 0,0,0,0, 2,0,0,1, 0,0,2,0], characteristics: { density: "medium", symmetry: "none", feel: "reverse_rumba" }},
+            { id: "P_CLAVE_BOSSA", archetype: "CLAVE", category: "clave", name: "Bossa Clave", steps: [2,0,0,0, 1,0,2,0, 0,0,1,0, 2,0,0,0], characteristics: { density: "medium", symmetry: "none", feel: "bossa_clave" }},
+            { id: "P_CLAVE_SON_STRONG", archetype: "CLAVE", category: "clave", name: "Son Clave (stark betont)", steps: [3,0,0,1, 0,0,3,0, 0,2,0,0, 3,0,2,0], characteristics: { density: "medium", symmetry: "none", feel: "emphatic_son" }},
+
+            // LATIN PATTERN
+            { id: "P_LATIN_TRESILLO", archetype: "LATIN", category: "latin", name: "Tresillo (3+3+2)", steps: [2,0,0,1, 0,0,2,0, 0,1,0,0, 0,0,0,0], characteristics: { density: "low", symmetry: "none", feel: "tresillo" }},
+            { id: "P_LATIN_TRESILLO_FULL", archetype: "LATIN", category: "latin", name: "Tresillo - voller Takt", steps: [2,0,0,1, 0,0,2,0, 0,1,0,0, 2,0,0,1], characteristics: { density: "medium", symmetry: "none", feel: "extended_tresillo" }},
+            { id: "P_LATIN_BOSSA_BASIS", archetype: "LATIN", category: "latin", name: "Bossa Nova Basis", steps: [2,0,0,0, 1,0,2,0, 0,0,1,0, 2,0,0,0], characteristics: { density: "medium", symmetry: "none", feel: "bossa_nova" }},
+            { id: "P_LATIN_SAMBA", archetype: "LATIN", category: "latin", name: "Samba Surdo", steps: [2,0,1,0, 0,0,2,0, 1,0,0,0, 2,0,1,0], characteristics: { density: "medium", symmetry: "none", feel: "samba" }},
+            { id: "P_LATIN_SALSA", archetype: "LATIN", category: "latin", name: "Salsa Tumbao", steps: [2,0,1,1, 0,1,2,0, 0,1,1,0, 2,0,1,0], characteristics: { density: "high", symmetry: "none", feel: "salsa" }},
+            { id: "P_LATIN_MERENGUE", archetype: "LATIN", category: "latin", name: "Merengue", steps: [2,1,1,0, 2,1,1,0, 2,1,1,0, 2,1,1,0], characteristics: { density: "high", symmetry: "full", feel: "merengue" }},
+            { id: "P_LATIN_CUMBIA", archetype: "LATIN", category: "latin", name: "Cumbia", steps: [2,0,0,0, 1,0,1,0, 2,0,0,0, 1,0,1,0], characteristics: { density: "medium", symmetry: "half", feel: "cumbia" }},
+            { id: "P_LATIN_BAIAO", archetype: "LATIN", category: "latin", name: "Baião", steps: [2,0,1,0, 2,0,1,1, 2,0,1,0, 2,0,1,1], characteristics: { density: "high", symmetry: "half", feel: "baiao" }},
+            { id: "P_LATIN_BEMBE", archetype: "LATIN", category: "latin", name: "Bembé 6/8", steps: [2,0,0,2, 0,0,1,0, 0,2,0,0, 1,0,0,0], characteristics: { density: "medium", symmetry: "none", feel: "bembe" }},
+            { id: "P_LATIN_CASCARA", archetype: "LATIN", category: "latin", name: "Cascara", steps: [2,0,1,0, 1,0,2,0, 1,0,1,0, 2,0,1,0], characteristics: { density: "high", symmetry: "none", feel: "cascara" }},
+
+            // FUNK PATTERN
+            { id: "P_FUNK_GHOST_NOTES", archetype: "FUNK", category: "funk", name: "Funk - Ghost Notes", steps: [2,1,0,1, 0,1,2,1, 0,1,0,1, 2,1,0,1], characteristics: { density: "high", symmetry: "none", feel: "funky" }},
+            { id: "P_FUNK_ONE_DROP", archetype: "FUNK", category: "funk", name: "Funk - One Drop", steps: [0,0,0,0, 2,0,1,0, 0,0,0,0, 2,0,1,0], characteristics: { density: "low", symmetry: "half", feel: "one_drop" }},
+            { id: "P_FUNK_BREAKBEAT", archetype: "FUNK", category: "funk", name: "Funk - Breakbeat", steps: [2,0,1,0, 0,1,3,0, 1,0,2,0, 0,1,2,1], characteristics: { density: "high", symmetry: "none", feel: "breakbeat" }},
+            { id: "P_FUNK_PURDIE", archetype: "FUNK", category: "funk", name: "Funk - Purdie Shuffle", steps: [2,0,1,1, 0,1,2,0, 1,1,2,0, 0,1,2,1], characteristics: { density: "high", symmetry: "none", feel: "purdie_shuffle" }},
+            { id: "P_FUNK_CLYDE", archetype: "FUNK", category: "funk", name: "Funk - Clyde Stubblefield", steps: [2,1,0,1, 3,0,1,1, 2,1,0,1, 3,0,1,0], characteristics: { density: "high", symmetry: "half", feel: "funky_drummer" }},
+            { id: "P_FUNK_DELAYED", archetype: "FUNK", category: "funk", name: "Funk - Delayed Backbeat", steps: [2,0,0,0, 0,2,1,0, 2,0,0,0, 0,2,1,0], characteristics: { density: "medium", symmetry: "half", feel: "delayed_backbeat" }},
+            { id: "P_FUNK_SYNCOPATED", archetype: "FUNK", category: "funk", name: "Funk - Heavy Syncopation", steps: [2,0,0,1, 0,1,3,0, 0,1,2,0, 0,1,3,1], characteristics: { density: "high", symmetry: "none", feel: "heavy_funk" }},
+            { id: "P_FUNK_LINEAR", archetype: "FUNK", category: "funk", name: "Funk - Linear Pattern", steps: [2,0,0,1, 0,0,3,0, 0,1,0,0, 2,0,0,1], characteristics: { density: "medium", symmetry: "none", feel: "linear_funk" }},
+            { id: "P_FUNK_HIP_HOP", archetype: "FUNK", category: "funk", name: "Funk - Hip Hop Boom Bap", steps: [2,0,0,0, 3,0,1,0, 2,0,0,0, 3,0,1,1], characteristics: { density: "medium", symmetry: "half", feel: "boom_bap" }},
+            { id: "P_FUNK_TRAP", archetype: "FUNK", category: "funk", name: "Funk - Trap Hi-Hat", steps: [1,1,1,1, 1,1,3,1, 1,1,1,1, 1,1,3,1], characteristics: { density: "high", symmetry: "half", feel: "trap" }}
+        ];
+
+        // Symbole und Klassen
+        const symbols = { 0: '.', 1: 'x', 2: 'X', 3: '!' };
+        const stepClasses = { 0: 'empty', 1: 'normal', 2: 'accent', 3: 'strong' };
+        const counts = ['1','e','+','a', '2','e','+','a', '3','e','+','a', '4','e','+','a'];
+        const isMainBeat = [true,false,false,false, true,false,false,false, true,false,false,false, true,false,false,false];
+
+        let currentCategory = 'all';
+        let filteredPatterns = [...patterns];
+
+        // ===== NAVIGATION =====
+        function showSection(section) {
+            // Update active tab
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show/hide overview
+            const overviewSection = document.getElementById('overview-section');
+            const filterSection = document.getElementById('filter-section');
+            const patternContainer = document.getElementById('pattern-container');
+
+            if (section === 'overview') {
+                overviewSection.style.display = 'block';
+                filterSection.style.display = 'none';
+                patternContainer.innerHTML = '';
+            } else {
+                overviewSection.style.display = 'none';
+                filterSection.style.display = 'flex';
+                
+                currentCategory = section;
+                resetFilters();
+                renderPatterns();
+            }
+        }
+
+        // ===== RENDERING =====
+        function createPatternCard(pattern) {
+            const card = document.createElement('div');
+            card.className = 'pattern-card';
+            
+            // Header
+            const header = document.createElement('div');
+            header.className = 'pattern-header';
+            header.innerHTML = `
+                <div class="pattern-id">${pattern.id}</div>
+                <div class="pattern-name">${pattern.name}</div>
+                <span class="archetype-badge">${pattern.archetype}</span>
+            `;
+            
+            // Display
+            const display = document.createElement('div');
+            display.className = 'rhythm-display';
+            
+            // Zählzeiten
+            const countingRow = document.createElement('div');
+            countingRow.className = 'counting-row';
+            counts.forEach((count, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'count-cell ' + (isMainBeat[i] ? 'count-main' : 'count-sub');
+                cell.textContent = count;
+                countingRow.appendChild(cell);
+            });
+            display.appendChild(countingRow);
+            
+            // Grid
+            const grid = document.createElement('div');
+            grid.className = 'rhythm-grid';
+            pattern.steps.forEach((value, index) => {
+                const step = document.createElement('div');
+                step.className = `step ${stepClasses[value]} beat-${index + 1}`;
+                step.textContent = symbols[value];
+                step.title = `Position ${index + 1}: ${getStepDescription(value)}`;
+                grid.appendChild(step);
+            });
+            display.appendChild(grid);
+            
+            // Characteristics
+            const chars = document.createElement('div');
+            chars.className = 'characteristics';
+            chars.innerHTML = `
+                <div class="char-tag">Dichte: ${pattern.characteristics.density}</div>
+                <div class="char-tag">Symmetrie: ${pattern.characteristics.symmetry}</div>
+                <div class="char-tag">Feel: ${pattern.characteristics.feel}</div>
+            `;
+            
+            card.appendChild(header);
+            card.appendChild(display);
+            card.appendChild(chars);
+            
+            return card;
+        }
+
+        function getStepDescription(value) {
+            const descriptions = { 0: 'Pause', 1: 'Normal', 2: 'Akzent', 3: 'Starker Akzent' };
+            return descriptions[value];
+        }
+
+        function renderPatterns() {
+            const container = document.getElementById('pattern-container');
+            container.innerHTML = '';
+            
+            filteredPatterns.forEach(pattern => {
+                container.appendChild(createPatternCard(pattern));
+            });
+        }
+
+        // ===== FILTERS =====
+        function applyFilters() {
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const densityFilter = document.getElementById('density-filter').value;
+            const symmetryFilter = document.getElementById('symmetry-filter').value;
+
+            filteredPatterns = patterns.filter(pattern => {
+                // Category filter
+                if (currentCategory !== 'alle' && pattern.category !== currentCategory) {
+                    return false;
+                }
+                
+                // Search filter
+                if (searchTerm && !pattern.name.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+                
+                // Density filter
+                if (densityFilter !== 'all' && pattern.characteristics.density !== densityFilter) {
+                    return false;
+                }
+                
+                // Symmetry filter
+                if (symmetryFilter !== 'all' && pattern.characteristics.symmetry !== symmetryFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderPatterns();
+        }
+
+        function resetFilters() {
+            document.getElementById('search').value = '';
+            document.getElementById('density-filter').value = 'all';
+            document.getElementById('symmetry-filter').value = 'all';
+            applyFilters();
+        }
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            // Overview is shown by default
+        });
+    </script>
+</body>
+</html>

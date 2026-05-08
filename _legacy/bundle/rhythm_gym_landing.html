@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rhythm Gym — Train Your Rhythm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:ital,wght@0,300;0,400;0,600;1,300&family=Barlow+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black:   #0A0907;
+      --dark:    #131109;
+      --card:    #1C1A14;
+      --border:  #2E2A1E;
+      --amber:   #F5A623;
+      --amber2:  #E8920F;
+      --warm:    #FF6B35;
+      --cream:   #F5EDD8;
+      --muted:   #7A7060;
+      --text:    #D4C9AD;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--black);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 20px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(10,9,7,0.95), transparent);
+    }
+    .logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-mark svg { width: 100%; height: 100%; }
+    .logo-text {
+      font-family: 'Anton', sans-serif;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: var(--cream);
+    }
+    .logo-text span { color: var(--amber); }
+    nav ul {
+      list-style: none;
+      display: flex; gap: 36px;
+    }
+    nav ul li a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    nav ul li a:hover { color: var(--amber); }
+    .nav-cta {
+      background: var(--amber);
+      color: var(--black) !important;
+      padding: 9px 22px;
+      border-radius: 2px;
+      font-weight: 700 !important;
+      font-size: 12px !important;
+    }
+    .nav-cta:hover { background: var(--amber2); color: var(--black) !important; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background grid texture */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* Glow blob */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block; width: 32px; height: 1px;
+      background: var(--amber);
+    }
+
+    .hero h1 {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(64px, 10vw, 140px);
+      line-height: 0.92;
+      letter-spacing: -1px;
+      color: var(--cream);
+      max-width: 900px;
+      position: relative; z-index: 1;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--amber);
+      display: block;
+    }
+
+    .hero-sub {
+      margin-top: 36px;
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 480px;
+      position: relative; z-index: 1;
+    }
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+
+    .hero-actions {
+      margin-top: 48px;
+      display: flex; align-items: center; gap: 24px;
+      position: relative; z-index: 1;
+    }
+    .btn-primary {
+      background: var(--amber);
+      color: var(--black);
+      padding: 16px 36px;
+      border-radius: 2px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .btn-primary:hover {
+      background: var(--cream);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(245,166,35,0.3);
+    }
+    .btn-secondary {
+      color: var(--muted);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-secondary:hover { color: var(--amber); border-color: var(--amber); }
+
+    /* ─── WAVEFORM VIZ ─── */
+    .waveform-section {
+      padding: 0 48px 80px;
+      position: relative; z-index: 1;
+    }
+    .waveform-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .waveform-container {
+      display: flex; align-items: flex-end;
+      gap: 6px; height: 80px;
+    }
+    .waveform-bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      background: var(--border);
+      transition: background 0.3s, height 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+    .waveform-bar.active {
+      background: var(--amber);
+      box-shadow: 0 0 12px rgba(245,166,35,0.4);
+    }
+    .waveform-bar.accent {
+      background: var(--warm);
+      box-shadow: 0 0 12px rgba(255,107,53,0.4);
+    }
+    .waveform-bar:hover {
+      background: var(--amber2) !important;
+    }
+    .beat-labels {
+      display: flex; gap: 6px;
+      margin-top: 8px;
+    }
+    .beat-labels span {
+      flex: 1;
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      color: var(--border);
+    }
+    .beat-labels span.show { color: var(--muted); }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 48px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .stat {
+      padding: 0 24px;
+      border-right: 1px solid var(--border);
+    }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { border-right: none; }
+    .stat-number {
+      font-family: 'Anton', sans-serif;
+      font-size: 48px;
+      line-height: 1;
+      color: var(--cream);
+    }
+    .stat-number span { color: var(--amber); }
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ─── WHAT IS ─── */
+    .section {
+      padding: 100px 48px;
+    }
+    .section-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(36px, 5vw, 72px);
+      line-height: 0.95;
+      color: var(--cream);
+      max-width: 700px;
+    }
+    .section h2 em {
+      font-style: normal;
+      color: var(--amber);
+    }
+    .two-col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; margin-top: 60px; align-items: start;
+    }
+    .section-body {
+      font-size: 17px;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+    .section-body strong { color: var(--text); font-weight: 600; }
+    .section-body p + p { margin-top: 20px; }
+
+    /* ─── TRAINING PILLARS ─── */
+    .pillars {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .pillar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex; align-items: flex-start; gap: 20px;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: default;
+    }
+    .pillar:hover {
+      border-color: var(--amber);
+      transform: translateX(4px);
+    }
+    .pillar-num {
+      font-family: 'Anton', sans-serif;
+      font-size: 32px;
+      color: var(--border);
+      line-height: 1;
+      min-width: 40px;
+      transition: color 0.2s;
+    }
+    .pillar:hover .pillar-num { color: var(--amber); }
+    .pillar-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--cream);
+      margin-bottom: 8px;
+    }
+    .pillar-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ─── PRICING ─── */
+    .pricing-section {
+      padding: 100px 48px;
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+    }
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; margin-top: 60px; max-width: 800px;
+    }
+    .price-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 40px;
+      position: relative;
+    }
+    .price-card.featured {
+      border-color: var(--amber);
+    }
+    .price-badge {
+      position: absolute; top: -1px; right: 28px;
+      background: var(--amber);
+      color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+    }
+    .price-tier {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .price-amount {
+      font-family: 'Anton', sans-serif;
+      font-size: 56px;
+      line-height: 1;
+      color: var(--cream);
+    }
+    .price-amount span {
+      font-family: 'Barlow', sans-serif;
+      font-size: 20px;
+      font-weight: 300;
+      color: var(--muted);
+    }
+    .price-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 16px 0 28px;
+      line-height: 1.6;
+    }
+    .price-features {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-bottom: 32px;
+    }
+    .price-features li {
+      font-size: 14px;
+      color: var(--text);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .price-features li::before {
+      content: '→';
+      color: var(--amber);
+      font-size: 12px;
+      min-width: 16px;
+    }
+    .price-features li.muted {
+      color: var(--muted);
+    }
+    .price-features li.muted::before { color: var(--border); }
+    .btn-outline {
+      display: block;
+      text-align: center;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 13px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-radius: 2px;
+    }
+    .btn-outline:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-filled {
+      display: block;
+      text-align: center;
+      background: var(--amber);
+      color: var(--black);
+      padding: 13px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-radius: 2px;
+    }
+    .btn-filled:hover { background: var(--cream); }
+
+    /* ─── MANIFESTO ─── */
+    .manifesto {
+      padding: 120px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .manifesto::before {
+      content: 'RHYTHM';
+      position: absolute;
+      font-family: 'Anton', sans-serif;
+      font-size: 300px;
+      color: rgba(245,166,35,0.03);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: -10px;
+    }
+    .manifesto-quote {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(28px, 4vw, 54px);
+      line-height: 1.1;
+      color: var(--cream);
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .manifesto-quote em {
+      font-style: normal;
+      color: var(--amber);
+    }
+    .manifesto-sub {
+      margin-top: 28px;
+      font-size: 16px;
+      color: var(--muted);
+      position: relative; z-index: 1;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: 'Anton', sans-serif;
+      font-size: 16px;
+      letter-spacing: 3px;
+      color: var(--muted);
+    }
+    .footer-logo span { color: var(--amber); }
+    footer p {
+      font-size: 13px;
+      color: var(--border);
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--amber); }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes pulse-bar {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero h1   { animation: fade-up 0.7s ease both; }
+    .hero-sub  { animation: fade-up 0.7s 0.15s ease both; }
+    .hero-actions { animation: fade-up 0.7s 0.3s ease both; }
+    .hero-eyebrow { animation: fade-up 0.7s ease both; }
+
+    /* Scrolling ticker */
+    .ticker {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+      background: var(--dark);
+    }
+    .ticker-inner {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker-scroll 20s linear infinite;
+    }
+    .ticker-item {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 40px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .ticker-item::after {
+      content: '◆';
+      color: var(--amber);
+      font-size: 8px;
+    }
+    @keyframes ticker-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 16-step grid abstracted as waveform logo -->
+          <rect x="2"  y="22" width="3" height="12" rx="1" fill="#F5A623"/>
+          <rect x="7"  y="14" width="3" height="20" rx="1" fill="#F5A623"/>
+          <rect x="12" y="8"  width="3" height="26" rx="1" fill="#F5A623"/>
+          <rect x="17" y="18" width="3" height="16" rx="1" fill="#F5A623" opacity="0.6"/>
+          <rect x="22" y="10" width="3" height="24" rx="1" fill="#F5A623"/>
+          <rect x="27" y="20" width="3" height="14" rx="1" fill="#F5A623" opacity="0.6"/>
+          <rect x="32" y="26" width="2" height="8"  rx="1" fill="#F5A623" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="logo-text">RHYTHM<span>GYM</span></div>
+    </div>
+    <ul>
+      <li><a href="#">Training</a></li>
+      <li><a href="#">Pattern Library</a></li>
+      <li><a href="#">Community</a></li>
+      <li><a href="#" class="nav-cta">Start Free</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">Für Handpan-Spieler — von einem Drummer</div>
+    <h1>TRAIN YOUR<br><em>RHYTHM.</em></h1>
+    <p class="hero-sub">
+      Nicht noch ein Kurs. Ein <strong>tägliches Training</strong> — 
+      wie ein Gym für dein rhythmisches Verständnis. 
+      Pattern verstehen, nicht kopieren.
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">
+        Kostenlos starten
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <a href="#" class="btn-secondary">Wie es funktioniert</a>
+    </div>
+  </section>
+
+  <!-- WAVEFORM / 16-STEP GRID -->
+  <div class="waveform-section">
+    <div class="waveform-label">16-Step Training Grid — interaktiv</div>
+    <div class="waveform-container" id="waveform">
+      <!-- Bars werden per JS befüllt -->
+    </div>
+    <div class="beat-labels" id="beatLabels"></div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <div class="ticker-item">Daily Practice</div>
+      <div class="ticker-item">600+ Pattern</div>
+      <div class="ticker-item">Accountability System</div>
+      <div class="ticker-item">Live Group Calls</div>
+      <div class="ticker-item">Rhythm Fundament</div>
+      <div class="ticker-item">Handpan Training</div>
+      <div class="ticker-item">Spaced Repetition</div>
+      <div class="ticker-item">Community</div>
+      <!-- Duplicate for seamless loop -->
+      <div class="ticker-item">Daily Practice</div>
+      <div class="ticker-item">600+ Pattern</div>
+      <div class="ticker-item">Accountability System</div>
+      <div class="ticker-item">Live Group Calls</div>
+      <div class="ticker-item">Rhythm Fundament</div>
+      <div class="ticker-item">Handpan Training</div>
+      <div class="ticker-item">Spaced Repetition</div>
+      <div class="ticker-item">Community</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat">
+      <div class="stat-number">600<span style="color:var(--amber)">+</span></div>
+      <div class="stat-label">Pattern im Library</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">6</div>
+      <div class="stat-label">Wochen Transformation</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">15<span style="color:var(--amber)" style="font-size:28px">min</span></div>
+      <div class="stat-label">Daily Training</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">9<span style="color:var(--amber)">€</span></div>
+      <div class="stat-label">Pro Monat</div>
+    </div>
+  </div>
+
+  <!-- WHAT IS IT -->
+  <section class="section">
+    <div class="section-eyebrow">Was ist Rhythm Gym?</div>
+    <h2>DAS GYM FÜR<br>DEIN <em>TIMING.</em></h2>
+    <div class="two-col">
+      <div class="section-body">
+        <p>Ein Fitnessstudio gehst du nicht einmal im Monat. Du gehst <strong>jeden Tag</strong> — kurz, fokussiert, konstant. Genau so funktioniert Rhythm Gym.</p>
+        <p>Keine langen Theorie-Videos. Kein Konsumieren. Stattdessen: <strong>tägliche Trainingseinheiten</strong>, die dein rhythmisches Verständnis aufbauen wie Muskelgedächtnis.</p>
+        <p>Als Drummer und Perkussionist habe ich eines gelernt: Rhythmus ist kein Talent. Es ist eine <strong>Fähigkeit — erlernbar, trainierbar, messbar.</strong></p>
+      </div>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="pillar-num">01</div>
+          <div>
+            <div class="pillar-title">Daily Workouts</div>
+            <div class="pillar-desc">10–15 Minuten täglich. Strukturierte Übungsvideos die auf vorherigen aufbauen. Eigenes Tempo, jederzeit abrufbar.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">02</div>
+          <div>
+            <div class="pillar-title">Pattern Library</div>
+            <div class="pillar-desc">600+ mathematisch generierte Rhythmus-Pattern, kuratiert nach Niveau und musikalischer Relevanz. Dein tägliches Equipment.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">03</div>
+          <div>
+            <div class="pillar-title">Training Partner</div>
+            <div class="pillar-desc">Ein Accountability-Partner schickt dir täglich eine kurze Sprachnachricht. Kein Call, kein Stress — nur gemeinsam dranbleiben.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">04</div>
+          <div>
+            <div class="pillar-title">Live Sessions</div>
+            <div class="pillar-desc">Monatliche Group Calls mit Nils. Alle aufgezeichnet. Fragen stellen, Fortschritt teilen, gemeinsam wachsen.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section">
+    <div class="section-eyebrow">Mitgliedschaft</div>
+    <h2 style="font-family:'Anton',sans-serif;font-size:clamp(36px,5vw,72px);line-height:0.95;color:var(--cream);">WÄHLE DEIN<br><em style="color:var(--amber);font-style:normal;">LEVEL.</em></h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Free Member</div>
+        <div class="price-amount">0 <span>€/Monat</span></div>
+        <div class="price-desc">Rein schnuppern. Kein Kreditkartenzwang.</div>
+        <ul class="price-features">
+          <li>50 Pattern aus dem Library</li>
+          <li>Level 1 Training (Woche 1)</li>
+          <li>Metronom-Tool</li>
+          <li class="muted">Pattern-Speicherung</li>
+          <li class="muted">Fortschritts-Tracking</li>
+          <li class="muted">Community & Group Calls</li>
+        </ul>
+        <a href="#" class="btn-outline">Kostenlos starten</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Empfohlen</div>
+        <div class="price-tier">Premium Member</div>
+        <div class="price-amount">9 <span>€/Monat</span></div>
+        <div class="price-desc">Vollständiger Zugang. Täglich trainieren, dauerhaft wachsen.</div>
+        <ul class="price-features">
+          <li>600+ Pattern — vollständig</li>
+          <li>Alle Training-Level (1–5)</li>
+          <li>16-Step Grid mit Speicherung</li>
+          <li>Fortschritts-Tracking & Streaks</li>
+          <li>Accountability Partner Matching</li>
+          <li>Monatliche Live-Session mit Nils</li>
+        </ul>
+        <a href="#" class="btn-filled">Jetzt Mitglied werden</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto">
+    <div class="manifesto-quote">
+      „Rythmik ist nicht was du fühlst.<br>Es ist was du <em>trainierst.</em>"
+    </div>
+    <div class="manifesto-sub">— Nils Caspar, Drummer & Gründer von Rhythm Gym</div>
+    <div style="margin-top:48px;">
+      <a href="#" class="btn-primary" style="display:inline-flex;">
+        Training beginnen
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-left:10px">
+          <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">RHYTHM<span>GYM</span></div>
+    <p>Ein Projekt von <a href="#">nilscaspar.de</a> — Handpan Schule des Lebens</p>
+    <p style="color:var(--border);font-size:12px;">© 2025 Nils Caspar Böhm · Eching</p>
+  </footer>
+
+  <script>
+    // Waveform / 16-step grid
+    const heights = [30, 55, 70, 40, 80, 45, 65, 30, 75, 50, 35, 80, 60, 45, 70, 25];
+    const accents = [0, 4, 8, 12]; // beat 1,2,3,4
+    const waveform = document.getElementById('waveform');
+    const beatLabels = document.getElementById('beatLabels');
+
+    heights.forEach((h, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'waveform-bar' + (accents.includes(i) ? ' accent' : ' active');
+      bar.style.height = h + 'px';
+      bar.title = `Beat ${i+1}`;
+      bar.addEventListener('click', () => {
+        bar.classList.toggle('active');
+        bar.classList.remove('accent');
+      });
+      waveform.appendChild(bar);
+
+      const label = document.createElement('span');
+      label.textContent = i + 1;
+      if (accents.includes(i)) label.classList.add('show');
+      beatLabels.appendChild(label);
+    });
+
+    // Animate active bar
+    let current = 0;
+    function animatePlayhead() {
+      const bars = waveform.querySelectorAll('.waveform-bar');
+      bars.forEach((b, i) => b.style.boxShadow = '');
+      bars[current].style.boxShadow = `0 0 20px rgba(245,166,35,0.8)`;
+      current = (current + 1) % bars.length;
+    }
+    setInterval(animatePlayhead, 200);
+  </script>
+
+</body>
+</html>
