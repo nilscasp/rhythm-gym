@@ -572,10 +572,24 @@ export default function BibliothekPage() {
 
           {/* ── POEM ── */}
           <div className="lib-poem">
-            Am Ende finde ich dich,<br />
-            pulsierend wie das Leuchten der Sterne,<br />
-            mitten in mir, in allem was ist.<br />
-            Auf deiner Melodie spielt meine Seele.
+            <p>
+              Am Ende finde ich dich,<br />
+              pulsierend wie das Leuchten<br />
+              der Sterne,<br />
+              mitten in mir,<br />
+              in allem was ist<br />
+              und spreche deine Sprache,<br />
+              so du sprichst durch mich.
+            </p>
+            <p>
+              Du läuterst meinen Argwohn<br />
+              und machst ihn zu Gold<br />
+              zum strahlend hellen Morgenlicht,<br />
+              zu deiner Zuversicht in mich.
+            </p>
+            <p>
+              Auf deiner Melodie spielt meine Seele.
+            </p>
             <div className="lib-poem-author">— Nils Caspar</div>
           </div>
 
@@ -991,10 +1005,16 @@ const BIBLIOTHEK_CSS = `
   color: var(--muted);
   font-style: italic;
   font-size: 16px;
-  line-height: 2.2;
+  line-height: 1.85;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   margin: 48px 0;
+}
+.lib-poem p {
+  margin: 0 0 28px;
+}
+.lib-poem p:last-of-type {
+  margin-bottom: 0;
 }
 .lib-poem-author {
   margin-top: 16px;

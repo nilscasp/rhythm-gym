@@ -32,12 +32,12 @@ export function Footer() {
         <p style={{ fontFamily: "'Barlow', sans-serif", fontSize: 13, color: 'var(--muted)' }}>
           Ein Projekt von{' '}
           <a
-            href="https://nilscaspar.de"
+            href="https://handpan.schule"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'var(--muted)' }}
           >
-            nilscaspar.de
+            handpan.schule
           </a>{' '}
           — Handpan Schule des Lebens
         </p>
