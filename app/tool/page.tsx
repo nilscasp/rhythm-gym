@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import * as Tone from 'tone';
 import { Hand, Volume2, Play, Pause, Square, RotateCcw, Copy } from 'lucide-react';
 import Link from 'next/link';
@@ -8,10 +9,41 @@ import Link from 'next/link';
 // ─────────────────────────────────────────────────────────────────────────────
 // Handpan-Maschine — 5-state click cycle (Pause / gn / tonfeld / slap / ding)
 // Strikes synthesized via Tone.js; samples may replace these later.
+//
+// URL-driven preset hand-off (NEW): when other pages link here with
+//   ?pattern=<16-char string from .gTSD>
+//   ?bpm=<20..160>
+//   ?handsatz=<R-L|L-R|frei>
+//   ?from=<source-route>
+//   ?label=<URL-encoded label>
+// the Maschine pre-loads that pattern. The shared mapping is:
+//   . = Pause, g = gn (Ghostnote), T = tonfeld, S = slap, D = ding.
 // ─────────────────────────────────────────────────────────────────────────────
 
 type StrikeIndex = 0 | 1 | 2 | 3 | 4;
 type HandsatzKey = 'R-L' | 'L-R' | 'frei';
+
+const STRIKE_DECODE: Record<string, number> = { '.': 0, g: 1, T: 2, S: 3, D: 4 };
+
+function decodePatternParam(raw: string | null | undefined): number[] | null {
+  if (!raw || raw.length !== 16) return null;
+  return raw.split('').map((c) => (c in STRIKE_DECODE ? STRIKE_DECODE[c] : 0));
+}
+
+function decodeBpmParam(raw: string | null | undefined): number | null {
+  const n = parseInt(raw ?? '', 10);
+  return Number.isFinite(n) && n >= 20 && n <= 160 ? n : null;
+}
+
+function decodeHandsatzParam(raw: string | null | undefined): HandsatzKey | null {
+  return raw === 'R-L' || raw === 'L-R' || raw === 'frei' ? raw : null;
+}
+
+const FROM_LABELS: Record<string, string> = {
+  training: 'Training',
+  patterns: 'Patterns',
+  bibliothek: 'Bibliothek',
+};
 
 type SynthMap = {
   gn: Tone.NoiseSynth | null;
@@ -22,16 +54,54 @@ type SynthMap = {
   metronome: Tone.Synth | null;
 };
 
-export default function HandpanMaschinePage() {
+function HandpanMaschineInner() {
+  // ───────── URL-param preset hand-off (read once + sync on URL change) ───────
+  const searchParams = useSearchParams();
+  const paramPattern = searchParams?.get('pattern') ?? null;
+  const paramBpm = searchParams?.get('bpm') ?? null;
+  const paramHandsatz = searchParams?.get('handsatz') ?? null;
+  const fromSource = searchParams?.get('from') ?? null;
+  const fromLabelRaw = searchParams?.get('label') ?? null;
+  const fromLabel = useMemo(() => {
+    if (!fromLabelRaw) return null;
+    try {
+      return decodeURIComponent(fromLabelRaw);
+    } catch {
+      return fromLabelRaw;
+    }
+  }, [fromLabelRaw]);
+
+  const decoded = useMemo(
+    () => ({
+      pattern: decodePatternParam(paramPattern),
+      bpm: decodeBpmParam(paramBpm),
+      handsatz: decodeHandsatzParam(paramHandsatz),
+    }),
+    [paramPattern, paramBpm, paramHandsatz],
+  );
+
   // Pattern state: 0 = Pause, 1 = gn (Ghostnote), 2 = tonfeld, 3 = slap, 4 = ding
-  const [pattern, setPattern] = useState<number[]>(Array(16).fill(0));
-  const [selectedHandsatz, setSelectedHandsatz] = useState<HandsatzKey>('R-L');
+  const [pattern, setPattern] = useState<number[]>(() => decoded.pattern ?? Array(16).fill(0));
+  const [selectedHandsatz, setSelectedHandsatz] = useState<HandsatzKey>(() => decoded.handsatz ?? 'R-L');
   // Dynamics: 0 = p, 1 = mf, 2 = f. Currently fixed to mf for every step (room for future expressivity).
   const [dynamics] = useState<number[]>(Array(16).fill(1));
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(90);
+  const [bpm, setBpm] = useState(() => decoded.bpm ?? 90);
+
+  // Re-sync state when the URL params change on the same-mounted route (Next.js
+  // does not unmount /tool when navigating from /tool?pattern=A → /tool?pattern=B).
+  // Guard with a key ref so we don't clobber user edits when params stay the same.
+  const presetKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    const key = `${paramPattern}|${paramBpm}|${paramHandsatz}`;
+    if (key === presetKeyRef.current) return;
+    presetKeyRef.current = key;
+    if (decoded.pattern) setPattern(decoded.pattern);
+    if (decoded.bpm !== null) setBpm(decoded.bpm);
+    if (decoded.handsatz) setSelectedHandsatz(decoded.handsatz);
+  }, [paramPattern, paramBpm, paramHandsatz, decoded]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(true);
@@ -362,6 +432,62 @@ export default function HandpanMaschinePage() {
             Baue dein Pattern. Klick durch Pause → Ghostnote → Tonfeld → Slap → Ding. Dann auf Play.
           </p>
         </div>
+
+        {fromSource && (
+          <div
+            className="tool-loaded-banner"
+            style={{
+              maxWidth: 1400,
+              margin: '0 auto 24px',
+              padding: '12px 20px',
+              background: 'var(--amber-dim, rgba(245,166,35,0.12))',
+              border: '1px solid rgba(245,166,35,0.35)',
+              borderRadius: 6,
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 12,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Barlow', sans-serif",
+                fontSize: 14,
+                color: 'var(--text)',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  textTransform: 'uppercase',
+                  color: 'var(--amber)',
+                  marginRight: 10,
+                }}
+              >
+                Geladen aus {FROM_LABELS[fromSource] ?? fromSource}
+              </span>
+              {fromLabel && <span style={{ color: 'var(--cream)', fontWeight: 500 }}>{fromLabel}</span>}
+            </div>
+            <Link
+              href={`/${fromSource}`}
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 12,
+                letterSpacing: 1.5,
+                textTransform: 'uppercase',
+                color: 'var(--muted)',
+                textDecoration: 'none',
+                borderBottom: '1px solid var(--border)',
+                paddingBottom: 1,
+              }}
+            >
+              ← zurück zu {FROM_LABELS[fromSource] ?? fromSource}
+            </Link>
+          </div>
+        )}
 
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gap: '30px' }}>
           {/* ───────── Playback Controls ───────── */}
@@ -1122,6 +1248,32 @@ export default function HandpanMaschinePage() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function HandpanMaschinePage() {
+  return (
+    <Suspense
+      fallback={
+        <main
+          style={{
+            minHeight: '60vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--muted)',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            letterSpacing: 2,
+            textTransform: 'uppercase',
+            fontSize: 13,
+          }}
+        >
+          Lade Handpan-Maschine …
+        </main>
+      }
+    >
+      <HandpanMaschineInner />
+    </Suspense>
   );
 }
 

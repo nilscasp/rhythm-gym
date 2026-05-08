@@ -564,6 +564,9 @@ export default function TrainingPage() {
                         pattern={p}
                         isPlaying={isPlaying}
                         onTogglePlay={() => playPattern(day.number, p)}
+                        bpm={bpm}
+                        handsatz={day.handsatz}
+                        dayNumber={day.number}
                       />
                     );
                   })}
@@ -601,15 +604,50 @@ export default function TrainingPage() {
 // PatternCard — visualizes a 4-takt × 4-sub grid plus the counting strip,
 // type/stage/focus chips, and a play/stop button.
 // ─────────────────────────────────────────────────────────────────────────────
+// Strike → 1-char Tool URL token (matches /tool's STRIKE_DECODE: . g T S D).
+const STRIKE_TO_TOOL_TOKEN: Record<Strike, string> = {
+  gn: 'g',
+  tonfeld: 'T',
+  slap: 'S',
+  ding: 'D',
+};
+
+function encodeCoursePatternForTool(p: CoursePattern): string {
+  const grid = Array(16).fill('.') as string[];
+  for (const ev of p.events) {
+    const tok = STRIKE_TO_TOOL_TOKEN[ev.strike as Strike];
+    if (tok) grid[ev.position] = tok;
+  }
+  return grid.join('');
+}
+
 function PatternCard({
   pattern,
   isPlaying,
   onTogglePlay,
+  bpm,
+  handsatz,
+  dayNumber,
 }: {
   pattern: CoursePattern;
   isPlaying: boolean;
   onTogglePlay: () => void;
+  bpm: number;
+  handsatz: 'R-L' | 'L-R' | 'frei';
+  dayNumber: number;
 }) {
+  const toolHref = useMemo(() => {
+    const enc = encodeCoursePatternForTool(pattern);
+    const params = new URLSearchParams({
+      pattern: enc,
+      bpm: String(bpm),
+      handsatz,
+      from: 'training',
+      label: `Tag ${dayNumber} · ${pattern.label}`,
+    });
+    return `/tool?${params.toString()}`;
+  }, [pattern, bpm, handsatz, dayNumber]);
+
   const chips: { label: string; key: string }[] = [];
   if (pattern.type === 'stufe') {
     if (typeof pattern.stage === 'number') {
@@ -741,6 +779,13 @@ function PatternCard({
             </>
           )}
         </button>
+        <Link
+          href={toolHref}
+          className="trn-tool-link"
+          aria-label={`${pattern.label} im Tool öffnen`}
+        >
+          Im Tool öffnen →
+        </Link>
       </div>
     </article>
   );
@@ -1343,6 +1388,26 @@ const TRN_CSS = `
 }
 .trn-play-btn--disabled:hover {
   background: transparent;
+}
+.trn-tool-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.trn-tool-link:hover {
+  color: var(--amber);
+  border-color: var(--amber);
 }
 
 /* Kombi card */

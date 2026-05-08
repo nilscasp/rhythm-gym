@@ -432,8 +432,29 @@ export default function PatternsPage() {
   );
 }
 
+// Step-value (0-3 generic perc) → /tool 5-cycle token.
+// 0 = Pause → '.' (Pause), 1 = weak → 'g' (gn), 2 = medium → 'S' (slap),
+// 3 = strong → 'D' (ding). Tonfeld is melodic and not present in this dataset.
+const STEP_TO_TOOL_TOKEN = ['.', 'g', 'S', 'D'] as const;
+
+function encodePatternForTool(steps: readonly number[]): string {
+  if (steps.length !== 16) return '.'.repeat(16);
+  return steps.map((v) => STEP_TO_TOOL_TOKEN[v] ?? '.').join('');
+}
+
 // ─── Pattern card ────────────────────────────────────────────────────────────
 function PatternCard({ pattern }: { pattern: Pattern }) {
+  const toolHref = useMemo(() => {
+    const params = new URLSearchParams({
+      pattern: encodePatternForTool(pattern.steps),
+      bpm: '90',
+      handsatz: 'R-L',
+      from: 'patterns',
+      label: `${pattern.id} · ${pattern.name}`,
+    });
+    return `/tool?${params.toString()}`;
+  }, [pattern]);
+
   return (
     <article className="pb-pattern-card">
       <div className="pb-pattern-header">
@@ -471,10 +492,15 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
         </div>
       </div>
 
-      <div className="pb-characteristics">
-        <div className="pb-char-tag">Dichte: {pattern.characteristics.density}</div>
-        <div className="pb-char-tag">Symmetrie: {pattern.characteristics.symmetry}</div>
-        <div className="pb-char-tag">Feel: {pattern.characteristics.feel}</div>
+      <div className="pb-pattern-foot">
+        <div className="pb-characteristics">
+          <div className="pb-char-tag">Dichte: {pattern.characteristics.density}</div>
+          <div className="pb-char-tag">Symmetrie: {pattern.characteristics.symmetry}</div>
+          <div className="pb-char-tag">Feel: {pattern.characteristics.feel}</div>
+        </div>
+        <Link href={toolHref} className="pb-tool-link" aria-label={`${pattern.name} im Tool öffnen`}>
+          Im Tool öffnen →
+        </Link>
       </div>
     </article>
   );
@@ -968,12 +994,21 @@ const PB_CSS = `
   50%      { transform: scale(1.05); }
 }
 
-/* ─── Characteristics ─── */
+/* ─── Pattern foot (characteristics + Tool link) ─── */
+.pb-pattern-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
 .pb-characteristics {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .pb-char-tag {
   background: rgba(46, 42, 30, 0.55);
@@ -985,6 +1020,28 @@ const PB_CSS = `
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--muted);
+}
+.pb-tool-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+.pb-tool-link:hover {
+  color: var(--amber);
+  border-color: var(--amber);
 }
 
 /* ─── Responsive ─── */
