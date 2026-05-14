@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Logo } from './Logo';
 
 const items: { href: string; label: string; cta?: boolean }[] = [
+  { href: '/schule', label: 'Schule' },
   { href: '/bibliothek', label: 'Bibliothek' },
   { href: '/patterns', label: 'Patterns' },
   { href: '/training', label: 'Training' },
