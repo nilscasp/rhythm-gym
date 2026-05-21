@@ -327,6 +327,11 @@ export default function BausteinePage() {
         .rb-btn-outline:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
         .rb-btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
 
+        /* Bridge-Button — führt die gebaute Sequenz in den Step-Sequencer über */
+        .rb-btn-bridge { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(255,107,53,0.06)); color: var(--cream); padding: 14px 26px; border: 1px solid rgba(245,166,35,0.4); border-radius: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: all 0.2s; }
+        .rb-btn-bridge:hover { border-color: var(--amber); background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(255,107,53,0.1)); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.2); color: var(--amber); }
+        .rb-btn-bridge--disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
         /* Palette */
         .rb-palette { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
         .rb-pcard { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 24px 18px 20px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; font-family: inherit; color: inherit; }
@@ -510,6 +515,26 @@ export default function BausteinePage() {
             >
               Leeren
             </button>
+            {sequence.length > 0 ? (
+              <Link
+                href={(() => {
+                  // Encode each block: first beat = D (ding accent), rest = T (tonfeld).
+                  // subdivision=4n means each step is a quarter note → BPM transfers 1:1
+                  // from Bausteine (click-per-BPM) to the sequencer.
+                  const encoded = sequence.map(size => 'D' + 'T'.repeat(size - 1)).join('');
+                  const label = sequence.join('+');
+                  return `/tool?pattern=${encoded}&bpm=${bpm}&subdivision=4n&from=bausteine&label=${encodeURIComponent(label)}`;
+                })()}
+                className="rb-btn-bridge"
+                aria-label="Diese Sequenz im Step-Sequencer öffnen"
+              >
+                <span aria-hidden>→</span> Im Sequencer öffnen
+              </Link>
+            ) : (
+              <span className="rb-btn-bridge rb-btn-bridge--disabled" aria-disabled="true">
+                <span aria-hidden>→</span> Im Sequencer öffnen
+              </span>
+            )}
             <div className="rb-tempo">
               <span className="rb-tempo-label">Tempo</span>
               <input

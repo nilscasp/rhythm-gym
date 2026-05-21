@@ -10,24 +10,33 @@ import Link from 'next/link';
 // Handpan-Maschine — 5-state click cycle (Pause / gn / tonfeld / slap / ding)
 // Strikes synthesized via Tone.js; samples may replace these later.
 //
-// URL-driven preset hand-off (NEW): when other pages link here with
-//   ?pattern=<16-char string from .gTSD>
+// URL-driven preset hand-off:
+//   ?pattern=<1..32 char string from .gTSD>   (default 16 = canonical Sechzehntel)
 //   ?bpm=<20..160>
 //   ?handsatz=<R-L|L-R|frei>
+//   ?subdivision=<4n|8n|16n|32n>              (optional; default 16n)
 //   ?from=<source-route>
 //   ?label=<URL-encoded label>
-// the Maschine pre-loads that pattern. The shared mapping is:
-//   . = Pause, g = gn (Ghostnote), T = tonfeld, S = slap, D = ding.
+// The Maschine pre-loads that pattern with the appropriate step count.
+// Mapping: . = Pause, g = gn (Ghostnote), T = tonfeld, S = slap, D = ding.
 // ─────────────────────────────────────────────────────────────────────────────
 
 type StrikeIndex = 0 | 1 | 2 | 3 | 4;
 type HandsatzKey = 'R-L' | 'L-R' | 'frei';
+type SubdivisionKey = '4n' | '8n' | '16n' | '32n';
 
 const STRIKE_DECODE: Record<string, number> = { '.': 0, g: 1, T: 2, S: 3, D: 4 };
 
+const MIN_STEP_COUNT = 1;
+const MAX_STEP_COUNT = 32;
+const DEFAULT_STEP_COUNT = 16;
+
 function decodePatternParam(raw: string | null | undefined): number[] | null {
-  if (!raw || raw.length !== 16) return null;
-  return raw.split('').map((c) => (c in STRIKE_DECODE ? STRIKE_DECODE[c] : 0));
+  if (!raw) return null;
+  if (raw.length < MIN_STEP_COUNT || raw.length > MAX_STEP_COUNT) return null;
+  // Fail closed if any char is invalid — don't silently coerce to Pause.
+  if (!/^[.gTSD]+$/.test(raw)) return null;
+  return raw.split('').map((c) => STRIKE_DECODE[c] ?? 0);
 }
 
 function decodeBpmParam(raw: string | null | undefined): number | null {
@@ -39,10 +48,26 @@ function decodeHandsatzParam(raw: string | null | undefined): HandsatzKey | null
   return raw === 'R-L' || raw === 'L-R' || raw === 'frei' ? raw : null;
 }
 
+function decodeSubdivisionParam(raw: string | null | undefined): SubdivisionKey | null {
+  return raw === '4n' || raw === '8n' || raw === '16n' || raw === '32n' ? raw : null;
+}
+
+// Number of steps per beat for a given subdivision. Used for downbeat highlight
+// and metronome (which clicks on every full beat).
+function beatStrideFor(sub: SubdivisionKey): number {
+  switch (sub) {
+    case '32n': return 8;
+    case '16n': return 4;
+    case '8n':  return 2;
+    case '4n':  return 1;
+  }
+}
+
 const FROM_LABELS: Record<string, string> = {
   training: 'Training',
   patterns: 'Patterns',
   bibliothek: 'Bibliothek',
+  bausteine: 'Bausteine',
 };
 
 type SynthMap = {
@@ -60,6 +85,7 @@ function HandpanMaschineInner() {
   const paramPattern = searchParams?.get('pattern') ?? null;
   const paramBpm = searchParams?.get('bpm') ?? null;
   const paramHandsatz = searchParams?.get('handsatz') ?? null;
+  const paramSubdivision = searchParams?.get('subdivision') ?? null;
   const fromSource = searchParams?.get('from') ?? null;
   const fromLabelRaw = searchParams?.get('label') ?? null;
   const fromLabel = useMemo(() => {
@@ -76,15 +102,25 @@ function HandpanMaschineInner() {
       pattern: decodePatternParam(paramPattern),
       bpm: decodeBpmParam(paramBpm),
       handsatz: decodeHandsatzParam(paramHandsatz),
+      subdivision: decodeSubdivisionParam(paramSubdivision),
     }),
-    [paramPattern, paramBpm, paramHandsatz],
+    [paramPattern, paramBpm, paramHandsatz, paramSubdivision],
   );
 
   // Pattern state: 0 = Pause, 1 = gn (Ghostnote), 2 = tonfeld, 3 = slap, 4 = ding
-  const [pattern, setPattern] = useState<number[]>(() => decoded.pattern ?? Array(16).fill(0));
+  const [pattern, setPattern] = useState<number[]>(() => decoded.pattern ?? Array(DEFAULT_STEP_COUNT).fill(0));
   const [selectedHandsatz, setSelectedHandsatz] = useState<HandsatzKey>(() => decoded.handsatz ?? 'R-L');
-  // Dynamics: 0 = p, 1 = mf, 2 = f. Currently fixed to mf for every step (room for future expressivity).
-  const [dynamics] = useState<number[]>(Array(16).fill(1));
+  // Subdivision: each "step" is this note value. 16n = sixteenth-note grid (canonical), 4n = each step is a quarter beat (Bausteine handoff), etc.
+  const [subdivision, setSubdivision] = useState<SubdivisionKey>(() => decoded.subdivision ?? '16n');
+
+  // ─── derived ──────────────────────────────────────────────────────────────
+  const stepCount = pattern.length;
+  const beatStride = useMemo(() => beatStrideFor(subdivision), [subdivision]);
+  const isCanonical = stepCount === DEFAULT_STEP_COUNT && subdivision === '16n';
+
+  // Dynamics derives from stepCount — currently all-mf, but the array shape
+  // tracks the pattern so the audio callback never reads out of bounds.
+  const dynamics = useMemo<number[]>(() => Array(stepCount).fill(1), [stepCount]);
 
   // Playback state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -95,13 +131,14 @@ function HandpanMaschineInner() {
   // Guard with a key ref so we don't clobber user edits when params stay the same.
   const presetKeyRef = useRef<string | null>(null);
   useEffect(() => {
-    const key = `${paramPattern}|${paramBpm}|${paramHandsatz}`;
+    const key = `${paramPattern}|${paramBpm}|${paramHandsatz}|${paramSubdivision}`;
     if (key === presetKeyRef.current) return;
     presetKeyRef.current = key;
     if (decoded.pattern) setPattern(decoded.pattern);
     if (decoded.bpm !== null) setBpm(decoded.bpm);
     if (decoded.handsatz) setSelectedHandsatz(decoded.handsatz);
-  }, [paramPattern, paramBpm, paramHandsatz, decoded]);
+    if (decoded.subdivision) setSubdivision(decoded.subdivision);
+  }, [paramPattern, paramBpm, paramHandsatz, paramSubdivision, decoded]);
   const [currentStep, setCurrentStep] = useState(-1);
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(true);
@@ -126,6 +163,7 @@ function HandpanMaschineInner() {
   const dynamicsRef = useRef(dynamics);
   const metronomeEnabledRef = useRef(metronomeEnabled);
   const subdivisionsEnabledRef = useRef(subdivisionsEnabled);
+  const beatStrideRef = useRef(beatStride);
 
   useEffect(() => {
     patternRef.current = pattern;
@@ -139,33 +177,42 @@ function HandpanMaschineInner() {
   useEffect(() => {
     subdivisionsEnabledRef.current = subdivisionsEnabled;
   }, [subdivisionsEnabled]);
+  useEffect(() => {
+    beatStrideRef.current = beatStride;
+  }, [beatStride]);
 
   // ───────── Strike vocabulary (5 states; index = pattern value 0..4) ─────────
   const symbols = ['.', 'g', 'T', 'S', 'D'] as const;
   const symbolNames = ['Pause', 'Ghostnote (g)', 'Tonfeld (T)', 'Slap (S)', 'Ding (D)'] as const;
-  // Deutsche Sechzehntel-Zählung — 1 e und de · 2 e und de · 3 e und de · 4 e und de
-  const counting = [
-    '1', 'e', 'und', 'de',
-    '2', 'e', 'und', 'de',
-    '3', 'e', 'und', 'de',
-    '4', 'e', 'und', 'de',
-  ];
+  // Counting row — canonical "1 e und de" labels for the 16-step sixteenth grid,
+  // simple 1..N numbering for variable-length / non-16n patterns (e.g. Bausteine).
+  const counting = useMemo<string[]>(() => {
+    if (isCanonical) {
+      return [
+        '1', 'e', 'und', 'de',
+        '2', 'e', 'und', 'de',
+        '3', 'e', 'und', 'de',
+        '4', 'e', 'und', 'de',
+      ];
+    }
+    return Array.from({ length: stepCount }, (_, i) => String(i + 1));
+  }, [isCanonical, stepCount]);
 
-  // ───────── Handsatz patterns — only the three from the course schema ─────────
-  const handsatzPatterns: Record<HandsatzKey, { name: string; pattern: ('R' | 'L')[] | null }> = {
+  // ───────── Handsatz patterns — alternating R-L / L-R extends to current stepCount ─────────
+  const handsatzPatterns: Record<HandsatzKey, { name: string; pattern: ('R' | 'L')[] | null }> = useMemo(() => ({
     'R-L': {
       name: 'Wechselschlag R-L',
-      pattern: ['R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L'],
+      pattern: Array.from({ length: stepCount }, (_, i) => (i % 2 === 0 ? 'R' : 'L') as 'R' | 'L'),
     },
     'L-R': {
       name: 'Wechselschlag L-R',
-      pattern: ['L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R', 'L', 'R'],
+      pattern: Array.from({ length: stepCount }, (_, i) => (i % 2 === 0 ? 'L' : 'R') as 'L' | 'R'),
     },
     'frei': {
       name: 'Freier Handsatz',
-      pattern: null, // when null, render the row as 16 muted dashes "—"
+      pattern: null, // when null, render the row as muted dashes "—"
     },
-  };
+  }), [stepCount]);
 
   // ───────── Presets ─────────
   // TODO: course presets injected via /training (Tag 12-22) — Tag-detail page links here with ?pattern=<id>&day=<num>
@@ -283,12 +330,13 @@ function HandpanMaschineInner() {
           synths.subPulse.triggerAttackRelease('32n', time, 0.4);
         }
 
-        if (currentMetronomeEnabled && step % 4 === 0 && synths.metronome) {
+        const currentBeatStride = beatStrideRef.current;
+        if (currentMetronomeEnabled && step % currentBeatStride === 0 && synths.metronome) {
           synths.metronome.triggerAttackRelease('C6', '32n', time, 0.3);
         }
       },
-      [...Array(16).keys()],
-      '16n'
+      [...Array(patternRef.current.length).keys()],
+      subdivision
     );
 
     sequenceRef.current.start(0);
@@ -314,6 +362,52 @@ function HandpanMaschineInner() {
       Tone.Transport.bpm.value = newBpm;
     }
   };
+
+  // When stepCount or subdivision changes mid-playback, the running Tone.Sequence
+  // still iterates the OLD step array at the OLD interval — rebuild it cleanly.
+  // BPM changes are routed through Tone.Transport.bpm and don't need this.
+  useEffect(() => {
+    if (!isPlaying) return;
+    if (sequenceRef.current) {
+      sequenceRef.current.stop();
+      sequenceRef.current.dispose();
+      sequenceRef.current = null;
+    }
+    sequenceRef.current = new Tone.Sequence(
+      (time, step) => {
+        setCurrentStep(step);
+        const currentPattern = patternRef.current;
+        const currentDynamics = dynamicsRef.current;
+        const currentMetronomeEnabled = metronomeEnabledRef.current;
+        const currentSubdivisionsEnabled = subdivisionsEnabledRef.current;
+        const patternValue = currentPattern[step];
+        const dynamicLevel = currentDynamics[step];
+        const baseVelocities = [0.3, 0.6, 0.9];
+        const velocity = baseVelocities[dynamicLevel] ?? 0.6;
+        const synths = synthsRef.current;
+        if (patternValue === 1 && synths.gn) {
+          synths.gn.triggerAttackRelease('32n', time, velocity);
+        } else if (patternValue === 2 && synths.tonfeld) {
+          synths.tonfeld.triggerAttackRelease('A4', '16n', time, velocity);
+        } else if (patternValue === 3 && synths.slap) {
+          synths.slap.triggerAttackRelease('16n', time, velocity);
+        } else if (patternValue === 4 && synths.ding) {
+          synths.ding.triggerAttackRelease('C2', '8n', time, velocity);
+        }
+        if (currentSubdivisionsEnabled && synths.subPulse) {
+          synths.subPulse.triggerAttackRelease('32n', time, 0.4);
+        }
+        const currentBeatStride = beatStrideRef.current;
+        if (currentMetronomeEnabled && step % currentBeatStride === 0 && synths.metronome) {
+          synths.metronome.triggerAttackRelease('C6', '32n', time, 0.3);
+        }
+      },
+      [...Array(stepCount).keys()],
+      subdivision,
+    );
+    sequenceRef.current.start(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepCount, subdivision]);
 
   // Cleanup on unmount — dispose sequence + every synth so the AudioContext
   // doesn't leak nodes across navigations.
@@ -342,7 +436,7 @@ function HandpanMaschineInner() {
     setPattern(newPattern);
   };
 
-  const resetPattern = () => setPattern(Array(16).fill(0));
+  const resetPattern = () => setPattern(Array(stepCount).fill(0));
   const loadPreset = (preset: number[]) => setPattern(preset);
 
   const copyPattern = () => {
@@ -381,10 +475,10 @@ function HandpanMaschineInner() {
     return colors[value] ?? colors[0];
   };
 
-  // Derived view — handsatz row, with `frei` rendered as 16 muted dashes.
+  // Derived view — handsatz row, with `frei` rendered as muted dashes.
   const handsatzRow: (string)[] =
     handsatzPatterns[selectedHandsatz].pattern ??
-    Array(16).fill('—');
+    Array(stepCount).fill('—');
 
   // ─────────────────────────────────────────────────────────────────────────
   // Render
@@ -856,10 +950,11 @@ function HandpanMaschineInner() {
                   display: 'grid',
                   gap: '4px',
                   marginBottom: '12px',
+                  ['--step-cols' as string]: String(stepCount),
                 }}
               >
                 {counting.map((count, idx) => {
-                  const isMain = idx % 4 === 0;
+                  const isMain = idx % beatStride === 0;
                   return (
                     <div
                       key={idx}
@@ -884,11 +979,12 @@ function HandpanMaschineInner() {
                   display: 'grid',
                   gap: '4px',
                   marginBottom: '8px',
+                  ['--step-cols' as string]: String(stepCount),
                 }}
               >
                 {pattern.map((value, idx) => {
                   const isCurrentStep = idx === currentStep;
-                  const isDownbeat = idx % 4 === 0;
+                  const isDownbeat = idx % beatStride === 0;
                   const symbol = symbols[value as StrikeIndex] ?? '.';
                   return (
                     <div
@@ -942,6 +1038,7 @@ function HandpanMaschineInner() {
                   display: 'grid',
                   gap: '4px',
                   marginBottom: '28px',
+                  ['--step-cols' as string]: String(stepCount),
                 }}
               >
                 {handsatzRow.map((hand, idx) => {
@@ -1314,7 +1411,8 @@ const TOOL_CSS = `
 .tool-page-counting,
 .tool-page-pattern,
 .tool-page-handsatz-row {
-  grid-template-columns: repeat(16, 1fr);
+  /* --step-cols set inline on each row from React; default 16 keeps legacy look. */
+  grid-template-columns: repeat(var(--step-cols, 16), 1fr);
 }
 
 @media (max-width: 700px) {
@@ -1325,7 +1423,13 @@ const TOOL_CSS = `
   .tool-page-counting,
   .tool-page-pattern,
   .tool-page-handsatz-row {
-    grid-template-columns: repeat(8, 1fr);
+    /* On mobile, cap at 8 columns so 16-step patterns wrap into 2 rows.
+       For variable patterns smaller than 8 (Bausteine 2/3/4/5/6/7), still
+       honor their actual width via min(). CSS min() inside repeat() needs
+       an integer — we fall back to plain 8 because the canonical 16-step
+       case is the one that NEEDS wrapping; variable patterns just stay
+       tighter. */
+    grid-template-columns: repeat(min(var(--step-cols, 16), 8), 1fr);
   }
   .tool-page-pattern > div {
     height: 56px !important;
