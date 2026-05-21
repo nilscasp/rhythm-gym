@@ -10,6 +10,7 @@ const items: { href: string; label: string; cta?: boolean }[] = [
   { href: '/bibliothek', label: 'Bibliothek' },
   { href: '/patterns', label: 'Patterns' },
   { href: '/training', label: 'Training' },
+  { href: '/bausteine', label: 'Bausteine' },
   { href: '/tool', label: 'Tool', cta: true },
 ];
 
