@@ -77,8 +77,26 @@ function playClick(ctx: AudioContext, time: number, isAccent: boolean) {
   noise.stop(time + noiseDur + 0.01);
 }
 
+// Per-Beat-State: jeder Beat kann Rest / Beat / Akzent sein.
+// Cycle bei Klick: 0 → 1 → 2 → 0 …
+// 0 = Rest    (Pause, kein Sound)
+// 1 = Beat    (Standard-Schlag, Tonfeld-soft)
+// 2 = Accent  (Akzent, Ding-loud)
+type BeatState = 0 | 1 | 2;
+
+type SequenceBlock = {
+  size: BlockSize;
+  beats: BeatState[]; // length === size
+};
+
+function createBlock(size: BlockSize): SequenceBlock {
+  // Default beim Hinzufügen: erster Beat = Akzent, Rest = normaler Beat.
+  const beats: BeatState[] = [2 as BeatState, ...Array(size - 1).fill(1 as BeatState)];
+  return { size, beats };
+}
+
 export default function BausteinePage() {
-  const [sequence, setSequence] = useState<BlockSize[]>([]);
+  const [sequence, setSequence] = useState<SequenceBlock[]>([]);
   const [bpm, setBpm] = useState<number>(100);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [activeBeat, setActiveBeat] = useState<number | null>(null);
@@ -90,34 +108,35 @@ export default function BausteinePage() {
   const nextBeatTimeRef = useRef<number>(0);
   const currentBeatIdxRef = useRef<number>(0);
   const visualQueueRef = useRef<{ beatIdx: number; time: number }[]>([]);
-  const sequenceRef = useRef<BlockSize[]>([]);
+  const sequenceRef = useRef<SequenceBlock[]>([]);
   const bpmRef = useRef<number>(100);
-  const accentSetRef = useRef<Set<number>>(new Set());
+  // flatStates ist die Quelle der Wahrheit für die Audio-Engine — pro globalem Beat-Index ein BeatState.
+  const flatStatesRef = useRef<BeatState[]>([]);
   const totalBeatsRef = useRef<number>(0);
   const isPlayingRef = useRef<boolean>(false);
 
   const totalBeats = useMemo(
-    () => sequence.reduce((sum, n) => sum + n, 0),
+    () => sequence.reduce((sum, b) => sum + b.size, 0),
     [sequence],
   );
 
-  const { accentSet, blockStarts } = useMemo(() => {
-    const set = new Set<number>();
+  const { flatStates, blockStarts } = useMemo(() => {
+    const flat: BeatState[] = [];
     const starts: number[] = [];
     let cursor = 0;
-    for (const size of sequence) {
-      set.add(cursor);
+    for (const block of sequence) {
       starts.push(cursor);
-      cursor += size;
+      for (const s of block.beats) flat.push(s);
+      cursor += block.size;
     }
-    return { accentSet: set, blockStarts: starts };
+    return { flatStates: flat, blockStarts: starts };
   }, [sequence]);
 
   useEffect(() => {
     sequenceRef.current = sequence;
-    accentSetRef.current = accentSet;
+    flatStatesRef.current = flatStates;
     totalBeatsRef.current = totalBeats;
-  }, [sequence, accentSet, totalBeats]);
+  }, [sequence, flatStates, totalBeats]);
 
   useEffect(() => { bpmRef.current = bpm; }, [bpm]);
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
@@ -153,11 +172,16 @@ export default function BausteinePage() {
     const ctx = audioCtxRef.current;
     const total = totalBeatsRef.current;
     if (!ctx || total <= 0) return;
+    const flat = flatStatesRef.current;
     const secPerBeat = 60 / Math.max(1, bpmRef.current);
     while (nextBeatTimeRef.current < ctx.currentTime + SCHEDULE_AHEAD_SEC) {
       const beatIdx = currentBeatIdxRef.current % total;
-      const isAccent = accentSetRef.current.has(beatIdx);
-      playClick(ctx, nextBeatTimeRef.current, isAccent);
+      const state = flat[beatIdx] ?? 0;
+      // Rest spielt nichts ab — die Zeit läuft trotzdem weiter (Pause im Rhythmus).
+      if (state !== 0) {
+        playClick(ctx, nextBeatTimeRef.current, state === 2);
+      }
+      // Visuelles Pulse läuft auch bei Rest mit, damit der Cursor sichtbar bleibt.
       visualQueueRef.current.push({ beatIdx, time: nextBeatTimeRef.current });
       nextBeatTimeRef.current += secPerBeat;
       currentBeatIdxRef.current = (currentBeatIdxRef.current + 1) % total;
@@ -205,25 +229,29 @@ export default function BausteinePage() {
     }
   }, [ensureAudioCtx, scheduleTick, visualLoop]);
 
-  const syncSequenceRefs = useCallback((next: BlockSize[]): number => {
-    const set = new Set<number>();
-    let cursor = 0;
+  const syncSequenceRefs = useCallback((next: SequenceBlock[]): number => {
+    const flat: BeatState[] = [];
     let total = 0;
-    for (const size of next) {
-      set.add(cursor);
-      cursor += size;
-      total += size;
+    for (const block of next) {
+      for (const s of block.beats) flat.push(s);
+      total += block.size;
     }
     sequenceRef.current = next;
-    accentSetRef.current = set;
+    flatStatesRef.current = flat;
     totalBeatsRef.current = total;
     return total;
   }, []);
 
-  const applySequence = useCallback((next: BlockSize[]) => {
+  // Atomarer Apply: rebuild scheduler nur wenn sich die LÄNGE ändert. Bei reinen
+  // State-Cycles (Click auf Stud) reicht es, flatStatesRef zu aktualisieren —
+  // der laufende Scheduler greift es beim nächsten Tick auf.
+  const applySequence = useCallback((next: SequenceBlock[], opts?: { rebuild?: boolean }) => {
+    const prevTotal = totalBeatsRef.current;
     setSequence(next);
     if (!isPlayingRef.current) return;
     const total = syncSequenceRefs(next);
+    const lengthChanged = total !== prevTotal;
+    if (!opts?.rebuild && !lengthChanged) return; // nur State-Update, kein Rebuild nötig
     stopScheduler();
     if (total <= 0) {
       setIsPlaying(false);
@@ -233,19 +261,33 @@ export default function BausteinePage() {
   }, [startScheduler, stopScheduler, syncSequenceRefs]);
 
   const handleAdd = useCallback((size: BlockSize) => {
-    applySequence([...sequenceRef.current, size]);
+    applySequence([...sequenceRef.current, createBlock(size)], { rebuild: true });
   }, [applySequence]);
 
   const handleRemove = useCallback((index: number) => {
-    applySequence(sequenceRef.current.filter((_, i) => i !== index));
+    applySequence(sequenceRef.current.filter((_, i) => i !== index), { rebuild: true });
   }, [applySequence]);
 
   const handleClear = useCallback(() => {
-    applySequence([]);
+    applySequence([], { rebuild: true });
   }, [applySequence]);
 
   const handleLoadExample = useCallback((parts: BlockSize[]) => {
-    applySequence([...parts]);
+    applySequence(parts.map(createBlock), { rebuild: true });
+  }, [applySequence]);
+
+  // Click auf eine einzelne Noppe: cycelt deren BeatState 0 → 1 → 2 → 0.
+  // Während laufendem Playback nur flatStatesRef-Update — der Scheduler greift
+  // den neuen State beim nächsten Tick auf, kein Rebuild = keine Hänger.
+  const handleCycleBeat = useCallback((blockIdx: number, beatIdx: number) => {
+    const cur = sequenceRef.current;
+    const block = cur[blockIdx];
+    if (!block) return;
+    const beats = [...block.beats];
+    beats[beatIdx] = ((beats[beatIdx] + 1) % 3) as BeatState;
+    const nextBlock: SequenceBlock = { size: block.size, beats };
+    const next = cur.map((b, i) => i === blockIdx ? nextBlock : b);
+    applySequence(next);
   }, [applySequence]);
 
   const handleTogglePlay = useCallback(() => {
@@ -346,20 +388,25 @@ export default function BausteinePage() {
            Rechteckiger Backstein mit "Noppen" oben, leichter Tiefe + Schlagschatten.
            Bewusst etwas wärmer/spielerischer als der Rest der App, bleibt aber in
            der Rhythm-Gym-Palette (kein Plastik-Bunt, nur Amber + Holzbraun). */
-        .rb-brick { position: relative; display: inline-flex; flex-direction: column; align-items: stretch; padding: 12px 14px 14px; border-radius: 7px; background: linear-gradient(180deg, #3a2b18 0%, #2c2012 55%, #1f1709 100%); border: 1px solid rgba(245,166,35,0.18); cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; box-shadow: inset 0 1px 0 rgba(245,237,216,0.07), inset 0 -2px 3px rgba(0,0,0,0.45), 0 3px 0 rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.45); font-family: inherit; color: inherit; }
+        .rb-brick { position: relative; display: inline-flex; flex-direction: column; align-items: stretch; padding: 10px 12px 12px; border-radius: 7px; background: linear-gradient(180deg, #3a2b18 0%, #2c2012 55%, #1f1709 100%); border: 1px solid rgba(245,166,35,0.18); cursor: default; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; box-shadow: inset 0 1px 0 rgba(245,237,216,0.07), inset 0 -2px 3px rgba(0,0,0,0.45), 0 3px 0 rgba(0,0,0,0.5), 0 8px 16px rgba(0,0,0,0.45); font-family: inherit; color: inherit; }
         .rb-brick::before { content: ''; position: absolute; left: 6%; right: 6%; top: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(245,237,216,0.12), transparent); pointer-events: none; }
+        .rb-brick.interactive { cursor: pointer; }
         .rb-brick.interactive:hover { transform: translateY(-3px); box-shadow: inset 0 1px 0 rgba(245,237,216,0.12), inset 0 -2px 3px rgba(0,0,0,0.45), 0 6px 0 rgba(0,0,0,0.5), 0 14px 24px rgba(0,0,0,0.55); border-color: rgba(245,166,35,0.45); }
-        .rb-brick.removable:hover { border-color: rgba(255,107,53,0.7); background: linear-gradient(180deg, #4a2818 0%, #3a2012 55%, #2a1409 100%); }
-        .rb-brick.removable:hover .rb-x { opacity: 1; transform: translate(50%,-50%) scale(1); }
-        .rb-brick-studs { display: flex; align-items: center; gap: 10px; }
+        .rb-brick-studs { display: flex; align-items: center; gap: 2px; }
         .rb-brick.mini { padding: 8px 10px 10px; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(245,237,216,0.07), inset 0 -1px 2px rgba(0,0,0,0.4), 0 2px 0 rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4); }
         .rb-brick.mini .rb-brick-studs { gap: 7px; }
         .rb-brick.tiny { padding: 6px 8px 8px; border-radius: 5px; box-shadow: inset 0 1px 0 rgba(245,237,216,0.06), 0 2px 0 rgba(0,0,0,0.45), 0 3px 6px rgba(0,0,0,0.35); }
         .rb-brick.tiny .rb-brick-studs { gap: 5px; }
         .rb-brick.dropped { animation: rb-drop 0.32s ease-out both; }
 
-        /* Noppen */
-        .rb-stud { display: inline-block; width: 13px; height: 13px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, rgba(168,150,118,1) 0%, rgba(96,82,60,1) 70%, rgba(60,50,34,1) 100%); box-shadow: inset 0 1px 1px rgba(255,235,200,0.18), inset 0 -1px 1px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.5); transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.2s; }
+        /* Stud-Button — größerer Tap-Bereich (Touch-Target) um die kleine Noppe herum */
+        .rb-stud-btn { background: transparent; border: none; padding: 8px 6px; margin: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; transition: background 0.12s ease; -webkit-tap-highlight-color: transparent; }
+        .rb-stud-btn:hover { background: rgba(245,237,216,0.04); }
+        .rb-stud-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+
+        /* Noppen — drei States: Pause (rest, hollow), Beat (normal), Akzent (amber-glow) */
+        .rb-stud { display: inline-block; width: 13px; height: 13px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, rgba(168,150,118,1) 0%, rgba(96,82,60,1) 70%, rgba(60,50,34,1) 100%); box-shadow: inset 0 1px 1px rgba(255,235,200,0.18), inset 0 -1px 1px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.5); transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.2s; pointer-events: none; }
+        .rb-stud.rest { width: 11px; height: 11px; background: transparent; border: 1.5px dashed rgba(168,150,118,0.45); box-shadow: none; }
         .rb-stud.accent { width: 18px; height: 18px; background: radial-gradient(circle at 35% 28%, #FFE5A8 0%, var(--amber) 55%, var(--amber2) 100%); box-shadow: inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(160,90,8,0.55), 0 0 12px rgba(245,166,35,0.45), 0 2px 3px rgba(0,0,0,0.45); }
         .rb-stud.active { animation: rb-stud-blink 0.32s ease-out; background: radial-gradient(circle at 35% 28%, #FFF6DC 0%, #FFC85C 55%, var(--amber) 100%); box-shadow: inset 0 1px 2px rgba(255,255,255,0.55), 0 0 22px rgba(255,200,92,0.95), 0 0 40px rgba(245,166,35,0.45); }
         .rb-brick.mini .rb-stud { width: 10px; height: 10px; }
@@ -371,7 +418,9 @@ export default function BausteinePage() {
         .rb-frame { margin-top: 18px; background: var(--dark); border: 1px dashed var(--border); border-radius: 4px; min-height: 148px; padding: 28px 24px 32px; display: flex; align-items: flex-end; justify-content: flex-start; flex-wrap: wrap; gap: 10px; transition: border-color 0.2s; }
         .rb-frame.has-content { border-style: solid; border-color: var(--border2); }
         .rb-frame.empty { justify-content: center; align-items: center; color: var(--muted); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
-        .rb-x { position: absolute; top: 0; right: 0; transform: translate(50%,-50%) scale(0.7); width: 20px; height: 20px; border-radius: 50%; background: var(--warm); color: var(--cream); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; line-height: 20px; text-align: center; opacity: 0; transition: opacity 0.15s, transform 0.15s; pointer-events: none; box-shadow: 0 0 10px rgba(255,107,53,0.5); }
+        /* Remove-Button (×) — immer sichtbar in dezent, auf Hover/Focus stärker. */
+        .rb-x-btn { position: absolute; top: 0; right: 0; transform: translate(40%,-40%); width: 22px; height: 22px; border-radius: 50%; background: var(--card); color: var(--muted); border: 1px solid var(--border2); font-family: 'Barlow Condensed', sans-serif; font-size: 14px; line-height: 1; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .rb-x-btn:hover, .rb-x-btn:focus-visible { background: var(--warm); color: var(--cream); border-color: var(--warm); transform: translate(40%,-40%) scale(1.12); box-shadow: 0 0 12px rgba(255,107,53,0.6); outline: none; }
 
         .rb-info { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); display: flex; gap: 24px; flex-wrap: wrap; }
         .rb-info strong { color: var(--cream); font-weight: 600; }
@@ -459,32 +508,44 @@ export default function BausteinePage() {
             {sequence.length === 0 ? (
               <span>noch leer · klick oben einen Baustein an</span>
             ) : (
-              sequence.map((size, blockIdx) => {
+              sequence.map((block, blockIdx) => {
                 const start = blockStarts[blockIdx];
+                const stateLabel = (s: BeatState) => s === 0 ? 'Pause' : s === 1 ? 'Beat' : 'Akzent';
                 return (
-                  <button
-                    key={`${blockIdx}-${size}-${start}`}
-                    type="button"
-                    className="rb-brick removable dropped"
-                    onClick={() => handleRemove(blockIdx)}
-                    aria-label={`${LABELS[size]} entfernen`}
+                  <div
+                    key={`${blockIdx}-${block.size}-${start}`}
+                    className="rb-brick dropped"
                   >
                     <div className="rb-brick-studs">
-                      {Array.from({ length: size }).map((_, i) => {
+                      {block.beats.map((state, i) => {
                         const globalIdx = start + i;
-                        const accent = i === 0;
                         const active = isActive(globalIdx);
+                        const stateClass = state === 0 ? 'rest' : state === 2 ? 'accent' : '';
                         return (
-                          <span
+                          <button
                             key={i}
-                            className={`rb-stud ${accent ? 'accent' : ''} ${active ? 'active' : ''}`}
-                            data-active={active ? 'true' : 'false'}
-                          />
+                            type="button"
+                            className="rb-stud-btn"
+                            onClick={() => handleCycleBeat(blockIdx, i)}
+                            aria-label={`Schlag ${i + 1}: ${stateLabel(state)} — klicken zum Wechseln`}
+                          >
+                            <span
+                              className={`rb-stud ${stateClass} ${active ? 'active' : ''}`}
+                              data-active={active ? 'true' : 'false'}
+                            />
+                          </button>
                         );
                       })}
                     </div>
-                    <span className="rb-x" aria-hidden>×</span>
-                  </button>
+                    <button
+                      type="button"
+                      className="rb-x-btn"
+                      onClick={() => handleRemove(blockIdx)}
+                      aria-label={`${LABELS[block.size]} entfernen`}
+                    >
+                      <span aria-hidden>×</span>
+                    </button>
+                  </div>
                 );
               })
             )}
@@ -494,7 +555,7 @@ export default function BausteinePage() {
             <span><strong>{sequence.length}</strong> Bausteine</span>
             <span><strong>{totalBeats}</strong> Schläge gesamt</span>
             {sequence.length > 0 && (
-              <span>Muster: <strong>{sequence.join(' + ')}</strong></span>
+              <span>Muster: <strong>{sequence.map(b => b.size).join(' + ')}</strong></span>
             )}
           </div>
 
@@ -518,11 +579,13 @@ export default function BausteinePage() {
             {sequence.length > 0 ? (
               <Link
                 href={(() => {
-                  // Encode each block: first beat = D (ding accent), rest = T (tonfeld).
-                  // subdivision=4n means each step is a quarter note → BPM transfers 1:1
-                  // from Bausteine (click-per-BPM) to the sequencer.
-                  const encoded = sequence.map(size => 'D' + 'T'.repeat(size - 1)).join('');
-                  const label = sequence.join('+');
+                  // Pattern direkt aus den BeatStates: 0=Pause → '.', 1=Beat → 'T', 2=Akzent → 'D'.
+                  // subdivision=4n macht jeden Step zu einem Beat → BPM transferiert 1:1.
+                  const encoded = sequence
+                    .flatMap(b => b.beats)
+                    .map(s => s === 0 ? '.' : s === 1 ? 'T' : 'D')
+                    .join('');
+                  const label = sequence.map(b => b.size).join('+');
                   return `/tool?pattern=${encoded}&bpm=${bpm}&subdivision=4n&from=bausteine&label=${encodeURIComponent(label)}`;
                 })()}
                 className="rb-btn-bridge"
