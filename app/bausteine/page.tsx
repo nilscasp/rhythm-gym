@@ -302,7 +302,7 @@ export default function BausteinePage() {
   }, [startScheduler, stopScheduler]);
 
   const handleBpmChange = useCallback((nextBpm: number) => {
-    const clamped = Math.max(40, Math.min(180, Math.round(nextBpm)));
+    const clamped = Math.max(40, Math.min(240, Math.round(nextBpm)));
     setBpm(clamped);
     if (!isPlayingRef.current) return;
     if (totalBeatsRef.current <= 0) return;
@@ -604,7 +604,7 @@ export default function BausteinePage() {
                 type="range"
                 className="rb-slider"
                 min={40}
-                max={180}
+                max={240}
                 step={1}
                 value={bpm}
                 onChange={e => handleBpmChange(Number(e.target.value))}

@@ -767,7 +767,7 @@ function HandpanMaschineInner() {
                   <input
                     type="range"
                     min={20}
-                    max={160}
+                    max={240}
                     value={bpm}
                     onChange={(e) => updateBPM(parseInt(e.target.value, 10))}
                     aria-label="Tempo in BPM"
@@ -798,7 +798,7 @@ function HandpanMaschineInner() {
                 </div>
 
                 <div className="tool-page-bpm-presets" style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                  {[40, 60, 90, 120].map((presetBpm) => {
+                  {[60, 90, 120, 160, 200].map((presetBpm) => {
                     const isActive = bpm === presetBpm;
                     return (
                       <button
