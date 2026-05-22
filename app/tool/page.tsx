@@ -22,7 +22,7 @@ import Link from 'next/link';
 // ─────────────────────────────────────────────────────────────────────────────
 
 type StrikeIndex = 0 | 1 | 2 | 3 | 4;
-type HandsatzKey = 'R-L' | 'L-R' | 'frei';
+type HandsatzKey = 'R-L' | 'L-R' | 'RR-LL' | 'LL-RR' | 'paradiddle' | 'frei';
 type SubdivisionKey = '4n' | '8n' | '16n' | '32n';
 
 const STRIKE_DECODE: Record<string, number> = { '.': 0, g: 1, T: 2, S: 3, D: 4 };
@@ -45,8 +45,19 @@ function decodeBpmParam(raw: string | null | undefined): number | null {
 }
 
 function decodeHandsatzParam(raw: string | null | undefined): HandsatzKey | null {
-  return raw === 'R-L' || raw === 'L-R' || raw === 'frei' ? raw : null;
+  return (
+    raw === 'R-L' || raw === 'L-R' ||
+    raw === 'RR-LL' || raw === 'LL-RR' ||
+    raw === 'paradiddle' || raw === 'frei'
+  ) ? raw : null;
 }
+
+// Cycle a rudiment unit out to N steps. R L R R extended to 7 → R L R R R L R.
+function tileHandsatz(unit: readonly ('R' | 'L')[], length: number): ('R' | 'L')[] {
+  return Array.from({ length }, (_, i) => unit[i % unit.length]);
+}
+
+const PARADIDDLE_UNIT = ['R', 'L', 'R', 'R', 'L', 'R', 'L', 'L'] as const; // klassisches single paradiddle
 
 function decodeSubdivisionParam(raw: string | null | undefined): SubdivisionKey | null {
   return raw === '4n' || raw === '8n' || raw === '16n' || raw === '32n' ? raw : null;
@@ -202,11 +213,23 @@ function HandpanMaschineInner() {
   const handsatzPatterns: Record<HandsatzKey, { name: string; pattern: ('R' | 'L')[] | null }> = useMemo(() => ({
     'R-L': {
       name: 'Wechselschlag R-L',
-      pattern: Array.from({ length: stepCount }, (_, i) => (i % 2 === 0 ? 'R' : 'L') as 'R' | 'L'),
+      pattern: tileHandsatz(['R', 'L'], stepCount),
     },
     'L-R': {
       name: 'Wechselschlag L-R',
-      pattern: Array.from({ length: stepCount }, (_, i) => (i % 2 === 0 ? 'L' : 'R') as 'L' | 'R'),
+      pattern: tileHandsatz(['L', 'R'], stepCount),
+    },
+    'RR-LL': {
+      name: 'Doubles R-L',
+      pattern: tileHandsatz(['R', 'R', 'L', 'L'], stepCount),
+    },
+    'LL-RR': {
+      name: 'Doubles L-R',
+      pattern: tileHandsatz(['L', 'L', 'R', 'R'], stepCount),
+    },
+    'paradiddle': {
+      name: 'Paradiddle',
+      pattern: tileHandsatz(PARADIDDLE_UNIT, stepCount),
     },
     'frei': {
       name: 'Freier Handsatz',
@@ -584,24 +607,32 @@ function HandpanMaschineInner() {
         )}
 
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gap: '30px' }}>
-          {/* ───────── Playback Controls ───────── */}
+          {/* ───────── Playback Bar (sticky, kompakt) ─────────
+              Bleibt beim Scrollen oben sichtbar (top:60px = direkt unter Nav).
+              Backdrop-blur damit Pattern-Grid darunter durchschimmert. */}
           <div
+            className="tool-page-playbar"
             style={{
-              background: 'var(--card)',
+              position: 'sticky',
+              top: 60,
+              zIndex: 50,
+              background: 'rgba(28,26,20,0.88)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               border: '1px solid var(--border)',
-              borderRadius: '12px',
-              padding: '30px',
+              borderRadius: '8px',
+              padding: '12px 18px',
             }}
           >
-            <div className="tool-page-controls-row">
-              {/* Play/Stop */}
-              <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="tool-page-playbar-row">
+              {/* Play / Stop — kompakt 48px statt 80px */}
+              <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
                 <button
                   onClick={togglePlayback}
                   aria-label={isPlaying ? 'Pause' : 'Play'}
                   style={{
-                    width: '80px',
-                    height: '80px',
+                    width: '48px',
+                    height: '48px',
                     borderRadius: '50%',
                     background: isPlaying
                       ? 'linear-gradient(135deg, var(--warm) 0%, #E55A2B 100%)'
@@ -611,19 +642,20 @@ function HandpanMaschineInner() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
                     color: 'var(--black)',
+                    flexShrink: 0,
                   }}
                 >
-                  {isPlaying ? <Pause size={36} color="var(--black)" /> : <Play size={36} color="var(--black)" />}
+                  {isPlaying ? <Pause size={20} color="var(--black)" /> : <Play size={20} color="var(--black)" />}
                 </button>
                 <button
                   onClick={stopPlayback}
                   aria-label="Stop"
                   style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '50%',
+                    width: '40px',
+                    height: '48px',
+                    borderRadius: '6px',
                     background: 'transparent',
                     border: '1px solid var(--border)',
                     cursor: 'pointer',
@@ -631,45 +663,28 @@ function HandpanMaschineInner() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'var(--muted)',
+                    flexShrink: 0,
                   }}
                 >
-                  <Square size={28} />
+                  <Square size={16} />
                 </button>
               </div>
 
-              {/* BPM Slider */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
+              {/* BPM Slider — inline mit Wert daneben */}
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <span
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '12px',
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase',
+                    color: 'var(--muted)',
+                    flexShrink: 0,
                   }}
                 >
-                  <label
-                    style={{
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      letterSpacing: '3px',
-                      textTransform: 'uppercase',
-                      color: 'var(--amber)',
-                    }}
-                  >
-                    Tempo
-                  </label>
-                  <div
-                    style={{
-                      fontFamily: "'Anton', sans-serif",
-                      fontSize: '32px',
-                      color: 'var(--cream)',
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    {bpm} BPM
-                  </div>
-                </div>
+                  Tempo
+                </span>
                 <input
                   type="range"
                   min={20}
@@ -678,9 +693,9 @@ function HandpanMaschineInner() {
                   onChange={(e) => updateBPM(parseInt(e.target.value, 10))}
                   aria-label="Tempo in BPM"
                   style={{
-                    width: '100%',
-                    height: '8px',
-                    borderRadius: '4px',
+                    flex: 1,
+                    height: '4px',
+                    borderRadius: '2px',
                     background: 'linear-gradient(90deg, var(--amber-dim) 0%, var(--amber) 100%)',
                     outline: 'none',
                     cursor: 'pointer',
@@ -688,25 +703,23 @@ function HandpanMaschineInner() {
                     WebkitAppearance: 'none',
                   }}
                 />
-                <div
+                <span
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: '8px',
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '11px',
-                    letterSpacing: '1px',
-                    color: 'var(--muted)',
+                    fontFamily: "'Anton', sans-serif",
+                    fontSize: '22px',
+                    color: 'var(--cream)',
+                    letterSpacing: '0.5px',
+                    minWidth: 70,
+                    textAlign: 'right',
+                    flexShrink: 0,
                   }}
                 >
-                  <span>20</span>
-                  <span>90</span>
-                  <span>160</span>
-                </div>
+                  {bpm}<span style={{ fontSize: '11px', color: 'var(--muted)', marginLeft: 3, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '1.5px' }}>BPM</span>
+                </span>
               </div>
 
-              {/* Preset BPM */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* BPM-Presets — kleine Chips */}
+              <div className="tool-page-bpm-presets" style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                 {[40, 60, 90, 120].map((presetBpm) => {
                   const isActive = bpm === presetBpm;
                   return (
@@ -716,15 +729,14 @@ function HandpanMaschineInner() {
                       style={{
                         background: isActive ? 'var(--amber-dim)' : 'transparent',
                         border: `1px solid ${isActive ? 'var(--amber)' : 'var(--border)'}`,
-                        borderRadius: '4px',
-                        padding: '8px 16px',
+                        borderRadius: '3px',
+                        padding: '5px 9px',
                         cursor: 'pointer',
                         color: isActive ? 'var(--amber)' : 'var(--muted)',
                         fontFamily: "'Barlow Condensed', sans-serif",
                         fontWeight: 700,
-                        fontSize: '13px',
-                        letterSpacing: '2px',
-                        textTransform: 'uppercase',
+                        fontSize: '11px',
+                        letterSpacing: '1px',
                       }}
                     >
                       {presetBpm}
@@ -734,73 +746,76 @@ function HandpanMaschineInner() {
               </div>
             </div>
 
-            {/* Audio Options */}
+            {/* Audio Options — gedämpft, kleiner, im Hintergrund */}
             <div
               style={{
-                marginTop: '24px',
+                marginTop: '10px',
+                paddingTop: '10px',
+                borderTop: '1px solid var(--border)',
                 display: 'flex',
-                gap: '16px',
-                justifyContent: 'center',
+                gap: '10px',
+                justifyContent: 'flex-end',
                 flexWrap: 'wrap',
+                opacity: 0.75,
               }}
             >
               <button
                 onClick={() => setMetronomeEnabled(!metronomeEnabled)}
                 aria-pressed={metronomeEnabled}
                 style={{
-                  background: metronomeEnabled ? 'var(--amber-dim)' : 'transparent',
-                  border: `1px solid ${metronomeEnabled ? 'var(--amber)' : 'var(--border)'}`,
-                  borderRadius: '4px',
-                  padding: '12px 24px',
+                  background: 'transparent',
+                  border: `1px solid ${metronomeEnabled ? 'var(--border2)' : 'transparent'}`,
+                  borderRadius: '3px',
+                  padding: '4px 10px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
+                  gap: '6px',
                 }}
               >
                 <Volume2
-                  size={16}
-                  color={metronomeEnabled ? 'var(--amber)' : 'var(--muted)'}
+                  size={11}
+                  color={metronomeEnabled ? 'var(--muted2)' : 'var(--border2)'}
                 />
                 <span
                   style={{
                     fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    letterSpacing: '2px',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    letterSpacing: '1.5px',
                     textTransform: 'uppercase',
-                    color: metronomeEnabled ? 'var(--amber)' : 'var(--muted)',
+                    color: metronomeEnabled ? 'var(--muted2)' : 'var(--muted)',
                   }}
                 >
-                  Metronom (Viertel)
+                  Metronom
                 </span>
               </button>
               <button
                 onClick={() => setSubdivisionsEnabled(!subdivisionsEnabled)}
                 aria-pressed={subdivisionsEnabled}
                 style={{
-                  background: subdivisionsEnabled ? 'rgba(245,237,216,0.08)' : 'transparent',
-                  border: `1px solid ${subdivisionsEnabled ? 'var(--cream)' : 'var(--border)'}`,
-                  borderRadius: '4px',
-                  padding: '12px 24px',
+                  background: 'transparent',
+                  border: `1px solid ${subdivisionsEnabled ? 'var(--border2)' : 'transparent'}`,
+                  borderRadius: '3px',
+                  padding: '4px 10px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
+                  gap: '6px',
                 }}
               >
                 <Volume2
-                  size={16}
-                  color={subdivisionsEnabled ? 'var(--cream)' : 'var(--muted)'}
+                  size={11}
+                  color={subdivisionsEnabled ? 'var(--muted2)' : 'var(--border2)'}
                 />
                 <span
                   style={{
                     fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    letterSpacing: '2px',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    letterSpacing: '1.5px',
                     textTransform: 'uppercase',
-                    color: subdivisionsEnabled ? 'var(--cream)' : 'var(--muted)',
+                    color: subdivisionsEnabled ? 'var(--muted2)' : 'var(--muted)',
                   }}
                 >
                   Sub-Klick
@@ -1401,10 +1416,12 @@ const TOOL_CSS = `
   box-shadow: 0 4px 12px rgba(245,166,35,0.5);
 }
 
-.tool-page-controls-row {
+/* Sticky Playback-Bar — Play/Stop, Tempo, BPM-Presets in einer Zeile.
+   Sticky am oberen Rand (top:60px = direkt unter der globalen Nav).        */
+.tool-page-playbar-row {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 30px;
+  gap: 18px;
   align-items: center;
 }
 
@@ -1416,9 +1433,13 @@ const TOOL_CSS = `
 }
 
 @media (max-width: 700px) {
-  .tool-page-controls-row {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  .tool-page-playbar-row {
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+  }
+  .tool-page-bpm-presets {
+    grid-column: 1 / -1;
+    justify-content: center;
   }
   .tool-page-counting,
   .tool-page-pattern,
