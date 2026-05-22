@@ -30,6 +30,7 @@ const STRIKE_DECODE: Record<string, number> = { '.': 0, g: 1, T: 2, S: 3, D: 4 }
 const MIN_STEP_COUNT = 1;
 const MAX_STEP_COUNT = 32;
 const DEFAULT_STEP_COUNT = 16;
+const STEP_PRESETS: readonly number[] = [4, 6, 8, 12, 16, 24, 32];
 
 function decodePatternParam(raw: string | null | undefined): number[] | null {
   if (!raw) return null;
@@ -445,6 +446,24 @@ function HandpanMaschineInner() {
   const resetPattern = () => setPattern(Array(stepCount).fill(0));
   const loadPreset = (preset: number[]) => setPattern(preset);
 
+  // Step-Count manuell setzen. Pattern wird auf neue Länge umgeformt:
+  // - kürzer: truncate (verlorene Beats ab Position newCount sind weg)
+  // - länger: extend mit Pausen (0)
+  // Bei der Subdivision: wenn der User auf 16 geht, switche zurück auf 16n
+  // (kanonische Sechzehntel-Zählung); andere Längen bekommen 4n, damit jeder
+  // Step ein Beat ist und das Tempo intuitiv bleibt (BPM = Beats per Minute).
+  const setStepCountAndResize = (newCount: number) => {
+    const clamped = Math.max(MIN_STEP_COUNT, Math.min(MAX_STEP_COUNT, newCount));
+    if (clamped === pattern.length) return;
+    const next = Array<number>(clamped).fill(0);
+    for (let i = 0; i < Math.min(pattern.length, clamped); i++) next[i] = pattern[i];
+    setPattern(next);
+    // Auto-Subdivision: 16-step bleibt canonical Sechzehntel; alles andere wird 4n
+    // damit BPM 1:1 als "Schläge pro Minute" funktioniert (wie in /bausteine).
+    const nextSubdivision: SubdivisionKey = clamped === 16 ? '16n' : '4n';
+    if (nextSubdivision !== subdivision) setSubdivision(nextSubdivision);
+  };
+
   const copyPattern = () => {
     const patternString = pattern.map((v) => symbols[v as StrikeIndex]).join('');
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -802,6 +821,120 @@ function HandpanMaschineInner() {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Step-Count Picker — kompakt, neben den Audio-Toggles */}
+              <div
+                className="tool-page-stepcount"
+                style={{
+                  marginTop: '10px',
+                  paddingTop: '10px',
+                  borderTop: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase',
+                    color: 'var(--muted)',
+                  }}
+                >
+                  Schritte
+                </span>
+                <div className="tool-page-stepcount-chips">
+                  {STEP_PRESETS.map((n) => {
+                    const isActive = stepCount === n;
+                    return (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setStepCountAndResize(n)}
+                        aria-pressed={isActive}
+                        style={{
+                          background: isActive ? 'var(--amber-dim)' : 'transparent',
+                          border: `1px solid ${isActive ? 'var(--amber)' : 'var(--border)'}`,
+                          color: isActive ? 'var(--amber)' : 'var(--muted)',
+                          borderRadius: '3px',
+                          padding: '4px 8px',
+                          cursor: 'pointer',
+                          fontFamily: "'Barlow Condensed', sans-serif",
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          letterSpacing: '1px',
+                          minWidth: 28,
+                        }}
+                      >
+                        {n}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+                  <button
+                    type="button"
+                    onClick={() => setStepCountAndResize(stepCount - 1)}
+                    disabled={stepCount <= MIN_STEP_COUNT}
+                    aria-label="Ein Schritt weniger"
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      borderRadius: '3px',
+                      width: 26,
+                      height: 26,
+                      padding: 0,
+                      cursor: stepCount <= MIN_STEP_COUNT ? 'not-allowed' : 'pointer',
+                      color: 'var(--muted)',
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      opacity: stepCount <= MIN_STEP_COUNT ? 0.35 : 1,
+                    }}
+                  >
+                    −
+                  </button>
+                  <span
+                    aria-live="polite"
+                    style={{
+                      fontFamily: "'Anton', sans-serif",
+                      fontSize: '14px',
+                      color: 'var(--cream)',
+                      minWidth: 22,
+                      textAlign: 'center',
+                      lineHeight: '26px',
+                    }}
+                  >
+                    {stepCount}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setStepCountAndResize(stepCount + 1)}
+                    disabled={stepCount >= MAX_STEP_COUNT}
+                    aria-label="Ein Schritt mehr"
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      borderRadius: '3px',
+                      width: 26,
+                      height: 26,
+                      padding: 0,
+                      cursor: stepCount >= MAX_STEP_COUNT ? 'not-allowed' : 'pointer',
+                      color: 'var(--muted)',
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      opacity: stepCount >= MAX_STEP_COUNT ? 0.35 : 1,
+                    }}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
 
@@ -1360,6 +1493,13 @@ const TOOL_CSS = `
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 6px;
+}
+
+/* Step-Count-Chips — Desktop alle 7 in einer Zeile, Mobile umbruch */
+.tool-page-stepcount-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 /* Strike Legend (klein, unter dem Pattern) — fünf Chips mit Symbol + Name */
