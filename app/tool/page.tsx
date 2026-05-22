@@ -209,32 +209,15 @@ function HandpanMaschineInner() {
     return Array.from({ length: stepCount }, (_, i) => String(i + 1));
   }, [isCanonical, stepCount]);
 
-  // ───────── Handsatz patterns — alternating R-L / L-R extends to current stepCount ─────────
-  const handsatzPatterns: Record<HandsatzKey, { name: string; pattern: ('R' | 'L')[] | null }> = useMemo(() => ({
-    'R-L': {
-      name: 'Wechselschlag R-L',
-      pattern: tileHandsatz(['R', 'L'], stepCount),
-    },
-    'L-R': {
-      name: 'Wechselschlag L-R',
-      pattern: tileHandsatz(['L', 'R'], stepCount),
-    },
-    'RR-LL': {
-      name: 'Doubles R-L',
-      pattern: tileHandsatz(['R', 'R', 'L', 'L'], stepCount),
-    },
-    'LL-RR': {
-      name: 'Doubles L-R',
-      pattern: tileHandsatz(['L', 'L', 'R', 'R'], stepCount),
-    },
-    'paradiddle': {
-      name: 'Paradiddle',
-      pattern: tileHandsatz(PARADIDDLE_UNIT, stepCount),
-    },
-    'frei': {
-      name: 'Freier Handsatz',
-      pattern: null, // when null, render the row as muted dashes "—"
-    },
+  // ───────── Handsatz patterns ─────────
+  // `name` = long form for the eyebrow header, `short` = chip label
+  const handsatzPatterns: Record<HandsatzKey, { name: string; short: string; pattern: ('R' | 'L')[] | null }> = useMemo(() => ({
+    'R-L':        { name: 'Wechselschlag R-L', short: 'R-L',        pattern: tileHandsatz(['R', 'L'], stepCount) },
+    'L-R':        { name: 'Wechselschlag L-R', short: 'L-R',        pattern: tileHandsatz(['L', 'R'], stepCount) },
+    'RR-LL':      { name: 'Doubles R-L',       short: 'RR-LL',      pattern: tileHandsatz(['R', 'R', 'L', 'L'], stepCount) },
+    'LL-RR':      { name: 'Doubles L-R',       short: 'LL-RR',      pattern: tileHandsatz(['L', 'L', 'R', 'R'], stepCount) },
+    'paradiddle': { name: 'Paradiddle',        short: 'Paradiddle', pattern: tileHandsatz(PARADIDDLE_UNIT, stepCount) },
+    'frei':       { name: 'Freier Handsatz',   short: 'Frei',       pattern: null },
   }), [stepCount]);
 
   // ───────── Presets ─────────
@@ -1092,61 +1075,51 @@ function HandpanMaschineInner() {
               </div>
             </div>
 
-            {/* Handsatz-Auswahl */}
-            <div
-              style={{
-                background: 'var(--black)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                padding: '20px',
-                marginBottom: '20px',
-              }}
-            >
-              <h3
-                style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontSize: '13px',
-                  color: 'var(--amber)',
-                  margin: '0 0 12px 0',
-                  fontWeight: 700,
-                  letterSpacing: '3px',
-                  textTransform: 'uppercase',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}
-              >
-                <Hand size={16} /> Handsatz: {handsatzPatterns[selectedHandsatz].name}
-              </h3>
+            {/* Handsatz-Auswahl — minimalistisch, Kurz-Labels, Mobile 3-spaltig */}
+            <div style={{ marginBottom: '24px' }}>
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: '8px',
+                  marginBottom: '10px',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontSize: '11px',
+                  color: 'var(--muted)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  fontWeight: 700,
                 }}
               >
-                {(Object.entries(handsatzPatterns) as [HandsatzKey, { name: string }][]).map(
+                <Hand size={12} aria-hidden /> Handsatz
+                <span style={{ color: 'var(--cream)' }}>· {handsatzPatterns[selectedHandsatz].name}</span>
+              </div>
+              <div className="tool-page-handsatz-chips">
+                {(Object.entries(handsatzPatterns) as [HandsatzKey, { name: string; short: string }][]).map(
                   ([key, value]) => {
                     const isSelected = selectedHandsatz === key;
                     return (
                       <button
                         key={key}
                         onClick={() => setSelectedHandsatz(key)}
+                        aria-pressed={isSelected}
+                        aria-label={value.name}
                         style={{
                           background: isSelected ? 'var(--amber-dim)' : 'transparent',
                           border: `1px solid ${isSelected ? 'var(--amber)' : 'var(--border)'}`,
                           color: isSelected ? 'var(--amber)' : 'var(--muted)',
-                          padding: '10px 14px',
-                          borderRadius: '4px',
+                          padding: '8px 6px',
+                          borderRadius: '3px',
                           cursor: 'pointer',
                           fontFamily: "'Barlow Condensed', sans-serif",
                           fontWeight: 700,
-                          fontSize: '13px',
-                          letterSpacing: '2px',
+                          fontSize: '12px',
+                          letterSpacing: '1px',
                           textTransform: 'uppercase',
+                          whiteSpace: 'nowrap',
                         }}
                       >
-                        {value.name}
+                        {value.short}
                       </button>
                     );
                   }
@@ -1425,6 +1398,13 @@ const TOOL_CSS = `
   align-items: center;
 }
 
+/* Handsatz-Chips — kompakte Kurzlabels. Desktop 6 Spalten, Mobile 3. */
+.tool-page-handsatz-chips {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
 .tool-page-counting,
 .tool-page-pattern,
 .tool-page-handsatz-row {
@@ -1440,6 +1420,9 @@ const TOOL_CSS = `
   .tool-page-bpm-presets {
     grid-column: 1 / -1;
     justify-content: center;
+  }
+  .tool-page-handsatz-chips {
+    grid-template-columns: repeat(3, 1fr);
   }
   .tool-page-counting,
   .tool-page-pattern,
