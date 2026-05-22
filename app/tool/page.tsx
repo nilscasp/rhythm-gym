@@ -590,223 +590,6 @@ function HandpanMaschineInner() {
         )}
 
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gap: '30px' }}>
-          {/* ───────── Playback Bar (sticky, kompakt) ─────────
-              Bleibt beim Scrollen oben sichtbar (top:60px = direkt unter Nav).
-              Backdrop-blur damit Pattern-Grid darunter durchschimmert. */}
-          <div
-            className="tool-page-playbar"
-            style={{
-              position: 'sticky',
-              top: 60,
-              zIndex: 50,
-              background: 'rgba(28,26,20,0.88)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              padding: '12px 18px',
-            }}
-          >
-            <div className="tool-page-playbar-row">
-              {/* Play / Stop — kompakt 48px statt 80px */}
-              <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
-                <button
-                  onClick={togglePlayback}
-                  aria-label={isPlaying ? 'Pause' : 'Play'}
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    background: isPlaying
-                      ? 'linear-gradient(135deg, var(--warm) 0%, #E55A2B 100%)'
-                      : 'linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-                    color: 'var(--black)',
-                    flexShrink: 0,
-                  }}
-                >
-                  {isPlaying ? <Pause size={20} color="var(--black)" /> : <Play size={20} color="var(--black)" />}
-                </button>
-                <button
-                  onClick={stopPlayback}
-                  aria-label="Stop"
-                  style={{
-                    width: '40px',
-                    height: '48px',
-                    borderRadius: '6px',
-                    background: 'transparent',
-                    border: '1px solid var(--border)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--muted)',
-                    flexShrink: 0,
-                  }}
-                >
-                  <Square size={16} />
-                </button>
-              </div>
-
-              {/* BPM Slider — inline mit Wert daneben */}
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span
-                  style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase',
-                    color: 'var(--muted)',
-                    flexShrink: 0,
-                  }}
-                >
-                  Tempo
-                </span>
-                <input
-                  type="range"
-                  min={20}
-                  max={160}
-                  value={bpm}
-                  onChange={(e) => updateBPM(parseInt(e.target.value, 10))}
-                  aria-label="Tempo in BPM"
-                  style={{
-                    flex: 1,
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: 'linear-gradient(90deg, var(--amber-dim) 0%, var(--amber) 100%)',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                  }}
-                />
-                <span
-                  style={{
-                    fontFamily: "'Anton', sans-serif",
-                    fontSize: '22px',
-                    color: 'var(--cream)',
-                    letterSpacing: '0.5px',
-                    minWidth: 70,
-                    textAlign: 'right',
-                    flexShrink: 0,
-                  }}
-                >
-                  {bpm}<span style={{ fontSize: '11px', color: 'var(--muted)', marginLeft: 3, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '1.5px' }}>BPM</span>
-                </span>
-              </div>
-
-              {/* BPM-Presets — kleine Chips */}
-              <div className="tool-page-bpm-presets" style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                {[40, 60, 90, 120].map((presetBpm) => {
-                  const isActive = bpm === presetBpm;
-                  return (
-                    <button
-                      key={presetBpm}
-                      onClick={() => updateBPM(presetBpm)}
-                      style={{
-                        background: isActive ? 'var(--amber-dim)' : 'transparent',
-                        border: `1px solid ${isActive ? 'var(--amber)' : 'var(--border)'}`,
-                        borderRadius: '3px',
-                        padding: '5px 9px',
-                        cursor: 'pointer',
-                        color: isActive ? 'var(--amber)' : 'var(--muted)',
-                        fontFamily: "'Barlow Condensed', sans-serif",
-                        fontWeight: 700,
-                        fontSize: '11px',
-                        letterSpacing: '1px',
-                      }}
-                    >
-                      {presetBpm}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Audio Options — gedämpft, kleiner, im Hintergrund */}
-            <div
-              style={{
-                marginTop: '10px',
-                paddingTop: '10px',
-                borderTop: '1px solid var(--border)',
-                display: 'flex',
-                gap: '10px',
-                justifyContent: 'flex-end',
-                flexWrap: 'wrap',
-                opacity: 0.75,
-              }}
-            >
-              <button
-                onClick={() => setMetronomeEnabled(!metronomeEnabled)}
-                aria-pressed={metronomeEnabled}
-                style={{
-                  background: 'transparent',
-                  border: `1px solid ${metronomeEnabled ? 'var(--border2)' : 'transparent'}`,
-                  borderRadius: '3px',
-                  padding: '4px 10px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <Volume2
-                  size={11}
-                  color={metronomeEnabled ? 'var(--muted2)' : 'var(--border2)'}
-                />
-                <span
-                  style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    color: metronomeEnabled ? 'var(--muted2)' : 'var(--muted)',
-                  }}
-                >
-                  Metronom
-                </span>
-              </button>
-              <button
-                onClick={() => setSubdivisionsEnabled(!subdivisionsEnabled)}
-                aria-pressed={subdivisionsEnabled}
-                style={{
-                  background: 'transparent',
-                  border: `1px solid ${subdivisionsEnabled ? 'var(--border2)' : 'transparent'}`,
-                  borderRadius: '3px',
-                  padding: '4px 10px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                }}
-              >
-                <Volume2
-                  size={11}
-                  color={subdivisionsEnabled ? 'var(--muted2)' : 'var(--border2)'}
-                />
-                <span
-                  style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    letterSpacing: '1.5px',
-                    textTransform: 'uppercase',
-                    color: subdivisionsEnabled ? 'var(--muted2)' : 'var(--muted)',
-                  }}
-                >
-                  Sub-Klick
-                </span>
-              </button>
-            </div>
-          </div>
-
           {/* ───────── Pattern Builder ───────── */}
           <div
             style={{
@@ -887,56 +670,211 @@ function HandpanMaschineInner() {
               </div>
             </div>
 
-            {/* Legend — 5 chips */}
+            {/* Play + BPM — sticky, inline an der Spitze des Rhythmus-Bereichs */}
             <div
+              className="tool-page-playbar"
               style={{
-                display: 'flex',
-                gap: '20px',
-                marginBottom: '28px',
-                padding: '16px',
-                background: 'var(--black)',
+                position: 'sticky',
+                top: 75,
+                zIndex: 50,
+                background: 'rgba(28,26,20,0.92)',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
-                flexWrap: 'wrap',
+                padding: '12px 18px',
+                marginBottom: '28px',
               }}
             >
-              {symbols.map((symbol, idx) => (
-                <div
-                  key={idx}
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                  <div
+              <div className="tool-page-playbar-row">
+                <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+                  <button
+                    onClick={togglePlayback}
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      background: getStepColor(idx),
-                      border: `2px solid ${getStepTextColor(idx)}`,
-                      borderRadius: '6px',
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      background: isPlaying
+                        ? 'linear-gradient(135deg, var(--warm) 0%, #E55A2B 100%)'
+                        : 'linear-gradient(135deg, var(--amber) 0%, var(--amber2) 100%)',
+                      border: 'none',
+                      cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '22px',
-                      fontWeight: 'bold',
-                      color: getStepTextColor(idx),
-                      fontFamily: "'Courier New', monospace",
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                      color: 'var(--black)',
+                      flexShrink: 0,
                     }}
                   >
-                    {symbol}
-                  </div>
+                    {isPlaying ? <Pause size={20} color="var(--black)" /> : <Play size={20} color="var(--black)" />}
+                  </button>
+                  <button
+                    onClick={stopPlayback}
+                    aria-label="Stop"
+                    style={{
+                      width: '40px',
+                      height: '48px',
+                      borderRadius: '6px',
+                      background: 'transparent',
+                      border: '1px solid var(--border)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--muted)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Square size={16} />
+                  </button>
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <span
                     style={{
-                      color: 'var(--text)',
                       fontFamily: "'Barlow Condensed', sans-serif",
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      letterSpacing: '1px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      letterSpacing: '2px',
                       textTransform: 'uppercase',
+                      color: 'var(--muted)',
+                      flexShrink: 0,
                     }}
                   >
-                    {symbolNames[idx]}
+                    Tempo
+                  </span>
+                  <input
+                    type="range"
+                    min={20}
+                    max={160}
+                    value={bpm}
+                    onChange={(e) => updateBPM(parseInt(e.target.value, 10))}
+                    aria-label="Tempo in BPM"
+                    style={{
+                      flex: 1,
+                      height: '4px',
+                      borderRadius: '2px',
+                      background: 'linear-gradient(90deg, var(--amber-dim) 0%, var(--amber) 100%)',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: "'Anton', sans-serif",
+                      fontSize: '22px',
+                      color: 'var(--cream)',
+                      letterSpacing: '0.5px',
+                      minWidth: 70,
+                      textAlign: 'right',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {bpm}<span style={{ fontSize: '11px', color: 'var(--muted)', marginLeft: 3, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '1.5px' }}>BPM</span>
                   </span>
                 </div>
-              ))}
+
+                <div className="tool-page-bpm-presets" style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+                  {[40, 60, 90, 120].map((presetBpm) => {
+                    const isActive = bpm === presetBpm;
+                    return (
+                      <button
+                        key={presetBpm}
+                        onClick={() => updateBPM(presetBpm)}
+                        style={{
+                          background: isActive ? 'var(--amber-dim)' : 'transparent',
+                          border: `1px solid ${isActive ? 'var(--amber)' : 'var(--border)'}`,
+                          borderRadius: '3px',
+                          padding: '5px 9px',
+                          cursor: 'pointer',
+                          color: isActive ? 'var(--amber)' : 'var(--muted)',
+                          fontFamily: "'Barlow Condensed', sans-serif",
+                          fontWeight: 700,
+                          fontSize: '11px',
+                          letterSpacing: '1px',
+                        }}
+                      >
+                        {presetBpm}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Metronom + Sub-Klick — gedämpft */}
+              <div
+                style={{
+                  marginTop: '10px',
+                  paddingTop: '10px',
+                  borderTop: '1px solid var(--border)',
+                  display: 'flex',
+                  gap: '10px',
+                  justifyContent: 'flex-end',
+                  flexWrap: 'wrap',
+                  opacity: 0.75,
+                }}
+              >
+                <button
+                  onClick={() => setMetronomeEnabled(!metronomeEnabled)}
+                  aria-pressed={metronomeEnabled}
+                  style={{
+                    background: 'transparent',
+                    border: `1px solid ${metronomeEnabled ? 'var(--border2)' : 'transparent'}`,
+                    borderRadius: '3px',
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <Volume2 size={11} color={metronomeEnabled ? 'var(--muted2)' : 'var(--border2)'} />
+                  <span
+                    style={{
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      letterSpacing: '1.5px',
+                      textTransform: 'uppercase',
+                      color: metronomeEnabled ? 'var(--muted2)' : 'var(--muted)',
+                    }}
+                  >
+                    Metronom
+                  </span>
+                </button>
+                <button
+                  onClick={() => setSubdivisionsEnabled(!subdivisionsEnabled)}
+                  aria-pressed={subdivisionsEnabled}
+                  style={{
+                    background: 'transparent',
+                    border: `1px solid ${subdivisionsEnabled ? 'var(--border2)' : 'transparent'}`,
+                    borderRadius: '3px',
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <Volume2 size={11} color={subdivisionsEnabled ? 'var(--muted2)' : 'var(--border2)'} />
+                  <span
+                    style={{
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      letterSpacing: '1.5px',
+                      textTransform: 'uppercase',
+                      color: subdivisionsEnabled ? 'var(--muted2)' : 'var(--muted)',
+                    }}
+                  >
+                    Sub-Klick
+                  </span>
+                </button>
+              </div>
             </div>
 
             {/* Counting + Grid wrapper — switches to 2 rows of 8 on mobile */}
@@ -1027,6 +965,25 @@ function HandpanMaschineInner() {
                     </div>
                   );
                 })}
+              </div>
+
+              {/* Strike Legend — klein, unter dem Rhythmus (zwischen Pattern und Handsatz) */}
+              <div className="tool-strike-legend">
+                {symbols.map((symbol, idx) => (
+                  <div key={idx} className="tool-strike-legend-item">
+                    <span
+                      className="tool-strike-legend-chip"
+                      style={{
+                        background: getStepColor(idx),
+                        border: `1px solid ${getStepTextColor(idx)}`,
+                        color: getStepTextColor(idx),
+                      }}
+                    >
+                      {symbol}
+                    </span>
+                    <span className="tool-strike-legend-label">{symbolNames[idx]}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Handsatz Visualization Row */}
@@ -1403,6 +1360,54 @@ const TOOL_CSS = `
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 6px;
+}
+
+/* Strike Legend (klein, unter dem Pattern) — fünf Chips mit Symbol + Name */
+.tool-strike-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 16px;
+  padding: 8px 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.85;
+}
+.tool-strike-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tool-strike-legend-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.tool-strike-legend-label {
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .tool-strike-legend {
+    gap: 8px 10px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .tool-strike-legend-chip {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
 }
 
 .tool-page-counting,
