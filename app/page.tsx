@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Waveform } from '../components/Waveform';
+import { createClient } from './lib/supabase/server';
 
 const tickerItems = [
   'Daily Practice',
@@ -35,7 +36,20 @@ const pillars = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = !!user;
+
+  // Logged-in CTAs jump straight into the hub; logged-out CTAs go to signup.
+  const ctaHref = isAuthenticated ? '/training' : '/auth/login?mode=signup';
+  const ctaHeroLabel = isAuthenticated ? 'Weiter zum Training' : 'Kostenlos starten';
+  const ctaFreeLabel = isAuthenticated ? 'Zum Training' : 'Kostenlos starten';
+  const ctaPremiumLabel = isAuthenticated ? 'Vollzugang öffnen' : 'Jetzt Mitglied werden';
+  const ctaManifestoLabel = isAuthenticated ? 'Weiter zum Training' : 'Training beginnen';
+
   return (
     <>
       <style>{LANDING_CSS}</style>
@@ -54,8 +68,8 @@ export default function LandingPage() {
             rhythmisches Verständnis. Pattern verstehen, nicht kopieren.
           </p>
           <div className="lp-hero-actions">
-            <Link href="/training" className="lp-btn-primary">
-              Kostenlos starten
+            <Link href={ctaHref} className="lp-btn-primary">
+              {ctaHeroLabel}
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path
                   d="M1 7h12M8 2l5 5-5 5"
@@ -176,8 +190,8 @@ export default function LandingPage() {
                 <li className="muted">Fortschritts-Tracking</li>
                 <li className="muted">Community &amp; Group Calls</li>
               </ul>
-              <Link href="/training" className="lp-btn-outline">
-                Kostenlos starten
+              <Link href={ctaHref} className="lp-btn-outline">
+                {ctaFreeLabel}
               </Link>
             </div>
             <div className="lp-price-card lp-featured">
@@ -197,8 +211,8 @@ export default function LandingPage() {
                 <li>Accountability Partner Matching</li>
                 <li>Monatliche Live-Session mit Nils</li>
               </ul>
-              <Link href="/training" className="lp-btn-filled">
-                Jetzt Mitglied werden
+              <Link href={ctaHref} className="lp-btn-filled">
+                {ctaPremiumLabel}
               </Link>
             </div>
           </div>
@@ -214,11 +228,11 @@ export default function LandingPage() {
           <div className="lp-manifesto-sub">— Nils Caspar, Drummer &amp; Gründer von Rhythm Gym</div>
           <div style={{ marginTop: 48 }}>
             <Link
-              href="/training"
+              href={ctaHref}
               className="lp-btn-primary"
               style={{ display: 'inline-flex' }}
             >
-              Training beginnen
+              {ctaManifestoLabel}
               <svg
                 width="14"
                 height="14"
@@ -279,7 +293,6 @@ const LANDING_CSS = `
   color: var(--amber);
   margin-bottom: 24px;
   display: flex; align-items: center; gap: 12px;
-  animation: fade-up 0.7s ease both;
 }
 .lp-hero-eyebrow::before {
   content: '';
@@ -294,7 +307,6 @@ const LANDING_CSS = `
   color: var(--cream);
   max-width: 900px;
   position: relative; z-index: 1;
-  animation: fade-up 0.7s ease both;
 }
 .lp-hero h1 em { font-style: normal; color: var(--amber); display: block; }
 .lp-hero-sub {
@@ -305,14 +317,12 @@ const LANDING_CSS = `
   color: var(--muted);
   max-width: 480px;
   position: relative; z-index: 1;
-  animation: fade-up 0.7s 0.15s ease both;
 }
 .lp-hero-sub strong { color: var(--text); font-weight: 600; }
 .lp-hero-actions {
   margin-top: 48px;
   display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
   position: relative; z-index: 1;
-  animation: fade-up 0.7s 0.3s ease both;
 }
 
 .lp-btn-primary {

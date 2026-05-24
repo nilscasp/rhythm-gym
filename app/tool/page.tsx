@@ -3,8 +3,9 @@
 import { Suspense, useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import * as Tone from 'tone';
-import { Hand, Volume2, Play, Pause, Square, RotateCcw, Copy } from 'lucide-react';
+import { Hand, Volume2, Play, Pause, Square, RotateCcw, Copy, Save } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '../lib/supabase/client';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Handpan-Maschine — 5-state click cycle (Pause / gn / tonfeld / slap / ding)
@@ -155,6 +156,47 @@ function HandpanMaschineInner() {
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(true);
   const [subdivisionsEnabled, setSubdivisionsEnabled] = useState(false);
+
+  // ───────── Auth + Save (Phase 3: save pattern to Supabase) ─────────
+  // Browser-only Supabase client; RLS enforces user_id === auth.uid() on insert.
+  // We stash it in a ref so we don't re-create it on every render.
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  if (supabaseRef.current === null && typeof window !== 'undefined') {
+    supabaseRef.current = createClient();
+  }
+  const [authUser, setAuthUser] = useState<{ id: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveToast, setSaveToast] = useState<string | null>(null);
+  // ───────── Save Modal — replaces window.prompt() with multi-field inline UI ─────────
+  // State lives next to `saving`/`saveToast` so the modal owns its own form state
+  // and the existing toast/auth pipeline is untouched.
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [saveName, setSaveName] = useState('');
+  const [saveTags, setSaveTags] = useState('');
+  const [saveNotes, setSaveNotes] = useState('');
+  const saveNameInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Fire-and-forget: read current user once on mount. If anonymous, button stays hidden.
+  useEffect(() => {
+    const supabase = supabaseRef.current;
+    if (!supabase) return;
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled) return;
+      if (data.user) setAuthUser({ id: data.user.id });
+    }).catch(() => {
+      // Silent — anonymous browsing is a valid state for /tool.
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Auto-clear save toast — success after 3s, error after 5s (caller picks duration).
+  const saveToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (saveToastTimerRef.current) clearTimeout(saveToastTimerRef.current);
+    };
+  }, []);
 
   // Refs for Tone.js
   const sequenceRef = useRef<Tone.Sequence | null>(null);
@@ -477,6 +519,87 @@ function HandpanMaschineInner() {
     }
   };
 
+  // Inverse of STRIKE_DECODE — collapses the 0..4 cells back into the canonical
+  // `.gTSD` notation string we persist in saved_patterns.notation.
+  // Out-of-range values fall back to '.' (Pause) so we never store garbage.
+  function cellsToNotation(cells: number[]): string {
+    return cells.map((v) => symbols[v as StrikeIndex] ?? '.').join('');
+  }
+
+  // Show a toast and schedule auto-clear. `kind` picks the timeout window.
+  const showSaveToast = (msg: string, kind: 'success' | 'error') => {
+    setSaveToast(msg);
+    if (saveToastTimerRef.current) clearTimeout(saveToastTimerRef.current);
+    saveToastTimerRef.current = setTimeout(() => setSaveToast(null), kind === 'success' ? 3000 : 5000);
+  };
+
+  // Open the save modal — primes the name field with a sensible default and
+  // clears the secondary fields so a previous draft never leaks into a new save.
+  const openSaveModal = () => {
+    if (!authUser || saving) return;
+    const defaultName = fromLabel ?? `Pattern ${new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}`;
+    setSaveName(defaultName);
+    setSaveTags('');
+    setSaveNotes('');
+    setShowSaveModal(true);
+  };
+
+  // Save current pattern + bpm + handsatz + tags + notes to Supabase. RLS
+  // guarantees user_id === auth.uid(), so we only need to attach our own id.
+  // Tags arrive as a comma-separated string from the modal UI — we split, trim,
+  // and drop empties so blank tokens never persist.
+  const performSave = async () => {
+    if (!authUser || saving) return;
+    const supabase = supabaseRef.current;
+    if (!supabase) return;
+    const name = saveName.trim() || 'Unbenannt';
+    const tagsArray = saveTags
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const notesTrimmed = saveNotes.trim();
+    setSaving(true);
+    try {
+      const { error } = await supabase.from('saved_patterns').insert({
+        user_id: authUser.id,
+        name,
+        notation: cellsToNotation(pattern),
+        bpm,
+        handsatz: selectedHandsatz,
+        tags: tagsArray,
+        notes: notesTrimmed.length > 0 ? notesTrimmed : null,
+        is_public: false,
+      });
+      if (error) {
+        showSaveToast('✗ Speichern fehlgeschlagen: ' + error.message, 'error');
+      } else {
+        showSaveToast('✓ Pattern gespeichert', 'success');
+        setShowSaveModal(false);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unbekannter Fehler';
+      showSaveToast('✗ Speichern fehlgeschlagen: ' + msg, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ESC closes the modal; autofocus the name input when it opens.
+  // We attach the keydown to window (not the card) so ESC works regardless of focus.
+  useEffect(() => {
+    if (!showSaveModal) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !saving) setShowSaveModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    // Defer focus so the modal is in the DOM before we focus it.
+    const t = setTimeout(() => saveNameInputRef.current?.focus(), 30);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      clearTimeout(t);
+    };
+  }, [showSaveModal, saving]);
+
   // ───────── Step colors (per value 0..4) ─────────
   const getStepColor = (value: number): string => {
     const colors = [
@@ -686,6 +809,50 @@ function HandpanMaschineInner() {
                   <Copy size={16} />
                   Kopieren
                 </button>
+                {authUser && (
+                  <button
+                    onClick={openSaveModal}
+                    disabled={saving}
+                    aria-label="Pattern speichern"
+                    className="tool-page-save-btn"
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--amber)',
+                      color: 'var(--amber)',
+                      padding: '10px 20px',
+                      borderRadius: '4px',
+                      cursor: saving ? 'wait' : 'pointer',
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      letterSpacing: '2px',
+                      textTransform: 'uppercase',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      opacity: saving ? 0.6 : 1,
+                      transition: 'background 0.15s, color 0.15s',
+                    }}
+                  >
+                    {saving ? (
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 14,
+                          height: 14,
+                          border: '2px solid var(--amber)',
+                          borderTopColor: 'transparent',
+                          borderRadius: '50%',
+                          display: 'inline-block',
+                          animation: 'tool-page-spin 0.8s linear infinite',
+                        }}
+                      />
+                    ) : (
+                      <Save size={16} />
+                    )}
+                    Speichern
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1421,6 +1588,125 @@ function HandpanMaschineInner() {
             </p>
           </div>
         </div>
+        {/* Save Modal — replaces window.prompt() with proper multi-field UI.
+            Renders at the end of <main> so it overlays everything else.
+            z-index 200+ keeps it above the toast (100) and sticky bars. */}
+        {showSaveModal && (
+          <div
+            className="tool-save-modal-overlay"
+            role="presentation"
+            onClick={(e) => {
+              // Click on the backdrop (not children) dismisses the modal.
+              if (e.target === e.currentTarget && !saving) setShowSaveModal(false);
+            }}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="tool-save-modal-title"
+              className="tool-save-modal-card"
+            >
+              <h2
+                id="tool-save-modal-title"
+                style={{
+                  fontFamily: 'Anton, sans-serif',
+                  fontSize: '22px',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  color: 'var(--cream)',
+                  margin: '0 0 18px 0',
+                }}
+              >
+                Pattern speichern
+              </h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!saving) void performSave();
+                }}
+              >
+                <label className="tool-save-modal-field">
+                  <span>Name</span>
+                  <input
+                    ref={saveNameInputRef}
+                    type="text"
+                    required
+                    value={saveName}
+                    onChange={(e) => setSaveName(e.target.value)}
+                    disabled={saving}
+                    maxLength={120}
+                  />
+                </label>
+                <label className="tool-save-modal-field">
+                  <span>Tags (komma-getrennt, optional)</span>
+                  <input
+                    type="text"
+                    value={saveTags}
+                    onChange={(e) => setSaveTags(e.target.value)}
+                    placeholder="groove, einfach"
+                    disabled={saving}
+                    maxLength={200}
+                  />
+                </label>
+                <label className="tool-save-modal-field">
+                  <span>Notizen (optional)</span>
+                  <textarea
+                    rows={3}
+                    value={saveNotes}
+                    onChange={(e) => setSaveNotes(e.target.value)}
+                    disabled={saving}
+                    maxLength={500}
+                  />
+                </label>
+                <div className="tool-save-modal-actions">
+                  <button
+                    type="button"
+                    onClick={() => { if (!saving) setShowSaveModal(false); }}
+                    disabled={saving}
+                    className="tool-save-modal-btn tool-save-modal-btn-cancel"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving || saveName.trim().length === 0}
+                    className="tool-save-modal-btn tool-save-modal-btn-save"
+                  >
+                    {saving ? '… Speichern' : '💾 Speichern'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {saveToast !== null && (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              position: 'fixed',
+              left: '50%',
+              bottom: 24,
+              transform: 'translateX(-50%)',
+              zIndex: 100,
+              background: 'rgba(28,26,20,0.96)',
+              border: '1px solid var(--amber)',
+              color: 'var(--cream)',
+              padding: '12px 22px',
+              borderRadius: '6px',
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 600,
+              fontSize: '14px',
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase',
+              boxShadow: '0 6px 20px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            {saveToast}
+          </div>
+        )}
       </main>
     </>
   );
@@ -1458,6 +1744,138 @@ export default function HandpanMaschinePage() {
 // source's pattern).
 // ─────────────────────────────────────────────────────────────────────────────
 const TOOL_CSS = `
+@keyframes tool-page-spin {
+  to { transform: rotate(360deg); }
+}
+.tool-page-save-btn:hover:not(:disabled) {
+  background: var(--amber) !important;
+  color: var(--black) !important;
+}
+
+/* Save Modal — fullscreen overlay + centered card. z-index 200 keeps it above
+   the sticky playbar (sticky:60) and the save toast (z:100). */
+.tool-save-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: tool-save-modal-fade 0.15s ease-out;
+}
+@keyframes tool-save-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.tool-save-modal-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px;
+  max-width: 480px;
+  width: calc(100% - 32px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+.tool-save-modal-field {
+  display: block;
+  margin-bottom: 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.tool-save-modal-field span {
+  display: block;
+  margin-bottom: 6px;
+}
+.tool-save-modal-field input,
+.tool-save-modal-field textarea {
+  display: block;
+  width: 100%;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--cream);
+  font-family: 'Barlow', 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  font-weight: 400;
+  box-sizing: border-box;
+  transition: border-color 0.15s, background 0.15s;
+}
+.tool-save-modal-field textarea {
+  resize: vertical;
+  min-height: 70px;
+  font-family: 'Barlow', sans-serif;
+}
+.tool-save-modal-field input:focus,
+.tool-save-modal-field textarea:focus {
+  outline: none;
+  border-color: var(--amber);
+  background: rgba(0,0,0,0.5);
+}
+.tool-save-modal-field input:disabled,
+.tool-save-modal-field textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.tool-save-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.tool-save-modal-btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+}
+.tool-save-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tool-save-modal-btn-cancel:hover:not(:disabled) {
+  background: rgba(255,255,255,0.06);
+  color: var(--cream);
+}
+.tool-save-modal-btn-save {
+  background: var(--amber);
+  color: var(--black);
+  border-color: var(--amber);
+}
+.tool-save-modal-btn-save:hover:not(:disabled) {
+  background: var(--cream);
+  border-color: var(--cream);
+}
+@media (max-width: 480px) {
+  .tool-save-modal-card {
+    padding: 20px;
+  }
+  .tool-save-modal-actions .tool-save-modal-btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
 .tool-page input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;

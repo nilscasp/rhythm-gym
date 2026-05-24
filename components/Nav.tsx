@@ -22,7 +22,7 @@ const linkBase: React.CSSProperties = {
   transition: 'color 0.2s',
 };
 
-export function Nav() {
+export function Nav({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -54,78 +54,112 @@ export function Nav() {
       >
         <Logo size={32} />
 
-        {/* Desktop nav */}
-        <ul
-          className="nav-desktop"
-          style={{
-            listStyle: 'none',
-            display: 'flex',
-            gap: 28,
-            alignItems: 'center',
-          }}
-        >
-          {items.map((it) => {
-            const active = isActive(it.href);
-            if (it.cta) {
-              return (
-                <li key={it.href}>
-                  <Link
-                    href={it.href}
-                    style={{
-                      ...linkBase,
-                      background: 'var(--amber)',
-                      color: 'var(--black)',
-                      padding: '9px 22px',
-                      borderRadius: 2,
-                      fontWeight: 700,
-                      fontSize: 12,
-                      display: 'inline-block',
-                    }}
-                  >
-                    {it.label}
-                  </Link>
-                </li>
-              );
-            }
-            return (
-              <li key={it.href}>
-                <Link
-                  href={it.href}
-                  style={{ ...linkBase, color: active ? 'var(--amber)' : 'var(--muted)' }}
-                >
-                  {it.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        {/* ── Unauthenticated: Login CTAs only — Tool/Bibliothek/etc. are members-only ── */}
+        {!isAuthenticated && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            <Link
+              href="/auth/login"
+              style={{
+                ...linkBase,
+                color: 'var(--muted)',
+                textDecoration: 'none',
+              }}
+            >
+              Einloggen
+            </Link>
+            <Link
+              href="/auth/login?mode=signup"
+              style={{
+                ...linkBase,
+                background: 'var(--amber)',
+                color: 'var(--black)',
+                padding: '9px 22px',
+                borderRadius: 2,
+                fontWeight: 700,
+                fontSize: 12,
+                textDecoration: 'none',
+              }}
+            >
+              Konto erstellen
+            </Link>
+          </div>
+        )}
 
-        {/* Mobile burger */}
-        <button
-          aria-label="Menü öffnen"
-          aria-expanded={open}
-          onClick={() => setOpen((o) => !o)}
-          className="nav-burger"
-          style={{
-            display: 'none',
-            background: 'transparent',
-            border: '1px solid var(--border)',
-            color: 'var(--cream)',
-            padding: '8px 12px',
-            borderRadius: 2,
-            cursor: 'pointer',
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontSize: 12,
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-          }}
-        >
-          {open ? 'Schließen' : 'Menü'}
-        </button>
+        {/* ── Authenticated: full menu + mobile burger ── */}
+        {isAuthenticated && (
+          <>
+            <ul
+              className="nav-desktop"
+              style={{
+                listStyle: 'none',
+                display: 'flex',
+                gap: 28,
+                alignItems: 'center',
+              }}
+            >
+              {items.map((it) => {
+                const active = isActive(it.href);
+                if (it.cta) {
+                  return (
+                    <li key={it.href}>
+                      <Link
+                        href={it.href}
+                        style={{
+                          ...linkBase,
+                          background: 'var(--amber)',
+                          color: 'var(--black)',
+                          padding: '9px 22px',
+                          borderRadius: 2,
+                          fontWeight: 700,
+                          fontSize: 12,
+                          display: 'inline-block',
+                        }}
+                      >
+                        {it.label}
+                      </Link>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={it.href}>
+                    <Link
+                      href={it.href}
+                      style={{ ...linkBase, color: active ? 'var(--amber)' : 'var(--muted)' }}
+                    >
+                      {it.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <button
+              aria-label="Menü öffnen"
+              aria-expanded={open}
+              onClick={() => setOpen((o) => !o)}
+              className="nav-burger"
+              style={{
+                display: 'none',
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                color: 'var(--cream)',
+                padding: '8px 12px',
+                borderRadius: 2,
+                cursor: 'pointer',
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: 12,
+                letterSpacing: 2,
+                textTransform: 'uppercase',
+              }}
+            >
+              {open ? 'Schließen' : 'Menü'}
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Mobile menu */}
-      {open && (
+      {/* Mobile menu (authenticated only) */}
+      {isAuthenticated && open && (
         <ul
           className="nav-mobile-menu"
           style={{

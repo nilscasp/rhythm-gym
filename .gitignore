@@ -39,3 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code session cache (private + transient)
+.claude/
+
+# interceptor automation artifacts (kept locally for verification, not source)
+interceptor-screenshot-*.png
+
+# local override permissions (personal, not team)
+.claude/settings.local.json
+
+# pre-rebuild reference bundle (HTML mockups + design tokens; kept locally for source-of-truth)
+rhythm-gym-bundle/

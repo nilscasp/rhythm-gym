@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Nav } from '../components/Nav';
 import { Footer } from '../components/Footer';
+import { ChromeGate } from '../components/ChromeGate';
+import { createClient } from './lib/supabase/server';
 
 export const metadata: Metadata = {
   title: 'Rhythm Gym — Train Your Rhythm',
@@ -10,7 +12,13 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.rhythmgym.io'),
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = !!user;
+
   return (
     <html lang="de">
       <head>
@@ -22,9 +30,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body>
-        <Nav />
+        <ChromeGate hideOn={['/auth']}>
+          <Nav isAuthenticated={isAuthenticated} />
+        </ChromeGate>
         {children}
-        <Footer />
+        <ChromeGate hideOn={['/auth']}>
+          <Footer />
+        </ChromeGate>
       </body>
     </html>
   );
