@@ -100,7 +100,7 @@ function readFlash(msg: string | undefined, detail: string | undefined): {
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ msg?: string; detail?: string }>
+  searchParams: Promise<{ msg?: string; detail?: string; onboarding?: string }>
 }) {
   const supabase = await createClient()
   const {
@@ -110,6 +110,7 @@ export default async function SettingsPage({
 
   const sp = await searchParams
   const flash = readFlash(sp?.msg, sp?.detail)
+  const isOnboarding = sp?.onboarding === 'true'
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -127,11 +128,24 @@ export default async function SettingsPage({
       <main className="set-page">
         <div className="set-wrap">
           <header className="set-head">
-            <div className="set-eyebrow">Dein Profil</div>
-            <h1>EINSTELLUNGEN</h1>
-            <p className="set-sub">
-              Wie sollen wir dich ansprechen und wo stehst du gerade?
-            </p>
+            {isOnboarding ? (
+              <>
+                <div className="set-eyebrow">Willkommen im Rhythm Gym</div>
+                <h1>SCHÖN, DASS DU DA BIST</h1>
+                <p className="set-sub">
+                  Bevor es losgeht — wie sollen wir dich ansprechen? Wir brauchen nur
+                  deinen Vornamen, das Spiel-Level kannst du wählen wenn du magst.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="set-eyebrow">Dein Profil</div>
+                <h1>EINSTELLUNGEN</h1>
+                <p className="set-sub">
+                  Wie sollen wir dich ansprechen und wo stehst du gerade?
+                </p>
+              </>
+            )}
           </header>
 
           {flash && (
@@ -153,6 +167,8 @@ export default async function SettingsPage({
                 placeholder="z. B. Anna oder Anna Müller"
                 className="set-input"
                 autoComplete="given-name"
+                required={isOnboarding}
+                autoFocus={isOnboarding}
               />
               <p className="set-hint">
                 Wir nehmen den ersten Wortteil als Anrede auf der Trainingsseite.
@@ -194,73 +210,79 @@ export default async function SettingsPage({
 
             <div className="set-actions">
               <button type="submit" className="set-save">
-                Speichern und zurück →
+                {isOnboarding ? 'Los geht’s →' : 'Speichern und zurück →'}
               </button>
-              <Link href="/training" className="set-cancel">
-                Abbrechen
-              </Link>
+              {!isOnboarding && (
+                <Link href="/training" className="set-cancel">
+                  Abbrechen
+                </Link>
+              )}
             </div>
           </form>
 
-          {/* ── EMAIL ÄNDERN ── */}
-          <section className="set-section">
-            <header className="set-section-head">
-              <div className="set-eyebrow">Login</div>
-              <h2>EMAIL-ADRESSE</h2>
-            </header>
-            <form action={updateEmail} className="set-form">
-              <div className="set-field">
-                <label htmlFor="email" className="set-label">Neue Email-Adresse</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  defaultValue={user.email ?? ''}
-                  required
-                  className="set-input"
-                  autoComplete="email"
-                />
-                <p className="set-hint">
-                  Nach Klick auf Speichern bekommst du eine Bestätigungs-Mail. Die alte Adresse bleibt aktiv, bis du den Link in der neuen Mail klickst.
+          {!isOnboarding && (
+            <>
+              {/* ── EMAIL ÄNDERN ── */}
+              <section className="set-section">
+                <header className="set-section-head">
+                  <div className="set-eyebrow">Login</div>
+                  <h2>EMAIL-ADRESSE</h2>
+                </header>
+                <form action={updateEmail} className="set-form">
+                  <div className="set-field">
+                    <label htmlFor="email" className="set-label">Neue Email-Adresse</label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      defaultValue={user.email ?? ''}
+                      required
+                      className="set-input"
+                      autoComplete="email"
+                    />
+                    <p className="set-hint">
+                      Nach Klick auf Speichern bekommst du eine Bestätigungs-Mail. Die alte Adresse bleibt aktiv, bis du den Link in der neuen Mail klickst.
+                    </p>
+                  </div>
+                  <div className="set-actions">
+                    <button type="submit" className="set-save">
+                      Bestätigungs-Mail senden →
+                    </button>
+                  </div>
+                </form>
+              </section>
+
+              {/* ── ABMELDEN ── */}
+              <section className="set-section">
+                <header className="set-section-head">
+                  <div className="set-eyebrow">Sitzung</div>
+                  <h2>ABMELDEN</h2>
+                </header>
+                <div className="set-form">
+                  <p className="set-hint">
+                    Beendet deine Sitzung in diesem Browser. Du kannst dich danach jederzeit wieder einloggen.
+                  </p>
+                  <form action="/auth/logout" method="POST" className="set-actions">
+                    <button type="submit" className="set-logout-btn">
+                      Aus diesem Browser abmelden
+                    </button>
+                  </form>
+                </div>
+              </section>
+
+              <aside className="set-future">
+                <div className="set-future-tag">Bald</div>
+                <p>
+                  Weitere Profil-Felder folgen — unter anderem dein
+                  {' '}<strong>Handpan-Rad</strong> (Skill-Karte für deine technischen Fähigkeiten),
+                  Skala deiner Handpan, und Lern-Ziele. Account-Löschung auf Anfrage an {' '}
+                  <a href="mailto:kontakt@nilscaspar.de" className="set-inline-link">
+                    kontakt@nilscaspar.de
+                  </a>.
                 </p>
-              </div>
-              <div className="set-actions">
-                <button type="submit" className="set-save">
-                  Bestätigungs-Mail senden →
-                </button>
-              </div>
-            </form>
-          </section>
-
-          {/* ── ABMELDEN ── */}
-          <section className="set-section">
-            <header className="set-section-head">
-              <div className="set-eyebrow">Sitzung</div>
-              <h2>ABMELDEN</h2>
-            </header>
-            <div className="set-form">
-              <p className="set-hint">
-                Beendet deine Sitzung in diesem Browser. Du kannst dich danach jederzeit wieder einloggen.
-              </p>
-              <form action="/auth/logout" method="POST" className="set-actions">
-                <button type="submit" className="set-logout-btn">
-                  Aus diesem Browser abmelden
-                </button>
-              </form>
-            </div>
-          </section>
-
-          <aside className="set-future">
-            <div className="set-future-tag">Bald</div>
-            <p>
-              Weitere Profil-Felder folgen — unter anderem dein
-              {' '}<strong>Handpan-Rad</strong> (Skill-Karte für deine technischen Fähigkeiten),
-              Skala deiner Handpan, und Lern-Ziele. Account-Löschung auf Anfrage an {' '}
-              <a href="mailto:kontakt@nilscaspar.de" className="set-inline-link">
-                kontakt@nilscaspar.de
-              </a>.
-            </p>
-          </aside>
+              </aside>
+            </>
+          )}
         </div>
       </main>
     </>

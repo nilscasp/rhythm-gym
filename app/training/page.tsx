@@ -158,6 +158,13 @@ export default async function TrainingHubPage() {
     ])
 
   const profile: ProfileRow | null = (profileRes.data as ProfileRow | null) ?? null
+
+  // First-time / unvollständiges Profil → Onboarding erzwingen, bevor der Hub zeigt.
+  // Verhindert die Anrede mit dem Email-Local-Part.
+  if (!profile?.full_name) {
+    redirect('/settings?onboarding=true')
+  }
+
   let enrollments: EnrollmentRow[] = (enrollmentsRes.data as EnrollmentRow[] | null) ?? []
   type CompletionRow = { exercise_id: string; exercises: { program_id: string } | null }
   const completionRows: CompletionRow[] = (completionsRes.data as CompletionRow[] | null) ?? []
