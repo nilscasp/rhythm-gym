@@ -9,6 +9,78 @@ export const metadata = {
 }
 
 // ──────────────────────────────────────────────────────────────────────
+// Dreyfus-Modell — 5 Stufen für die Selbsteinschätzung
+// (Stuart & Hubert Dreyfus, Skill Acquisition Model). Hier auf die
+// Handpan-Reise gemünzt: nicht „mehr Wissen", sondern qualitativer
+// Wandel in der Wahrnehmung — vom Regel-Folger zum intuitiven Spiel.
+// ──────────────────────────────────────────────────────────────────────
+type DreyfusStage = {
+  value: number
+  num: string
+  name: string
+  anchor: string
+  checks: string[]
+}
+
+const DREYFUS_STAGES: DreyfusStage[] = [
+  {
+    value: 1,
+    num: '01',
+    name: 'Neuling',
+    anchor: 'Vertrauen · Technik-Basis',
+    checks: [
+      'Ich konzentriere mich stark auf Fingerhaltung, Patternstruktur und Koordination.',
+      'Ich brauche klare Anweisungen und Übungsblätter.',
+      'Mein Ziel ist es, einen klaren Klang und einen durchgängigen Rhythmus zu erzeugen.',
+    ],
+  },
+  {
+    value: 2,
+    num: '02',
+    name: 'Fortgeschrittener Anfänger',
+    anchor: 'Geduld · Muster & Variation',
+    checks: [
+      'Ich kann einfache Rhythmen halten, ohne ständig nachzudenken.',
+      'Ich erkenne Unterschiede in der Dynamik (laut/leise).',
+      'Ich fange an, kleine Melodien selbst zu kombinieren.',
+    ],
+  },
+  {
+    value: 3,
+    num: '03',
+    name: 'Kompetent',
+    anchor: 'Verantwortung · Struktur & Plan',
+    checks: [
+      'Ich kann längere Stücke und Patterns spielen und bewusst variieren.',
+      'Ich verstehe den Aufbau eines Stücks (Intro, Hauptteil, Schluss).',
+      'Ich fühle mich sicher genug, vor anderen Menschen zu spielen.',
+    ],
+  },
+  {
+    value: 4,
+    num: '04',
+    name: 'Gewandt',
+    anchor: 'Resonanz · Intuition & Gefühl',
+    checks: [
+      'Ich denke nicht mehr über einzelne Schläge nach — ich höre das Lied bereits im Kopf.',
+      'Ich kann auf die Energie im Raum reagieren und mein Spiel anpassen.',
+      'Technik ist für mich Mittel zum Zweck, nicht mehr das Ziel.',
+    ],
+  },
+  {
+    value: 5,
+    num: '05',
+    name: 'Experte',
+    anchor: 'Flow & Freiheit · Pure Spielfreude',
+    checks: [
+      'Ich spiele intuitiv, ohne bewusste Planung, auf hohem Niveau.',
+      'Das Instrument fühlt sich wie eine Erweiterung meines Körpers an.',
+      'Ich finde tiefe Meditation und absolute Freiheit im Spiel.',
+    ],
+  },
+]
+
+// ──────────────────────────────────────────────────────────────────────
 // Server Action — save profile
 // ──────────────────────────────────────────────────────────────────────
 async function updateProfile(formData: FormData) {
@@ -176,23 +248,39 @@ export default async function SettingsPage({
             </div>
 
             <div className="set-field">
-              <label htmlFor="current_level" className="set-label">
-                Wie weit bist du mit der Handpan?
-              </label>
-              <select
-                id="current_level"
-                name="current_level"
-                defaultValue={String(currentLevel)}
-                className="set-select"
-              >
-                <option value="0">— bitte wählen —</option>
-                <option value="1">Anfänger:in</option>
-                <option value="2">Mittelstufe</option>
-                <option value="3">Fortgeschritten</option>
-              </select>
+              <span className="set-label">Wo stehst du auf deiner Handpan-Reise?</span>
               <p className="set-hint">
-                Hilft uns, dir passende Kurse zu empfehlen. Du kannst es jederzeit ändern.
+                Das <strong>Dreyfus-Modell</strong> beschreibt den Weg vom Regel-Folger
+                zum intuitiven Spiel. Wähle die Stufe, in der du dich aktuell
+                wiederfindest — du kannst es jederzeit ändern.
               </p>
+
+              <fieldset className="set-levels">
+                <legend className="set-sr-only">Handpan-Stufe</legend>
+                {DREYFUS_STAGES.map((stage) => (
+                  <label key={stage.value} className="set-level">
+                    <input
+                      type="radio"
+                      name="current_level"
+                      value={stage.value}
+                      defaultChecked={currentLevel === stage.value}
+                      className="set-level-radio"
+                    />
+                    <div className="set-level-content">
+                      <div className="set-level-head">
+                        <span className="set-level-num">{stage.num}</span>
+                        <span className="set-level-name">{stage.name}</span>
+                      </div>
+                      <span className="set-level-anchor">{stage.anchor}</span>
+                      <ul className="set-level-checks">
+                        {stage.checks.map((check, i) => (
+                          <li key={i}>{check}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </label>
+                ))}
+              </fieldset>
             </div>
 
             <div className="set-meta">
@@ -521,6 +609,107 @@ const SETTINGS_CSS = `
     font-weight: 600;
   }
 
+  /* ── Dreyfus-Level-Picker — 5 Radio-Cards ───────────────────────── */
+  .set-levels {
+    border: 0;
+    padding: 0;
+    margin: 12px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .set-level {
+    display: block;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    background: var(--black);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    position: relative;
+  }
+  .set-level:hover {
+    border-color: rgba(245, 166, 35, 0.5);
+  }
+  .set-level:has(input:checked) {
+    border-color: var(--amber);
+    background: rgba(245, 166, 35, 0.05);
+  }
+  .set-level:focus-within {
+    outline: 2px solid rgba(245, 166, 35, 0.6);
+    outline-offset: 2px;
+  }
+  .set-level-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .set-level-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 2px;
+  }
+  .set-level-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .set-level:has(input:checked) .set-level-num {
+    color: var(--amber);
+  }
+  .set-level-name {
+    font-family: 'Anton', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--cream);
+    line-height: 1.1;
+  }
+  .set-level-anchor {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+    opacity: 0.85;
+  }
+  .set-level-checks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .set-level-checks li {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--cream);
+    padding-left: 16px;
+    position: relative;
+  }
+  .set-level-checks li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+  .set-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   @media (max-width: 480px) {
     .set-form {
       padding: 24px 20px;
@@ -533,6 +722,12 @@ const SETTINGS_CSS = `
     .set-cancel {
       width: 100%;
       text-align: center;
+    }
+    .set-level {
+      padding: 14px 16px;
+    }
+    .set-level-name {
+      font-size: 18px;
     }
   }
 `
