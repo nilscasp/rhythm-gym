@@ -226,6 +226,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_admin: boolean
           last_practice_date: string | null
           longest_streak: number | null
           plan: string | null
@@ -238,6 +239,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          is_admin?: boolean
           last_practice_date?: string | null
           longest_streak?: number | null
           plan?: string | null
@@ -250,6 +252,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_admin?: boolean
           last_practice_date?: string | null
           longest_streak?: number | null
           plan?: string | null
@@ -429,7 +432,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin_user: { Args: { check_uid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

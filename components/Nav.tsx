@@ -5,12 +5,15 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from './Logo';
 
-const items: { href: string; label: string; cta?: boolean }[] = [
+type NavItem = { href: string; label: string; cta?: boolean; adminOnly?: boolean };
+
+const items: NavItem[] = [
   { href: '/schule', label: 'Schule' },
   { href: '/bibliothek', label: 'Bibliothek' },
   { href: '/patterns', label: 'Patterns' },
   { href: '/training', label: 'Training' },
   { href: '/bausteine', label: 'Bausteine' },
+  { href: '/coach', label: 'Coach', adminOnly: true },
   { href: '/tool', label: 'Tool', cta: true },
 ];
 
@@ -22,12 +25,21 @@ const linkBase: React.CSSProperties = {
   transition: 'color 0.2s',
 };
 
-export function Nav({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
+export function Nav({
+  isAuthenticated = false,
+  isAdmin = false,
+}: {
+  isAuthenticated?: boolean;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');
+
+  // Admin-only Items rausfiltern, wenn der User kein Admin ist.
+  const visibleItems = items.filter((it) => !it.adminOnly || isAdmin);
 
   return (
     <nav
@@ -97,7 +109,7 @@ export function Nav({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
                 alignItems: 'center',
               }}
             >
-              {items.map((it) => {
+              {visibleItems.map((it) => {
                 const active = isActive(it.href);
                 if (it.cta) {
                   return (
@@ -172,7 +184,7 @@ export function Nav({ isAuthenticated = false }: { isAuthenticated?: boolean }) 
             marginTop: 14,
           }}
         >
-          {items.map((it) => (
+          {visibleItems.map((it) => (
             <li key={it.href}>
               <Link
                 href={it.href}

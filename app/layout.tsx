@@ -19,6 +19,17 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   } = await supabase.auth.getUser();
   const isAuthenticated = !!user;
 
+  // Admin-Flag aus dem Profil ziehen — nur dann zeigt die Nav den /coach Link.
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .maybeSingle();
+    isAdmin = !!profile?.is_admin;
+  }
+
   return (
     <html lang="de">
       <head>
@@ -31,7 +42,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <ChromeGate hideOn={['/auth']}>
-          <Nav isAuthenticated={isAuthenticated} />
+          <Nav isAuthenticated={isAuthenticated} isAdmin={isAdmin} />
         </ChromeGate>
         {children}
         <ChromeGate hideOn={['/auth']}>
