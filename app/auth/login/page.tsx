@@ -97,7 +97,7 @@ function LoginPageInner() {
 
         <div style={{ width: '100%', maxWidth: 420, position: 'relative', zIndex: 1 }}>
           {/* Logo */}
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
             <Link
               href="/"
               style={{
@@ -110,6 +110,14 @@ function LoginPageInner() {
             >
               RHYTHM<span style={{ color: '#F5A623' }}>GYM</span>
             </Link>
+          </div>
+
+          {/* Beta-Banner — gilt für Login und Registrieren */}
+          <div className="login-beta" role="note">
+            <span className="login-beta-tag">Beta</span>
+            <span className="login-beta-text">
+              Kostenloser Beta-Test — alle Funktionen frei nutzbar.
+            </span>
           </div>
 
           {/* Card */}
@@ -324,5 +332,37 @@ const LOGIN_CSS = `
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
+  }
+
+  /* Beta-Banner über der Auth-Card. Sitzt zwischen Logo und Card,
+     gilt automatisch für Login und Registrieren (beide Modes derselben Card). */
+  .login-beta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(245, 166, 35, 0.08);
+    border: 1px solid rgba(245, 166, 35, 0.35);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 24px;
+  }
+  .login-beta-tag {
+    flex-shrink: 0;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #0A0907;
+    background: #F5A623;
+    padding: 3px 8px;
+    border-radius: 2px;
+    line-height: 1.4;
+  }
+  .login-beta-text {
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    color: #F5EDD8;
+    line-height: 1.4;
   }
 `
