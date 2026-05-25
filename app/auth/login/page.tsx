@@ -55,46 +55,45 @@ function LoginPageInner() {
     }
   }
 
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // iPad/iOS: virtuelle Tastatur überdeckt sonst die Inputs.
+    // Nach der Keyboard-Animation den Input wieder ins Sichtfeld scrollen.
+    const el = e.currentTarget
+    window.setTimeout(() => {
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 280)
+  }
+
   return (
     <>
       <style>{LOGIN_CSS}</style>
-      <main
-        style={{
-          minHeight: '100vh',
-          backgroundColor: '#0A0907',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Background grid */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage:
-              'linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Glow */}
-        <div
-          style={{
-            position: 'absolute',
-            top: -200,
-            right: -200,
-            width: 600,
-            height: 600,
-            background:
-              'radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
+      <main className="login-page">
+        {/* Background decorations — own clipped wrapper so the main itself
+            kann vertikal scrollen wenn die iOS-Tastatur den Viewport schrumpft. */}
+        <div className="login-bg" aria-hidden="true">
+          {/* Grid */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage:
+                'linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px)',
+              backgroundSize: '40px 40px',
+            }}
+          />
+          {/* Glow */}
+          <div
+            style={{
+              position: 'absolute',
+              top: -200,
+              right: -200,
+              width: 600,
+              height: 600,
+              background:
+                'radial-gradient(circle, rgba(245,166,35,0.06) 0%, transparent 70%)',
+            }}
+          />
+        </div>
 
         <div style={{ width: '100%', maxWidth: 420, position: 'relative', zIndex: 1 }}>
           {/* Logo */}
@@ -176,7 +175,9 @@ function LoginPageInner() {
                   type="email"
                   value={email}
                   autoComplete="email"
+                  inputMode="email"
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={handleInputFocus}
                   style={{
                     width: '100%',
                     backgroundColor: '#0A0907',
@@ -184,7 +185,8 @@ function LoginPageInner() {
                     borderRadius: 2,
                     padding: '12px 16px',
                     color: '#F5EDD8',
-                    fontSize: 15,
+                    // 16px verhindert iOS Auto-Zoom beim Fokus (alles <16px zoomt).
+                    fontSize: 16,
                     fontFamily: "'Barlow', sans-serif",
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -210,6 +212,7 @@ function LoginPageInner() {
                   value={password}
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={handleInputFocus}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSubmit()
                   }}
@@ -220,7 +223,8 @@ function LoginPageInner() {
                     borderRadius: 2,
                     padding: '12px 16px',
                     color: '#F5EDD8',
-                    fontSize: 15,
+                    // 16px verhindert iOS Auto-Zoom beim Fokus (alles <16px zoomt).
+                    fontSize: 16,
                     fontFamily: "'Barlow', sans-serif",
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -294,4 +298,31 @@ function LoginPageInner() {
 
 const LOGIN_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@300;400;600&family=Barlow+Condensed:wght@300;400;700&display=swap');
+
+  /* iPad-Fix für die Auth-Form:
+     vorher 100vh + overflow:hidden + center → iOS-Tastatur überdeckte Inputs,
+     weil 100vh nicht auf den geschrumpften Visual Viewport reagiert und
+     overflow:hidden das Hochscrollen blockierte. Jetzt:
+     - 100dvh (passt sich Keyboard an, mit 100vh als Fallback)
+     - bg-Decorations leben in eigenem clipping-Wrapper → main scrollt frei
+     - großzügiges bottom-padding + safe-area-Reserve für Keyboard. */
+  .login-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #0A0907;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-bottom: max(96px, env(safe-area-inset-bottom));
+    position: relative;
+  }
+  .login-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
 `
