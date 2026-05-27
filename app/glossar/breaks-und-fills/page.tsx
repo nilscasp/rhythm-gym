@@ -7,9 +7,9 @@ export default function BreaksUndFillsPage() {
 
       <div className="bf-page">
         <div className="bf-wrap">
-          {/* Zurück zur Bibliothek */}
+          {/* Zurück zum Glossar */}
           <div className="bf-back">
-            <Link href="/bibliothek">← Zurück zur Bibliothek</Link>
+            <Link href="/glossar">← Zurück zum Glossar</Link>
           </div>
 
           {/* HERO */}

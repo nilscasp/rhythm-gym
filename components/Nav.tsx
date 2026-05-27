@@ -8,8 +8,8 @@ import { Logo } from './Logo';
 type NavItem = { href: string; label: string; cta?: boolean; adminOnly?: boolean };
 
 const items: NavItem[] = [
-  { href: '/schule', label: 'Schule' },
-  { href: '/bibliothek', label: 'Bibliothek' },
+  { href: '/anleitung', label: 'Anleitung' },
+  { href: '/glossar', label: 'Glossar' },
   { href: '/patterns', label: 'Patterns' },
   { href: '/training', label: 'Training' },
   { href: '/bausteine', label: 'Bausteine' },

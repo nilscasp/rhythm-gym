@@ -79,7 +79,8 @@ function beatStrideFor(sub: SubdivisionKey): number {
 const FROM_LABELS: Record<string, string> = {
   training: 'Training',
   patterns: 'Patterns',
-  bibliothek: 'Bibliothek',
+  glossar: 'Glossar',
+  bibliothek: 'Glossar', // backward-compat — alte ?from=bibliothek Links zeigen weiterhin korrektes Label
   bausteine: 'Bausteine',
 };
 

@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Schule — Rhythm Gym',
+  title: 'Anleitung — Rhythm Gym',
   description:
-    'Wie Rhythm Gym funktioniert: die Handpan-Maschine, das Tagestraining, die Bibliothek. Eine Einführung von Nils Caspar.',
+    'Wie Rhythm Gym funktioniert: die Handpan-Maschine, das Tagestraining, das Glossar. Eine Einführung von Nils Caspar.',
 };
 
 const STRIKES = [
@@ -79,9 +79,9 @@ const APP_SECTIONS = [
       'Stöber durch 81 kuratierte Rhythmen, sortiert nach Archetyp und Charakter. Jeder lädt sich auf Wunsch direkt ins Tool.',
   },
   {
-    href: '/bibliothek',
+    href: '/glossar',
     eyebrow: 'Wissens-Hub',
-    title: 'Bibliothek',
+    title: 'Glossar',
     desc:
       'Die sechs konzeptuellen Layer von Zeitbasis bis Praxis — Vokabular für alles, was du im Tool und Training hörst. Plus Vertiefung Breaks und Fills.',
   },
@@ -142,7 +142,7 @@ const TRAINING_STEPS = [
   },
 ] as const;
 
-export default function SchulePage() {
+export default function AnleitungPage() {
   return (
     <>
       <style>{SCHULE_CSS}</style>
@@ -159,7 +159,7 @@ export default function SchulePage() {
             </h1>
             <p className="sch-hero-sub">
               Eine Einführung in das, was hinter der Anmeldung wartet — das Tool, das
-              Tagestraining, die Bibliothek. Geschrieben für dich, bevor du loslegst,
+              Tagestraining, das Glossar. Geschrieben für dich, bevor du loslegst,
               und für später, wenn du etwas nachschauen willst.
             </p>
           </header>
@@ -342,10 +342,10 @@ export default function SchulePage() {
             </div>
           </section>
 
-          {/* PATTERNS + BIBLIOTHEK */}
+          {/* PATTERNS + GLOSSAR */}
           <section className="sch-section">
             <div className="sch-section-eyebrow">Drumherum</div>
-            <h2>Patterns &amp; Bibliothek.</h2>
+            <h2>Patterns &amp; Glossar.</h2>
             <div className="sch-prose">
               <p>
                 <Link href="/patterns" className="sch-inline-link">/patterns</Link>{' '}
@@ -354,11 +354,11 @@ export default function SchulePage() {
                 sie ins Tool. Gut, wenn du was außerhalb von Zyklus 2 üben willst.
               </p>
               <p>
-                <Link href="/bibliothek" className="sch-inline-link">/bibliothek</Link>{' '}
+                <Link href="/glossar" className="sch-inline-link">/glossar</Link>{' '}
                 ist der Wissens-Hub. Sechs konzeptuelle Layer (Zeitbasis → Auflösung →
                 Gestaltung → Timing &amp; Groove → Mehrschichtigkeit → Praxis) plus
                 eine Vertiefung zu{' '}
-                <Link href="/bibliothek/breaks-und-fills" className="sch-inline-link">
+                <Link href="/glossar/breaks-und-fills" className="sch-inline-link">
                   Breaks und Fills
                 </Link>
                 . Hier liegt das Vokabular für alles, was du im Tool und Training hörst.

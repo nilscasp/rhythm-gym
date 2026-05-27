@@ -9,7 +9,7 @@ import { createClient } from './lib/supabase/server';
 export const metadata: Metadata = {
   title: 'Rhythm Gym — Train Your Rhythm',
   description:
-    'Tägliches Rhythmus-Training für Handpan-Spieler. Bibliothek, Patterns und ein Tool zum Üben.',
+    'Tägliches Rhythmus-Training für Handpan-Spieler. Glossar, Patterns und ein Tool zum Üben.',
   metadataBase: new URL('https://www.rhythmgym.io'),
 };
 

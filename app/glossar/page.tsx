@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export default function BibliothekPage() {
+export default function GlossarPage() {
   return (
     <>
       <style>{BIBLIOTHEK_CSS}</style>
@@ -11,7 +11,7 @@ export default function BibliothekPage() {
           {/* ── HERO ── */}
           <div className="lib-hero">
             <div className="lib-hero-kicker">Rhythm Gym · Wissen</div>
-            <h1>RHYTHMUS<br /><em>BIBLIOTHEK</em></h1>
+            <h1>RHYTHMUS<br /><em>GLOSSAR</em></h1>
             <p className="lib-hero-sub">
               Alle Begriffe, Konzepte und Zusammenhänge an einem Ort.
               Von Puls bis Polyrhythmus — klar definiert, sauber getrennt, bereit zum Üben.
@@ -562,7 +562,7 @@ export default function BibliothekPage() {
           </div>
 
           {/* ── VERTIEFUNG ── */}
-          <Link href="/bibliothek/breaks-und-fills" className="lib-vertiefung">
+          <Link href="/glossar/breaks-und-fills" className="lib-vertiefung">
             <div className="lib-vertiefung-kicker">Vertiefung</div>
             <div className="lib-vertiefung-title">Breaks und Fills →</div>
             <div className="lib-vertiefung-desc">

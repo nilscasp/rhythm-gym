@@ -523,8 +523,8 @@ export default async function TrainingHubPage() {
               <Link href="/tool" className="hub-action">
                 Freies Spiel im Tool →
               </Link>
-              <Link href="/bibliothek" className="hub-action">
-                Bibliothek lesen →
+              <Link href="/glossar" className="hub-action">
+                Glossar lesen →
               </Link>
             </div>
           </section>
