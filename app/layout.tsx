@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { Nav } from '../components/Nav';
 import { Footer } from '../components/Footer';
@@ -48,6 +49,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ChromeGate hideOn={['/auth']}>
           <Footer />
         </ChromeGate>
+        <Analytics />
       </body>
     </html>
   );
