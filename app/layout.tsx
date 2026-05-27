@@ -4,6 +4,7 @@ import { Nav } from '../components/Nav';
 import { Footer } from '../components/Footer';
 import { ChromeGate } from '../components/ChromeGate';
 import { createClient } from './lib/supabase/server';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'Rhythm Gym — Train Your Rhythm',
@@ -48,6 +49,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ChromeGate hideOn={['/auth']}>
           <Footer />
         </ChromeGate>
+        <Analytics />
       </body>
     </html>
   );
