@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '../../lib/supabase/server'
+import { createClient } from '../../../lib/supabase/server'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // toggleCompletionAction
@@ -54,6 +54,6 @@ export async function toggleCompletionAction(formData: FormData): Promise<void> 
     if (insertErr) throw insertErr
   }
 
-  revalidatePath('/training/rhythmusfundament')
+  revalidatePath('/training/rhythmusfundament/zyklus-2-uebersicht')
   revalidatePath('/training')
 }

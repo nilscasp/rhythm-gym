@@ -1,80 +1,322 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
 import {
-  RhythmusfundamentClient,
-  type ExerciseLite,
-} from './RhythmusfundamentClient'
+  RHYTHMUS_CYCLES,
+  RHYTHMUS_DAYS,
+  TOTAL_DAYS,
+} from '../../../data/rhythmusfundament-days'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// /training/rhythmusfundament — Server-Component shell.
-// Auth-gates, loads the program + exercises + completed exercise_ids, then
-// hands everything to the client course player. All Tone.js audio, spacebar
-// shortcuts, BPM controls, and day switching live in RhythmusfundamentClient.
+// /training/rhythmusfundament — 40-Tage-Index.
+//
+// Auth-gates first. Listet die 40 Tage gruppiert in drei Zyklen. Jede Karte
+// linkt auf /training/rhythmusfundament/tag/[n] mit Markdown-Body + Player.
+//
+// Der reichere Tag-12-bis-22-Player (mit Stufen, Kombis, Spielwegen, Supabase-
+// Abhaken) lebt jetzt unter /training/rhythmusfundament/zyklus-2-uebersicht.
 // ─────────────────────────────────────────────────────────────────────────────
-
-const RHYTHMUSFUNDAMENT_SLUG = 'rhythmusfundament'
 
 export const metadata = {
-  title: 'Rhythmus-Fundament — Training',
+  title: 'Rhythmus-Fundament — 40-Tage-Kurs',
   description:
-    'Tag-12-bis-22 Trainings-Übersicht (Closed Beta). Übe Patterns, Kombis und Spielwege und hake ab, was sitzt.',
+    'Alle 40 Tage des Rhythmus-Fundament-Kurses — Texte und Player pro Tag. Wähle deinen Tag und drück Play.',
 }
 
-type ProgramIdRow = { id: string }
-type CompletionRow = { exercise_id: string }
-
-export default async function RhythmusfundamentPage() {
+export default async function RhythmusfundamentIndexPage() {
   const supabase = await createClient()
-
-  // A. Auth gate
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // B. Program lookup
-  const { data: programRow } = await supabase
-    .from('programs')
-    .select('id')
-    .eq('slug', RHYTHMUSFUNDAMENT_SLUG)
-    .maybeSingle()
-
-  const program: ProgramIdRow | null = (programRow as ProgramIdRow | null) ?? null
-
-  // No program seed → render an empty client (still shows the day grid + UI
-  // chrome, but no exercise IDs resolve so no checkboxes appear). Avoid a
-  // hard 404 to keep the closed-beta course player reachable.
-  if (!program) {
-    return (
-      <RhythmusfundamentClient exercises={[]} initialCompletedIds={[]} />
-    )
-  }
-
-  // C. Parallel fetch: exercises for this program + the user's completions
-  // (filtered to those exercise IDs so we don't drag in unrelated programs).
-  const [exercisesRes, completionsRes] = await Promise.all([
-    supabase
-      .from('exercises')
-      .select('id, kind, day_number, position, pattern_data')
-      .eq('program_id', program.id)
-      .order('position', { ascending: true }),
-    supabase
-      .from('completions')
-      .select('exercise_id, exercises!inner(program_id)')
-      .eq('user_id', user.id)
-      .eq('exercises.program_id', program.id),
-  ])
-
-  const exercises: ExerciseLite[] =
-    (exercisesRes.data as ExerciseLite[] | null) ?? []
-  const completionRows: CompletionRow[] =
-    (completionsRes.data as CompletionRow[] | null) ?? []
-  const initialCompletedIds: string[] = completionRows.map((r) => r.exercise_id)
-
   return (
-    <RhythmusfundamentClient
-      exercises={exercises}
-      initialCompletedIds={initialCompletedIds}
-    />
+    <>
+      <style>{INDEX_CSS}</style>
+      <main className="rf-page">
+        <div className="rf-wrap">
+          {/* Hero */}
+          <header className="rf-hero">
+            <div className="rf-eyebrow">Rhythm Gym · Kurs</div>
+            <h1 className="rf-title">RHYTHMUS-FUNDAMENT</h1>
+            <p className="rf-tagline">
+              40 Tage · drei Zyklen · vom Puls bis zur eigenen Komposition.
+            </p>
+            <p className="rf-sub">
+              Wähle deinen Tag — Text, Übungen und der Rhythmus-Player sind
+              auf jeder Seite direkt geladen. Mehrere Patterns pro Tag:
+              ein Klick wechselt den Player.
+            </p>
+            <div className="rf-meta">
+              <span className="rf-chip">{TOTAL_DAYS} Tage</span>
+              <span className="rf-chip">3 Zyklen</span>
+              <Link
+                href="/training/rhythmusfundament/zyklus-2-uebersicht"
+                className="rf-chip rf-chip--link"
+              >
+                Zyklus 2 · klassische Übersicht →
+              </Link>
+            </div>
+          </header>
+
+          {/* Cycles */}
+          {RHYTHMUS_CYCLES.map((cycle) => {
+            const cycleDays = RHYTHMUS_DAYS.filter(
+              (d) => d.cycle === cycle.number,
+            )
+            return (
+              <section key={cycle.number} className="rf-cycle">
+                <header className="rf-cycle-head">
+                  <span className="rf-cycle-num">Zyklus {cycle.number}</span>
+                  <h2 className="rf-cycle-title">{cycle.title}</h2>
+                  <p className="rf-cycle-sub">{cycle.subtitle}</p>
+                  <p className="rf-cycle-range">
+                    Tag {cycle.dayRange[0]}–{cycle.dayRange[1]} · {cycleDays.length} Tage
+                  </p>
+                </header>
+                <div className="rf-day-grid">
+                  {cycleDays.map((d) => (
+                    <Link
+                      key={d.number}
+                      href={`/training/rhythmusfundament/tag/${d.number}`}
+                      className="rf-day-card"
+                    >
+                      <span className="rf-day-num">Tag {d.number}</span>
+                      <span className="rf-day-title">{d.title}</span>
+                      <span className="rf-day-essence">{d.essence}</span>
+                      <span className="rf-day-meta">
+                        {d.presets.length}{' '}
+                        {d.presets.length === 1 ? 'Pattern' : 'Patterns'}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )
+          })}
+        </div>
+      </main>
+    </>
   )
 }
+
+const INDEX_CSS = `
+  .rf-page {
+    min-height: 100vh;
+    background: var(--black);
+    color: var(--cream);
+    padding: 48px 20px 96px;
+    font-family: 'Barlow', sans-serif;
+  }
+  .rf-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  /* ── Hero ── */
+  .rf-hero {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .rf-hero::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -120px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .rf-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .rf-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(36px, 6vw, 56px);
+    letter-spacing: 2px;
+    line-height: 1.05;
+    color: var(--cream);
+    margin: 0;
+  }
+  .rf-tagline {
+    font-size: 16px;
+    color: var(--muted2, var(--muted));
+    margin: 0;
+  }
+  .rf-sub {
+    font-size: 14px;
+    color: var(--text, var(--cream));
+    line-height: 1.6;
+    margin: 0;
+    max-width: 70ch;
+  }
+  .rf-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .rf-chip {
+    display: inline-block;
+    padding: 6px 12px;
+    background: var(--amber-dim, rgba(245,166,35,0.12));
+    color: var(--amber);
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .rf-chip--link {
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .rf-chip--link:hover {
+    border-color: var(--amber);
+  }
+
+  /* ── Cycle Section ── */
+  .rf-cycle {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .rf-cycle-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .rf-cycle-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .rf-cycle-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+    line-height: 1.1;
+    color: var(--cream);
+    margin: 0;
+  }
+  .rf-cycle-sub {
+    font-size: 14px;
+    color: var(--muted2, var(--muted));
+    margin: 0;
+    max-width: 64ch;
+  }
+  .rf-cycle-range {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ── Day Grid ── */
+  .rf-day-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .rf-day-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+    color: var(--cream);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.15s, transform 0.1s;
+  }
+  .rf-day-card:hover {
+    border-color: var(--amber);
+    transform: translateY(-1px);
+  }
+  .rf-day-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .rf-day-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    line-height: 1.15;
+    color: var(--cream);
+  }
+  .rf-day-essence {
+    font-size: 13px;
+    color: var(--muted2, var(--muted));
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .rf-day-meta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Desktop: 2 columns from 720, 3 from 1080. */
+  @media (min-width: 720px) {
+    .rf-day-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .rf-hero {
+      padding: 44px 48px;
+    }
+  }
+  @media (min-width: 1080px) {
+    .rf-day-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .rf-page {
+      padding: 28px 14px 80px;
+    }
+    .rf-wrap {
+      gap: 40px;
+    }
+    .rf-hero {
+      padding: 24px 20px;
+    }
+    .rf-day-card {
+      padding: 14px;
+    }
+  }
+`

@@ -24,7 +24,7 @@ import {
   type Hand,
   type Kombi,
   type DayOption,
-} from '../../../data/course-patterns';
+} from '../../../../data/course-patterns';
 import { toggleCompletionAction } from './_actions';
 
 // ─────────────────────────────────────────────────────────────────────────────
