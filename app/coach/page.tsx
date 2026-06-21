@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
+import { createAccessCodeAction, toggleAccessCodeAction } from './_actions'
+import { PendingSubmitButton } from './_components/PendingSubmitButton'
 
 export const metadata = {
   title: 'Coach-Sicht — Rhythm Gym',
@@ -13,6 +15,11 @@ export const metadata = {
 // ──────────────────────────────────────────────────────────────────────
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
+
+type AccessCodeRow = Pick<
+  Database['public']['Tables']['access_codes']['Row'],
+  'id' | 'code' | 'max_uses' | 'uses' | 'expires_at' | 'active' | 'note' | 'created_at'
+>
 
 // Dreyfus-Stufen — Single Source: app/settings/page.tsx (eines Tages teilen).
 const LEVEL_LABEL: Record<number, string> = {
@@ -115,7 +122,7 @@ export default async function CoachPage() {
   // C. Parallel reads (RLS lässt Admins alle Zeilen sehen — siehe Migration
   //    add_admin_role_and_rls_policies)
   const since90 = daysAgoUTC(90)
-  const [profilesRes, completionsRes, patternsRes, activityRes, enrollmentsRes] =
+  const [profilesRes, completionsRes, patternsRes, activityRes, enrollmentsRes, codesRes] =
     await Promise.all([
       supabase
         .from('profiles')
@@ -127,9 +134,14 @@ export default async function CoachPage() {
       supabase.from('saved_patterns').select('user_id'),
       supabase.from('daily_activity').select('user_id, day').gte('day', since90),
       supabase.from('enrollments').select('user_id, program_id, status'),
+      supabase
+        .from('access_codes')
+        .select('id, code, max_uses, uses, expires_at, active, note, created_at')
+        .order('created_at', { ascending: false }),
     ])
 
   const profiles: ProfileRow[] = (profilesRes.data ?? []) as ProfileRow[]
+  const codes: AccessCodeRow[] = (codesRes.data as AccessCodeRow[] | null) ?? []
 
   // Aggregate maps per user
   const completionsByUser = new Map<string, number>()
@@ -314,6 +326,84 @@ export default async function CoachPage() {
                         <span className="cch-row-joined">
                           Beigetreten {formatJoined(s.createdAt)}
                         </span>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
+
+          {/* ── Zugangs-Codes (Rhythmus-Fundament) ────────────────────── */}
+          <section className="cch-section">
+            <header className="cch-section-head">
+              <div className="cch-eyebrow">Rhythmus-Fundament · Kurszugang</div>
+              <h2>ZUGANGS-CODES</h2>
+            </header>
+
+            <form action={createAccessCodeAction} className="cch-code-form">
+              <label className="cch-code-field">
+                <span>Nutzungen</span>
+                <input type="number" name="max_uses" min={1} max={1000} defaultValue={1} required />
+              </label>
+              <label className="cch-code-field">
+                <span>Gültig bis (optional)</span>
+                <input type="date" name="expires_at" />
+              </label>
+              <label className="cch-code-field cch-code-field--grow">
+                <span>Notiz (optional)</span>
+                <input type="text" name="note" placeholder="z. B. Workshop Juni" maxLength={120} />
+              </label>
+              <PendingSubmitButton className="cch-code-create" pendingLabel="Generiere …">
+                Code generieren
+              </PendingSubmitButton>
+            </form>
+
+            {codes.length === 0 ? (
+              <div className="cch-empty">
+                Noch keine Codes erstellt. Generier oben den ersten und gib ihn
+                an deine Teilnehmer:innen weiter — eingelöst wird er auf der
+                Trainings-Seite.
+              </div>
+            ) : (
+              <ul className="cch-list">
+                {codes.map((c) => {
+                  const expired = c.expires_at
+                    ? new Date(c.expires_at).getTime() < Date.now()
+                    : false
+                  const exhausted = c.uses >= c.max_uses
+                  const status = !c.active
+                    ? 'deaktiviert'
+                    : expired
+                      ? 'abgelaufen'
+                      : exhausted
+                        ? 'aufgebraucht'
+                        : 'aktiv'
+                  return (
+                    <li
+                      key={c.id}
+                      className={`cch-row cch-code-row ${status === 'aktiv' ? 'cch-code-row--on' : 'cch-code-row--off'}`}
+                    >
+                      <div className="cch-row-main">
+                        <div className="cch-code-value">{c.code}</div>
+                        <div className="cch-row-email">{c.note ?? '—'}</div>
+                      </div>
+                      <div className="cch-row-stats">
+                        <Stat label="Eingelöst" value={`${c.uses}/${c.max_uses}`} />
+                        <Stat label="Status" value={status} />
+                        <Stat
+                          label="Gültig bis"
+                          value={c.expires_at ? formatJoined(c.expires_at) : '∞'}
+                        />
+                        <Stat label="Erstellt" value={formatJoined(c.created_at)} />
+                      </div>
+                      <div className="cch-code-actions">
+                        <form action={toggleAccessCodeAction}>
+                          <input type="hidden" name="id" value={c.id} />
+                          <button type="submit" className="cch-code-toggle">
+                            {c.active ? 'Deaktivieren' : 'Aktivieren'}
+                          </button>
+                        </form>
                       </div>
                     </li>
                   )
@@ -671,6 +761,95 @@ const COACH_CSS = `
   .cch-back:hover {
     color: var(--amber);
     border-bottom-color: var(--amber);
+  }
+
+  /* Zugangs-Codes */
+  .cch-code-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 14px;
+  }
+  .cch-code-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cch-code-field--grow { flex: 1; min-width: 180px; }
+  .cch-code-field span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .cch-code-field input {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--cream);
+    padding: 10px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px; /* ≥16px — verhindert iOS-Auto-Zoom (Mobile-Regel) */
+  }
+  .cch-code-field input:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .cch-code-create {
+    background: var(--amber);
+    color: var(--black);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .cch-code-create:hover { background: var(--amber2); }
+  .cch-code-row--on  { border-left-color: var(--amber); }
+  .cch-code-row--off { border-left-color: rgba(122, 112, 96, 0.4); opacity: 0.75; }
+  .cch-code-value {
+    font-family: 'Courier New', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--amber);
+    user-select: all;
+  }
+  .cch-code-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .cch-code-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .cch-code-toggle:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  @media (max-width: 560px) {
+    .cch-code-form { flex-direction: column; align-items: stretch; }
+    .cch-code-actions { justify-content: flex-start; }
+    .cch-code-toggle { width: 100%; }
   }
 
   /* Tablet */

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../lib/supabase/server'
+import { hasCourseAccess } from '../../../lib/course-access'
 import {
   RhythmusfundamentClient,
   type ExerciseLite,
@@ -31,6 +32,11 @@ export default async function RhythmusfundamentPage() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  // Kurs-Gate: ohne Einschreibung zurück zum Hub (gesperrte Karte mit Code-Feld).
+  if (!(await hasCourseAccess(supabase, user.id, 'rhythmusfundament'))) {
+    redirect('/training')
+  }
 
   // B. Program lookup
   const { data: programRow } = await supabase

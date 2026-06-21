@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
+import { RedeemCodeCard } from './_components/RedeemCodeCard'
 
 export const metadata = {
   title: 'Training — Rhythm Gym',
@@ -165,7 +166,7 @@ export default async function TrainingHubPage() {
     redirect('/settings?onboarding=true')
   }
 
-  let enrollments: EnrollmentRow[] = (enrollmentsRes.data as EnrollmentRow[] | null) ?? []
+  const enrollments: EnrollmentRow[] = (enrollmentsRes.data as EnrollmentRow[] | null) ?? []
   type CompletionRow = { exercise_id: string; exercises: { program_id: string } | null }
   const completionRows: CompletionRow[] = (completionsRes.data as CompletionRow[] | null) ?? []
   const completionCount: number = completionRows.length
@@ -189,46 +190,10 @@ export default async function TrainingHubPage() {
     (r: { day: string }) => r.day,
   )
 
-  // C. Auto-enrollment (Hybrid: Closed Beta convenience)
-  // Best-effort; never crash the hub.
-  let autoEnrollNote: string | null = null
-  if (enrollments.length === 0) {
-    try {
-      const { data: programRow, error: programErr } = await supabase
-        .from('programs')
-        .select('id, title, slug, description, level, category, total_exercises')
-        .eq('slug', RHYTHMUSFUNDAMENT_SLUG)
-        .maybeSingle()
-
-      if (programErr) {
-        autoEnrollNote = 'Auto-Einschreibung übersprungen (Programm konnte nicht geladen werden).'
-      } else if (programRow) {
-        const { error: insertErr } = await supabase.from('enrollments').insert({
-          user_id: user.id,
-          program_id: programRow.id,
-          status: 'active',
-        })
-
-        if (insertErr) {
-          // Most likely a benign duplicate-key race; carry on with a re-read.
-          autoEnrollNote = null
-        }
-
-        const { data: reread } = await supabase
-          .from('enrollments')
-          .select(
-            'program_id, status, started_at, programs(id, title, slug, description, level, category, total_exercises)'
-          )
-          .eq('user_id', user.id)
-
-        enrollments = (reread as EnrollmentRow[] | null) ?? enrollments
-      } else {
-        autoEnrollNote = 'Rhythmusfundament-Programm noch nicht angelegt — überspringe Auto-Enroll.'
-      }
-    } catch {
-      autoEnrollNote = 'Auto-Einschreibung fehlgeschlagen — du kannst dich später anmelden.'
-    }
-  }
+  // C. Kein Auto-Enrollment mehr: Kurszugang kommt ausschließlich über
+  // Grandfathering (Migration fundament_access_gating) oder einen
+  // eingelösten Zugangs-Code (redeem_access_code). Neue Accounts sehen
+  // stattdessen die gesperrte Kurskarte (RedeemCodeCard).
 
   // D. Fire-and-forget daily activity upsert. Never throw.
   try {
@@ -300,9 +265,6 @@ export default async function TrainingHubPage() {
               </Link>
             )}
 
-            {autoEnrollNote && (
-              <p className="hub-hero-note">{autoEnrollNote}</p>
-            )}
           </section>
 
           {/* ── MEINE PROGRAMME ── */}
@@ -312,18 +274,8 @@ export default async function TrainingHubPage() {
               <h2>WORAN DU GERADE ARBEITEST</h2>
             </div>
 
-            {enrollments.length === 0 ? (
-              <div className="hub-card hub-empty">
-                <p>
-                  Du bist in keinem Programm eingeschrieben. Schau im{' '}
-                  <Link href="/patterns" className="hub-inline-link">
-                    Kurs-Katalog
-                  </Link>{' '}
-                  vorbei und finde, was dich packt.
-                </p>
-              </div>
-            ) : (
-              <div className="hub-grid">
+            <div className="hub-grid">
+                {!hasRhythmusfundament && <RedeemCodeCard />}
                 {enrollments.map((enr) => {
                   const p = enr.programs
                   if (!p) return null
@@ -362,8 +314,7 @@ export default async function TrainingHubPage() {
                     </article>
                   )
                 })}
-              </div>
-            )}
+            </div>
           </section>
 
           {/* ── PRAXIS-SPIEGEL (live) ── */}
@@ -796,6 +747,71 @@ const HUB_CSS = `
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  /* ── LOCKED CARD + CODE REDEEM ── */
+  .hub-locked-card {
+    border-style: dashed;
+    border-color: rgba(245, 166, 35, 0.45);
+  }
+  .hub-redeem-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .hub-redeem-input {
+    flex: 1;
+    min-width: 0;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--cream);
+    padding: 12px 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; /* ≥16px — verhindert iOS-Auto-Zoom (Mobile-Regel) */
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .hub-redeem-input:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .hub-redeem-input::placeholder {
+    color: var(--muted);
+    opacity: 0.6;
+  }
+  .hub-redeem-btn {
+    background: var(--amber);
+    color: var(--black);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .hub-redeem-btn:hover { background: var(--amber2); }
+  .hub-redeem-btn:disabled { opacity: 0.6; cursor: wait; }
+  .hub-redeem-error {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #ff6b35;
+  }
+  .hub-redeem-hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  @media (max-width: 480px) {
+    .hub-redeem-form { flex-direction: column; }
+    .hub-redeem-btn { width: 100%; }
   }
 
   /* ── PROGRESS ── */

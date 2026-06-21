@@ -3,6 +3,7 @@ import path from 'node:path'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
+import { hasCourseAccess } from '../../../../lib/course-access'
 import {
   RHYTHMUS_DAYS,
   cycleForDay,
@@ -77,6 +78,11 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  // Kurs-Gate: ohne Einschreibung zurück zum Hub (gesperrte Karte mit Code-Feld).
+  if (!(await hasCourseAccess(supabase, user.id, 'rhythmusfundament'))) {
+    redirect('/training')
+  }
 
   const markdown = await readDayMarkdown(day.number)
   const cycle = cycleForDay(day.number)

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
+import { hasCourseAccess } from '../../lib/course-access'
 import {
   RHYTHMUS_CYCLES,
   RHYTHMUS_DAYS,
@@ -29,6 +30,11 @@ export default async function RhythmusfundamentIndexPage() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  // Kurs-Gate: ohne Einschreibung zurück zum Hub (gesperrte Karte mit Code-Feld).
+  if (!(await hasCourseAccess(supabase, user.id, 'rhythmusfundament'))) {
+    redirect('/training')
+  }
 
   return (
     <>
