@@ -41,7 +41,16 @@ function LoginPageInner() {
           router.refresh()
         }
       } else {
-        const { error } = await supabase.auth.signUp({ email, password })
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          // Expliziter Redirect aufs Callback-Route — entkoppelt den
+          // Bestätigungs-Flow von der Dashboard-Site-URL. Ein dort
+          // versehentlich kaputter Wert kann Auth so nicht mehr lahmlegen.
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        })
         if (error) {
           setMessage(error.message)
         } else {
