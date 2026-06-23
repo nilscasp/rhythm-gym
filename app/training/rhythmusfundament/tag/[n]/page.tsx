@@ -10,6 +10,7 @@ import {
   type RhythmusDay,
 } from '../../../../../data/rhythmusfundament-days'
 import { DayPlayer } from '../../_components/DayPlayer'
+import { rowToHandpan, derivePitchMap, type PitchMap } from '../../../../lib/handpan'
 import { MarkdownBody } from '../../_components/MarkdownBody'
 import { BunnyVideoEmbed } from '../../_components/BunnyVideoEmbed'
 
@@ -88,6 +89,23 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
   const cycle = cycleForDay(day.number)
   const prev = RHYTHMUS_DAYS.find((d) => d.number === day.number - 1)
   const next = RHYTHMUS_DAYS.find((d) => d.number === day.number + 1)
+
+  // Aktives Instrument des Users → Pitch-Map. Damit klingt das Playback in den
+  // echten Tönen seines Pans (Fallback A4/C2, wenn keins gewählt).
+  let pitchMap: PitchMap | null = null
+  const { data: prof } = await supabase
+    .from('profiles')
+    .select('active_handpan_id')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (prof?.active_handpan_id) {
+    const { data: hp } = await supabase
+      .from('handpans')
+      .select('*')
+      .eq('id', prof.active_handpan_id)
+      .maybeSingle()
+    if (hp) pitchMap = derivePitchMap(rowToHandpan(hp))
+  }
 
   // Optional: graphics gallery — list files in /public/rhythmusfundament/grafiken/tag-N.
   // For now we just read the existence flag from the data file (set during scaffolding).
@@ -198,7 +216,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
 
             {/* Player column */}
             <aside className="tag-player-col">
-              <DayPlayer presets={day.presets} dayNumber={day.number} />
+              <DayPlayer presets={day.presets} dayNumber={day.number} pitchMap={pitchMap} />
             </aside>
           </div>
 

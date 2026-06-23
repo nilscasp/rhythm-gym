@@ -8,6 +8,8 @@ import type {
   RhythmusHandsatzKey,
   RhythmusSubdivisionKey,
 } from '../../../../data/rhythmusfundament-days';
+import { resolveTonfieldIndex } from '../../../lib/handpan-mapping';
+import type { PitchMap } from '../../../lib/handpan';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DayPlayer — Pro-Tag-Player für Rhythmus-Fundament.
@@ -138,9 +140,14 @@ interface DayPlayerProps {
    * Kept in props so the page can pass it without prop drilling later.
    */
   dayNumber?: number;
+  /**
+   * Pitch-Map des aktiven User-Instruments. Wenn gesetzt, klingen Tonfeld/Ding
+   * in den echten Tönen des Pans statt im A4/C2-Default. null → Default.
+   */
+  pitchMap?: PitchMap | null;
 }
 
-export function DayPlayer({ presets }: DayPlayerProps) {
+export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
   // ───────── Active-Preset State ─────────
   // Default: first preset.
   const [activePresetId, setActivePresetId] = useState<string>(
@@ -195,6 +202,8 @@ export function DayPlayer({ presets }: DayPlayerProps) {
   const patternRef = useRef<StrikeChar[]>(pattern);
   const beatStrideRef = useRef<number>(beatStride);
   const metronomeOnRef = useRef<boolean>(false);
+  const handsRef = useRef<readonly ('R' | 'L' | null)[]>(hands);
+  const pitchMapRef = useRef<PitchMap | null>(pitchMap ?? null);
 
   useEffect(() => {
     patternRef.current = pattern;
@@ -205,6 +214,12 @@ export function DayPlayer({ presets }: DayPlayerProps) {
   useEffect(() => {
     metronomeOnRef.current = metronomeEnabled;
   }, [metronomeEnabled]);
+  useEffect(() => {
+    handsRef.current = hands;
+  }, [hands]);
+  useEffect(() => {
+    pitchMapRef.current = pitchMap ?? null;
+  }, [pitchMap]);
 
   // ───────── Audio Init (gated on first user gesture) ─────────
   const initAudio = useCallback(async () => {
@@ -292,8 +307,16 @@ export function DayPlayer({ presets }: DayPlayerProps) {
             if (synths.gn) synths.gn.triggerAttackRelease('32n', time, 0.7);
             break;
           case 'T':
-            if (synths.tonfeld)
-              synths.tonfeld.triggerAttackRelease('A4', '16n', time, 0.85);
+            if (synths.tonfeld) {
+              const pm = pitchMapRef.current;
+              const note = pm
+                ? pm.tonfields[
+                    resolveTonfieldIndex(step, handsRef.current[step]) %
+                      pm.tonfields.length
+                  ]
+                : 'A4';
+              synths.tonfeld.triggerAttackRelease(note, '16n', time, 0.85);
+            }
             break;
           case 'S':
             if (synths.slap)
@@ -301,7 +324,12 @@ export function DayPlayer({ presets }: DayPlayerProps) {
             break;
           case 'D':
             if (synths.ding)
-              synths.ding.triggerAttackRelease('C2', '8n', time, 0.95);
+              synths.ding.triggerAttackRelease(
+                pitchMapRef.current?.ding ?? 'C2',
+                '8n',
+                time,
+                0.95,
+              );
             break;
           case '.':
           default:

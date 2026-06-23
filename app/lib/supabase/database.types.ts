@@ -236,6 +236,44 @@ export type Database = {
           },
         ]
       }
+      handpans: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          notes: Json
+          scale_name: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          notes: Json
+          scale_name?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: Json
+          scale_name?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "handpans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patterns: {
         Row: {
           bpm: number | null
@@ -274,6 +312,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_handpan_id: string | null
           created_at: string | null
           current_level: number | null
           current_streak: number | null
@@ -287,6 +326,7 @@ export type Database = {
           stripe_customer_id: string | null
         }
         Insert: {
+          active_handpan_id?: string | null
           created_at?: string | null
           current_level?: number | null
           current_streak?: number | null
@@ -300,6 +340,7 @@ export type Database = {
           stripe_customer_id?: string | null
         }
         Update: {
+          active_handpan_id?: string | null
           created_at?: string | null
           current_level?: number | null
           current_streak?: number | null
@@ -312,7 +353,15 @@ export type Database = {
           plan?: string | null
           stripe_customer_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_active_handpan_id_fkey"
+            columns: ["active_handpan_id"]
+            isOneToOne: false
+            referencedRelation: "handpans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       programs: {
         Row: {

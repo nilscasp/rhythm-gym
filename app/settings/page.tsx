@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { createClient } from '../lib/supabase/server'
+import { OnboardingInstrumentStep } from './_components/OnboardingInstrumentStep'
 
 export const metadata = {
   title: 'Einstellungen — Rhythm Gym',
@@ -94,6 +95,7 @@ async function updateProfile(formData: FormData) {
 
   const rawFullName = String(formData.get('full_name') ?? '').trim()
   const rawLevel = String(formData.get('current_level') ?? '').trim()
+  const isOnboarding = String(formData.get('onboarding') ?? '') === 'true'
 
   const full_name: string | null = rawFullName === '' ? null : rawFullName
   const current_level: number | null =
@@ -107,6 +109,8 @@ async function updateProfile(formData: FormData) {
   // The hub reads profile on render — bust the cache so the next /training paint
   // picks up the new name immediately.
   revalidatePath('/training')
+  // Onboarding: weiter zum Instrument-Schritt statt direkt ins Training.
+  if (isOnboarding) redirect('/settings?onboarding=true&step=instrument')
   redirect('/training')
 }
 
@@ -172,7 +176,7 @@ function readFlash(msg: string | undefined, detail: string | undefined): {
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ msg?: string; detail?: string; onboarding?: string }>
+  searchParams: Promise<{ msg?: string; detail?: string; onboarding?: string; step?: string }>
 }) {
   const supabase = await createClient()
   const {
@@ -183,6 +187,7 @@ export default async function SettingsPage({
   const sp = await searchParams
   const flash = readFlash(sp?.msg, sp?.detail)
   const isOnboarding = sp?.onboarding === 'true'
+  const isInstrumentStep = isOnboarding && sp?.step === 'instrument'
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -200,7 +205,16 @@ export default async function SettingsPage({
       <main className="set-page">
         <div className="set-wrap">
           <header className="set-head">
-            {isOnboarding ? (
+            {isInstrumentStep ? (
+              <>
+                <div className="set-eyebrow">Schritt 2 von 2 · Dein Instrument</div>
+                <h1>WELCHE HANDPAN SPIELST DU?</h1>
+                <p className="set-sub">
+                  Wähl deine Skala — oder bau dein Instrument frei. Damit klingen
+                  deine Übungen später in genau deinen Tönen.
+                </p>
+              </>
+            ) : isOnboarding ? (
               <>
                 <div className="set-eyebrow">Willkommen im Rhythm Gym</div>
                 <h1>SCHÖN, DASS DU DA BIST</h1>
@@ -226,7 +240,12 @@ export default async function SettingsPage({
             </div>
           )}
 
+          {isInstrumentStep ? (
+            <OnboardingInstrumentStep />
+          ) : (
+            <>
           <form action={updateProfile} className="set-form">
+            {isOnboarding && <input type="hidden" name="onboarding" value="true" />}
             <div className="set-field">
               <label htmlFor="full_name" className="set-label">
                 Vorname (oder ganzer Name)
@@ -369,6 +388,8 @@ export default async function SettingsPage({
                   </a>.
                 </p>
               </aside>
+            </>
+          )}
             </>
           )}
         </div>
