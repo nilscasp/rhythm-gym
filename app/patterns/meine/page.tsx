@@ -12,7 +12,7 @@ export const metadata = {
 
 type SavedPatternRow = Pick<
   Database['public']['Tables']['saved_patterns']['Row'],
-  'id' | 'name' | 'notation' | 'bpm' | 'handsatz' | 'tags' | 'notes' | 'is_public' | 'created_at'
+  'id' | 'name' | 'notation' | 'bpm' | 'handsatz' | 'subdivision' | 'tags' | 'notes' | 'is_public' | 'created_at'
 >
 
 export default async function MeinePatternsPage() {
@@ -24,7 +24,7 @@ export default async function MeinePatternsPage() {
 
   const { data } = await supabase
     .from('saved_patterns')
-    .select('id, name, notation, bpm, handsatz, tags, notes, is_public, created_at')
+    .select('id, name, notation, bpm, handsatz, subdivision, tags, notes, is_public, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -77,6 +77,7 @@ export default async function MeinePatternsPage() {
                     pattern: sp.notation,
                     bpm: String(sp.bpm ?? 60),
                     handsatz: sp.handsatz ?? 'frei',
+                    subdivision: sp.subdivision ?? '16n',
                     from: 'meine',
                     label: sp.name,
                   })

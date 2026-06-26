@@ -146,7 +146,7 @@ export default async function TrainingHubPage() {
         .eq('user_id', user.id),
       supabase
         .from('saved_patterns')
-        .select('id, name, notation, bpm, handsatz, tags, created_at')
+        .select('id, name, notation, bpm, handsatz, subdivision, tags, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(6),
@@ -181,6 +181,7 @@ export default async function TrainingHubPage() {
     notation: string
     bpm: number | null
     handsatz: string | null
+    subdivision: string
     tags: string[] | null
     created_at: string | null
   }
@@ -412,6 +413,7 @@ export default async function TrainingHubPage() {
                         pattern: sp.notation,
                         bpm: String(sp.bpm ?? 60),
                         handsatz: sp.handsatz ?? 'frei',
+                        subdivision: sp.subdivision ?? '16n',
                         from: 'meine',
                         label: sp.name,
                       })

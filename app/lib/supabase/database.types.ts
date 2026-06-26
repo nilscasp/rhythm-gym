@@ -410,6 +410,7 @@ export type Database = {
           name: string
           notation: string
           notes: string | null
+          subdivision: string
           tags: string[] | null
           updated_at: string | null
           user_id: string
@@ -424,6 +425,7 @@ export type Database = {
           name: string
           notation: string
           notes?: string | null
+          subdivision?: string
           tags?: string[] | null
           updated_at?: string | null
           user_id: string
@@ -438,6 +440,7 @@ export type Database = {
           name?: string
           notation?: string
           notes?: string | null
+          subdivision?: string
           tags?: string[] | null
           updated_at?: string | null
           user_id?: string

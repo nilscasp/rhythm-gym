@@ -16,6 +16,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 const PALETTE_SIZES = [2, 3, 4, 6] as const;
 type BlockSize = (typeof PALETTE_SIZES)[number];
 
+// Harte Obergrenze, synchron mit MAX_STEP_COUNT in /tool (= MAX_BEATS 9 × Sechzehntel 4).
+// Die Sequencer-Bridge schickt pro Schlag ein Zeichen bei subdivision=4n. Eine Sequenz
+// länger als 36 Schläge würde decodePatternParam überlaufen und das Tool stumm auf ein
+// leeres Raster zurücksetzen. Wir deckeln die Quelle, damit jede Sequenz round-trippt.
+const MAX_TOOL_BEATS = 36;
+
 const LABELS: Record<BlockSize, string> = {
   2: 'Zweier',
   3: 'Dreier',
@@ -261,6 +267,8 @@ export default function BausteinePage() {
   }, [startScheduler, stopScheduler, syncSequenceRefs]);
 
   const handleAdd = useCallback((size: BlockSize) => {
+    // Cap-Guard (zweite Verteidigungslinie zur deaktivierten Palette): nie über 36.
+    if (totalBeatsRef.current + size > MAX_TOOL_BEATS) return;
     applySequence([...sequenceRef.current, createBlock(size)], { rebuild: true });
   }, [applySequence]);
 
@@ -377,10 +385,13 @@ export default function BausteinePage() {
         /* Palette */
         .rb-palette { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
         .rb-pcard { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 24px 18px 20px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; font-family: inherit; color: inherit; }
-        .rb-pcard:hover { border-color: var(--amber); background: var(--card2); transform: translateY(-2px); }
-        .rb-pcard:active { transform: translateY(0); }
+        .rb-pcard:hover:not(:disabled) { border-color: var(--amber); background: var(--card2); transform: translateY(-2px); }
+        .rb-pcard:active:not(:disabled) { transform: translateY(0); }
+        .rb-pcard:disabled { opacity: 0.32; cursor: not-allowed; }
+        .rb-pcard:disabled .rb-brick.interactive { cursor: not-allowed; }
+        .rb-cap-hint { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
         .rb-pcard-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
-        .rb-pcard:hover .rb-pcard-label { color: var(--amber); }
+        .rb-pcard:hover:not(:disabled) .rb-pcard-label { color: var(--amber); }
         .rb-pcard-num { font-family: 'Anton', sans-serif; font-size: 42px; line-height: 0.9; color: var(--cream); }
         .rb-pcard-brick { margin-top: 4px; }
 
@@ -479,26 +490,35 @@ export default function BausteinePage() {
             VIER GRÖSSEN. <em style={{ fontStyle: 'normal', color: 'var(--amber)' }}>UNENDLICH KOMBINIERBAR.</em>
           </h2>
           <div className="rb-palette" role="toolbar" aria-label="Bausteine auswählen">
-            {PALETTE_SIZES.map(size => (
-              <button
-                key={size}
-                type="button"
-                className="rb-pcard"
-                onClick={() => handleAdd(size)}
-                aria-label={`${LABELS[size]} hinzufügen (${size} Schläge)`}
-              >
-                <div className="rb-pcard-label">{LABELS[size]}</div>
-                <div className="rb-pcard-num">{size}</div>
-                <div className="rb-brick mini interactive rb-pcard-brick" aria-hidden>
-                  <div className="rb-brick-studs">
-                    {Array.from({ length: size }).map((_, i) => (
-                      <span key={i} className={`rb-stud ${i === 0 ? 'accent' : ''}`}/>
-                    ))}
+            {PALETTE_SIZES.map(size => {
+              const wouldExceed = totalBeats + size > MAX_TOOL_BEATS;
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  className="rb-pcard"
+                  onClick={() => handleAdd(size)}
+                  disabled={wouldExceed}
+                  aria-label={`${LABELS[size]} hinzufügen (${size} Schläge)${wouldExceed ? ` — Maximum von ${MAX_TOOL_BEATS} Schlägen erreicht` : ''}`}
+                >
+                  <div className="rb-pcard-label">{LABELS[size]}</div>
+                  <div className="rb-pcard-num">{size}</div>
+                  <div className="rb-brick mini interactive rb-pcard-brick" aria-hidden>
+                    <div className="rb-brick-studs">
+                      {Array.from({ length: size }).map((_, i) => (
+                        <span key={i} className={`rb-stud ${i === 0 ? 'accent' : ''}`}/>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
+          {totalBeats + Math.max(...PALETTE_SIZES) > MAX_TOOL_BEATS && (
+            <div className="rb-cap-hint" aria-live="polite">
+              Max {MAX_TOOL_BEATS} Schläge fürs Tool · noch {MAX_TOOL_BEATS - totalBeats} frei
+            </div>
+          )}
         </section>
 
         {/* SEQUENCE */}

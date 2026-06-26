@@ -1,11 +1,17 @@
 'use client';
 
-import { Suspense, useState, useEffect, useMemo, useRef } from 'react';
+import { Suspense, useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import * as Tone from 'tone';
-import { Hand, Volume2, Play, Pause, Square, RotateCcw, Copy, Save } from 'lucide-react';
+import { Hand, Volume2, Play, Pause, Square, RotateCcw, Copy, Save, SlidersHorizontal, X } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '../lib/supabase/client';
+import HandpanVisualizer from '../../components/HandpanVisualizer';
+
+// Vorübergehend ausgeblendet (Nils, 2026-06-10): Visualizer ist noch im Bau.
+// Zum Wieder-Einschalten einfach auf true setzen — Komponente bleibt
+// importiert und typgecheckt, nichts wurde gelöscht.
+const SHOW_HANDPAN_VISUALIZER = false;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Handpan-Maschine — 5-state click cycle (Pause / gn / tonfeld / slap / ding)
@@ -29,9 +35,36 @@ type SubdivisionKey = '4n' | '8n' | '16n' | '32n';
 const STRIKE_DECODE: Record<string, number> = { '.': 0, g: 1, T: 2, S: 3, D: 4 };
 
 const MIN_STEP_COUNT = 1;
-const MAX_STEP_COUNT = 32;
+// = MAX_BEATS (9) × Sechzehntel (4): the longest pattern the builder can create.
+// decodePatternParam uses this as the accept ceiling, so every constructible
+// pattern round-trips through ?pattern= / saved notation (no silent reset to empty).
+const MAX_STEP_COUNT = 36;
 const DEFAULT_STEP_COUNT = 16;
-const STEP_PRESETS: readonly number[] = [4, 6, 8, 12, 16, 24, 32];
+
+// ───────── Beats × subdivision model ─────────
+// The grid is built from two axes the user picks directly: the number of beats
+// (Schläge, 2–9) and how each beat is subdivided. Total cells = beats × perBeat.
+const MIN_BEATS = 2;
+const MAX_BEATS = 9;
+
+// Unterteilung choices offered in the UI. 32n stays decodable for back-compat
+// URLs (e.g. older saved patterns) but is intentionally not offered here.
+const SUBDIVISION_CHOICES: { key: SubdivisionKey; label: string; perBeat: number }[] = [
+  { key: '4n', label: 'Viertel', perBeat: 1 },
+  { key: '8n', label: 'Achtel', perBeat: 2 },
+  { key: '16n', label: 'Sechzehntel', perBeat: 4 },
+];
+
+// Off-beat counting labels per stride; the downbeat itself shows the beat number.
+const COUNT_OFFBEATS: Record<number, string[]> = {
+  1: [],
+  2: ['und'],
+  4: ['e', 'und', 'de'],
+  8: ['e', 'und', 'de', 'e', 'und', 'de', 'a'], // 32n — back-compat only
+};
+
+// Desktop layout target: keep beats intact, ~16 cells per row before wrapping.
+const TARGET_CELLS_PER_ROW = 16;
 
 function decodePatternParam(raw: string | null | undefined): number[] | null {
   if (!raw) return null;
@@ -76,6 +109,12 @@ function beatStrideFor(sub: SubdivisionKey): number {
   }
 }
 
+// Cells per row for the grid: keep whole beats together, wrap near the desktop target.
+function cellsPerRowFor(stepCount: number, stride: number): number {
+  const beatsPerRow = Math.max(1, Math.floor(TARGET_CELLS_PER_ROW / stride));
+  return Math.min(stepCount, beatsPerRow * stride);
+}
+
 const FROM_LABELS: Record<string, string> = {
   training: 'Training',
   patterns: 'Patterns',
@@ -92,6 +131,60 @@ type SynthMap = {
   subPulse: Tone.NoiseSynth | null;
   metronome: Tone.Synth | null;
 };
+
+// ───────── Sound mixer ─────────
+// Each sound is voiced at a baseline level (dB). The mixer slider runs 0–100 %,
+// where 100 % = that baseline; lower attenuates, 0 % mutes. The baselines live
+// here (not inline in initializeAudio) so they are the single source of truth
+// shared by audio-init and the live volume effect.
+const SOUND_BASELINE_DB = {
+  ding: -6,
+  tonfeld: -10,
+  slap: -10,
+  gn: -22,
+  metronome: -15,
+  subPulse: -28,
+} as const;
+type SoundKey = keyof typeof SOUND_BASELINE_DB;
+
+// Display order + labels for the mixer popup (most prominent sound first).
+const MIXER_ROWS: { key: SoundKey; label: string; hint: string }[] = [
+  { key: 'ding', label: 'Ding (D)', hint: 'Tiefer Bass-Akzent' },
+  { key: 'slap', label: 'Slap (S)', hint: 'Lauter Slap' },
+  { key: 'tonfeld', label: 'Tonfeld (T)', hint: 'Klingende Note' },
+  { key: 'gn', label: 'Ghostnote (g)', hint: 'Leiser Slap' },
+  { key: 'metronome', label: 'Metronom', hint: 'Klick auf den Vierteln' },
+  { key: 'subPulse', label: 'Sub-Klick', hint: 'Unterteilungen' },
+];
+
+const DEFAULT_VOLUMES: Record<SoundKey, number> = {
+  ding: 100, tonfeld: 100, slap: 100, gn: 100, metronome: 100, subPulse: 100,
+};
+const MIXER_STORAGE_KEY = 'rg-tool-volumes';
+
+// Slider percent (0–100, 100 = baseline) → Tone.js dB. 0 % → -Infinity (mute).
+function mixerDb(baselineDb: number, percent: number): number {
+  if (percent <= 0) return -Infinity;
+  return baselineDb + 20 * Math.log10(percent / 100);
+}
+
+// Read persisted volumes, tolerating missing/corrupt storage and stray keys.
+function loadStoredVolumes(): Record<SoundKey, number> {
+  if (typeof window === 'undefined') return { ...DEFAULT_VOLUMES };
+  try {
+    const raw = window.localStorage.getItem(MIXER_STORAGE_KEY);
+    if (!raw) return { ...DEFAULT_VOLUMES };
+    const parsed = JSON.parse(raw) as Partial<Record<SoundKey, number>>;
+    const next = { ...DEFAULT_VOLUMES };
+    (Object.keys(DEFAULT_VOLUMES) as SoundKey[]).forEach((key) => {
+      const v = parsed[key];
+      if (typeof v === 'number' && v >= 0 && v <= 100) next[key] = Math.round(v);
+    });
+    return next;
+  } catch {
+    return { ...DEFAULT_VOLUMES };
+  }
+}
 
 function HandpanMaschineInner() {
   // ───────── URL-param preset hand-off (read once + sync on URL change) ───────
@@ -130,7 +223,16 @@ function HandpanMaschineInner() {
   // ─── derived ──────────────────────────────────────────────────────────────
   const stepCount = pattern.length;
   const beatStride = useMemo(() => beatStrideFor(subdivision), [subdivision]);
-  const isCanonical = stepCount === DEFAULT_STEP_COUNT && subdivision === '16n';
+  // Beats (Schläge) is DERIVED from the grid, never a separate state. `beats` is
+  // a best-effort count (used to carry the count across a subdivision change).
+  const beats = beatStride > 0 ? Math.round(stepCount / beatStride) : stepCount;
+  // The chip highlights ONLY when the grid is an EXACT whole-beat multiple in
+  // range. Rounding must never fabricate an active chip that disagrees with the
+  // grid — otherwise a saved/deep-linked pattern reloaded at a different stride
+  // (subdivision isn't persisted) would light a wrong chip whose click mutates it.
+  const activeBeats =
+    beatStride > 0 && stepCount % beatStride === 0 ? stepCount / beatStride : null;
+  const cellsPerRow = useMemo(() => cellsPerRowFor(stepCount, beatStride), [stepCount, beatStride]);
 
   // Dynamics derives from stepCount — currently all-mf, but the array shape
   // tracks the pattern so the audio callback never reads out of bounds.
@@ -157,6 +259,8 @@ function HandpanMaschineInner() {
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(true);
   const [subdivisionsEnabled, setSubdivisionsEnabled] = useState(false);
+  const [showMixer, setShowMixer] = useState(false);
+  const [volumes, setVolumes] = useState<Record<SoundKey, number>>(() => loadStoredVolumes());
 
   // ───────── Auth + Save (Phase 3: save pattern to Supabase) ─────────
   // Browser-only Supabase client; RLS enforces user_id === auth.uid() on insert.
@@ -236,22 +340,57 @@ function HandpanMaschineInner() {
     beatStrideRef.current = beatStride;
   }, [beatStride]);
 
+  // Keep a ref of the current mixer levels so initializeAudio can apply them to
+  // freshly-created synths before the volume effect below has had a chance to run.
+  const volumesRef = useRef(volumes);
+
+  // Push a volume map onto the live Tone.js synths. Stable (touches only the
+  // synth ref + module constants) so it is safe to call from init and effects.
+  const applyVolumes = useCallback((vols: Record<SoundKey, number>) => {
+    const synths = synthsRef.current;
+    (Object.keys(SOUND_BASELINE_DB) as SoundKey[]).forEach((key) => {
+      const synth = synths[key];
+      if (synth) synth.volume.value = mixerDb(SOUND_BASELINE_DB[key], vols[key]);
+    });
+  }, []);
+
+  // Reflect slider changes onto the synths immediately (even mid-playback) and
+  // persist them so the mix survives a reload.
+  useEffect(() => {
+    volumesRef.current = volumes;
+    applyVolumes(volumes);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(MIXER_STORAGE_KEY, JSON.stringify(volumes));
+      } catch {
+        /* storage unavailable (private mode / quota) — non-fatal */
+      }
+    }
+  }, [volumes, applyVolumes]);
+
+  // Escape closes the mixer popup.
+  useEffect(() => {
+    if (!showMixer) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowMixer(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showMixer]);
+
   // ───────── Strike vocabulary (5 states; index = pattern value 0..4) ─────────
   const symbols = ['.', 'g', 'T', 'S', 'D'] as const;
   const symbolNames = ['Pause', 'Ghostnote (g)', 'Tonfeld (T)', 'Slap (S)', 'Ding (D)'] as const;
-  // Counting row — canonical "1 e und de" labels for the 16-step sixteenth grid,
-  // simple 1..N numbering for variable-length / non-16n patterns (e.g. Bausteine).
+  // Counting row — beat number on each downbeat, German off-beat syllables in
+  // between ("e und de" for sixteenths, "und" for eighths, nothing for quarters).
   const counting = useMemo<string[]>(() => {
-    if (isCanonical) {
-      return [
-        '1', 'e', 'und', 'de',
-        '2', 'e', 'und', 'de',
-        '3', 'e', 'und', 'de',
-        '4', 'e', 'und', 'de',
-      ];
-    }
-    return Array.from({ length: stepCount }, (_, i) => String(i + 1));
-  }, [isCanonical, stepCount]);
+    const offbeats = COUNT_OFFBEATS[beatStride] ?? [];
+    return Array.from({ length: stepCount }, (_, i) => {
+      const posInBeat = i % beatStride;
+      if (posInBeat === 0) return String(Math.floor(i / beatStride) + 1);
+      return offbeats[posInBeat - 1] ?? '';
+    });
+  }, [stepCount, beatStride]);
 
   // ───────── Handsatz patterns ─────────
   // `name` = long form for the eyebrow header, `short` = chip label
@@ -279,7 +418,6 @@ function HandpanMaschineInner() {
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.025, sustain: 0, release: 0.02 },
       }).toDestination();
-      gn.volume.value = -22;
       synthsRef.current.gn = gn;
 
       // 2 = tonfeld: gezupfte, klingende Note — 'A4' als Basisfrequenz.
@@ -289,7 +427,6 @@ function HandpanMaschineInner() {
         dampening: 4500,
         resonance: 0.7,
       }).toDestination();
-      tonfeld.volume.value = -10;
       synthsRef.current.tonfeld = tonfeld;
 
       // 3 = slap: lauter Slap — Pink-Noise burst mit längerem Decay.
@@ -297,7 +434,6 @@ function HandpanMaschineInner() {
         noise: { type: 'pink' },
         envelope: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.05 },
       }).toDestination();
-      slap.volume.value = -10;
       synthsRef.current.slap = slap;
 
       // 4 = ding: tiefer Bass-Akzent — MembraneSynth als Kick-Substitut.
@@ -307,7 +443,6 @@ function HandpanMaschineInner() {
         oscillator: { type: 'sine' },
         envelope: { attack: 0.001, decay: 0.45, sustain: 0, release: 0.4 },
       }).toDestination();
-      ding.volume.value = -6;
       synthsRef.current.ding = ding;
 
       // Optionaler Sub-Klick — sehr leise, auf jedem 16tel.
@@ -315,7 +450,6 @@ function HandpanMaschineInner() {
         noise: { type: 'white' },
         envelope: { attack: 0.001, decay: 0.012, sustain: 0, release: 0.012 },
       }).toDestination();
-      subPulse.volume.value = -28;
       synthsRef.current.subPulse = subPulse;
 
       // Woodblock-artiges Metronom auf Vierteln.
@@ -323,8 +457,11 @@ function HandpanMaschineInner() {
         oscillator: { type: 'square' },
         envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 },
       }).toDestination();
-      metronome.volume.value = -15;
       synthsRef.current.metronome = metronome;
+
+      // Apply the current mixer levels onto the freshly-created synths before the
+      // first play — the volume effect won't have fired yet at this point.
+      applyVolumes(volumesRef.current);
 
       setIsAudioInitialized(true);
     } catch (error) {
@@ -489,22 +626,36 @@ function HandpanMaschineInner() {
   const resetPattern = () => setPattern(Array(stepCount).fill(0));
   const loadPreset = (preset: number[]) => setPattern(preset);
 
-  // Step-Count manuell setzen. Pattern wird auf neue Länge umgeformt:
-  // - kürzer: truncate (verlorene Beats ab Position newCount sind weg)
-  // - länger: extend mit Pausen (0)
-  // Bei der Subdivision: wenn der User auf 16 geht, switche zurück auf 16n
-  // (kanonische Sechzehntel-Zählung); andere Längen bekommen 4n, damit jeder
-  // Step ein Beat ist und das Tempo intuitiv bleibt (BPM = Beats per Minute).
-  const setStepCountAndResize = (newCount: number) => {
-    const clamped = Math.max(MIN_STEP_COUNT, Math.min(MAX_STEP_COUNT, newCount));
-    if (clamped === pattern.length) return;
-    const next = Array<number>(clamped).fill(0);
-    for (let i = 0; i < Math.min(pattern.length, clamped); i++) next[i] = pattern[i];
-    setPattern(next);
-    // Auto-Subdivision: 16-step bleibt canonical Sechzehntel; alles andere wird 4n
-    // damit BPM 1:1 als "Schläge pro Minute" funktioniert (wie in /bausteine).
-    const nextSubdivision: SubdivisionKey = clamped === 16 ? '16n' : '4n';
-    if (nextSubdivision !== subdivision) setSubdivision(nextSubdivision);
+  // Resize the pattern to a target length, preserving existing cells (truncate if
+  // shorter, pad with Pause if longer). Length is hard-clamped to [1, MAX_STEP_COUNT]
+  // so NO path — including a legacy 32n deep-link where beats × stride could exceed
+  // 36 — can build a grid that decodePatternParam would later reject. Every state round-trips.
+  const resizePatternTo = (rawLen: number) => {
+    const len = Math.max(MIN_STEP_COUNT, Math.min(MAX_STEP_COUNT, Math.round(rawLen)));
+    setPattern((prev) => {
+      if (len === prev.length) return prev;
+      const next = Array<number>(len).fill(0);
+      for (let i = 0; i < Math.min(prev.length, len); i++) next[i] = prev[i];
+      return next;
+    });
+  };
+
+  // Schläge wählen → Raster = Schläge × Unterteilung. Ein Beat ist immer eine
+  // Viertelnote (stride × Notenwert = 1/4), also bleibt BPM = Schläge pro Minute.
+  // `beats` ist abgeleitet (kein eigener State), darum gibt es keine Drift und
+  // resizePatternTo (idempotent) macht aus einem Klick auf den aktiven Chip ein No-op.
+  const setBeatsAndResize = (nextBeats: number) => {
+    const clamped = Math.max(MIN_BEATS, Math.min(MAX_BEATS, nextBeats));
+    resizePatternTo(clamped * beatStride);
+  };
+
+  // Unterteilung wählen → behalte die aktuelle Schläge-Zahl, aber deckle die Länge
+  // auf MAX_STEP_COUNT, damit jedes baubare Raster speicher-/linkbar bleibt.
+  const setSubdivisionAndResize = (nextSub: SubdivisionKey) => {
+    const nextStride = beatStrideFor(nextSub);
+    const keptBeats = Math.max(1, Math.min(beats, Math.floor(MAX_STEP_COUNT / nextStride)));
+    setSubdivision(nextSub);
+    resizePatternTo(keptBeats * nextStride);
   };
 
   const copyPattern = () => {
@@ -567,6 +718,7 @@ function HandpanMaschineInner() {
         notation: cellsToNotation(pattern),
         bpm,
         handsatz: selectedHandsatz,
+        subdivision,
         tags: tagsArray,
         notes: notesTrimmed.length > 0 ? notesTrimmed : null,
         is_public: false,
@@ -732,7 +884,7 @@ function HandpanMaschineInner() {
           </div>
         )}
 
-        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gap: '30px' }}>
+        <div className="tool-page-cards" style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gap: '30px' }}>
           {/* ───────── Pattern Builder ───────── */}
           <div
             style={{
@@ -992,7 +1144,8 @@ function HandpanMaschineInner() {
                 </div>
               </div>
 
-              {/* Step-Count Picker — kompakt, neben den Audio-Toggles */}
+              {/* Beats × Unterteilung — ersetzt die rohe Schritt-Anzahl:
+                  erst Schläge (2–9), dann Unterteilung; Felder = Schläge × Unterteilung. */}
               <div
                 className="tool-page-stepcount"
                 style={{
@@ -1000,109 +1153,59 @@ function HandpanMaschineInner() {
                   paddingTop: '10px',
                   borderTop: '1px solid var(--border)',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  flexWrap: 'wrap',
+                  flexDirection: 'column',
+                  gap: '10px',
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase',
-                    color: 'var(--muted)',
-                  }}
-                >
-                  Schritte
-                </span>
-                <div className="tool-page-stepcount-chips">
-                  {STEP_PRESETS.map((n) => {
-                    const isActive = stepCount === n;
-                    return (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setStepCountAndResize(n)}
-                        aria-pressed={isActive}
-                        style={{
-                          background: isActive ? 'var(--amber-dim)' : 'transparent',
-                          border: `1px solid ${isActive ? 'var(--amber)' : 'var(--border)'}`,
-                          color: isActive ? 'var(--amber)' : 'var(--muted)',
-                          borderRadius: '3px',
-                          padding: '4px 8px',
-                          cursor: 'pointer',
-                          fontFamily: "'Barlow Condensed', sans-serif",
-                          fontWeight: 700,
-                          fontSize: '11px',
-                          letterSpacing: '1px',
-                          minWidth: 28,
-                        }}
-                      >
-                        {n}
-                      </button>
-                    );
-                  })}
+                <div className="tool-page-axis-row">
+                  <span className="tool-page-axis-label">Schläge</span>
+                  <div className="tool-page-stepcount-chips">
+                    {Array.from({ length: MAX_BEATS - MIN_BEATS + 1 }, (_, i) => MIN_BEATS + i).map((n) => {
+                      const isActive = activeBeats === n;
+                      return (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setBeatsAndResize(n)}
+                          aria-pressed={isActive}
+                          className="tool-page-axis-chip"
+                          style={{
+                            background: isActive ? 'var(--amber-dim)' : 'transparent',
+                            borderColor: isActive ? 'var(--amber)' : 'var(--border)',
+                            color: isActive ? 'var(--amber)' : 'var(--muted)',
+                          }}
+                        >
+                          {n}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
-                  <button
-                    type="button"
-                    onClick={() => setStepCountAndResize(stepCount - 1)}
-                    disabled={stepCount <= MIN_STEP_COUNT}
-                    aria-label="Ein Schritt weniger"
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid var(--border)',
-                      borderRadius: '3px',
-                      width: 26,
-                      height: 26,
-                      padding: 0,
-                      cursor: stepCount <= MIN_STEP_COUNT ? 'not-allowed' : 'pointer',
-                      color: 'var(--muted)',
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      opacity: stepCount <= MIN_STEP_COUNT ? 0.35 : 1,
-                    }}
-                  >
-                    −
-                  </button>
-                  <span
-                    aria-live="polite"
-                    style={{
-                      fontFamily: "'Anton', sans-serif",
-                      fontSize: '14px',
-                      color: 'var(--cream)',
-                      minWidth: 22,
-                      textAlign: 'center',
-                      lineHeight: '26px',
-                    }}
-                  >
-                    {stepCount}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setStepCountAndResize(stepCount + 1)}
-                    disabled={stepCount >= MAX_STEP_COUNT}
-                    aria-label="Ein Schritt mehr"
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid var(--border)',
-                      borderRadius: '3px',
-                      width: 26,
-                      height: 26,
-                      padding: 0,
-                      cursor: stepCount >= MAX_STEP_COUNT ? 'not-allowed' : 'pointer',
-                      color: 'var(--muted)',
-                      fontFamily: "'Barlow Condensed', sans-serif",
-                      fontSize: '14px',
-                      fontWeight: 700,
-                      opacity: stepCount >= MAX_STEP_COUNT ? 0.35 : 1,
-                    }}
-                  >
-                    +
-                  </button>
+                <div className="tool-page-axis-row">
+                  <span className="tool-page-axis-label">Unterteilung</span>
+                  <div className="tool-page-stepcount-chips">
+                    {SUBDIVISION_CHOICES.map(({ key, label, perBeat }) => {
+                      const isActive = subdivision === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setSubdivisionAndResize(key)}
+                          aria-pressed={isActive}
+                          className="tool-page-axis-chip tool-page-axis-chip-wide"
+                          style={{
+                            background: isActive ? 'var(--amber-dim)' : 'transparent',
+                            borderColor: isActive ? 'var(--amber)' : 'var(--border)',
+                            color: isActive ? 'var(--amber)' : 'var(--muted)',
+                          }}
+                        >
+                          {label}
+                          <span className="tool-page-axis-chip-sub">{perBeat}/Schlag</span>
+                        </button>
+                      );
+                    })}
+                    <span className="tool-page-grid-hint" aria-live="polite">= {stepCount} Felder</span>
+                  </div>
                 </div>
               </div>
 
@@ -1175,8 +1278,56 @@ function HandpanMaschineInner() {
                     Sub-Klick
                   </span>
                 </button>
+                <button
+                  onClick={() => setShowMixer(true)}
+                  aria-haspopup="dialog"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border2)',
+                    borderRadius: '3px',
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <SlidersHorizontal size={11} color="var(--amber)" />
+                  <span
+                    style={{
+                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      letterSpacing: '1.5px',
+                      textTransform: 'uppercase',
+                      color: 'var(--muted2)',
+                    }}
+                  >
+                    Lautstärke
+                  </span>
+                </button>
               </div>
             </div>
+
+            {/* Handpan-Visualisierung — top-down view, glows synchron zum Sequencer.
+                Vorübergehend ausgeblendet via SHOW_HANDPAN_VISUALIZER (s. oben). */}
+            {SHOW_HANDPAN_VISUALIZER && (
+              <div
+                style={{
+                  marginBottom: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: '8px 0',
+                }}
+              >
+                <HandpanVisualizer
+                  pattern={pattern}
+                  currentStep={currentStep}
+                  handsatzRow={handsatzRow}
+                  isPlaying={isPlaying}
+                />
+              </div>
+            )}
 
             {/* Counting + Grid wrapper — switches to 2 rows of 8 on mobile */}
             <div className="tool-page-grid-wrapper">
@@ -1187,7 +1338,7 @@ function HandpanMaschineInner() {
                   display: 'grid',
                   gap: '4px',
                   marginBottom: '12px',
-                  ['--step-cols' as string]: String(stepCount),
+                  ['--step-cols' as string]: String(cellsPerRow),
                 }}
               >
                 {counting.map((count, idx) => {
@@ -1216,13 +1367,16 @@ function HandpanMaschineInner() {
                   display: 'grid',
                   gap: '4px',
                   marginBottom: '8px',
-                  ['--step-cols' as string]: String(stepCount),
+                  ['--step-cols' as string]: String(cellsPerRow),
                 }}
               >
                 {pattern.map((value, idx) => {
                   const isCurrentStep = idx === currentStep;
                   const isDownbeat = idx % beatStride === 0;
                   const symbol = symbols[value as StrikeIndex] ?? '.';
+                  const cellBorder = isCurrentStep
+                    ? '4px solid var(--amber)'
+                    : `3px solid ${getStepTextColor(value)}`;
                   return (
                     <div
                       key={idx}
@@ -1241,9 +1395,10 @@ function HandpanMaschineInner() {
                         background: isCurrentStep
                           ? 'rgba(245,166,35,0.5)'
                           : getStepColor(value),
-                        border: isCurrentStep
-                          ? '4px solid var(--amber)'
-                          : `3px solid ${getStepTextColor(value)}`,
+                        borderTop: cellBorder,
+                        borderRight: cellBorder,
+                        borderBottom: cellBorder,
+                        borderLeft: isDownbeat ? '4px solid var(--amber)' : cellBorder,
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
@@ -1253,7 +1408,6 @@ function HandpanMaschineInner() {
                         color: getStepTextColor(value),
                         cursor: 'pointer',
                         fontFamily: "'Courier New', monospace",
-                        borderLeft: isDownbeat ? '4px solid var(--amber)' : undefined,
                         transform: isCurrentStep ? 'scale(1.05)' : 'scale(1)',
                         boxShadow: isCurrentStep
                           ? '0 8px 24px rgba(245,166,35,0.6)'
@@ -1294,7 +1448,7 @@ function HandpanMaschineInner() {
                   display: 'grid',
                   gap: '4px',
                   marginBottom: '28px',
-                  ['--step-cols' as string]: String(stepCount),
+                  ['--step-cols' as string]: String(cellsPerRow),
                 }}
               >
                 {handsatzRow.map((hand, idx) => {
@@ -1680,6 +1834,85 @@ function HandpanMaschineInner() {
             </div>
           </div>
         )}
+        {showMixer && (
+          <div
+            className="tool-mixer-overlay"
+            role="presentation"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowMixer(false);
+            }}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="tool-mixer-title"
+              className="tool-mixer-card"
+            >
+              <div className="tool-mixer-head">
+                <div>
+                  <h2 id="tool-mixer-title" className="tool-mixer-title">Lautstärke</h2>
+                  <p className="tool-mixer-sub">Pegel je Sound anpassen</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMixer(false)}
+                  aria-label="Schließen"
+                  className="tool-mixer-close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div>
+                {MIXER_ROWS.map(({ key, label, hint }) => {
+                  const percent = volumes[key];
+                  return (
+                    <div key={key} className="tool-mixer-row">
+                      <div className="tool-mixer-row-top">
+                        <span className="tool-mixer-label">
+                          {label}
+                          <span className="tool-mixer-hint">{hint}</span>
+                        </span>
+                        <span className="tool-mixer-value">
+                          {percent === 0 ? 'Aus' : `${percent}%`}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={percent}
+                        onChange={(e) =>
+                          setVolumes((prev) => ({ ...prev, [key]: parseInt(e.target.value, 10) }))
+                        }
+                        aria-label={`Lautstärke ${label}`}
+                        className="tool-mixer-slider"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="tool-mixer-actions">
+                <button
+                  type="button"
+                  onClick={() => setVolumes({ ...DEFAULT_VOLUMES })}
+                  className="tool-mixer-btn tool-mixer-btn-reset"
+                >
+                  Zurücksetzen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMixer(false)}
+                  className="tool-mixer-btn tool-mixer-btn-done"
+                >
+                  Fertig
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {saveToast !== null && (
           <div
             role="status"
@@ -1898,6 +2131,163 @@ const TOOL_CSS = `
   box-shadow: 0 4px 12px rgba(245,166,35,0.5);
 }
 
+/* Sound mixer popup — mirrors the save-modal shell, adds per-sound sliders.
+   z-index 200 keeps it above the sticky playbar (60) and save toast (100). */
+.tool-mixer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: tool-save-modal-fade 0.15s ease-out;
+}
+.tool-mixer-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 440px;
+  width: calc(100% - 32px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+.tool-mixer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.tool-mixer-title {
+  font-family: Anton, sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin: 0;
+}
+.tool-mixer-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+.tool-mixer-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.tool-mixer-close:hover {
+  color: var(--cream);
+  background: rgba(255,255,255,0.06);
+}
+.tool-mixer-row {
+  margin-bottom: 16px;
+}
+.tool-mixer-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.tool-mixer-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cream);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.tool-mixer-hint {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: none;
+}
+.tool-mixer-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--amber);
+  min-width: 42px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.tool-mixer-slider {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--amber-dim) 0%, var(--amber) 100%);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.tool-mixer-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+.tool-mixer-btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+}
+.tool-mixer-btn-reset:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--cream);
+}
+.tool-mixer-btn-done {
+  background: var(--amber);
+  color: var(--black);
+  border-color: var(--amber);
+}
+.tool-mixer-btn-done:hover {
+  background: var(--cream);
+  border-color: var(--cream);
+}
+@media (max-width: 480px) {
+  .tool-mixer-card {
+    padding: 20px;
+  }
+  .tool-mixer-actions .tool-mixer-btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 /* Sticky Playback-Bar — Play/Stop, Tempo, BPM-Presets in einer Zeile.
    Sticky am oberen Rand (top:60px = direkt unter der globalen Nav).        */
 .tool-page-playbar-row {
@@ -1905,6 +2295,24 @@ const TOOL_CSS = `
   grid-template-columns: auto 1fr auto;
   gap: 18px;
   align-items: center;
+}
+
+/* Mobile horizontal-overflow guard. Grid/flex items in the builder default to
+   min-width:auto, so below ~500px the cards, the action-button row, and the
+   tempo slider refuse to shrink below their content's min-content and push the
+   page into ~90px of sideways scroll. These rules let them shrink to their
+   track (and let the action buttons wrap). They are no-ops when there is room,
+   so desktop layout is unaffected. */
+.tool-page-cards > * {
+  min-width: 0;
+}
+.tool-page-builder-header > div {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.tool-page-playbar-row > div,
+.tool-page-playbar-row input[type='range'] {
+  min-width: 0;
 }
 
 /* Handsatz-Chips — kompakte Kurzlabels. Desktop 6 Spalten, Mobile 3. */
@@ -1919,6 +2327,65 @@ const TOOL_CSS = `
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Beats × Unterteilung axes — two labelled chip rows replacing the raw step count. */
+.tool-page-axis-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.tool-page-axis-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  min-width: 92px;
+}
+.tool-page-axis-chip {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  min-width: 30px;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.tool-page-axis-chip-wide {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+}
+.tool-page-axis-chip-sub {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+  text-transform: none;
+}
+.tool-page-grid-hint {
+  align-self: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-left: 6px;
+}
+@media (max-width: 480px) {
+  .tool-page-axis-label {
+    min-width: 100%;
+    margin-bottom: 2px;
+  }
 }
 
 /* Strike Legend (klein, unter dem Pattern) — fünf Chips mit Symbol + Name */
@@ -2006,6 +2473,17 @@ const TOOL_CSS = `
   .tool-page-handsatz-row > div {
     height: 32px !important;
     font-size: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stack the playbar at phone widths so the tempo slider keeps a usable,
+     full-width line instead of being crushed to a few px beside Play/Stop
+     and the BPM readout. Must come after the max-width:700px block so it wins
+     the cascade (same specificity → source order decides). */
+  .tool-page-playbar-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 `;

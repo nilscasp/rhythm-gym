@@ -452,6 +452,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
       pattern: encodePatternForTool(pattern.steps),
       bpm: '90',
       handsatz: 'R-L',
+      subdivision: '16n',
       from: 'patterns',
       label: `${pattern.id} · ${pattern.name}`,
     });
