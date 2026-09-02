@@ -24,7 +24,7 @@ export function RedeemCodeCard() {
       </div>
       <h3 className="hub-card-title">Rhythmus-Fundament</h3>
       <p className="hub-card-desc">
-        40 Tage · drei Zyklen · vom Puls bis zur eigenen Komposition. Dieser
+        44 Tage · drei Zyklen · vom Puls bis zur eigenen Komposition. Dieser
         Kurs ist Teilnehmer:innen mit Zugangs-Code vorbehalten.
       </p>
       <form action={formAction} className="hub-redeem-form">

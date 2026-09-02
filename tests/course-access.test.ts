@@ -28,6 +28,13 @@ describe('unlockedThroughDay', () => {
   test('Sommerzeit-Wechsel (25.10.2026) erzeugt keinen Off-by-one', () => {
     expect(unlockedThroughDay('2026-10-20', '2026-10-29', 40)).toBe(10)
   })
+  test('Default-Kurslänge ist 44 (Tag 41–44 folgen): Tag 44 am 25.10., danach Clamp', () => {
+    expect(unlockedThroughDay('2026-09-12', '2026-10-21')).toBe(40)
+    expect(unlockedThroughDay('2026-09-12', '2026-10-22')).toBe(41)
+    expect(unlockedThroughDay('2026-09-12', '2026-10-25')).toBe(44)
+    expect(unlockedThroughDay('2026-09-12', '2026-11-30')).toBe(44)
+    expect(unlockDateForDay('2026-09-12', 44)).toBe('2026-10-25')
+  })
   test('unparsebares Datum schließt (fail closed), öffnet nie via NaN', () => {
     expect(unlockedThroughDay('kaputt', '2026-09-12', 40)).toBe(0)
   })

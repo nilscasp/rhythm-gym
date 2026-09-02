@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Rhythmus-Fundament — 40-Tage-Daten
+// Rhythmus-Fundament — 44-Tage-Daten (Tag 41–44 folgen; siehe COURSE_TOTAL_DAYS)
 //
 // Pro Tag:
 //   - Metadaten (Titel, Untertitel, Zyklus-Zugehörigkeit)
@@ -97,7 +97,7 @@ export const RHYTHMUS_CYCLES: readonly RhythmusCycle[] = [
     number: 3,
     title: 'Harmonik, Form, Komposition',
     subtitle: 'Vom Schlag zum Klang — und zur eigenen Komposition',
-    dayRange: [23, 40],
+    dayRange: [23, 44],
   },
 ] as const;
 
@@ -109,7 +109,7 @@ export function cycleForDay(num: number): RhythmusCycle {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 40-Tage-Daten
+// Tages-Daten (bisher Tag 1–40 hochgeladen)
 //
 // Die `presets[]` arrays werden in Slots gefüllt — leer = Default "Basis" wird
 // vom Player aus title/handsatz abgeleitet. Ein leeres `presets` array ist
@@ -1895,3 +1895,19 @@ export function daysInCycle(cycle: 1 | 2 | 3): readonly RhythmusDay[] {
 }
 
 export const TOTAL_DAYS = RHYTHMUS_DAYS.length;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Geplante Kurslänge. Der Kurs hat 44 Tage; Tag 41–44 werden nachgeliefert.
+// Drip-Unlock (app/lib/course-access.ts) rechnet IMMER mit COURSE_TOTAL_DAYS,
+// nicht mit der Zahl der bereits hochgeladenen Tage — sonst würde die
+// Freischalt-Kette der Teilnehmer bei Tag 40 abreißen und beim Nachladen
+// springen. Beim Hinzufügen von Tag 41–44: Eintrag in RHYTHMUS_DAYS +
+// content/rhythmusfundament/tag-N.md anlegen, sonst nichts anfassen.
+// ─────────────────────────────────────────────────────────────────────────────
+export const COURSE_TOTAL_DAYS = 44;
+
+/** Tagesnummern, die geplant, aber noch nicht hochgeladen sind (z. B. 41..44). */
+export const PLANNED_DAY_NUMBERS: readonly number[] = Array.from(
+  { length: Math.max(0, COURSE_TOTAL_DAYS - RHYTHMUS_DAYS.length) },
+  (_, i) => RHYTHMUS_DAYS.length + 1 + i,
+);

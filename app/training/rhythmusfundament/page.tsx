@@ -7,15 +7,18 @@ import {
   unlockDateForDay,
 } from '../../lib/course-access'
 import {
+  COURSE_TOTAL_DAYS,
+  PLANNED_DAY_NUMBERS,
   RHYTHMUS_CYCLES,
   RHYTHMUS_DAYS,
-  TOTAL_DAYS,
+  cycleForDay,
 } from '../../../data/rhythmusfundament-days'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// /training/rhythmusfundament — 40-Tage-Index.
+// /training/rhythmusfundament — 44-Tage-Index.
 //
-// Auth-gates first. Listet die 40 Tage gruppiert in drei Zyklen. Jede Karte
+// Auth-gates first. Listet die Tage gruppiert in drei Zyklen. Noch nicht
+// hochgeladene Tage (PLANNED_DAY_NUMBERS) erscheinen als Platzhalter. Jede Karte
 // linkt auf /training/rhythmusfundament/tag/[n] mit Markdown-Body + Player.
 //
 // Der reichere Tag-12-bis-22-Player (mit Stufen, Kombis, Spielwegen, Supabase-
@@ -23,9 +26,9 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const metadata = {
-  title: 'Rhythmus-Fundament — 40-Tage-Kurs',
+  title: 'Rhythmus-Fundament — 44-Tage-Kurs',
   description:
-    'Alle 40 Tage des Rhythmus-Fundament-Kurses — Texte und Player pro Tag. Wähle deinen Tag und drück Play.',
+    'Alle 44 Tage des Rhythmus-Fundament-Kurses — Texte und Player pro Tag. Wähle deinen Tag und drück Play.',
 }
 
 export default async function RhythmusfundamentIndexPage() {
@@ -45,9 +48,12 @@ export default async function RhythmusfundamentIndexPage() {
   const isDrip = dripStartDate !== null
   const nextDay = maxUnlockedDay + 1
   const nextUnlockLabel =
-    isDrip && nextDay <= TOTAL_DAYS
+    isDrip && nextDay <= COURSE_TOTAL_DAYS
       ? formatDateDE(unlockDateForDay(dripStartDate, nextDay))
       : null
+  // Geplante, noch nicht hochgeladene Tage (41–44) je Zyklus als Platzhalter.
+  const plannedByCycle = (cycleNumber: number): number[] =>
+    PLANNED_DAY_NUMBERS.filter((n) => cycleForDay(n).number === cycleNumber)
   const unlockLabelFor = (dayNumber: number): string | null =>
     isDrip && dayNumber > maxUnlockedDay
       ? formatDateDE(unlockDateForDay(dripStartDate, dayNumber))
@@ -63,7 +69,7 @@ export default async function RhythmusfundamentIndexPage() {
             <div className="rf-eyebrow">Rhythm Gym · Kurs</div>
             <h1 className="rf-title">RHYTHMUS-FUNDAMENT</h1>
             <p className="rf-tagline">
-              40 Tage · drei Zyklen · vom Puls bis zur eigenen Komposition.
+              {COURSE_TOTAL_DAYS} Tage · drei Zyklen · vom Puls bis zur eigenen Komposition.
             </p>
             <p className="rf-sub">
               Wähle deinen Tag — Text, Übungen und der Rhythmus-Player sind
@@ -79,17 +85,19 @@ export default async function RhythmusfundamentIndexPage() {
                   </>
                 ) : nextUnlockLabel ? (
                   <>
-                    <strong>{maxUnlockedDay} von {TOTAL_DAYS} Tagen frei.</strong>{' '}
+                    <strong>{maxUnlockedDay} von {COURSE_TOTAL_DAYS} Tagen frei.</strong>{' '}
                     Tag {nextDay} wird am {nextUnlockLabel} freigeschaltet.
                   </>
                 ) : (
-                  <>Alle {TOTAL_DAYS} Tage sind freigeschaltet.</>
+                  <>Alle {COURSE_TOTAL_DAYS} Tage sind freigeschaltet.</>
                 )}
               </p>
             ) : null}
             <div className="rf-meta">
               <span className="rf-chip">
-                {isDrip ? `${maxUnlockedDay} von ${TOTAL_DAYS} Tagen frei` : `${TOTAL_DAYS} Tage`}
+                {isDrip
+                  ? `${maxUnlockedDay} von ${COURSE_TOTAL_DAYS} Tagen frei`
+                  : `${COURSE_TOTAL_DAYS} Tage`}
               </span>
               <span className="rf-chip">3 Zyklen</span>
               <Link
@@ -106,6 +114,7 @@ export default async function RhythmusfundamentIndexPage() {
             const cycleDays = RHYTHMUS_DAYS.filter(
               (d) => d.cycle === cycle.number,
             )
+            const planned = plannedByCycle(cycle.number)
             return (
               <section key={cycle.number} className="rf-cycle">
                 <header className="rf-cycle-head">
@@ -113,7 +122,8 @@ export default async function RhythmusfundamentIndexPage() {
                   <h2 className="rf-cycle-title">{cycle.title}</h2>
                   <p className="rf-cycle-sub">{cycle.subtitle}</p>
                   <p className="rf-cycle-range">
-                    Tag {cycle.dayRange[0]}–{cycle.dayRange[1]} · {cycleDays.length} Tage
+                    Tag {cycle.dayRange[0]}–{cycle.dayRange[1]} ·{' '}
+                    {cycleDays.length + planned.length} Tage
                   </p>
                 </header>
                 <div className="rf-day-grid">
@@ -149,6 +159,27 @@ export default async function RhythmusfundamentIndexPage() {
                           {d.presets.length === 1 ? 'Pattern' : 'Patterns'}
                         </span>
                       </Link>
+                    )
+                  })}
+                  {planned.map((n) => {
+                    const unlockLabel = unlockLabelFor(n)
+                    return (
+                      <div
+                        key={`planned-${n}`}
+                        className="rf-day-card rf-day-card--locked rf-day-card--planned"
+                        aria-disabled="true"
+                      >
+                        <span className="rf-day-num">
+                          {unlockLabel ? '🔒 ' : ''}Tag {n}
+                        </span>
+                        <span className="rf-day-title">Inhalt folgt</span>
+                        <span className="rf-day-essence">
+                          Dieser Tag wird noch hochgeladen.
+                        </span>
+                        <span className="rf-day-meta rf-day-meta--unlock">
+                          {unlockLabel ? `Frei ab ${unlockLabel}` : 'Bald verfügbar'}
+                        </span>
+                      </div>
                     )
                   })}
                 </div>
@@ -254,6 +285,9 @@ const INDEX_CSS = `
   }
   .rf-day-meta--unlock {
     color: var(--amber);
+  }
+  .rf-day-card--planned {
+    border-style: dashed;
   }
   .rf-meta {
     display: flex;

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './supabase/database.types'
-import { TOTAL_DAYS } from '../../data/rhythmusfundament-days'
+import { COURSE_TOTAL_DAYS } from '../../data/rhythmusfundament-days'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Kurszugang = Einschreibung (enrollments). Einziger Lese-Check fürs Gating
@@ -54,11 +54,15 @@ function isoFromEpochDays(days: number): string {
 /**
  * Höchste freigeschaltete Tagesnummer. Kalendertage (inkl. Wochenende):
  * Tag 1 am drip_start, Tag 2 am Folgetag, … Ergebnis liegt in [0, totalDays].
+ *
+ * totalDays = geplante Kurslänge (COURSE_TOTAL_DAYS, 44), NICHT die Zahl der
+ * bereits hochgeladenen Tage — so bleibt der Zeitplan stabil, wenn Tag 41–44
+ * nachgeliefert werden.
  */
 export function unlockedThroughDay(
   dripStartDate: string | null,
   today: string,
-  totalDays: number = TOTAL_DAYS,
+  totalDays: number = COURSE_TOTAL_DAYS,
 ): number {
   if (!dripStartDate) return totalDays
   const diff = epochDays(today) - epochDays(dripStartDate)
