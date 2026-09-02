@@ -57,6 +57,23 @@ export async function createAccessCodeAction(formData: FormData): Promise<void> 
   const rawNote = formData.get('note')
   const note = typeof rawNote === 'string' && rawNote.trim() ? rawNote.trim() : null
 
+  // Drip-Unlock: Tag 1 wird an diesem Datum frei, danach täglich ein weiterer
+  // Tag (Berlin-Kalendertage, Logik in app/lib/course-access.ts). Leer = alle
+  // Tage sofort offen. Wird beim Einlösen in das Enrollment kopiert.
+  // Vergangene Daten sind erlaubt (Kohorte läuft schon → entsprechend viele
+  // Tage sofort offen). Kalendarisch ungültige Werte (2026-13-45) lehnen wir
+  // hier ab, statt sie als kryptischen Postgres-Fehler durchzureichen.
+  const rawDrip = formData.get('drip_start_date')
+  const dripTrimmed = typeof rawDrip === 'string' ? rawDrip.trim() : ''
+  let dripStartDate: string | null = null
+  if (dripTrimmed) {
+    const valid =
+      /^\d{4}-\d{2}-\d{2}$/.test(dripTrimmed) &&
+      new Date(`${dripTrimmed}T00:00:00Z`).toISOString().slice(0, 10) === dripTrimmed
+    if (!valid) throw new Error('Ungültiges Freischalt-Datum (erwartet JJJJ-MM-TT).')
+    dripStartDate = dripTrimmed
+  }
+
   const { data: program, error: programErr } = await supabase
     .from('programs')
     .select('id')
@@ -74,6 +91,7 @@ export async function createAccessCodeAction(formData: FormData): Promise<void> 
       program_id: program.id,
       max_uses: maxUses,
       expires_at: expiresAt,
+      drip_start_date: dripStartDate,
       note,
       created_by: user.id,
     })

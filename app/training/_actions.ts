@@ -45,10 +45,19 @@ export async function redeemCodeAction(
     return { status: 'error', message: 'Einlösen fehlgeschlagen — versuch es gleich noch einmal.' }
   }
 
-  const result = data as { ok?: boolean; error?: string } | null
+  const result = data as { ok?: boolean; error?: string; already_enrolled?: boolean } | null
   if (!result?.ok) {
     const message = ERROR_TEXT[result?.error ?? ''] ?? 'Einlösen fehlgeschlagen.'
     return { status: 'error', message }
+  }
+  // Bereits eingeschrieben: die DB-Funktion ändert dann nichts (auch kein
+  // Freischalt-Datum) — das sagen wir, statt still „Erfolg" zu melden.
+  if (result.already_enrolled) {
+    return {
+      status: 'error',
+      message:
+        'Du bist schon eingeschrieben — dieser Code ändert nichts an deinem Zugang oder Startdatum.',
+    }
   }
 
   revalidatePath('/training')

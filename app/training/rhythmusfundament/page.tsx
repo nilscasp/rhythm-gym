@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
-import { hasCourseAccess } from '../../lib/course-access'
+import {
+  formatDateDE,
+  getCourseAccess,
+  unlockDateForDay,
+} from '../../lib/course-access'
 import {
   RHYTHMUS_CYCLES,
   RHYTHMUS_DAYS,
@@ -32,9 +36,22 @@ export default async function RhythmusfundamentIndexPage() {
   if (!user) redirect('/auth/login')
 
   // Kurs-Gate: ohne Einschreibung zurück zum Hub (gesperrte Karte mit Code-Feld).
-  if (!(await hasCourseAccess(supabase, user.id, 'rhythmusfundament'))) {
-    redirect('/training')
-  }
+  const access = await getCourseAccess(supabase, user.id, 'rhythmusfundament')
+  if (!access.enrolled) redirect('/training')
+
+  // Drip-Unlock: Labels werden HIER (serverseitig, Berlin-Datum) formatiert —
+  // der Client rechnet nie mit Datumswerten.
+  const { dripStartDate, maxUnlockedDay } = access
+  const isDrip = dripStartDate !== null
+  const nextDay = maxUnlockedDay + 1
+  const nextUnlockLabel =
+    isDrip && nextDay <= TOTAL_DAYS
+      ? formatDateDE(unlockDateForDay(dripStartDate, nextDay))
+      : null
+  const unlockLabelFor = (dayNumber: number): string | null =>
+    isDrip && dayNumber > maxUnlockedDay
+      ? formatDateDE(unlockDateForDay(dripStartDate, dayNumber))
+      : null
 
   return (
     <>
@@ -53,8 +70,27 @@ export default async function RhythmusfundamentIndexPage() {
               auf jeder Seite direkt geladen. Mehrere Patterns pro Tag:
               ein Klick wechselt den Player.
             </p>
+            {isDrip ? (
+              <p className="rf-drip" role="status">
+                {maxUnlockedDay === 0 ? (
+                  <>
+                    Dein Kurs beginnt: <strong>Tag 1 wird am {nextUnlockLabel} freigeschaltet</strong>.
+                    Danach kommt jeden Tag ein neuer Kurstag dazu.
+                  </>
+                ) : nextUnlockLabel ? (
+                  <>
+                    <strong>{maxUnlockedDay} von {TOTAL_DAYS} Tagen frei.</strong>{' '}
+                    Tag {nextDay} wird am {nextUnlockLabel} freigeschaltet.
+                  </>
+                ) : (
+                  <>Alle {TOTAL_DAYS} Tage sind freigeschaltet.</>
+                )}
+              </p>
+            ) : null}
             <div className="rf-meta">
-              <span className="rf-chip">{TOTAL_DAYS} Tage</span>
+              <span className="rf-chip">
+                {isDrip ? `${maxUnlockedDay} von ${TOTAL_DAYS} Tagen frei` : `${TOTAL_DAYS} Tage`}
+              </span>
               <span className="rf-chip">3 Zyklen</span>
               <Link
                 href="/training/rhythmusfundament/zyklus-2-uebersicht"
@@ -81,21 +117,40 @@ export default async function RhythmusfundamentIndexPage() {
                   </p>
                 </header>
                 <div className="rf-day-grid">
-                  {cycleDays.map((d) => (
-                    <Link
-                      key={d.number}
-                      href={`/training/rhythmusfundament/tag/${d.number}`}
-                      className="rf-day-card"
-                    >
-                      <span className="rf-day-num">Tag {d.number}</span>
-                      <span className="rf-day-title">{d.title}</span>
-                      <span className="rf-day-essence">{d.essence}</span>
-                      <span className="rf-day-meta">
-                        {d.presets.length}{' '}
-                        {d.presets.length === 1 ? 'Pattern' : 'Patterns'}
-                      </span>
-                    </Link>
-                  ))}
+                  {cycleDays.map((d) => {
+                    const unlockLabel = unlockLabelFor(d.number)
+                    if (unlockLabel) {
+                      return (
+                        <div
+                          key={d.number}
+                          className="rf-day-card rf-day-card--locked"
+                          aria-disabled="true"
+                        >
+                          <span className="rf-day-num">🔒 Tag {d.number}</span>
+                          <span className="rf-day-title">{d.title}</span>
+                          <span className="rf-day-essence">{d.essence}</span>
+                          <span className="rf-day-meta rf-day-meta--unlock">
+                            Frei ab {unlockLabel}
+                          </span>
+                        </div>
+                      )
+                    }
+                    return (
+                      <Link
+                        key={d.number}
+                        href={`/training/rhythmusfundament/tag/${d.number}`}
+                        className="rf-day-card"
+                      >
+                        <span className="rf-day-num">Tag {d.number}</span>
+                        <span className="rf-day-title">{d.title}</span>
+                        <span className="rf-day-essence">{d.essence}</span>
+                        <span className="rf-day-meta">
+                          {d.presets.length}{' '}
+                          {d.presets.length === 1 ? 'Pattern' : 'Patterns'}
+                        </span>
+                      </Link>
+                    )
+                  })}
                 </div>
               </section>
             )
@@ -170,6 +225,35 @@ const INDEX_CSS = `
     line-height: 1.6;
     margin: 0;
     max-width: 70ch;
+  }
+  .rf-drip {
+    margin: 4px 0 0;
+    padding: 12px 14px;
+    background: rgba(245,166,35,0.08);
+    border: 1px solid rgba(245,166,35,0.35);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--cream);
+    max-width: 70ch;
+  }
+  .rf-drip strong {
+    color: var(--amber);
+    font-weight: 600;
+  }
+  .rf-day-card--locked {
+    opacity: 0.55;
+    cursor: default;
+  }
+  .rf-day-card--locked:hover {
+    border-color: var(--border);
+    transform: none;
+  }
+  .rf-day-card--locked .rf-day-num {
+    color: var(--muted);
+  }
+  .rf-day-meta--unlock {
+    color: var(--amber);
   }
   .rf-meta {
     display: flex;

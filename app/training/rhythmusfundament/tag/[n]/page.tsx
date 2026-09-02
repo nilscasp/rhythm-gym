@@ -3,7 +3,11 @@ import path from 'node:path'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
-import { hasCourseAccess } from '../../../../lib/course-access'
+import {
+  formatDateDE,
+  getCourseAccess,
+  unlockDateForDay,
+} from '../../../../lib/course-access'
 import {
   RHYTHMUS_DAYS,
   cycleForDay,
@@ -81,14 +85,22 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
   if (!user) redirect('/auth/login')
 
   // Kurs-Gate: ohne Einschreibung zurück zum Hub (gesperrte Karte mit Code-Feld).
-  if (!(await hasCourseAccess(supabase, user.id, 'rhythmusfundament'))) {
-    redirect('/training')
-  }
+  const access = await getCourseAccess(supabase, user.id, 'rhythmusfundament')
+  if (!access.enrolled) redirect('/training')
+
+  // Drip-Unlock: gesperrter Tag ist auch per Direkt-URL nicht erreichbar —
+  // Server-Redirect zum Index, der das Freischalt-Datum zeigt.
+  if (day.number > access.maxUnlockedDay) redirect('/training/rhythmusfundament')
 
   const markdown = await readDayMarkdown(day.number)
   const cycle = cycleForDay(day.number)
   const prev = RHYTHMUS_DAYS.find((d) => d.number === day.number - 1)
   const next = RHYTHMUS_DAYS.find((d) => d.number === day.number + 1)
+  const nextLocked = next ? next.number > access.maxUnlockedDay : false
+  const nextUnlockLabel =
+    next && nextLocked && access.dripStartDate
+      ? formatDateDE(unlockDateForDay(access.dripStartDate, next.number))
+      : null
 
   // Aktives Instrument des Users → Pitch-Map. Damit klingt das Playback in den
   // echten Tönen seines Pans (Fallback A4/C2, wenn keins gewählt).
@@ -233,7 +245,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
             ) : (
               <div className="tag-nav-spacer" />
             )}
-            {next ? (
+            {next && !nextLocked ? (
               <Link
                 href={`/training/rhythmusfundament/tag/${next.number}`}
                 className="tag-nav-link tag-nav-link--next"
@@ -241,6 +253,13 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
                 <span className="tag-nav-hint">Tag {next.number} →</span>
                 <span className="tag-nav-title">{next.title}</span>
               </Link>
+            ) : next ? (
+              <div className="tag-nav-link tag-nav-link--next tag-nav-link--locked">
+                <span className="tag-nav-hint">🔒 Tag {next.number}</span>
+                <span className="tag-nav-title">
+                  {nextUnlockLabel ? `Frei ab ${nextUnlockLabel}` : 'Noch gesperrt'}
+                </span>
+              </div>
             ) : (
               <div className="tag-nav-spacer" />
             )}
@@ -433,6 +452,18 @@ const TAG_CSS = `
     font-size: 16px;
     letter-spacing: 1px;
     line-height: 1.2;
+  }
+  .tag-nav-link--locked {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .tag-nav-link--locked:hover {
+    border-color: var(--border);
+    color: var(--cream);
+    transform: none;
+  }
+  .tag-nav-link--locked .tag-nav-hint {
+    color: var(--muted);
   }
   .tag-nav-spacer {
     /* keep the grid balanced even if only one neighbour exists */

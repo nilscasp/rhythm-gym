@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
+import { formatDateDE } from '../lib/course-access'
 import { createAccessCodeAction, toggleAccessCodeAction } from './_actions'
 import { PendingSubmitButton } from './_components/PendingSubmitButton'
 
@@ -18,7 +19,15 @@ type ProfileRow = Database['public']['Tables']['profiles']['Row']
 
 type AccessCodeRow = Pick<
   Database['public']['Tables']['access_codes']['Row'],
-  'id' | 'code' | 'max_uses' | 'uses' | 'expires_at' | 'active' | 'note' | 'created_at'
+  | 'id'
+  | 'code'
+  | 'max_uses'
+  | 'uses'
+  | 'expires_at'
+  | 'drip_start_date'
+  | 'active'
+  | 'note'
+  | 'created_at'
 >
 
 // Dreyfus-Stufen — Single Source: app/settings/page.tsx (eines Tages teilen).
@@ -136,7 +145,7 @@ export default async function CoachPage() {
       supabase.from('enrollments').select('user_id, program_id, status'),
       supabase
         .from('access_codes')
-        .select('id, code, max_uses, uses, expires_at, active, note, created_at')
+        .select('id, code, max_uses, uses, expires_at, drip_start_date, active, note, created_at')
         .order('created_at', { ascending: false }),
     ])
 
@@ -350,6 +359,10 @@ export default async function CoachPage() {
                 <span>Gültig bis (optional)</span>
                 <input type="date" name="expires_at" />
               </label>
+              <label className="cch-code-field" title="Tag 1 wird an diesem Datum frei, danach täglich ein weiterer Tag. Leer = alle Tage sofort.">
+                <span>Freischaltung ab (optional)</span>
+                <input type="date" name="drip_start_date" />
+              </label>
               <label className="cch-code-field cch-code-field--grow">
                 <span>Notiz (optional)</span>
                 <input type="text" name="note" placeholder="z. B. Workshop Juni" maxLength={120} />
@@ -388,12 +401,16 @@ export default async function CoachPage() {
                         <div className="cch-code-value">{c.code}</div>
                         <div className="cch-row-email">{c.note ?? '—'}</div>
                       </div>
-                      <div className="cch-row-stats">
+                      <div className="cch-row-stats cch-row-stats--5">
                         <Stat label="Eingelöst" value={`${c.uses}/${c.max_uses}`} />
                         <Stat label="Status" value={status} />
                         <Stat
                           label="Gültig bis"
                           value={c.expires_at ? formatJoined(c.expires_at) : '∞'}
+                        />
+                        <Stat
+                          label="Tage frei ab"
+                          value={c.drip_start_date ? formatDateDE(c.drip_start_date) : 'sofort'}
                         />
                         <Stat label="Erstellt" value={formatJoined(c.created_at)} />
                       </div>
@@ -815,6 +832,10 @@ const COACH_CSS = `
     transition: background 0.2s;
   }
   .cch-code-create:hover { background: var(--amber2); }
+  .cch-row-stats--5 { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 560px) {
+    .cch-row-stats--5 { grid-template-columns: repeat(3, 1fr); }
+  }
   .cch-code-row--on  { border-left-color: var(--amber); }
   .cch-code-row--off { border-left-color: rgba(122, 112, 96, 0.4); opacity: 0.75; }
   .cch-code-value {

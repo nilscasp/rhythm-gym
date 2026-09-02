@@ -20,6 +20,7 @@ export type Database = {
           code: string
           created_at: string
           created_by: string | null
+          drip_start_date: string | null
           expires_at: string | null
           id: string
           max_uses: number
@@ -32,6 +33,7 @@ export type Database = {
           code: string
           created_at?: string
           created_by?: string | null
+          drip_start_date?: string | null
           expires_at?: string | null
           id?: string
           max_uses?: number
@@ -44,6 +46,7 @@ export type Database = {
           code?: string
           created_at?: string
           created_by?: string | null
+          drip_start_date?: string | null
           expires_at?: string | null
           id?: string
           max_uses?: number
@@ -161,24 +164,37 @@ export type Database = {
       }
       enrollments: {
         Row: {
+          access_code_id: string | null
+          drip_start_date: string | null
           program_id: string
           started_at: string | null
           status: string | null
           user_id: string
         }
         Insert: {
+          access_code_id?: string | null
+          drip_start_date?: string | null
           program_id: string
           started_at?: string | null
           status?: string | null
           user_id: string
         }
         Update: {
+          access_code_id?: string | null
+          drip_start_date?: string | null
           program_id?: string
           started_at?: string | null
           status?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "enrollments_access_code_id_fkey"
+            columns: ["access_code_id"]
+            isOneToOne: false
+            referencedRelation: "access_codes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "enrollments_program_id_fkey"
             columns: ["program_id"]

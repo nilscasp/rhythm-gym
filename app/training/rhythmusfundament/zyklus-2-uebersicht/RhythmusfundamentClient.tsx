@@ -44,6 +44,13 @@ export type ExerciseLite = {
 export type RhythmusfundamentClientProps = {
   exercises: ExerciseLite[];
   initialCompletedIds: string[];
+  /**
+   * Drip-Unlock: höchste freigeschaltete Tagesnummer (serverseitig berechnet
+   * in app/lib/course-access.ts). Tage darüber erscheinen nicht in der
+   * Tages-Navigation. Pflicht — kein Default, damit kein Aufrufer versehentlich
+   * alles öffnet.
+   */
+  maxUnlockedDay: number;
 };
 
 // Lookup key shape: `${day_number}::${kind}::${matchKey}`.
@@ -159,9 +166,14 @@ const BPM_DEFAULT = 60;
 export function RhythmusfundamentClient({
   exercises,
   initialCompletedIds,
+  maxUnlockedDay,
 }: RhythmusfundamentClientProps) {
   // ───────── Day selection ─────────
   const [selectedDayNumber, setSelectedDayNumber] = useState<number>(FIRST_DAY);
+  const visibleDays = useMemo(
+    () => days.filter((d) => d.number <= maxUnlockedDay),
+    [maxUnlockedDay]
+  );
 
   const day: CourseDay | undefined = useMemo(
     () => days.find((d) => d.number === selectedDayNumber),
@@ -569,7 +581,7 @@ export function RhythmusfundamentClient({
           </div>
 
           <nav className="trn-day-list" aria-label="Tag wählen">
-            {days.map((d) => {
+            {visibleDays.map((d) => {
               const isActive = d.number === selectedDayNumber;
               const dayExerciseIds = exerciseIdsByDay.get(d.number);
               const total = dayExerciseIds?.size ?? 0;

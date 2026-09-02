@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../lib/supabase/server'
-import { hasCourseAccess } from '../../../lib/course-access'
+import { getCourseAccess } from '../../../lib/course-access'
+import { FIRST_DAY } from '../../../../data/course-patterns'
 import {
   RhythmusfundamentClient,
   type ExerciseLite,
@@ -34,9 +35,12 @@ export default async function RhythmusfundamentPage() {
   if (!user) redirect('/auth/login')
 
   // Kurs-Gate: ohne Einschreibung zurück zum Hub (gesperrte Karte mit Code-Feld).
-  if (!(await hasCourseAccess(supabase, user.id, 'rhythmusfundament'))) {
-    redirect('/training')
-  }
+  const access = await getCourseAccess(supabase, user.id, 'rhythmusfundament')
+  if (!access.enrolled) redirect('/training')
+
+  // Drip-Unlock: diese Übersicht beginnt bei Tag 12. Solange der noch
+  // gesperrt ist, zurück zum Index (der zeigt die Freischalt-Daten).
+  if (access.maxUnlockedDay < FIRST_DAY) redirect('/training/rhythmusfundament')
 
   // B. Program lookup
   const { data: programRow } = await supabase
@@ -52,7 +56,11 @@ export default async function RhythmusfundamentPage() {
   // hard 404 to keep the closed-beta course player reachable.
   if (!program) {
     return (
-      <RhythmusfundamentClient exercises={[]} initialCompletedIds={[]} />
+      <RhythmusfundamentClient
+        exercises={[]}
+        initialCompletedIds={[]}
+        maxUnlockedDay={access.maxUnlockedDay}
+      />
     )
   }
 
@@ -71,8 +79,10 @@ export default async function RhythmusfundamentPage() {
       .eq('exercises.program_id', program.id),
   ])
 
-  const exercises: ExerciseLite[] =
+  // Drip-Unlock: Übungen gesperrter Tage gar nicht erst an den Client geben.
+  const exercises: ExerciseLite[] = (
     (exercisesRes.data as ExerciseLite[] | null) ?? []
+  ).filter((ex) => ex.day_number === null || ex.day_number <= access.maxUnlockedDay)
   const completionRows: CompletionRow[] =
     (completionsRes.data as CompletionRow[] | null) ?? []
   const initialCompletedIds: string[] = completionRows.map((r) => r.exercise_id)
@@ -81,6 +91,7 @@ export default async function RhythmusfundamentPage() {
     <RhythmusfundamentClient
       exercises={exercises}
       initialCompletedIds={initialCompletedIds}
+      maxUnlockedDay={access.maxUnlockedDay}
     />
   )
 }
