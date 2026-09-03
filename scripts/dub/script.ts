@@ -102,7 +102,10 @@ export function renderScriptMd(segs: SegmentsFile, cfg: Config, existing: Map<st
     // Counting along with the beat and low-confidence passages default to keeping the German:
     // synthesised counting cannot be placed accurately enough against the actual beat, and leaving
     // the original is the change-nothing option. Delete the flag to have the line dubbed after all.
-    const suggested = !prev && (seg.auto.repetitive || seg.auto.suspect) ? ['keep-de'] : []
+    // Apply the suggestion whenever the block carries no decision yet, not merely when it is new:
+    // a refresh runs against scripts that already exist but are still empty.
+    const written = Boolean(prev && (prev.en || prev.flags.length || prev.note))
+    const suggested = !written && (seg.auto.repetitive || seg.auto.suspect) ? ['keep-de'] : []
     const flags = prev?.flags?.length ? prev.flags.join(' ') : suggested.join(' ')
     out.push(`FLAGS: ${flags}`)
     if (prev?.note) out.push(`NOTE: ${prev.note}`)
