@@ -925,6 +925,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
       'Wir gehen einen Takt zurück. Das Echo nach dem Ding wird länger.',
     cycle: 2,
     hasGrafik: true,
+    videoId: '6d351105-26ad-401d-b170-35159c561fca',
     presets: [
       {
         id: 'basis',
@@ -1209,6 +1210,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
       'Die Teile fügen sich. Heute findest du deine ersten Spielwege.',
     cycle: 2,
     hasGrafik: true,
+    videoId: '92e1ef26-afa2-4307-8c56-29abf8ff89bc',
     presets: [
       {
         id: 'spielweg-a',
@@ -1379,6 +1381,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
       'Die Mitte des Bogens öffnet sich. Was zwischen den Slaps lag, wird zur Brücke.',
     cycle: 3,
     hasGrafik: true,
+    videoId: '28ae9c17-2f3f-4034-92fe-84e27d8414eb',
     presets: [
       {
         id: 'mitte-zwei-tonfelder',
@@ -1695,6 +1698,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
       'Heute baust du den ersten kompositorischen Körper — ein Element, das in sich steht.',
     cycle: 3,
     hasGrafik: true,
+    videoId: '22a92ead-fa13-46f7-8809-9b175a8b1bcd',
     presets: [
       {
         id: 'koerper-eins',
