@@ -14,7 +14,7 @@ import { mux } from './mux'
 import { ab, qa } from './qa'
 import { parseScript, scriptReady, writeScript } from './script'
 import { separate } from './separate'
-import { downloadFromBunny, loadSources, saveSources, scanSources } from './sources'
+import { downloadFromBunny, loadSources, matchBunnySources, saveSources, scanSources } from './sources'
 import { invalidateFrom, loadState } from './state'
 import { transcribe } from './transcribe'
 import { tts } from './tts'
@@ -42,6 +42,7 @@ const { values, positionals } = parseArgs({
     len: { type: 'string', default: '30' },
     play: { type: 'boolean', default: false },
     scan: { type: 'string' },
+    match: { type: 'string' },
     bunny: { type: 'boolean', default: false },
     set: { type: 'string' },
     'audio-stream': { type: 'string' },
@@ -66,7 +67,10 @@ Steps
                                 --profile <id|name> --engine <qwen|chatterbox|…> --label <name>
                                 --list            show previous tests
                                 --choose <label>  adopt that voice and calibrate words/sec
-  sources                       --scan <dir>      find "Tag N …" files and record them
+  sources                       --match <dir>     resolve each day's 1080p master by matching
+                                                  its duration against the published video
+                                                  (filenames on the drive are not reliable)
+                                --scan <dir>      find "Tag N …" files by filename instead
                                 --bunny --day N   download the 1080p fallback MP4 from Bunny
                                 --set <path> --day N   point a day at a specific file
   extract    --day N            audio → 01-audio/orig.48k.wav
@@ -188,6 +192,10 @@ async function main(): Promise<void> {
       return
     }
     case 'sources': {
+      if (values.match) {
+        await matchBunnySources(values.match)
+        return
+      }
       if (values.scan) {
         scanSources(values.scan)
         return

@@ -2,7 +2,7 @@
 import { existsSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { WORKDIR, loadConfig, log, pad2, readJson, readRepoEnv, saveConfig, warn } from './config'
-import { run } from './ffmpeg'
+import { durationSec as durationOf, run } from './ffmpeg'
 
 const SOURCES_PATH = join(WORKDIR, 'sources.json')
 
@@ -142,4 +142,84 @@ export async function downloadFromBunny(day: number, force = false): Promise<str
   if (st.size < 1_000_000) warn(`downloaded file is suspiciously small (${st.size} bytes)`)
   log(`bunny: saved ${dest} (${(st.size / 1e6).toFixed(0)} MB)`)
   return dest
+}
+
+interface Candidate {
+  file: string
+  path: string
+  sizeBytes: number
+  durationSec: number | null
+  hd: boolean
+}
+
+async function candidatesFor(dir: string): Promise<Candidate[]> {
+  const out: Candidate[] = []
+  for (const f of readdirSync(dir).sort()) {
+    // "._name" are AppleDouble resource forks, not media.
+    if (f.startsWith('._') || !/\.(mov|mp4|m4v)$/i.test(f)) continue
+    const full = join(dir, f)
+    let durationSec: number | null = null
+    try {
+      durationSec = await durationOf(full)
+    } catch {
+      durationSec = null
+    }
+    out.push({ file: f, path: full, sizeBytes: statSync(full).size, durationSec, hd: /1080/.test(f) })
+  }
+  return out
+}
+
+/**
+ * Matches the local master files against the videos published on Bunny BY DURATION rather than by
+ * filename. The names on the drive do not survive a naive scan: day 1's master is called
+ * "Tag 1 Clip 1 - HD 1080p.mov" with no plain "Tag 1 - HD" beside it, the Tag 19 folder also holds
+ * "Tag 20 - HD 1080p.mov", and day 11 has an "Alternative" cut that runs 53 s longer. Duration is the
+ * one property that ties a local file to the cut that is actually online.
+ */
+export async function matchBunnySources(root: string, opts: { toleranceSec?: number; write?: boolean } = {}): Promise<Record<string, string>> {
+  const tolerance = opts.toleranceSec ?? 2
+  const bunny = await bunnyVideoMap()
+  const found: Record<string, string> = {}
+  const problems: string[] = []
+
+  for (const entry of readdirSync(root).sort()) {
+    const dir = join(root, entry)
+    if (!statSync(dir).isDirectory()) continue
+    const m = entry.match(/^Tag\s*(\d{1,2})\s*$/)
+    if (!m) continue
+    const day = Number(m[1])
+    const cands = await candidatesFor(dir)
+    const hd = cands.filter((c) => c.hd)
+    if (!hd.length) {
+      problems.push(`day ${day}: no 1080p file in ${entry}`)
+      continue
+    }
+    const published = bunny.get(day)
+    if (!published) {
+      // Not published yet (days 41-44). Accept a single unambiguous 1080p master.
+      if (hd.length === 1) {
+        found[String(day)] = hd[0].path
+        log(`  day ${String(day).padStart(2)}  ${hd[0].file}  (not published yet, single 1080p master)`)
+      } else {
+        problems.push(`day ${day}: not on Bunny and ${hd.length} 1080p files to choose from`)
+      }
+      continue
+    }
+    const exact = hd.filter((c) => c.durationSec !== null && Math.abs(c.durationSec - published.length) < tolerance)
+    if (exact.length === 1) {
+      found[String(day)] = exact[0].path
+      log(`  day ${String(day).padStart(2)}  ${exact[0].file}  (${(exact[0].sizeBytes / 1e9).toFixed(2)} GB, matches the published ${Math.floor(published.length / 60)}:${String(published.length % 60).padStart(2, '0')})`)
+    } else if (exact.length === 0) {
+      problems.push(`day ${day}: no 1080p file within ${tolerance}s of the published ${published.length}s — candidates: ${hd.map((c) => `${c.file} (${c.durationSec?.toFixed(0)}s)`).join(', ')}`)
+    } else {
+      problems.push(`day ${day}: ${exact.length} 1080p files match the published duration — ${exact.map((c) => c.file).join(', ')}`)
+    }
+  }
+
+  if (opts.write !== false) {
+    saveSources({ ...loadSources(), ...found })
+  }
+  log(`match: ${Object.keys(found).length} days resolved${problems.length ? `, ${problems.length} need a decision` : ''}`)
+  for (const p of problems) warn(p)
+  return found
 }
