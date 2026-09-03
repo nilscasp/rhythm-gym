@@ -19,7 +19,7 @@
 
 > **Deine Antwort:**
 >
->
+> Logo existiert. Original-SVG (Gold `#d4a574`) liegt im Repo als `public/handpan-schule/logo.svg`. ViewBox `0 0 262 269` (fast quadratisch). Reine Vektor-Pfade, kein eingebetteter Text → schriftunabhängig. Pendant für dunkle Hintergründe (`logo-white.svg`) automatisch generiert per `sed` (alle `#d4a574` → `#ffffff`). Beide bereit für Favicon, App-Icon, Footer.
 
 ### A2 — Farbpalette
 
@@ -32,7 +32,46 @@
 
 > **Deine Antwort:**
 >
+> **Zwei separate Designs, ein Mode-Toggle in der App:**
+> - **Dark Mode (Default)** klont 1:1 das Layout der bestehenden handpan.schule-Site — gleiche Farben, gleiche Typo, gleiches Gefühl. Wer aus der bestehenden Welt kommt fühlt sich sofort zuhause.
+> - **Light Mode** ist das NEUE Design (was wir hier aufgebaut haben): Weiß-Background, Gold (`#d4a574`, vom Logo), Sage (`#9CA98A`, Tonfeld-Brücke aus dem Kurs), Tenor Sans + Inter.
 >
+> Der Toggle ist überall in der App sichtbar (Settings + Nav-Icon). Auswahl wird pro Konto persistent. Default beim ersten Login = Dark, weil bekannte Bühne — aber Marketing-Screenshots auf der Landing zeigen den Light Mode als „neu, frisch".
+>
+> **Sage als gemeinsame Akzentfarbe** in beiden Modi — als Brücke und um die Modi visuell zu verbinden.
+>
+> ```css
+> /* ── Sage als gemeinsame Akzentfarbe (beide Modi) ── */
+> --brand-sage:      #9CA98A;   /* Akzent · Tonfeld-Brücke aus dem Kurs */
+> --brand-sage-soft: #becbac;   /* Heller für Tags/Pills */
+> --brand-sage-deep: #6f7d62;   /* Dunkler für Hover/Active im Light-Mode */
+>
+> /* ── Light Mode (das NEUE Design, klickbar) ── */
+> --brand-gold:      #d4a574;   /* Logo-Farbe, Primär-Akzent */
+> --brand-gold-soft: #b88c5b;   /* Dunklerer Gold für Hover/Active */
+> --brand-bg:        #ffffff;
+> --brand-bg-soft:   #faf6ef;   /* leicht warm-cremig für Karten */
+> --brand-text:      #2a2520;   /* Dunkel-warm, nicht reines Schwarz */
+> --brand-text-soft: #6b5e52;
+> --brand-border:    #e8e0d0;   /* Soft-Gold-getöntes Hellgrau */
+>
+> /* ── Dark Mode (handpan.schule-Klon, Default) ── */
+> /* Tokens werden aus den tatsächlichen Werten der handpan.schule-Site übernommen.
+>    Konkrete Hex-Codes finalisieren wir wenn wir die Site inspizieren — vorläufig: */
+> --brand-bg-dark:        #1a1410;
+> --brand-bg-soft-dark:   #2a2218;
+> --brand-text-on-dark:   #faf6ef;
+> --brand-text-soft-dark: rgba(250,246,239,0.7);
+> --brand-gold-on-dark:   #e6b988;
+> --brand-sage-on-dark:   #aabd95;
+> --brand-border-dark:    rgba(230,185,136,0.15);
+> ```
+>
+> **Offene Aufgabe:** Beim Build-Start die exakten Dark-Mode-Tokens aus der laufenden handpan.schule-Site extrahieren (Browser-DevTools/CSS-Inspect). Vorläufige Werte oben sind Best-Guess.
+>
+> **Hierarchie:** Gold + Weiß dominant, Sage als atmosphärisches Detail (Tags, Hover-States, Section-Accents, Background-Tinted-Sektionen). NICHT als Primärfarbe für Buttons.
+>
+> Logo-Spiegelung: `logo.svg` (Gold) auf Hell, `logo-white.svg` (Weiß) auf Dunkel.
 
 ### A3 — Typography
 
@@ -46,7 +85,13 @@
 
 > **Deine Antwort:**
 >
+> handpan.schule weicht von rhythm-gym ab — nicht industriell. Pick basierend auf Logo (organisch-mystisch, Gold auf Weiß) + bestehende handpan.schule-Seite (modern-clean Sans):
 >
+> - **Heading: Tenor Sans** — elegant, warm, leicht offen-luftig, passt zum hellen Layout mit Gold-Akzent
+> - **Body: Inter** — höchste Lesbarkeit für längere Texte (Markdown-Bodies, Community-Posts, Email)
+> - Optional: **Mono: JetBrains Mono** für Pattern-Notation falls hier auch gezeigt
+>
+> Beide Google-Fonts, kostenlos. Fallback-Stack: `'Tenor Sans', Georgia, serif` und `'Inter', system-ui, sans-serif`.
 
 ### A4 — Visual Style
 
@@ -61,7 +106,12 @@
 
 > **Deine Antwort:**
 >
+> **Mystisch-handwerklich.** Mix aus Punkt 2, 3, 4 (keine Schwarzweiss-Werkstattfotos, kein AI):
+> - **Erdige Naturfotos** als Hero/Atmosphäre (Pan vor Wald, Hände an Glut/Wasser, Steine, Sand) — getragen, gewachsen
+> - **Symbolische Illustrationen** in der Sprache des Logos fortsetzen — runde, schmuckhafte, fast-schamanistische Linien als wiederkehrende Designelemente (Trenner, Section-Marker, Empty-States, Loading-States)
+> - **Diagramme/Notation** aus dem Kurs (Pattern-Grids, Bogen-Visualisierungen) wo es um Lehrinhalt geht
 >
+> Faustregel: jedes Bild wirkt entweder *gewachsen* (Naturfoto) oder *gemeißelt* (Ornament/Diagramm). Niemals beliebig, niemals AI-generisch.
 
 ### A5 — Voice & Tone
 
@@ -77,7 +127,13 @@
 
 > **Deine Antwort:**
 >
->
+> **Mystisch-handwerklich.** Konkret:
+> - **du-Form** durchgängig — kein Sie, kein "User", kein "Mitglied" als Anrede
+> - **Beziehung: Pfadgenossen / Mitspieler** — nicht Lehrer von oben. Du gehst voraus, aber du gehst *mit*.
+> - **Energie: Mischung je nach Kontext** — die Tag-Markdowns aus dem Kurs (Essenz · Worum es heute geht · Reflexion · Für den Weg) sind der Maßstab. Mystisch-poetisch wenn es um Bedeutung geht, handwerklich-direkt wenn es um Praxis geht. Lehrend-strukturiert nur in der Anleitung/FAQ.
+> - **Humor: leise, geerdet** — kein Influencer-Witz, kein kalauer. Eher Augenzwinkern am Rand eines Gedankens.
+> - **Tabu:** „Premium", „Customer", „User", „Plan", „Subscriber", „Course", „Module" (englisch-marketing-Slang). Auch: „Lifehack", „Optimieren", „performance".
+> - **Lieblings-Begriffe:** „Praxis", „Bogen", „Pfad", „Pan", „Spiel", „Klang", „Atmen", „Boden", „Mitspieler", „Schülerin/Schüler", „Werkstatt", „Übung"
 
 ### A6 — Logo + Wordmark Inspiration
 
@@ -87,7 +143,7 @@
 
 > **Deine Antwort:**
 >
->
+> _Skip für jetzt._ Default-Vorbild: bestehende **handpan.schule**-Seite (heller Look, Whitespace, Gold-Akzent) + Pan-Welt-Sites (Bauer Pan, Yatao, Grail) für Materialität und Ruhe. Falls konkrete Sites später aufkommen → hier ergänzen, ich passe Brand-Anwendung an.
 
 ---
 
@@ -105,9 +161,15 @@
 
 > **Deine Antwort:**
 >
+> **Drei Typen:**
 >
-
-### B2 — Akquise-Kanal
+> **Typ 1 — Frau 45–65, Einsteigerin auf der Suche.** Wenig Vorerfahrung mit Musik. Spielt seit 1 Monat bis 2 Jahre Handpan. Sucht: Anleitung, Klarheit, Spiritualität, Gefühl, Fluss. Mittelstand.
+>
+> **Typ 2 — Mann 40–60, der Tiefe-Sucher.** Spirituell stark interessiert, hoch geistig, technisch veranlagt. Will tiefer gehen, investiert die Zeit die es braucht. Besitzt meist mehrere Instrumente. Mittelstand mit etwas mehr Vermögen.
+>
+> **Typ 3 — Frau 30–40, die Dankbare am Anfang.** Spirituell sehr interessiert und offen, sehr dankbar für die ganzheitliche Lehrmethodik. Meist eine Handpan, eher am Anfang. Mittelstand bis hoch.
+>
+> **Quer durch alle drei:** spirituelle Offenheit, Bereitschaft zur Praxis, Mittelstand-Stabilität, kein Schnellkurs-Erwartung.
 
 **Frage:** Woher kommen die Mitglieder heute? Wo finden sie dich? (Realistisch, nicht idealisiert.)
 
@@ -115,7 +177,7 @@
 
 > **Deine Antwort:**
 >
->
+> Die meisten kommen über **Mund-zu-Mund-Empfehlungen**, **Facebook-Gruppen** und **WhatsApp-Gruppen**. Heißt: Akquise läuft über Communities — also brauchen wir starke Empfehlungs-Hebel und teilbare Inhalte mehr als SEO oder Paid-Ads. Mitglied-Erlebnis MUSS empfehlbar sein.
 
 ### B3 — Mitglied-Rollen / -Stufen
 
@@ -130,7 +192,7 @@
 
 > **Deine Antwort:**
 >
->
+> _Default akzeptiert (kein expliziter Widerspruch):_ **Neuling** (erste 30 Tage automatisch) · **Mitglied** (regulär) · **Mentor** (auf Einladung von Nils, kann antworten + pinnen) · **Admin** (Nils). Alumni und Workshop-Gast als optionale Rollen für später. Wenn du das ändern willst → hier ergänzen.
 
 ### B4 — Lang-Dabei-Erfolg
 
@@ -140,11 +202,20 @@
 
 > **Deine Antwort:**
 >
+> Nach 6–12 Monaten kann das Mitglied:
+> - **Frei spielen und improvisieren** — ohne Anleitung am Pan ankommen
+> - **Eigene Ideen entwickeln** — nicht nur fremde Patterns nachspielen
+> - **Eigene Übungen erstellen** — Selbstgesteuerte Praxis
+> - **Fortschritt selbst bestimmen** — weiß was als nächstes dran ist, ohne dass Nils es vorgibt
+> - **Motivation selbst lenken** — Praxis hält sich selbst am Leben
 >
+> **Marketing-Versprechen:** „In 6–12 Monaten spielst du frei. Dein Spiel gehört dir, nicht dem Lehrplan." **Engagement-Design:** App muss Pfad zum Selbstgehen zeigen — also nicht ewig „Tag 47" servieren, sondern Übergangs-Phasen markieren wo der/die Schüler\*in eigene Wege findet.
 
 ---
 
 ## C · Mitgliedschaft & Bezahlung
+
+> ⏸️ **Wiedervorlage gesetzt am 4. Juni 2026** — pausiert nach Sektion B. Persistent Reminder läuft am 5. Juni 2026 um 8:57 lokaler Zeit. Aufgezeichnet als `handpan-schule-discovery-wiedervorlage` in `~/.claude/scheduled-tasks/`.
 
 > Wer zahlt für was. Hier ist die ökonomische Architektur.
 
@@ -156,7 +227,7 @@
 
 > **Deine Antwort:**
 >
->
+> **Zwei Stufen: Standard (Free) + Premium.** Updates später möglich. Quelle: bestehende Pricing-Page auf handpan.schule (Screenshot von Nils, 5. Juni 2026).
 
 ### C2 — Preise pro Tier
 
@@ -166,7 +237,9 @@
 
 > **Deine Antwort:**
 >
->
+> - **Standard:** kostenlos (0€/Monat)
+> - **Premium:** 29€/Monat · 290€/Jahr (= 58€ gespart = 2 Monate gratis = ~17% Rabatt für Jährlich)
+> - Original-Display zeigt $34/m · $340/y mit ca-Umrechnung — Source-of-Truth ist die EUR-Preise.
 
 ### C3 — Inhalte pro Tier
 
@@ -183,9 +256,42 @@
 
 > **Deine Antwort:**
 >
+> Quelle: handpan.schule Pricing-Page (Screenshot 5. Juni 2026).
 >
+> **Standard (Free):**
+> - 1x Monat Q&A 1h live
+> - Zugang zum Handpan Kompass Kurs
+> - Wöchentlicher CheckIn
+> - Wöchentlicher Motivations-/Reflexions-Impuls
+>
+> **Premium (29€/m · 290€/y):**
+> - Alles in Standard +
+> - 1x Monat Rhythm Gym Live Session
+> - 1x Monat Handpan Kompass Live Session
+> - 1 Video Tutorial pro Woche
+> - Kostenfreier Zugang zur RhythmGym Webapp
+>
+> **Community-Features (NEU in der App, nicht im jetzigen Display):**
+> - **Feed (Lesen + Posten):** beide Tiers — Free + Premium
+> - **DMs mit Nils:** nur Premium
+> - Logik: Free spürt die Energie im Feed (Lock-in-Hilfe), aber direkter Draht zu Nils ist Premium-Anker
+>
+> **Kurse (final geklärt 5. Juni 2026):**
+> - Handpan Kompass + Rhythmus-Fundament leben technisch IN der App (gleiche Login-Schicht, gleiche Plattform)
+> - **NICHT Teil des Free/Premium-Abos** — beide Kurse haben EIGENE Kauf-Flows (One-Time-Kauf oder eigene Abos)
+> - Das bestehende Display („Handpan Kompass Kurs" als Free-Inhalt) ist Übergangs-Zustand und wird angepasst
+> - Mitgliedschaft (Free/Premium) deckt App-Plattform + Community + Live-Sessions + Tutorials ab — NICHT die Kurse
+> - In der App zusätzlich: Rhythmen + Patterns (Tool, Bibliothek, Glossar) — die sind im Abo drin, unabhängig von den Kursen
+>
+> **1:1-Sessions mit Nils:** NICHT im Mitgliedschafts-Paket. Zubuchbar als Add-on (eigenes Buchungs-Flow, separater Preis).
 
 ### C4 — Trial / Geld-zurück
+
+> **Deine Antwort (final geklärt 5. Juni 2026):**
+>
+> **Kein klassischer Trial, kein aktiv beworbenes Geld-zurück.** Das Free-Tier IST der Kennenlern-Raum — wer rein will, kann free starten und später upgraden.
+>
+> **14-Tage-Widerrufsrecht** (DE-Pflicht für digitale Dienst-Abos) wird im AGB-Kleingedruckten geführt, aber nicht aktiv beworben. Free bleibt der „echte" Trial im Marketing-Sprech. Bestätigt von Nils.
 
 **Frage:** Probemonat (gratis)? 7 Tage Geld-zurück-Garantie? Beides? Nichts?
 
@@ -197,6 +303,10 @@
 
 ### C5 — Monatlich + Jährlich
 
+> **Deine Antwort:**
+>
+> **Monatlich: 29€** · **Jährlich: 290€ = 2 Monate gratis** (~17% Rabatt). Direkt aus dem bestehenden Pricing-Display übernommen.
+
 **Frage:** Bietest du jährliche Mitgliedschaft mit Rabatt? Wenn ja, welcher Rabatt (15%, 20%, 2 Monate gratis)?
 
 **Hinweis:** Jährlich = bessere Retention + Cashflow. Üblich: ~17% Rabatt (= 2 Monate gratis).
@@ -206,6 +316,20 @@
 >
 
 ### C6 — Stripe-Status
+
+> **Deine Antwort:**
+>
+> Stripe-Account aktiv (vom Nils bestätigt). **Produkte noch NICHT angelegt** — müssen wir bauen.
+>
+> **Für Free brauchst du KEIN Stripe-Produkt.** Free-Mitglieder werden in Supabase gespeichert, kommen erst bei Upgrade in Stripe rein. Saubere Trennung.
+>
+> **Konkret in Stripe anzulegen:**
+> - Ein Produkt: „Handpan-Schule Premium-Mitgliedschaft"
+> - Zwei Preise dranhängen:
+>   - 29€/Monat (recurring monthly)
+>   - 290€/Jahr (recurring yearly)
+> - Beide in EUR, Steuer-Auto-Berechnung (DE: 19% Umsatzsteuer auf digitale Dienste)
+> - Webhook für `customer.subscription.created/updated/deleted` → Supabase-Profile-Flag `is_premium` flippen
 
 **Frage:** Du sagtest „Stripe habe ich schon". Heißt das: Stripe-Account aktiv, Konto verifiziert, aber noch keine Produkte/Preise angelegt? Oder schon Mitgliedschafts-Produkte konfiguriert?
 
@@ -218,6 +342,8 @@
 ---
 
 ## D · Onboarding (nach Signup)
+
+> ⏸️ **Wiedervorlage gesetzt am 5. Juni 2026** — Block 1 (D1-D3) wurde gestellt aber noch nicht beantwortet. Reminder läuft am 6. Juni 2026 um 10:57 Berlin-Zeit als `handpan-schule-discovery-d-wiedervorlage` in `~/.claude/scheduled-tasks/`.
 
 > Die ersten 5 Minuten nach dem Bezahlen. Entscheiden ob jemand bleibt oder ghosted.
 

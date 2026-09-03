@@ -51,3 +51,4 @@ interceptor-screenshot-*.png
 
 # pre-rebuild reference bundle (HTML mockups + design tokens; kept locally for source-of-truth)
 rhythm-gym-bundle/
+interceptor-screenshot-*.jpg
