@@ -11,8 +11,10 @@ export async function separate(day: number, opts: { force?: boolean; model?: str
   const model = opts.model ?? 'htdemucs'
   const state = loadState(day)
   const fp = `${fileFingerprint(p.orig48)}:${model}`
-  if (!opts.force && existsSync(p.noVocals48) && existsSync(p.vocals16)) {
-    if (!isDone(state, 'separate', fp)) markDone(state, 'separate', fp)
+  // The fingerprint covers the extracted audio, so a change of source file re-runs the separation.
+  // Never short-circuit on "the stem files happen to exist" — that silently keeps stems belonging to
+  // a different cut, and the mix then lays the bed against the wrong timeline.
+  if (!opts.force && isDone(state, 'separate', fp) && existsSync(p.noVocals48) && existsSync(p.vocals16)) {
     log(`separate: day ${day} up to date`)
     return
   }

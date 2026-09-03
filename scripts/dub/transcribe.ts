@@ -29,6 +29,9 @@ interface WhisperJson {
   segments: WhisperSegment[]
 }
 
+/** Bump when the merging rules change, so cached recognitions are re-merged without re-running ASR. */
+const MERGE_VERSION = 2
+
 const HALLUCINATION_PATTERNS = [
   /untertitel/i,
   /amara\.org/i,
@@ -127,24 +130,32 @@ export async function runWhisper(cfg: Config, input: string, outDir: string, dev
 }
 
 function isHallucination(text: string): boolean {
-  if (HALLUCINATION_PATTERNS.some((re) => re.test(text))) return true
-  const toks = text.toLowerCase().split(/\s+/).filter(Boolean)
-  if (toks.length >= 6) {
-    const uniq = new Set(toks)
-    if (uniq.size / toks.length < 0.35) return true
-  }
-  return false
+  return HALLUCINATION_PATTERNS.some((re) => re.test(text))
+}
+
+/**
+ * Highly repetitive text. On this course that is almost always Nils counting the beat while he plays
+ * ("die zwei, die drei, die vier, die eins …"), which is real teaching content — but it is also
+ * exactly what a Whisper hallucination loop looks like. Both are marked rather than dropped, so the
+ * dub script can show them and default them to keeping the German.
+ */
+function isRepetitive(text: string, compressionRatio: number): boolean {
+  if (compressionRatio > 2.4) return true
+  const toks = text.toLowerCase().replace(/[.,!?;:]/g, '').split(/\s+/).filter(Boolean)
+  if (toks.length < 6) return false
+  return new Set(toks).size / toks.length < 0.35
 }
 
 function round3(n: number): number {
   return Math.round(n * 1000) / 1000
 }
 
-export function mergeUtterances(wj: WhisperJson, cfg: Config): Omit<Segment, 'slotEnd' | 'slotSec' | 'auto'>[] {
+type MergedUtterance = Omit<Segment, 'slotEnd' | 'slotSec' | 'auto'> & { repetitive: boolean }
+
+export function mergeUtterances(wj: WhisperJson, cfg: Config): MergedUtterance[] {
   const words: (Word & { seg: WhisperSegment })[] = []
   for (const s of wj.segments) {
     if (s.no_speech_prob > 0.6 && s.avg_logprob < -0.8) continue
-    if (s.compression_ratio > 2.4) continue
     if (isHallucination(s.text)) continue
     for (const w of s.words ?? []) {
       const t = w.word.trim()
@@ -178,7 +189,9 @@ export function mergeUtterances(wj: WhisperJson, cfg: Config): Omit<Segment, 'sl
     const segs = new Set(u.map((w) => w.seg))
     const nsp = Math.max(...[...segs].map((s) => s.no_speech_prob))
     const lp = Math.min(...[...segs].map((s) => s.avg_logprob))
+    const cr = Math.max(...[...segs].map((s) => s.compression_ratio))
     return {
+      repetitive: isRepetitive(text, cr),
       id: `s${String(i + 1).padStart(3, '0')}`,
       start: round3(start),
       end: round3(end),
@@ -197,18 +210,25 @@ export async function transcribe(day: number, opts: { force?: boolean } = {}): P
   const state = loadState(day)
   const input = cfg.asr.input === 'vocals' && existsSync(p.vocals16) ? p.vocals16 : p.orig48
   if (!existsSync(input)) throw new Error(`transcribe: input missing (${input}); run extract/separate first`)
-  const fp = `${fileFingerprint(input)}:${cfg.asr.model}:${cfg.asr.pauseSplitSec}:${cfg.asr.maxUtteranceSec}`
+  // Two fingerprints, because the two halves of this step cost very different amounts. `asr` covers
+  // the recognition itself and only changes when the audio or the model does. `transcribe` also covers
+  // the merging rules, so tightening those rebuilds segments.json from the cached whisper.json in
+  // seconds instead of re-running recognition over every video. Both include the extracted source
+  // audio, so re-extracting a day from a different master invalidates them.
+  const asrFp = `${fileFingerprint(p.orig48)}:${fileFingerprint(input)}:${cfg.asr.model}:${cfg.asr.input}`
+  const fp = `${asrFp}:${MERGE_VERSION}:${cfg.asr.pauseSplitSec}:${cfg.asr.maxUtteranceSec}:${cfg.asr.sentenceSplitMinSec}`
   if (!opts.force && isDone(state, 'transcribe', fp) && existsSync(p.segments)) {
     log(`transcribe: day ${day} up to date`)
     return
   }
   let device: string = cfg.asr.device
-  if (opts.force || !existsSync(p.whisperJson)) {
+  if (opts.force || !existsSync(p.whisperJson) || !isDone(state, 'asr', asrFp)) {
     const r = await runWhisper(cfg, input, p.asrDir, cfg.asr.device)
     device = r.device
     if (r.json !== p.whisperJson) renameSync(r.json, p.whisperJson)
+    markDone(state, 'asr', asrFp)
   } else {
-    log('transcribe: reusing existing whisper.json (use --force to re-run whisper)')
+    log('transcribe: reusing the cached recognition, re-merging into utterances')
   }
   const wj = JSON.parse(await Bun.file(p.whisperJson).text()) as WhisperJson
   const merged = mergeUtterances(wj, cfg)
@@ -218,7 +238,7 @@ export async function transcribe(day: number, opts: { force?: boolean } = {}): P
   const music = haveStems ? await decodeF32(p.noVocals48, 16000, 1) : null
   const vocals = haveStems ? await decodeF32(p.vocals16, 16000, 1) : null
 
-  const segments: Segment[] = merged.map((m, i) => {
+  const segments: Segment[] = merged.map(({ repetitive, ...m }, i) => {
     const next = merged[i + 1]
     const slotEnd = round3(next ? Math.max(m.end, next.start - cfg.fit.guardSec) : mediaDurationSec)
     const musicRms = music ? rmsDb(music, 16000, m.start, m.end) : -100
@@ -230,6 +250,7 @@ export async function transcribe(day: number, opts: { force?: boolean } = {}): P
       auto: {
         music: haveStems && musicRms > cfg.bed.musicRmsDb,
         suspect: haveStems && vocRms < cfg.bed.suspectVocalsRmsDb,
+        repetitive,
         musicRmsDb: round3(musicRms),
         vocalsRmsDb: round3(vocRms),
       },

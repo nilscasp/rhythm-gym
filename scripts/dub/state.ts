@@ -23,7 +23,7 @@ export function markDone(state: DayState, step: string, fingerprint: string): vo
 }
 
 export function invalidateFrom(state: DayState, step: string): void {
-  const order = ['extract', 'separate', 'transcribe', 'script', 'tts', 'fit', 'mix', 'mux', 'qa']
+  const order = ['extract', 'separate', 'asr', 'transcribe', 'script', 'tts', 'fit', 'mix', 'mux', 'qa']
   const i = order.indexOf(step)
   if (i < 0) return
   for (const s of order.slice(i)) delete state.steps[s]

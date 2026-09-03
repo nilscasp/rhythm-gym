@@ -77,7 +77,14 @@ export interface Segment {
   de: string
   deWords: number
   words: Word[]
-  auto: { music: boolean; suspect: boolean; musicRmsDb: number; vocalsRmsDb: number }
+  auto: {
+    music: boolean
+    suspect: boolean
+    /** Repetitive text: Nils counting the beat while playing, or a Whisper loop. Defaults to keep-de. */
+    repetitive: boolean
+    musicRmsDb: number
+    vocalsRmsDb: number
+  }
   asrMeta: { noSpeechProb: number; avgLogprob: number }
 }
 
