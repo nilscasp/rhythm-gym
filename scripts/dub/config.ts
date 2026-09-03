@@ -18,6 +18,12 @@ export const DEFAULT_CONFIG: Config = {
     maxChunkChars: 800,
     crossfadeMs: 50,
     normalize: true,
+    denoise: {
+      enabled: true,
+      outputChain: 'highpass=f=75,anlmdn=s=0.0004:p=0.003,afftdn=nr=12:nf=-70:tn=1',
+      sampleChain: 'highpass=f=85,anlmdn=s=0.0008:p=0.004,afftdn=nr=20:nf=-60:tn=1',
+    },
+    quality: { minDynamicRangeDb: 14, maxDurationFactor: 2.5 },
   },
   asr: {
     model: 'large-v3-turbo',

@@ -19,6 +19,7 @@ import { invalidateFrom, loadState } from './state'
 import { transcribe } from './transcribe'
 import { tts } from './tts'
 import { chooseVoice, listVoiceTests, voiceTest } from './voiceTest'
+import { cleanSample } from './cleanSample'
 import type { Engine, FitFile, ScriptFile } from './types'
 
 const { values, positionals } = parseArgs({
@@ -56,6 +57,11 @@ const HELP = `dub — English voice-over pipeline for Rhythmus Fundament
 
 Steps
   doctor                        check ffmpeg, uvx, whisper, Voicebox, sources, disk
+  clean-sample --profile <id|name>
+                                Denoise a reference sample and clone a new profile from it.
+                                CAUTION: aggressive cleaning destabilises the clone (drones
+                                instead of speech). Denoising the generated output is the
+                                safer fix and is on by default. Listen before you rely on it.
   voice-test                    generate the 30 s English test paragraph
                                 --profile <id|name> --engine <qwen|chatterbox|…> --label <name>
                                 --list            show previous tests
@@ -174,6 +180,11 @@ async function main(): Promise<void> {
         label: values.label,
         seed: values.seed ? Number(values.seed) : undefined,
       })
+      return
+    }
+    case 'clean-sample': {
+      if (!values.profile) throw new Error('usage: clean-sample --profile <id|name> [--name "New name"] [--file <wav>]')
+      await cleanSample(values.profile, { name: values.label, file: values.set })
       return
     }
     case 'sources': {

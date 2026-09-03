@@ -2,7 +2,7 @@
 import { copyFileSync, existsSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import { WORKDIR, ensureDayDirs, loadConfig, log, readJson, sha256, warn, writeJson } from './config'
-import { durationSec, trimAndResample } from './ffmpeg'
+import { durationSec, envelopeStats, trimAndResample } from './ffmpeg'
 import { clientFromConfig, isConnectionRefused } from './voicebox'
 import { loadState, markDone } from './state'
 import type { Config, ScriptFile, SegmentsFile, TtsEntry, TtsFile } from './types'
@@ -16,6 +16,7 @@ function cacheKey(cfg: Config, text: string, seed: number): string {
       language: cfg.tts.language,
       seed,
       instruct: cfg.tts.instruct,
+      denoise: cfg.tts.denoise.enabled ? cfg.tts.denoise.outputChain : null,
       text: text.replace(/\s+/g, ' ').replace(/[""]/g, '"').replace(/['']/g, "'").trim(),
     }),
   )
@@ -79,6 +80,9 @@ export async function tts(day: number, opts: { force?: boolean; only?: string[] 
     let entry: TtsEntry = { id: e.id, status: 'failed' }
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
+        // A re-roll after a degenerate generation needs a different seed; the same one tends to
+        // reproduce the same failure.
+        const attemptSeed = attempt === 1 ? seed : seed + attempt * 1013
         const g = await client.generateToFile(
           {
             profile_id: cfg.tts.profileId,
@@ -86,7 +90,7 @@ export async function tts(day: number, opts: { force?: boolean; only?: string[] 
             language: cfg.tts.language,
             engine: cfg.tts.engine,
             model_size: cfg.tts.modelSize,
-            seed,
+            seed: attemptSeed,
             instruct: cfg.tts.instruct || undefined,
             max_chunk_chars: cfg.tts.maxChunkChars,
             crossfade_ms: cfg.tts.crossfadeMs,
@@ -95,17 +99,32 @@ export async function tts(day: number, opts: { force?: boolean; only?: string[] 
           tmp,
           estimated,
         )
-        await trimAndResample(tmp, wav)
+        await trimAndResample(tmp, wav, cfg.tts.denoise.enabled ? cfg.tts.denoise.outputChain : undefined)
         unlinkSync(tmp)
+
+        const env = await envelopeStats(wav)
+        const tooFlat = env.dynamicRangeDb < cfg.tts.quality.minDynamicRangeDb
+        const tooLong = env.durationSec > Math.max(4, estimated * cfg.tts.quality.maxDurationFactor)
+        if ((tooFlat || tooLong) && attempt < 3) {
+          warn(
+            `${e.id}: rejected generation (${env.durationSec.toFixed(1)}s, dynamic range ${env.dynamicRangeDb.toFixed(1)} dB` +
+              `${tooFlat ? ' — a constant drone, not speech' : ''}${tooLong ? ' — far longer than the text warrants' : ''}), re-rolling the seed`,
+          )
+          continue
+        }
+        if (tooFlat || tooLong) {
+          warn(`${e.id}: still questionable after 3 attempts (${env.durationSec.toFixed(1)}s, dynamic range ${env.dynamicRangeDb.toFixed(1)} dB) — listen to it`)
+        }
         const dur = await durationSec(wav)
         writeJson(cachePath(key, 'json'), {
           profileId: cfg.tts.profileId,
           engine: cfg.tts.engine,
           modelSize: cfg.tts.modelSize,
-          seed,
+          seed: attemptSeed,
           instruct: cfg.tts.instruct,
           text: e.en,
           durationSec: dur,
+          dynamicRangeDb: Math.round(env.dynamicRangeDb * 10) / 10,
           generationId: g.id,
           createdAt: new Date().toISOString(),
         })

@@ -14,6 +14,18 @@ export interface Config {
     maxChunkChars: number
     crossfadeMs: number
     normalize: boolean
+    /**
+     * Qwen3-TTS reproduces the acoustic background of the reference sample, so a clone made from a
+     * room-noise recording generates room noise. `sampleChain` cleans a reference before cloning
+     * (see `clean-sample`); `outputChain` takes the remainder off each generated clip.
+     */
+    denoise: { enabled: boolean; outputChain: string; sampleChain: string }
+    /**
+     * Qwen3-TTS occasionally runs away and produces a constant drone instead of speech, at the same
+     * seed that works on the next attempt. These bounds catch that so an overnight batch does not
+     * bake a broken line into a video.
+     */
+    quality: { minDynamicRangeDb: number; maxDurationFactor: number }
   }
   asr: {
     model: string

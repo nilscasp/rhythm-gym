@@ -70,7 +70,7 @@ export async function voiceTest(opts: { profile?: string; engine?: Engine; label
     tmp,
     words / cfg.script.wordsPerSec,
   )
-  await trimAndResample(tmp, wav)
+  await trimAndResample(tmp, wav, cfg.tts.denoise.enabled ? cfg.tts.denoise.outputChain : undefined)
   const dur = await durationSec(wav)
   const result: VoiceTestResult = {
     label,

@@ -2,6 +2,7 @@
 // Observed behaviour: POST /generate returns immediately with status "generating"; GET /history/{id}
 // reports "completed" | "error"; GET /audio/{id} serves the 24 kHz mono WAV of the default version.
 import { writeFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import type { Config, Engine } from './types'
 
 export const DONE_STATES = new Set(['completed'])
@@ -38,8 +39,49 @@ export interface GenerateBody {
   normalize: boolean
 }
 
+export interface ProfileSample {
+  id: string
+  profile_id: string
+  audio_path: string
+  reference_text: string
+}
+
 export class VoiceboxClient {
   constructor(private readonly base: string, private readonly clientId: string) {}
+
+  /** Where the desktop app keeps profiles/, generations/ and voicebox.db. */
+  dataDir(): string {
+    return `${process.env.HOME}/Library/Application Support/sh.voicebox.app`
+  }
+
+  async profileSamples(profileId: string): Promise<ProfileSample[]> {
+    return this.get(`/profiles/${profileId}/samples`)
+  }
+
+  async createProfile(body: { name: string; description?: string; language: string; voice_type: string }): Promise<VoiceProfile> {
+    const res = await fetch(`${this.base}/profiles`, {
+      method: 'POST',
+      headers: this.headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30000),
+    })
+    if (!res.ok) throw new Error(`Voicebox POST /profiles → ${res.status} ${await res.text()}`)
+    return (await res.json()) as VoiceProfile
+  }
+
+  async addSample(profileId: string, filePath: string, referenceText: string): Promise<ProfileSample> {
+    const form = new FormData()
+    form.append('file', new Blob([await readFile(filePath)]), filePath.split('/').pop() ?? 'sample.wav')
+    form.append('reference_text', referenceText)
+    const res = await fetch(`${this.base}/profiles/${profileId}/samples`, {
+      method: 'POST',
+      headers: this.headers(),
+      body: form,
+      signal: AbortSignal.timeout(120000),
+    })
+    if (!res.ok) throw new Error(`Voicebox POST /profiles/${profileId}/samples → ${res.status} ${await res.text()}`)
+    return (await res.json()) as ProfileSample
+  }
 
   private headers(extra: Record<string, string> = {}): Record<string, string> {
     return { 'X-Voicebox-Client-Id': this.clientId, ...extra }

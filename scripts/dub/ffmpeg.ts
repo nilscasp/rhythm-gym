@@ -116,12 +116,16 @@ export function rmsDb(buf: Float32Array, sampleRate: number, startSec: number, e
   return rms > 0 ? 20 * Math.log10(rms) : -100
 }
 
-/** Trims leading/trailing silence and resamples to 48 kHz mono PCM16. */
-export async function trimAndResample(src: string, dest: string): Promise<void> {
+/**
+ * Denoises (optional), trims leading/trailing silence and resamples to 48 kHz mono PCM16.
+ * Denoising runs before the trim so the silence threshold sees the cleaned floor.
+ */
+export async function trimAndResample(src: string, dest: string, denoiseChain?: string): Promise<void> {
   const af = [
-    'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05',
+    ...(denoiseChain ? [denoiseChain] : []),
+    'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.05',
     'areverse',
-    'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.12',
+    'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.12',
     'areverse',
   ].join(',')
   await ffmpeg(['-y', '-i', src, '-af', af, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', dest])
@@ -134,4 +138,32 @@ export async function atempo(src: string, dest: string, factor: number): Promise
 export async function which(bin: string): Promise<string | null> {
   const r = await run(['/bin/sh', '-c', `command -v ${bin}`], { quiet: true })
   return r.code === 0 ? r.stdout.trim() : null
+}
+
+export interface EnvelopeStats {
+  durationSec: number
+  p10Db: number
+  maxDb: number
+  /** Difference between the loudest and the quiet tenth of the clip. Real speech breathes: it has
+   *  pauses between words and sits around 25-35 dB here. A degenerate TTS generation drones at a
+   *  constant level and collapses towards 0. */
+  dynamicRangeDb: number
+}
+
+export async function envelopeStats(path: string, windowSec = 0.1): Promise<EnvelopeStats> {
+  const sr = 16000
+  const buf = await decodeF32(path, sr, 1)
+  const w = Math.max(1, Math.round(sr * windowSec))
+  const levels: number[] = []
+  for (let i = 0; i + w <= buf.length; i += w) {
+    let acc = 0
+    for (let k = i; k < i + w; k++) acc += buf[k] * buf[k]
+    levels.push(Math.sqrt(acc / w))
+  }
+  if (levels.length < 3) return { durationSec: buf.length / sr, p10Db: -100, maxDb: -100, dynamicRangeDb: 0 }
+  levels.sort((a, b) => a - b)
+  const db = (x: number) => (x > 0 ? 20 * Math.log10(x) : -100)
+  const p10 = db(levels[Math.floor(levels.length * 0.1)])
+  const max = db(levels[levels.length - 1])
+  return { durationSec: buf.length / sr, p10Db: p10, maxDb: max, dynamicRangeDb: max - p10 }
 }
