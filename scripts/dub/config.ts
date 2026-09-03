@@ -30,7 +30,20 @@ export const DEFAULT_CONFIG: Config = {
   },
   script: { wordsPerSec: 2.5 },
   fit: { atempoCap: 1.12, guardSec: 0.25 },
-  bed: { musicRmsDb: -40, suspectVocalsRmsDb: -45, musicGain: 0.8, silenceGain: 0.25, rampMs: 25 },
+  bed: {
+    musicRmsDb: -40,
+    suspectVocalsRmsDb: -45,
+    musicGain: 0.8,
+    silenceGain: 0.25,
+    rampMs: 25,
+    originalVoice: {
+      enabled: true,
+      gain: 0.18,
+      lowpassHz: 3200,
+      releaseMs: 400,
+      reverb: { enabled: true, wet: 0.55, decaySec: 1.5, predelayMs: 25 },
+    },
+  },
   mux: { audioCodec: 'aac', audioBitrate: '192k', includeGerman: true },
   bunny: { referer: 'https://www.rhythmgym.io/' },
 }
@@ -81,6 +94,8 @@ export interface DayPaths {
   sepDir: string
   demucsVocals: string
   demucsNoVocals: string
+  voiceUnder: string
+  reverbIr: string
   noVocals48: string
   vocals16: string
   asrDir: string
@@ -115,6 +130,8 @@ export function dayPaths(day: number): DayPaths {
     sepDir,
     demucsVocals: join(sepDir, 'htdemucs', 'orig.48k', 'vocals.wav'),
     demucsNoVocals: join(sepDir, 'htdemucs', 'orig.48k', 'no_vocals.wav'),
+    voiceUnder: join(sepDir, 'vocals.under.wav'),
+    reverbIr: join(sepDir, 'reverb-ir.wav'),
     noVocals48: join(sepDir, 'no_vocals.48k.wav'),
     vocals16: join(sepDir, 'vocals.16k.wav'),
     asrDir: join(dir, '02-asr'),

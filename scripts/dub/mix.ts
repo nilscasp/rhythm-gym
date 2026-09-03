@@ -5,6 +5,7 @@
 import { existsSync, unlinkSync } from 'node:fs'
 import { ensureDayDirs, loadConfig, log, readJson, sha256, warn, writeJson } from './config'
 import { decodeF32, encodeF32, measureLoudness } from './ffmpeg'
+import { renderVoiceUnder } from './reverb'
 import { loadState, markDone } from './state'
 import type { FitFile } from './types'
 
@@ -33,8 +34,11 @@ export async function mix(day: number, opts: { allowOverflow?: boolean } = {}): 
   // Per-sample envelopes (mono, applied to both channels) and the mono voice timeline.
   const envOrig = new Float32Array(n).fill(1)
   const envMusic = new Float32Array(n)
+  const envVoiceDe = new Float32Array(n)
   const voice = new Float32Array(n)
   const ramp = Math.max(1, Math.round((cfg.bed.rampMs / 1000) * SR))
+  const ov = cfg.bed.originalVoice
+  const release = Math.max(ramp, Math.round((ov.releaseMs / 1000) * SR))
 
   const applyWindow = (startSec: number, endSec: number, musicGain: number) => {
     const a = Math.max(0, Math.round((startSec - EDGE_PAD) * SR))
@@ -44,6 +48,13 @@ export async function mix(day: number, opts: { allowOverflow?: boolean } = {}): 
       const t = Math.min(1, Math.min(i - a, b - 1 - i) / ramp)
       envOrig[i] = Math.min(envOrig[i], 1 - t)
       envMusic[i] = Math.max(envMusic[i], musicGain * t)
+    }
+    // The German under-layer fades out slowly past the window so its reverb tail is not clipped.
+    const c = Math.min(n, b + release)
+    for (let i = a; i < c; i++) {
+      const rise = Math.min(1, (i - a) / ramp)
+      const fall = i < b ? 1 : Math.max(0, 1 - (i - b) / release)
+      envVoiceDe[i] = Math.max(envVoiceDe[i], Math.min(rise, fall))
     }
   }
 
@@ -80,16 +91,43 @@ export async function mix(day: number, opts: { allowOverflow?: boolean } = {}): 
 
   const orig = await decodeF32(p.orig48, SR, CH)
   const music = haveStems ? await decodeF32(p.noVocals48, SR, CH) : null
+
+  // Documentary layer: the original German voice stays audible under the English, low-passed and
+  // reverberated so the two voices occupy different depths instead of fighting for the same space.
+  let voiceDe: Float32Array | null = null
+  let voiceDeGain = ov.gain
+  if (ov.enabled && existsSync(p.demucsVocals)) {
+    await renderVoiceUnder(p.demucsVocals, p.voiceUnder, p.reverbIr, cfg)
+    voiceDe = await decodeF32(p.voiceUnder, SR, CH)
+    // The low-pass and reverb cost several dB on their own. Compensate for that first, so that
+    // `bed.originalVoice.gain` means what it says: how far the German sits below its original level.
+    try {
+      const rawL = await measureLoudness(p.demucsVocals)
+      const underL = await measureLoudness(p.voiceUnder)
+      const comp = Math.min(6, Math.max(1, Math.pow(10, (rawL.input_i - underL.input_i) / 20)))
+      voiceDeGain = ov.gain * comp
+      log(
+        `mix: German voice under the English at ${(20 * Math.log10(ov.gain)).toFixed(0)} dB below its original ` +
+          `(processing cost ${(20 * Math.log10(comp)).toFixed(1)} dB, compensated)`,
+      )
+    } catch {
+      warn('mix: could not measure the processed German voice — using the raw gain')
+    }
+  } else if (ov.enabled) {
+    warn('mix: no Demucs vocals stem — the original German voice cannot be layered under the English')
+  }
+
   const total = n * CH
   const out = new Float32Array(total)
   let peak = 0
   for (let i = 0; i < n; i++) {
     const eo = envOrig[i]
     const em = envMusic[i]
+    const ed = envVoiceDe[i] * voiceDeGain
     const v = voice[i] * voiceGain
     for (let c = 0; c < CH; c++) {
       const k = i * CH + c
-      const s = (orig[k] ?? 0) * eo + (music ? (music[k] ?? 0) * em : 0) + v
+      const s = (orig[k] ?? 0) * eo + (music ? (music[k] ?? 0) * em : 0) + (voiceDe ? (voiceDe[k] ?? 0) * ed : 0) + v
       out[k] = s
       const a = Math.abs(s)
       if (a > peak) peak = a
@@ -103,6 +141,6 @@ export async function mix(day: number, opts: { allowOverflow?: boolean } = {}): 
   log(`mix: peak ${(20 * Math.log10(Math.min(peak, 0.999))).toFixed(1)} dBFS`)
   await encodeF32(out, SR, CH, p.mixWav, 'pcm_s24le')
   const state = loadState(day)
-  markDone(state, 'mix', sha256(fit.entries.map((e) => `${e.id}:${e.status}:${e.bed}:${e.tempo}`).join('|')))
+  markDone(state, 'mix', sha256(fit.entries.map((e) => `${e.id}:${e.status}:${e.bed}:${e.tempo}`).join('|') + JSON.stringify(cfg.bed)))
   log(`mix: wrote ${p.mixWav}`)
 }

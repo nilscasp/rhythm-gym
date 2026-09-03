@@ -26,7 +26,24 @@ export interface Config {
   }
   script: { wordsPerSec: number }
   fit: { atempoCap: number; guardSec: number }
-  bed: { musicRmsDb: number; suspectVocalsRmsDb: number; musicGain: number; silenceGain: number; rampMs: number }
+  bed: {
+    musicRmsDb: number
+    suspectVocalsRmsDb: number
+    musicGain: number
+    silenceGain: number
+    rampMs: number
+    /** Documentary-style: the original German voice stays audible under the English. */
+    originalVoice: {
+      enabled: boolean
+      /** Linear gain of the German voice under the English. 0.12 ≈ -18 dB. */
+      gain: number
+      /** Low-pass on the German so it reads as "behind" the dry English voice. */
+      lowpassHz: number
+      /** Extra fade-out after the German ends, so the reverb tail is not cut off. */
+      releaseMs: number
+      reverb: { enabled: boolean; wet: number; decaySec: number; predelayMs: number }
+    }
+  }
   mux: { audioCodec: string; audioBitrate: string; includeGerman: boolean }
   bunny?: { cdnHost?: string; referer?: string }
 }
