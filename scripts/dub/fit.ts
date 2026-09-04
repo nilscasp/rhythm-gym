@@ -34,6 +34,22 @@ export async function fit(day: number): Promise<FitFile> {
       entries.push({ ...base, status: 'keep-de', enDurRaw: 0, tempo: 1, enDur: 0, placedEnd: seg.start, overflowSec: 0, cutWords: 0 })
       continue
     }
+    if (t && t.status === 'words') {
+      // Nothing to fit: every word already carries the time of the German word it replaces.
+      const last = t.words?.length ? t.words[t.words.length - 1].at : seg.start
+      entries.push({
+        ...base,
+        status: 'words',
+        enDurRaw: 0,
+        tempo: 1,
+        enDur: 0,
+        placedEnd: Math.max(seg.end, last),
+        overflowSec: 0,
+        cutWords: 0,
+        words: t.words,
+      })
+      continue
+    }
     if (!t || t.status === 'skip') {
       entries.push({ ...base, status: 'skip', enDurRaw: 0, tempo: 1, enDur: 0, placedEnd: seg.start, overflowSec: 0, cutWords: 0 })
       continue

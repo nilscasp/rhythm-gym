@@ -59,8 +59,39 @@ export async function mix(day: number, opts: { allowOverflow?: boolean } = {}): 
   }
 
   let placed = 0
+  const wordClips = new Map<string, Float32Array>()
+  let placedWords = 0
   for (const e of fit.entries) {
     if (e.status === 'keep-de' || e.status === 'skip' || e.status === 'missing') continue
+
+    // A counting line is not one clip but many: each English word sits at the moment its German
+    // counterpart is spoken, so the count stays locked to the strokes.
+    if (e.status === 'words') {
+      if (!e.words?.length) continue
+      applyWindow(e.start, Math.max(e.deEnd, e.placedEnd), haveStems ? (e.bed === 'music' ? cfg.bed.musicGain : cfg.bed.silenceGain) : 0)
+      for (const w of e.words) {
+        let clip = wordClips.get(w.clip)
+        if (!clip) {
+          if (!existsSync(w.clip)) continue
+          clip = await decodeF32(w.clip, SR, 1)
+          wordClips.set(w.clip, clip)
+        }
+        // Never let a word run into the next beat: cut it at its cap with a short fade so the tail
+        // does not click, and so overlapping words cannot sum into clipping.
+        const cap = Math.max(1, Math.round((w.maxSec ?? 0.5) * SR))
+        const len = Math.min(clip.length, cap)
+        const fade = Math.min(Math.round(0.015 * SR), Math.floor(len / 4))
+        const off = Math.round(w.at * SR)
+        for (let i = 0; i < len && off + i < n; i++) {
+          const g = i >= len - fade ? (len - i) / fade : 1
+          voice[off + i] += clip[i] * g
+        }
+        placedWords++
+      }
+      placed++
+      continue
+    }
+
     if (!e.clip || !existsSync(e.clip)) continue
     const gain = e.bed === 'music' ? cfg.bed.musicGain : cfg.bed.silenceGain
     applyWindow(e.start, Math.max(e.deEnd, e.placedEnd), haveStems ? gain : 0)
@@ -69,7 +100,7 @@ export async function mix(day: number, opts: { allowOverflow?: boolean } = {}): 
     for (let i = 0; i < clip.length && off + i < n; i++) voice[off + i] += clip[i]
     placed++
   }
-  log(`mix: placed ${placed} English clips`)
+  log(`mix: placed ${placed} English clips` + (placedWords ? `, ${placedWords} of them single counting words on the beat` : ''))
 
   // Match the English voice to the level of the GERMAN VOICE (the Demucs vocals stem), not to the whole
   // original track — the original's integrated loudness includes the handpan playing and would push the
