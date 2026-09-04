@@ -4,7 +4,6 @@ import { join } from 'node:path'
 import { WORKDIR, ensureDayDirs, loadConfig, log, readJson, sha256, warn, writeJson } from './config'
 import { durationSec, envelopeStats, trimAndResample } from './ffmpeg'
 import { clientFromConfig, isConnectionRefused } from './voicebox'
-import { ensureWordBank, isCountLine, placementsFor, wordsNeeded } from './countWords'
 import { loadState, markDone } from './state'
 import type { Config, ScriptFile, SegmentsFile, TtsEntry, TtsFile } from './types'
 
@@ -46,20 +45,9 @@ export async function tts(day: number, opts: { force?: boolean; only?: string[] 
     throw err
   }
 
-  // Counting lines are voiced word by word from a shared bank, so each English word lands on the
-  // stroke Nils actually plays instead of drifting through the line.
-  const segById = new Map(segs.segments.map((sg) => [sg.id, sg]))
-  const countable = segs.segments.filter((sg) => {
-    const sc = script.entries.find((e) => e.id === sg.id)
-    return isCountLine(sg) && !(sc?.flags ?? []).some((f) => f === 'keep-de' || f === 'skip')
-  })
-  const bank = countable.length ? await ensureWordBank(client, cfg, wordsNeeded(countable)) : new Map<string, string>()
-  const countIds = new Set(countable.map((sg) => sg.id))
-
   const entries: TtsEntry[] = []
   let generated = 0
   let cached = 0
-  let counted = 0
   for (const e of script.entries) {
     if (opts.only && !opts.only.includes(e.id)) {
       const prev = existsSync(p.ttsJson) ? readJson<TtsFile>(p.ttsJson).entries.find((x) => x.id === e.id) : undefined
@@ -70,13 +58,6 @@ export async function tts(day: number, opts: { force?: boolean; only?: string[] 
     }
     if (e.flags.includes('skip') || e.flags.includes('keep-de')) {
       entries.push({ id: e.id, status: 'skip' })
-      continue
-    }
-    if (countIds.has(e.id)) {
-      const seg = segById.get(e.id)!
-      const words = placementsFor(seg, bank)
-      entries.push({ id: e.id, status: 'words', words })
-      counted++
       continue
     }
     if (!e.en) {
@@ -171,7 +152,7 @@ export async function tts(day: number, opts: { force?: boolean; only?: string[] 
   const state = loadState(day)
   markDone(state, 'tts', sha256(entries.map((e) => `${e.id}:${e.cacheKey ?? e.status}`).join('|')))
   const failed = entries.filter((e) => e.status === 'failed').length
-  log(`tts: ${generated} generated, ${cached} from cache, ${counted} counting line(s) placed word by word, ${entries.filter((e) => e.status === 'missing').length} missing, ${failed} failed`)
+  log(`tts: ${generated} generated, ${cached} from cache, ${entries.filter((e) => e.status === 'missing').length} missing, ${failed} failed`)
   if (failed) warn(`${failed} segment(s) failed — re-run "tts --day ${day}" to retry only those`)
   return file
 }

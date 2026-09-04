@@ -3,7 +3,6 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { ensureDayDirs, fmtTime, loadConfig, log, readJson, sha256, warn, writeJson } from './config'
 import { isDone, loadState, markDone } from './state'
 import type { Config, ScriptEntry, ScriptFile, Segment, SegmentsFile } from './types'
-import { countLineText, isCountLine } from './countWords'
 
 export const KNOWN_FLAGS = ['music', 'silence', 'keep-de', 'skip', 'tempo=1'] as const
 
@@ -13,7 +12,7 @@ function header(seg: Segment, cfg: Config): string {
   const auto: string[] = []
   if (seg.auto.music) auto.push('auto:music')
   if (seg.auto.suspect) auto.push('auto:suspect')
-  if (seg.auto.repetitive) auto.push(isCountLine(seg) ? 'auto:counting-on-beat' : 'auto:counting')
+  if (seg.auto.repetitive) auto.push('auto:counting')
   return `## ${seg.id} · ${fmtTime(seg.start)} → ${fmtTime(seg.end)} · spoken ${seg.spokenSec.toFixed(1)}s · slot ${seg.slotSec.toFixed(1)}s · DE ${seg.deWords} words · EN target ~${target} · max ${max}${auto.length ? ' · ' + auto.join(' ') : ''}`
 }
 
@@ -99,17 +98,14 @@ export function renderScriptMd(segs: SegmentsFile, cfg: Config, existing: Map<st
     seen.add(seg.id)
     out.push(header(seg, cfg))
     out.push(`DE: ${seg.de}`)
-    // A counting line is voiced word by word from a shared bank, each word placed at the time its
-    // German counterpart is spoken, so its EN line is a preview of what will be heard rather than
-    // something to write. Editing it has no effect; clear the line and add keep-de to opt out.
-    // For a counting line the EN field is derived, never authored, so it is always regenerated.
-    const en = isCountLine(seg) ? countLineText(seg) : (prev?.en ?? '')
-    out.push(`EN: ${en}`)
+    out.push(`EN: ${prev?.en ?? ''}`)
+    // Counting along with the beat and low-confidence passages default to keeping the German:
+    // synthesised counting cannot be placed accurately enough against the actual beat, and leaving
+    // the original is the change-nothing option. Delete the flag to have the line dubbed after all.
     // Apply the suggestion whenever the block carries no decision yet, not merely when it is new:
-    // a refresh runs against scripts that already exist but are still empty. Only passages with no
-    // voice energy at all still default to keeping the German — counting is dubbed on the beat.
+    // a refresh runs against scripts that already exist but are still empty.
     const written = Boolean(prev && (prev.en || prev.flags.length || prev.note))
-    const suggested = !written && seg.auto.suspect && !isCountLine(seg) ? ['keep-de'] : []
+    const suggested = !written && (seg.auto.repetitive || seg.auto.suspect) ? ['keep-de'] : []
     const flags = prev?.flags?.length ? prev.flags.join(' ') : suggested.join(' ')
     out.push(`FLAGS: ${flags}`)
     if (prev?.note) out.push(`NOTE: ${prev.note}`)
@@ -179,11 +175,8 @@ export function parseScript(day: number, opts: { lint?: boolean } = {}): ScriptF
     const seedFlag = b.flags.find((f) => f.startsWith('seed='))
     const enWords = b.en ? b.en.split(/\s+/).filter(Boolean).length : 0
     const skip = b.flags.includes('skip') || b.flags.includes('keep-de')
-    // A counting line needs no written English: it is voiced word by word from the bank, placed on
-    // the German word timings, so an empty EN field there is complete rather than missing.
-    const counted = isCountLine(seg) && !skip
-    if (!b.en && !skip && !counted) missing++
-    if (opts.lint && b.en && !counted) {
+    if (!b.en && !skip) missing++
+    if (opts.lint && b.en) {
       for (const [re, msg] of LINT_PATTERNS) if (re.test(b.en)) warn(`${seg.id}: ${msg}`)
       const budget = Math.round(seg.slotSec * cfg.script.wordsPerSec * cfg.fit.atempoCap)
       if (enWords > budget) warn(`${seg.id}: ${enWords} EN words exceed the ${budget}-word slot budget — expect overflow`)
@@ -204,12 +197,8 @@ export function parseScript(day: number, opts: { lint?: boolean } = {}): ScriptF
   writeJson(p.scriptJson, file)
   const state = loadState(day)
   markDone(state, 'script', sha256(entries.map((e) => `${e.id}:${e.enHash}:${e.flags.join(',')}`).join('|')))
-  const countIds = new Set(segs.segments.filter((sg) => isCountLine(sg)).map((sg) => sg.id))
-  const ready = entries.filter((e) => e.en || e.flags.includes('skip') || e.flags.includes('keep-de') || countIds.has(e.id)).length
-  log(
-    `script: parsed ${entries.length} segments, ${ready} ready, ${missing} missing EN` +
-      `${countIds.size ? `, ${countIds.size} counted on the beat` : ''}${orphaned.length ? `, ${orphaned.length} orphaned` : ''}`,
-  )
+  const ready = entries.filter((e) => e.en || e.flags.includes('skip') || e.flags.includes('keep-de')).length
+  log(`script: parsed ${entries.length} segments, ${ready} ready, ${missing} missing EN${orphaned.length ? `, ${orphaned.length} orphaned` : ''}`)
   return file
 }
 

@@ -118,16 +118,7 @@ export interface ScriptFile {
   orphaned: string[]
 }
 
-export type TtsStatus = 'ok' | 'missing' | 'skip' | 'failed' | 'words'
-
-export interface PlacedWord {
-  /** Seconds into the video, taken from the German word's own timestamp. */
-  at: number
-  word: string
-  clip: string
-  /** Hard cap so consecutive words cannot overlap and sum into clipping. */
-  maxSec: number
-}
+export type TtsStatus = 'ok' | 'missing' | 'skip' | 'failed'
 
 export interface TtsEntry {
   id: string
@@ -137,8 +128,6 @@ export interface TtsEntry {
   durationSec?: number
   generationId?: string
   error?: string
-  /** Counting lines are placed word by word rather than as one clip — see countWords.ts. */
-  words?: PlacedWord[]
 }
 
 export interface TtsFile {
@@ -148,7 +137,7 @@ export interface TtsFile {
   entries: TtsEntry[]
 }
 
-export type FitStatus = 'ok' | 'tempo' | 'overflow' | 'missing' | 'skip' | 'keep-de' | 'words'
+export type FitStatus = 'ok' | 'tempo' | 'overflow' | 'missing' | 'skip' | 'keep-de'
 export type Bed = 'silence' | 'music' | 'keep-de'
 
 export interface FitEntry {
@@ -167,8 +156,6 @@ export interface FitEntry {
   overflowSec: number
   cutWords: number
   bed: Bed
-  /** Set on counting lines: each English word placed at its German counterpart's time. */
-  words?: PlacedWord[]
 }
 
 export interface FitFile {
