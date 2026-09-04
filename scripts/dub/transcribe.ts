@@ -30,7 +30,30 @@ interface WhisperJson {
 }
 
 /** Bump when the merging rules change, so cached recognitions are re-merged without re-running ASR. */
-const MERGE_VERSION = 2
+const MERGE_VERSION = 3
+
+/**
+ * Whisper mishears this course's vocabulary in consistent ways, and the German lines are what Nils
+ * reads while writing the English, so the errors would travel straight into the translation.
+ * "Slap" itself is correct and stays — it is the technique, not a mistake.
+ */
+const GLOSSARY: [RegExp, string][] = [
+  [/\bHandball\b/g, 'Handpan'],
+  [/\bHandbälle\b/g, 'Handpans'],
+  [/\bSlab\b/g, 'Slap'],
+  [/\bSlabs\b/g, 'Slaps'],
+  [/\bTonfälle\b/g, 'Tonfelder'],
+  [/\bTonfällen\b/g, 'Tonfeldern'],
+  [/\bTakt geschehen\b/g, 'Taktgeschehen'],
+  [/\bGhost Note\b/g, 'Ghostnote'],
+  [/\bGhost Notes\b/g, 'Ghostnotes'],
+]
+
+function applyGlossary(text: string): string {
+  let out = text
+  for (const [re, to] of GLOSSARY) out = out.replace(re, to)
+  return out
+}
 
 const HALLUCINATION_PATTERNS = [
   /untertitel/i,
@@ -185,7 +208,7 @@ export function mergeUtterances(wj: WhisperJson, cfg: Config): MergedUtterance[]
   return utts.map((u, i) => {
     const start = u[0].s
     const end = u[u.length - 1].e
-    const text = u.map((w) => w.w).join(' ').replace(/\s+([,.!?;:])/g, '$1')
+    const text = applyGlossary(u.map((w) => w.w).join(' ').replace(/\s+([,.!?;:])/g, '$1'))
     const segs = new Set(u.map((w) => w.seg))
     const nsp = Math.max(...[...segs].map((s) => s.no_speech_prob))
     const lp = Math.min(...[...segs].map((s) => s.avg_logprob))
@@ -238,13 +261,36 @@ export async function transcribe(day: number, opts: { force?: boolean } = {}): P
   const music = haveStems ? await decodeF32(p.noVocals48, 16000, 1) : null
   const vocals = haveStems ? await decodeF32(p.vocals16, 16000, 1) : null
 
-  const segments: Segment[] = merged.map(({ repetitive, ...m }, i) => {
-    const next = merged[i + 1]
-    const slotEnd = round3(next ? Math.max(m.end, next.start - cfg.fit.guardSec) : mediaDurationSec)
+  // Measure first, then discard, then lay out the slots. Whisper invents text over silence — a bare
+  // "Vielen Dank." is its favourite — and no filter on the text itself can tell that apart from a real
+  // short line. The voice stem can: if there is essentially no vocal energy in the window, nobody
+  // spoke, whatever the words say. Real speech in this course never drops below about -67 dB, so the
+  // floor sits well clear of the quietest genuine counting.
+  const measured = merged.map(({ repetitive, ...m }) => {
     const musicRms = music ? rmsDb(music, 16000, m.start, m.end) : -100
     const vocRms = vocals ? rmsDb(vocals, 16000, m.start, m.end) : 0
+    return { m, repetitive, musicRms, vocRms }
+  })
+  const kept = measured.filter((x) => !haveStems || x.vocRms >= cfg.asr.silenceFloorDb)
+  const dropped = measured.length - kept.length
+  if (dropped > 0) {
+    const sample = measured
+      .filter((x) => haveStems && x.vocRms < cfg.asr.silenceFloorDb)
+      .slice(0, 3)
+      .map((x) => `"${x.m.de.slice(0, 30)}"`)
+      .join(', ')
+    log(`transcribe: dropped ${dropped} phantom utterance(s) with no voice energy — ${sample}`)
+  }
+
+  // Slots are laid out on the surviving list, so a dropped phantom gives its room back to the real
+  // line before it. IDs are renumbered to stay contiguous; that is safe only while no English has
+  // been written against them.
+  const segments: Segment[] = kept.map(({ m, repetitive, musicRms, vocRms }, i) => {
+    const next = kept[i + 1]?.m
+    const slotEnd = round3(next ? Math.max(m.end, next.start - cfg.fit.guardSec) : mediaDurationSec)
     return {
       ...m,
+      id: `s${String(i + 1).padStart(3, '0')}`,
       slotEnd,
       slotSec: round3(slotEnd - m.start),
       auto: {

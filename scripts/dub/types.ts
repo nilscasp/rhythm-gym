@@ -34,6 +34,8 @@ export interface Config {
     pauseSplitSec: number
     maxUtteranceSec: number
     sentenceSplitMinSec: number
+    /** Below this vocal energy there was no speech, whatever Whisper wrote. Phantom lines are dropped. */
+    silenceFloorDb: number
     initialPrompt: string
   }
   script: { wordsPerSec: number }

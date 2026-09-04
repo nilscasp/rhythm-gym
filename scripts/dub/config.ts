@@ -32,6 +32,7 @@ export const DEFAULT_CONFIG: Config = {
     pauseSplitSec: 0.7,
     maxUtteranceSec: 25,
     sentenceSplitMinSec: 8,
+    silenceFloorDb: -70,
     initialPrompt: 'Handpan, Ding, Tonfeld, Slap, Ghostnote, Puls, Offbeat, Takt, Achtel, Sechzehntel.',
   },
   script: { wordsPerSec: 2.5 },
