@@ -1,7 +1,10 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function updateSession(request: NextRequest): Promise<NextResponse> {
+export async function updateSession(
+  request: NextRequest,
+  extraRequestHeaders?: Record<string, string>
+): Promise<NextResponse> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
@@ -11,8 +14,20 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     )
   }
 
+  // Frischer Snapshot der Request-Header plus die Extras (z. B. `x-brand`).
+  // Muss bei jedem NextResponse.next() neu gebaut werden: `request.cookies.set()`
+  // schreibt in denselben Header-Satz, und nur ein Snapshot NACH dem Setzen
+  // trägt die aufgefrischten Tokens zu den Server Components weiter.
+  const forwardedHeaders = () => {
+    const headers = new Headers(request.headers)
+    for (const [name, value] of Object.entries(extraRequestHeaders ?? {})) {
+      headers.set(name, value)
+    }
+    return headers
+  }
+
   let response = NextResponse.next({
-    request,
+    request: { headers: forwardedHeaders() },
   })
 
   const supabase = createServerClient(url, key, {
@@ -25,7 +40,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
           request.cookies.set(name, value)
         })
         response = NextResponse.next({
-          request,
+          request: { headers: forwardedHeaders() },
         })
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options)

@@ -513,14 +513,12 @@ export default async function TrainingHubPage() {
 // ──────────────────────────────────────────────────────────────────────
 
 const HUB_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@300;400;600&family=Barlow+Condensed:wght@300;400;700&display=swap');
-
   .hub-page {
     min-height: 100vh;
     background: var(--black);
     color: var(--cream);
     padding: 48px 24px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
 
   .hub-wrap {
@@ -534,7 +532,7 @@ const HUB_CSS = `
   /* ── HERO ── */
   .hub-hero-name-prompt {
     margin-top: 12px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -555,7 +553,7 @@ const HUB_CSS = `
     gap: 14px;
   }
   .hub-settings-link {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -593,14 +591,14 @@ const HUB_CSS = `
     pointer-events: none;
   }
   .hub-hero-kicker {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .hub-hero h1 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(36px, 6vw, 56px);
     letter-spacing: 2px;
     line-height: 1.05;
@@ -631,7 +629,7 @@ const HUB_CSS = `
     color: var(--black);
     padding: 14px 28px;
     border-radius: 4px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -651,7 +649,7 @@ const HUB_CSS = `
     border: 1px solid var(--amber);
     color: var(--amber);
     border-radius: 4px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -677,14 +675,14 @@ const HUB_CSS = `
     gap: 4px;
   }
   .hub-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .hub-zone-head h2 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 22px;
     letter-spacing: 2px;
     color: var(--cream);
@@ -722,7 +720,7 @@ const HUB_CSS = `
     background: var(--amber-dim);
     color: var(--amber);
     border-radius: 2px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -733,7 +731,7 @@ const HUB_CSS = `
     color: var(--muted);
   }
   .hub-card-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 26px;
     letter-spacing: 1px;
     color: var(--cream);
@@ -769,7 +767,7 @@ const HUB_CSS = `
     border-radius: 4px;
     color: var(--cream);
     padding: 12px 14px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 16px; /* ≥16px — verhindert iOS-Auto-Zoom (Mobile-Regel) */
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -788,7 +786,7 @@ const HUB_CSS = `
     border: none;
     border-radius: 4px;
     padding: 12px 20px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -840,7 +838,7 @@ const HUB_CSS = `
   .hub-progress-label {
     font-size: 11px;
     color: var(--muted);
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     letter-spacing: 1px;
     text-transform: uppercase;
   }
@@ -864,7 +862,7 @@ const HUB_CSS = `
     color: var(--muted2);
     border: 1px solid var(--border);
     border-radius: 2px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -888,14 +886,14 @@ const HUB_CSS = `
     gap: 8px;
   }
   .hub-stat-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .hub-stat-value {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 48px;
     line-height: 1;
     color: var(--cream);
@@ -909,7 +907,7 @@ const HUB_CSS = `
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--muted);
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-weight: 700;
   }
   .hub-stat-label {
@@ -934,7 +932,7 @@ const HUB_CSS = `
     gap: 10px;
   }
   .hub-heatmap-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -959,7 +957,7 @@ const HUB_CSS = `
   .hub-heatmap-foot {
     display: flex;
     justify-content: space-between;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -998,7 +996,7 @@ const HUB_CSS = `
     gap: 10px;
   }
   .hub-pattern-card-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     color: var(--cream);
     margin: 0;
@@ -1007,7 +1005,7 @@ const HUB_CSS = `
     line-height: 1.1;
   }
   .hub-pattern-card-meta {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -1039,7 +1037,7 @@ const HUB_CSS = `
     gap: 4px;
   }
   .hub-pattern-tag {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -1050,7 +1048,7 @@ const HUB_CSS = `
   }
   .hub-pattern-open {
     margin-top: auto;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -1097,7 +1095,7 @@ const HUB_CSS = `
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--cream);
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 2px;
@@ -1140,7 +1138,7 @@ const HUB_CSS = `
     min-width: 0;
   }
   .hub-account-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -1152,7 +1150,7 @@ const HUB_CSS = `
     word-break: break-all;
   }
   .hub-account-plan {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -1167,7 +1165,7 @@ const HUB_CSS = `
     color: var(--muted2);
     padding: 10px 18px;
     border-radius: 4px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;

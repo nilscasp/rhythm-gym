@@ -1212,7 +1212,7 @@ const TRN_CSS = `
   min-height: calc(100vh - 80px);
   background: var(--black);
   color: var(--text);
-  font-family: 'Barlow', 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ─── Sidebar ─── */
@@ -1232,7 +1232,7 @@ const TRN_CSS = `
   border-bottom: 1px solid var(--border);
 }
 .trn-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -1240,7 +1240,7 @@ const TRN_CSS = `
   margin-bottom: 10px;
 }
 .trn-cycle-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   line-height: 1.05;
   color: var(--cream);
@@ -1281,14 +1281,14 @@ const TRN_CSS = `
   color: var(--black);
 }
 .trn-day-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: 0.5px;
   color: var(--cream);
   text-transform: uppercase;
 }
 .trn-day-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -1299,7 +1299,7 @@ const TRN_CSS = `
 .trn-sidebar-foot {
   padding: 18px 24px 24px;
   border-top: 1px solid var(--border);
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
 }
 .trn-foot-line {
   font-size: 11px;
@@ -1307,7 +1307,7 @@ const TRN_CSS = `
   letter-spacing: 1px;
   margin-bottom: 4px;
   text-transform: uppercase;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
 }
 .trn-foot-mail {
   display: inline-block;
@@ -1345,7 +1345,7 @@ const TRN_CSS = `
   margin-bottom: 32px;
 }
 .trn-tag-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(40px, 6vw, 64px);
   line-height: 1;
   color: var(--amber);
@@ -1354,7 +1354,7 @@ const TRN_CSS = `
   text-transform: uppercase;
 }
 .trn-day-title-h1 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(26px, 3.5vw, 36px);
   line-height: 1.05;
   color: var(--cream);
@@ -1363,7 +1363,7 @@ const TRN_CSS = `
   text-transform: uppercase;
 }
 .trn-day-subtitle {
-  font-family: 'Barlow', serif;
+  font-family: var(--font-body);
   font-style: italic;
   color: var(--muted2);
   font-size: 16px;
@@ -1371,7 +1371,7 @@ const TRN_CSS = `
   margin: 16px 0 0;
 }
 .trn-day-summary {
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   color: var(--text);
   font-size: 16px;
   line-height: 1.7;
@@ -1388,7 +1388,7 @@ const TRN_CSS = `
 }
 .trn-chip {
   display: inline-block;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -1437,7 +1437,7 @@ const TRN_CSS = `
   min-width: 110px;
 }
 .trn-bpm-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -1445,7 +1445,7 @@ const TRN_CSS = `
   font-weight: 700;
 }
 .trn-bpm-value {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 26px;
   letter-spacing: 1px;
   color: var(--cream);
@@ -1491,7 +1491,7 @@ const TRN_CSS = `
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -1514,7 +1514,7 @@ const TRN_CSS = `
   background: transparent;
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -1534,7 +1534,7 @@ const TRN_CSS = `
   color: var(--amber);
 }
 .trn-shortcut-hint {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -1546,7 +1546,7 @@ const TRN_CSS = `
   margin-top: 32px;
 }
 .trn-section-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1585,7 +1585,7 @@ const TRN_CSS = `
   margin-bottom: 16px;
 }
 .trn-pattern-label {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -1617,7 +1617,7 @@ const TRN_CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
   font-weight: 400;
   border: 1px solid var(--border);
@@ -1636,7 +1636,7 @@ const TRN_CSS = `
   position: absolute;
   top: 2px;
   right: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -1681,7 +1681,7 @@ const TRN_CSS = `
   border: none;
   padding: 10px 18px;
   border-radius: 3px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2px;
@@ -1716,7 +1716,7 @@ const TRN_CSS = `
   padding: 10px 16px;
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 2px;
@@ -1746,7 +1746,7 @@ const TRN_CSS = `
   margin-bottom: 8px;
 }
 .trn-kombi-name {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -1754,7 +1754,7 @@ const TRN_CSS = `
   margin: 0;
 }
 .trn-kombi-desc {
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.7;
   color: var(--text);
@@ -1773,7 +1773,7 @@ const TRN_CSS = `
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -1818,7 +1818,7 @@ const TRN_CSS = `
 }
 .trn-option-id {
   display: inline-block;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -1826,7 +1826,7 @@ const TRN_CSS = `
   margin-bottom: 6px;
 }
 .trn-option-name {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -1834,7 +1834,7 @@ const TRN_CSS = `
   margin: 0;
 }
 .trn-option-desc {
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.6;
   color: var(--text);
@@ -1856,14 +1856,14 @@ const TRN_CSS = `
   padding: 8px 12px;
 }
 .trn-option-meta-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
 }
 .trn-option-meta-value {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 16px;
   color: var(--cream);
   letter-spacing: 0.5px;
@@ -1989,7 +1989,7 @@ const TRN_CSS = `
 
 /* ─── Abhak-UI: per-day progress + Completion-Checkbox ─── */
 .trn-day-progress {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;

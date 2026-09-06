@@ -420,7 +420,7 @@ export default function AnleitungPage() {
 const SCHULE_CSS = `
 .sch-page {
   color: var(--text);
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   font-weight: 300;
   line-height: 1.65;
   min-height: 100vh;
@@ -456,7 +456,7 @@ const SCHULE_CSS = `
 /* ── Hero ── */
 .sch-hero { padding: 56px 0 32px; text-align: left; }
 .sch-hero-kicker {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -464,7 +464,7 @@ const SCHULE_CSS = `
   margin-bottom: 16px;
 }
 .sch-hero h1 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(44px, 8vw, 88px);
   line-height: 0.95;
   letter-spacing: -1px;
@@ -488,7 +488,7 @@ const SCHULE_CSS = `
   padding: 40px;
 }
 .sch-section-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -496,7 +496,7 @@ const SCHULE_CSS = `
   margin-bottom: 12px;
 }
 .sch-section h2 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(28px, 4vw, 44px);
   letter-spacing: 1px;
   color: var(--cream);
@@ -545,7 +545,7 @@ const SCHULE_CSS = `
   transform: translateY(-2px);
 }
 .sch-app-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2.5px;
   text-transform: uppercase;
@@ -553,7 +553,7 @@ const SCHULE_CSS = `
   margin-bottom: 6px;
 }
 .sch-app-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 28px;
   color: var(--cream);
   letter-spacing: 1px;
@@ -562,7 +562,7 @@ const SCHULE_CSS = `
 .sch-app-desc { color: var(--muted2); font-size: 14px; line-height: 1.6; }
 .sch-app-cta {
   margin-top: 14px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -599,7 +599,7 @@ const SCHULE_CSS = `
   font-weight: 700;
 }
 .sch-strike-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 1px;
@@ -627,7 +627,7 @@ const SCHULE_CSS = `
   border-radius: 8px;
 }
 .sch-demo-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -695,7 +695,7 @@ const SCHULE_CSS = `
   padding: 18px 22px;
 }
 .sch-feature-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 1.5px;
@@ -714,7 +714,7 @@ const SCHULE_CSS = `
   padding: 22px 26px;
 }
 .sch-highlight-kicker {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2.5px;
   text-transform: uppercase;
@@ -744,14 +744,14 @@ const SCHULE_CSS = `
 }
 .sch-step:hover { border-color: var(--border2, #3A3428); }
 .sch-step-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 32px;
   color: var(--amber);
   opacity: 0.5;
   line-height: 1;
 }
 .sch-step-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 1px;
@@ -778,7 +778,7 @@ const SCHULE_CSS = `
   font-size: 15px;
 }
 .sch-qs-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   color: var(--amber);
   line-height: 1;
@@ -796,7 +796,7 @@ const SCHULE_CSS = `
   color: var(--black);
   padding: 14px 28px;
   border-radius: 3px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2px;
@@ -815,7 +815,7 @@ const SCHULE_CSS = `
   color: var(--muted);
   padding: 14px 24px;
   border-radius: 3px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 2px;

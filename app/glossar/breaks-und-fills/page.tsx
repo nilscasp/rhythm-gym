@@ -404,7 +404,7 @@ const BF_CSS = `
 /* ── Back link ── */
 .bf-back {
   padding-top: 24px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -422,7 +422,7 @@ const BF_CSS = `
   text-align: center;
 }
 .bf-hero-kicker {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -430,7 +430,7 @@ const BF_CSS = `
   margin-bottom: 16px;
 }
 .bf-hero h1 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(36px, 6vw, 64px);
   letter-spacing: 2px;
   color: var(--cream);
@@ -482,7 +482,7 @@ const BF_CSS = `
 }
 .bf-layer-map a:hover::after { opacity: 1; }
 .bf-layer-map .bf-lm-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   color: var(--amber);
   display: block;
@@ -490,7 +490,7 @@ const BF_CSS = `
   margin-bottom: 6px;
 }
 .bf-layer-map .bf-lm-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -512,14 +512,14 @@ const BF_CSS = `
   border-bottom: 1px solid var(--border);
 }
 .bf-layer-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 42px;
   color: var(--amber);
   line-height: 1;
   opacity: 0.3;
 }
 .bf-layer-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(22px, 3vw, 30px);
   letter-spacing: 1px;
   color: var(--cream);
@@ -553,7 +553,7 @@ const BF_CSS = `
 }
 .bf-entry-main { min-width: 0; }
 .bf-entry-term {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -573,7 +573,7 @@ const BF_CSS = `
   font-style: italic;
 }
 .bf-entry-tag {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -594,7 +594,7 @@ const BF_CSS = `
   margin: 24px 0;
 }
 .bf-highlight-box .bf-hb-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -615,7 +615,7 @@ const BF_CSS = `
   margin: 16px 0;
 }
 .bf-comp-table th {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -632,7 +632,7 @@ const BF_CSS = `
   vertical-align: top;
 }
 .bf-comp-table td:first-child {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 600;
   color: var(--cream);
   white-space: nowrap;
@@ -657,7 +657,7 @@ const BF_CSS = `
   margin: 48px 0;
 }
 .bf-quick-ref .bf-qr-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
   letter-spacing: 1px;
   color: var(--cream);
@@ -676,13 +676,13 @@ const BF_CSS = `
   border: 1px solid rgba(46,42,30,0.4);
 }
 .bf-qr-item .bf-qr-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 28px;
   color: var(--amber);
   line-height: 1;
 }
 .bf-qr-item .bf-qr-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;

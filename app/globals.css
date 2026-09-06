@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts-schule.css";
 
 :root {
   /* Backgrounds */
@@ -23,6 +24,46 @@
   --text: #D4C9AD;
   --muted: #7A7060;
   --muted2: #9A9080;
+
+  /* Fonts — einzige Quelle; Seiten nutzen nur noch diese drei Variablen */
+  --font-display: 'Anton', sans-serif;
+  --font-ui: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+}
+
+/* ────────────────────────────────────────────────────────────
+   Handpan Schule des Lebens — Marken-Umbelegung.
+   Dieselben Token-Namen, andere Werte. Keine Seite weiß davon.
+   Werte 1:1 aus der Website handpan.schule.
+   ──────────────────────────────────────────────────────────── */
+[data-brand="schule"] {
+  /* Backgrounds */
+  --black: #0A0E14;
+  --dark: #0E131B;
+  --card: #141922;
+  --card2: #1A2029;
+
+  /* Borders — Gold statt Sand, damit Karten im Navy nicht kippen */
+  --border: rgba(212, 165, 116, 0.12);
+  --border2: rgba(212, 165, 116, 0.22);
+
+  /* Akzente */
+  --amber: #D4A574;
+  --amber2: #B8956C;
+  --amber-dim: rgba(212, 165, 116, 0.12);
+  --amber-glow: rgba(212, 165, 116, 0.06);
+  --warm: #D4A574;
+
+  /* Text */
+  --cream: #E8E6E3;
+  --text: #E8E6E3;
+  --muted: #A0A0A0;
+  --muted2: #C2BFBA;
+
+  /* Fonts */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Spectral', Georgia, serif;
 }
 
 * {
@@ -38,10 +79,37 @@ html {
 body {
   background-color: var(--black);
   color: var(--text);
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   font-weight: 300;
   overflow-x: hidden;
   min-height: 100vh;
+}
+
+/* Der Lese-Rhythmus der Website: leichter Schnitt, mehr Luft zwischen den Zeilen. */
+[data-brand="schule"] body {
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fraunces trägt keine Anton-Wucht — Überschriften werden leicht statt fett. */
+[data-brand="schule"] h1,
+[data-brand="schule"] h2,
+[data-brand="schule"] h3 {
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+/* Brand-Wortmarken, die per CSS statt per JS umgeschaltet werden (Client-Seiten
+   wie /auth/login kennen den Header nicht). */
+[data-brand="schule"] .wm-gym { display: none !important; }
+[data-brand="gym"] .wm-schule { display: none !important; }
+
+/* Die lange Schul-Wortmarke drückt auf schmalen Screens die Nav-Buttons raus —
+   unter 560px trägt das Logo allein. */
+@media (max-width: 560px) {
+  [data-brand="schule"] .logo-wordmark { display: none; }
 }
 
 a {

@@ -370,15 +370,15 @@ export default function BausteinePage() {
         .rb-fade-3 { animation: rb-fade-up 0.7s 0.24s ease both; }
 
         /* Scoped buttons */
-        .rb-btn-primary { background: var(--amber); color: var(--black); padding: 14px 30px; border: none; border-radius: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s; }
+        .rb-btn-primary { background: var(--amber); color: var(--black); padding: 14px 30px; border: none; border-radius: 2px; font-family: var(--font-ui); font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: all 0.2s; }
         .rb-btn-primary:hover:not(:disabled) { background: var(--cream); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,166,35,0.3); }
         .rb-btn-primary:disabled { opacity: 0.35; cursor: not-allowed; background: var(--border); color: var(--muted); }
-        .rb-btn-outline { background: transparent; color: var(--muted); padding: 14px 30px; border: 1px solid var(--border); border-radius: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .rb-btn-outline { background: transparent; color: var(--muted); padding: 14px 30px; border: 1px solid var(--border); border-radius: 2px; font-family: var(--font-ui); font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
         .rb-btn-outline:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
         .rb-btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* Bridge-Button — führt die gebaute Sequenz in den Step-Sequencer über */
-        .rb-btn-bridge { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(255,107,53,0.06)); color: var(--cream); padding: 14px 26px; border: 1px solid rgba(245,166,35,0.4); border-radius: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: all 0.2s; }
+        .rb-btn-bridge { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(255,107,53,0.06)); color: var(--cream); padding: 14px 26px; border: 1px solid rgba(245,166,35,0.4); border-radius: 2px; font-family: var(--font-ui); font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; cursor: pointer; transition: all 0.2s; }
         .rb-btn-bridge:hover { border-color: var(--amber); background: linear-gradient(135deg, rgba(245,166,35,0.2), rgba(255,107,53,0.1)); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,166,35,0.2); color: var(--amber); }
         .rb-btn-bridge--disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
@@ -389,10 +389,10 @@ export default function BausteinePage() {
         .rb-pcard:active:not(:disabled) { transform: translateY(0); }
         .rb-pcard:disabled { opacity: 0.32; cursor: not-allowed; }
         .rb-pcard:disabled .rb-brick.interactive { cursor: not-allowed; }
-        .rb-cap-hint { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
-        .rb-pcard-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+        .rb-cap-hint { margin-top: 14px; font-family: var(--font-ui); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
+        .rb-pcard-label { font-family: var(--font-ui); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
         .rb-pcard:hover:not(:disabled) .rb-pcard-label { color: var(--amber); }
-        .rb-pcard-num { font-family: 'Anton', sans-serif; font-size: 42px; line-height: 0.9; color: var(--cream); }
+        .rb-pcard-num { font-family: var(--font-display); font-size: 42px; line-height: 0.9; color: var(--cream); }
         .rb-pcard-brick { margin-top: 4px; }
 
         /* ─── Bricks — Design-Ausnahme: kindliches Bauklotz-Gefühl ─────────────
@@ -428,20 +428,20 @@ export default function BausteinePage() {
         /* Sequence frame */
         .rb-frame { margin-top: 18px; background: var(--dark); border: 1px dashed var(--border); border-radius: 4px; min-height: 148px; padding: 28px 24px 32px; display: flex; align-items: flex-end; justify-content: flex-start; flex-wrap: wrap; gap: 10px; transition: border-color 0.2s; }
         .rb-frame.has-content { border-style: solid; border-color: var(--border2); }
-        .rb-frame.empty { justify-content: center; align-items: center; color: var(--muted); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
+        .rb-frame.empty { justify-content: center; align-items: center; color: var(--muted); font-family: var(--font-ui); font-size: 13px; letter-spacing: 3px; text-transform: uppercase; }
         /* Remove-Button (×) — immer sichtbar in dezent, auf Hover/Focus stärker. */
-        .rb-x-btn { position: absolute; top: 0; right: 0; transform: translate(40%,-40%); width: 22px; height: 22px; border-radius: 50%; background: var(--card); color: var(--muted); border: 1px solid var(--border2); font-family: 'Barlow Condensed', sans-serif; font-size: 14px; line-height: 1; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .rb-x-btn { position: absolute; top: 0; right: 0; transform: translate(40%,-40%); width: 22px; height: 22px; border-radius: 50%; background: var(--card); color: var(--muted); border: 1px solid var(--border2); font-family: var(--font-ui); font-size: 14px; line-height: 1; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
         .rb-x-btn:hover, .rb-x-btn:focus-visible { background: var(--warm); color: var(--cream); border-color: var(--warm); transform: translate(40%,-40%) scale(1.12); box-shadow: 0 0 12px rgba(255,107,53,0.6); outline: none; }
 
-        .rb-info { margin-top: 14px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); display: flex; gap: 24px; flex-wrap: wrap; }
+        .rb-info { margin-top: 14px; font-family: var(--font-ui); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); display: flex; gap: 24px; flex-wrap: wrap; }
         .rb-info strong { color: var(--cream); font-weight: 600; }
 
         /* Controls */
         .rb-controls { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-top: 28px; }
         .rb-tempo { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 10px 18px; min-width: 280px; flex: 1; }
-        .rb-tempo-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
-        .rb-tempo-value { font-family: 'Anton', sans-serif; font-size: 22px; color: var(--cream); min-width: 56px; text-align: right; }
-        .rb-tempo-value span { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-left: 4px; }
+        .rb-tempo-label { font-family: var(--font-ui); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+        .rb-tempo-value { font-family: var(--font-display); font-size: 22px; color: var(--cream); min-width: 56px; text-align: right; }
+        .rb-tempo-value span { font-family: var(--font-ui); font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-left: 4px; }
         .rb-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 2px; background: var(--border); border-radius: 1px; outline: none; cursor: pointer; }
         .rb-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px rgba(245,166,35,0.4); cursor: pointer; transition: transform 0.15s; }
         .rb-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
@@ -452,14 +452,14 @@ export default function BausteinePage() {
         .rb-ex { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 18px 18px 16px; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 10px; font-family: inherit; color: inherit; text-align: left; }
         .rb-ex:hover { border-color: var(--amber); background: var(--card2); transform: translateY(-2px); }
         .rb-ex-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-        .rb-ex-name { font-family: 'Anton', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--cream); }
-        .rb-ex-note { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; }
+        .rb-ex-name { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; color: var(--cream); }
+        .rb-ex-note { font-family: var(--font-ui); font-size: 12px; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; }
         .rb-ex-bricks { display: flex; align-items: flex-end; gap: 6px; flex-wrap: wrap; min-height: 32px; padding: 4px 0 2px; }
 
         /* Cross-link callout to Handpan-Maschine */
         .rb-tool-callout { display: flex; align-items: center; gap: 16px; margin-top: 48px; padding: 22px 26px; background: linear-gradient(135deg, rgba(245,166,35,0.06), rgba(255,107,53,0.025)); border: 1px solid rgba(245,166,35,0.18); border-radius: 6px; transition: all 0.2s; text-decoration: none; }
         .rb-tool-callout:hover { border-color: var(--amber); transform: translateY(-2px); background: linear-gradient(135deg, rgba(245,166,35,0.1), rgba(255,107,53,0.04)); }
-        .rb-tool-callout-arrow { color: var(--amber); font-family: 'Anton', sans-serif; font-size: 28px; }
+        .rb-tool-callout-arrow { color: var(--amber); font-family: var(--font-display); font-size: 28px; }
 
         @media (max-width: 880px) { .rb-palette { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 560px) { .rb-controls { flex-direction: column; align-items: stretch; } .rb-tempo { min-width: 0; } .rb-btn-primary, .rb-btn-outline { width: 100%; justify-content: center; } }
@@ -471,11 +471,11 @@ export default function BausteinePage() {
         <section style={{ position: 'relative', overflow: 'hidden', padding: '20px 0 40px' }}>
           <div style={{ position: 'absolute', top: -160, right: -120, width: 520, height: 520, background: 'radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%)', pointerEvents: 'none' }}/>
 
-          <div className="rb-fade-1" style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
+          <div className="rb-fade-1" style={{ fontFamily: "var(--font-ui)", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
             <span style={{ display: 'block', width: 32, height: 1, background: 'var(--amber)' }}/>
             Werkzeug · Rhythmus auf der Makrobene
           </div>
-          <h1 className="rb-fade-2" style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(48px, 8vw, 96px)', lineHeight: 0.92, letterSpacing: -1, color: 'var(--cream)', maxWidth: 1000, position: 'relative', zIndex: 1 }}>
+          <h1 className="rb-fade-2" style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(48px, 8vw, 96px)', lineHeight: 0.92, letterSpacing: -1, color: 'var(--cream)', maxWidth: 1000, position: 'relative', zIndex: 1 }}>
             RHYTHMUS-<br/><em style={{ fontStyle: 'normal', color: 'var(--amber)', display: 'block' }}>BAUSTEINE.</em>
           </h1>
           <p className="rb-fade-3" style={{ marginTop: 28, fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.65, color: 'var(--muted)', maxWidth: 620, position: 'relative', zIndex: 1 }}>
@@ -485,8 +485,8 @@ export default function BausteinePage() {
 
         {/* PALETTE */}
         <section style={{ padding: '24px 0 30px' }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>Bausteine</div>
-          <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(28px, 3.4vw, 44px)', lineHeight: 1, color: 'var(--cream)' }}>
+          <div style={{ fontFamily: "var(--font-ui)", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>Bausteine</div>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(28px, 3.4vw, 44px)', lineHeight: 1, color: 'var(--cream)' }}>
             VIER GRÖSSEN. <em style={{ fontStyle: 'normal', color: 'var(--amber)' }}>UNENDLICH KOMBINIERBAR.</em>
           </h2>
           <div className="rb-palette" role="toolbar" aria-label="Bausteine auswählen">
@@ -523,7 +523,7 @@ export default function BausteinePage() {
 
         {/* SEQUENCE */}
         <section style={{ padding: '20px 0 30px' }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>Deine Sequenz</div>
+          <div style={{ fontFamily: "var(--font-ui)", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>Deine Sequenz</div>
           <div className={`rb-frame ${sequence.length === 0 ? 'empty' : 'has-content'}`}>
             {sequence.length === 0 ? (
               <span>noch leer · klick oben einen Baustein an</span>
@@ -634,15 +634,15 @@ export default function BausteinePage() {
             </div>
           </div>
 
-          <div style={{ marginTop: 18, fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)' }}>
+          <div style={{ marginTop: 18, fontFamily: "var(--font-ui)", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)' }}>
             Tastatur: <span style={{ color: 'var(--text)' }}>Leertaste</span> Play/Stop · <span style={{ color: 'var(--text)' }}>Backspace</span> letzten Baustein entfernen
           </div>
         </section>
 
         {/* EXAMPLES */}
         <section style={{ padding: '40px 0 30px', borderTop: '1px solid var(--border)', marginTop: 40 }}>
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>Klassiker zum Ausprobieren</div>
-          <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: 'clamp(28px, 3.4vw, 44px)', lineHeight: 1, color: 'var(--cream)' }}>
+          <div style={{ fontFamily: "var(--font-ui)", fontSize: 12, letterSpacing: 4, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 14 }}>Klassiker zum Ausprobieren</div>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(28px, 3.4vw, 44px)', lineHeight: 1, color: 'var(--cream)' }}>
             BAUE EINEN <em style={{ fontStyle: 'normal', color: 'var(--amber)' }}>STANDARD-TAKT.</em>
           </h2>
           <div className="rb-ex-grid">
@@ -671,7 +671,7 @@ export default function BausteinePage() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)' }}>
+                  <div style={{ fontFamily: "var(--font-ui)", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--muted)' }}>
                     {total} Schläge · {ex.parts.length} Bausteine
                   </div>
                 </button>
@@ -683,8 +683,8 @@ export default function BausteinePage() {
         {/* CALLOUT — Bridge zur Handpan-Maschine */}
         <Link href="/tool" className="rb-tool-callout">
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 6 }}>Auch interessant</div>
-            <div style={{ fontFamily: "'Anton', sans-serif", fontSize: 22, letterSpacing: 1, color: 'var(--cream)', marginBottom: 4 }}>Handpan-Maschine — Tool 01</div>
+            <div style={{ fontFamily: "var(--font-ui)", fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 6 }}>Auch interessant</div>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 22, letterSpacing: 1, color: 'var(--cream)', marginBottom: 4 }}>Handpan-Maschine — Tool 01</div>
             <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
               Die gleiche Idee, andere Sichtweise: dort baust du Pattern Schlag für Schlag auf 16 Steps. Hier auf der Makrobene, dort auf der Mikrobene.
             </p>

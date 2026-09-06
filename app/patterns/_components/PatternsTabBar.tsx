@@ -62,14 +62,14 @@ const TABS_CSS = `
     border-bottom-color: var(--amber);
   }
   .pt-tab-num {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
     opacity: 0.7;
   }
   .pt-tab-label {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     letter-spacing: 1px;
     text-transform: uppercase;

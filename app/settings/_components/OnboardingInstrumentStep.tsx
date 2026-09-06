@@ -150,14 +150,14 @@ const PICK_CSS = `
   }
   .inst-card:hover { border-color: var(--amber); background: rgba(245, 166, 35, 0.05); }
   .inst-card-name {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     line-height: 1.1;
   }
   .inst-card-meta {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -184,7 +184,7 @@ const PICK_CSS = `
   }
   .inst-custom:hover { border-color: var(--amber); }
   .inst-custom-title {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-weight: 700;
     font-size: 15px;
     letter-spacing: 1px;

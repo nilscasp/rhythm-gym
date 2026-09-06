@@ -1,4 +1,8 @@
-export function Footer() {
+import type { Brand } from '../app/lib/brand';
+
+export function Footer({ brand = 'gym' }: { brand?: Brand }) {
+  const isSchule = brand === 'schule';
+
   return (
     <footer
       style={{
@@ -20,29 +24,59 @@ export function Footer() {
       >
         <div
           style={{
-            fontFamily: "'Anton', sans-serif",
+            fontFamily: 'var(--font-display)',
             fontSize: 16,
-            letterSpacing: 3,
+            letterSpacing: isSchule ? 0.5 : 3,
             color: 'var(--muted)',
           }}
         >
-          RHYTHM<span style={{ color: 'var(--amber)' }}>GYM</span>
+          {isSchule ? (
+            'Handpan Schule des Lebens'
+          ) : (
+            <>
+              RHYTHM<span style={{ color: 'var(--amber)' }}>GYM</span>
+            </>
+          )}
         </div>
 
-        <p style={{ fontFamily: "'Barlow', sans-serif", fontSize: 13, color: 'var(--muted)' }}>
-          Ein Projekt von{' '}
-          <a
-            href="https://handpan.schule"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--muted)' }}
-          >
-            handpan.schule
-          </a>{' '}
-          — Handpan Schule des Lebens
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--muted)' }}>
+          {isSchule ? (
+            <>
+              Die Lern-App der{' '}
+              <a
+                href="https://handpan.schule"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--muted)' }}
+              >
+                Handpan Schule des Lebens
+              </a>
+            </>
+          ) : (
+            <>
+              Ein Projekt von{' '}
+              <a
+                href="https://handpan.schule"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--muted)' }}
+              >
+                handpan.schule
+              </a>{' '}
+              — Handpan Schule des Lebens
+            </>
+          )}
         </p>
 
-        <p style={{ fontFamily: "'Barlow', sans-serif", color: 'var(--border)', fontSize: 12 }}>
+        {/* Gym: --border ist ein sattes Braun. Unter der Schule ist --border
+            12%-Gold und damit unlesbar — dort trägt --muted die Zeile. */}
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            color: isSchule ? 'var(--muted)' : 'var(--border)',
+            fontSize: 12,
+          }}
+        >
           © {new Date().getFullYear()} Nils Caspar Böhm · Eching
         </p>
       </div>
