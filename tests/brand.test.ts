@@ -2,15 +2,15 @@ import { describe, expect, test } from 'bun:test'
 import { BRAND_COOKIE, BRAND_HEADER, BRAND_META, isBrand, resolveBrand } from '../app/lib/brand'
 
 describe('resolveBrand — Host', () => {
-  test('ISC-2: app.handpan.schule ohne Cookie → schule', () => {
-    expect(resolveBrand('app.handpan.schule', undefined)).toBe('schule')
+  test('ISC-2: lernen.handpan.schule ohne Cookie → schule', () => {
+    expect(resolveBrand('lernen.handpan.schule', undefined)).toBe('schule')
   })
   test('ISC-3: www.rhythmgym.io ohne Cookie → gym', () => {
     expect(resolveBrand('www.rhythmgym.io', undefined)).toBe('gym')
   })
   test('jede handpan.schule-Adresse zählt, auch mit Port', () => {
     expect(resolveBrand('handpan.schule', null)).toBe('schule')
-    expect(resolveBrand('app.handpan.schule:3000', null)).toBe('schule')
+    expect(resolveBrand('lernen.handpan.schule:3000', null)).toBe('schule')
     expect(resolveBrand('APP.HANDPAN.SCHULE', null)).toBe('schule')
   })
   test('fehlender Host fällt auf gym zurück', () => {
@@ -28,11 +28,11 @@ describe('resolveBrand — Cookie nur auf unbekannten Hosts', () => {
     expect(resolveBrand('rhythm-gym-git-main.vercel.app', 'schule')).toBe('schule')
   })
   test('ISC-5 (refined): Produktions-Host schlägt das Cookie', () => {
-    expect(resolveBrand('app.handpan.schule', 'gym')).toBe('schule')
+    expect(resolveBrand('lernen.handpan.schule', 'gym')).toBe('schule')
     expect(resolveBrand('www.rhythmgym.io', 'schule')).toBe('gym')
   })
   test('ungültiges Cookie wird ignoriert, dann entscheidet der Host', () => {
-    expect(resolveBrand('app.handpan.schule', 'kaputt')).toBe('schule')
+    expect(resolveBrand('lernen.handpan.schule', 'kaputt')).toBe('schule')
     expect(resolveBrand('localhost:3000', 'SCHULE')).toBe('gym')
     expect(resolveBrand('localhost:3000', 'kaputt')).toBe('gym')
   })

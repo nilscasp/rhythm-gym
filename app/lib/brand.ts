@@ -1,6 +1,6 @@
 /**
  * Marke = Darstellungsschicht. Eine App, eine Datenbank, zwei Bühnen:
- * `gym` (rhythmgym.io) und `schule` (app.handpan.schule).
+ * `gym` (rhythmgym.io) und `schule` (lernen.handpan.schule).
  *
  * Die Entscheidung fällt genau einmal — in `proxy.ts` — und reist als
  * Request-Header `x-brand` zu den Server Components weiter. Alles darunter
@@ -30,7 +30,7 @@ export function isBrand(value: unknown): value is Brand {
  * Bestimmt die Marke aus Host und Cookie.
  *
  * Reihenfolge: eine bekannte Produktions-Domain gewinnt immer — ein Besucher
- * soll auf app.handpan.schule kein Fremdbranding per Cookie erzeugen können.
+ * soll auf lernen.handpan.schule kein Fremdbranding per Cookie erzeugen können.
  * Nur auf unbekannten Hosts (localhost, *.vercel.app-Previews) entscheidet ein
  * gültiges Cookie; sonst Gym. Ungültige Cookie-Werte werden ignoriert.
  */
@@ -62,6 +62,6 @@ export const BRAND_META: Record<
     description:
       'Dein Ort zum Üben — Kurse, Termine und Werkzeuge der Handpan Schule des Lebens.',
     wordmark: 'Handpan Schule des Lebens',
-    origin: 'https://app.handpan.schule',
+    origin: 'https://lernen.handpan.schule',
   },
 }

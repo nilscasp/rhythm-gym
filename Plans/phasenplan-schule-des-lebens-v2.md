@@ -24,7 +24,7 @@
 - `/community/` verlinkt weiter auf Skool und verspricht ein „Community-Abo, das im August 2026 startet" — **offener Widerspruch**, muss sofort auf ein realistisches Datum.
 - Termine-Sidebar liest `events.json` (pro Sprache eine eigene Datei, 4 Einträge de).
 - `_redesign/`-Mockups (Homepage, Kursseite, Community-Hub) führen den Dark-Look konsequent weiter.
-- Kein Link von der Website auf die App; `app.handpan.schule` ist nirgends konfiguriert.
+- Kein Link von der Website auf die App; `lernen.handpan.schule` ist nirgends konfiguriert.
 
 **Discovery-Worksheet (`rhythm-gym/docs/handpan-schule/discovery.md`):** Sektionen A (Brand) und C (Mitgliedschaft: Free + Premium 29 €/290 €, Kurse als eigene Käufe, DMs nur Premium) beantwortet; D–L (Onboarding, Feed-Regeln, Events, Legal, Landing) offen.
 
@@ -41,7 +41,7 @@ Deine Frage war „umbauen **oder** zweite Version". Nach Zerlegung ist die Mark
 | **Theme-Schicht** (Empfehlung) | Eine App, eine DB, ein Deployment, zwei Hosts | Marke = Konfiguration; Schüler haben ein Konto; Sequencer/Bibliothek sind in beiden Marken Abo-Inhalt (Discovery C3) |
 
 **Technischer Mechanismus (klein, KW37–38):**
-- `proxy.ts` (Next-Middleware) leitet aus dem Host `app.handpan.schule` → `brand=schule`, `rhythmgym.io` → `brand=gym` ab; Override per Cookie für lokales Testen.
+- `proxy.ts` (Next-Middleware) leitet aus dem Host `lernen.handpan.schule` → `brand=schule`, `rhythmgym.io` → `brand=gym` ab; Override per Cookie für lokales Testen.
 - `app/layout.tsx` setzt `<html data-brand="schule|gym">`; `globals.css` definiert beide Token-Sets unter `[data-brand=…]`. Bestehende Gym-Tokens (`--black/--amber/--cream…`) bleiben unverändert, die Schul-Tokens kommen dazu.
 - Nav-Array und Logo werden brand-abhängig (Schule: Kurse · Termine · Community · Werkzeuge; Gym: wie heute).
 - Fonts pro Brand laden: Gym Anton/Barlow wie bisher, Schule Fraunces + Spectral (self-hosted wie auf der Website, `fonts/fonts.css` übernehmen), Nav-Font Jost.
@@ -104,7 +104,7 @@ Der Juli-Plan wollte ein vollständiges Entitlement-System in 6 Wochen. Das ist 
 - **Premium-Community-Abo** (29 €/290 €): `customer.subscription.created/updated/deleted` → `profiles.plan`. Free-Tier braucht kein Stripe-Objekt.
 - **Zugangs-Codes bleiben** als Workshop-/Kulanzweg. Bestandskäufer der 399-€-Links werden einmalig per Code oder manuellem Enrollment übernommen.
 - Kündigung/Refund setzt `enrollments.status`, löscht nie. Keine clientseitigen Enrollment-Writes — Regel aus dem Access-Gating-Run gilt weiter.
-- **Von Anfang an spielen (26.9.) ist der echte erste Stichtag, nicht der 21.12.** 13 zahlende Teilnehmer sind die einzige realistische Beta-Kohorte dieses Jahres. Sie werden ab 26.9. **in der App** aufgenommen — das geht schon heute: Zugangs-Code mit `drip_start_date` für den RF-Zyklus-1-Bonus, Konto auf app.handpan.schule im Schul-Look, Termine des Kurses im Kalender. Kein neues Programm bauen; der Kursbetrieb selbst (Zoom, PDF) läuft daneben weiter. Damit sammelt jede Woche echtes Feedback statt einer späteren Migration.
+- **Von Anfang an spielen (26.9.) ist der echte erste Stichtag, nicht der 21.12.** 13 zahlende Teilnehmer sind die einzige realistische Beta-Kohorte dieses Jahres. Sie werden ab 26.9. **in der App** aufgenommen — das geht schon heute: Zugangs-Code mit `drip_start_date` für den RF-Zyklus-1-Bonus, Konto auf lernen.handpan.schule im Schul-Look, Termine des Kurses im Kalender. Kein neues Programm bauen; der Kursbetrieb selbst (Zoom, PDF) läuft daneben weiter. Damit sammelt jede Woche echtes Feedback statt einer späteren Migration.
 - **Nicht-Code-Pflichten mit Deadline** (bisher in keinem Plan): Umsatzsteuer auf digitale Leistungen an EU-Kunden (Stripe Tax aktivieren), Rechnungsversand (Stripe Invoices), Widerrufsbelehrung und AGB (Discovery J3/J4 offen). Gehört in KW41–42, ist keine Entwicklerarbeit.
 - Sicherheits-Review (RLS, Webhook, Zugriffslogik) fest an Checkpoint 2.
 
@@ -124,7 +124,7 @@ Annahme: **~2 Bautage/Woche** (Nils + KI-Sessions) = rund 30 Bautage. Das ist kn
 
 | KW | Zeitraum | Baustein | Ende der Woche steht |
 |---|---|---|---|
-| 37 | 7.–13.9. | **0 · Fundament**: Projekt-ISA, Theme-Schicht (Tokens, Fonts, `data-brand`, Nav/Logo), Domain `app.handpan.schule` auf Vercel, Website-Text „Abo ab August" korrigieren | App unter app.handpan.schule im Schul-Look erreichbar |
+| 37 | 7.–13.9. | **0 · Fundament**: Projekt-ISA, Theme-Schicht (Tokens, Fonts, `data-brand`, Nav/Logo), Domain `lernen.handpan.schule` auf Vercel, Website-Text „Abo ab August" korrigieren | App unter lernen.handpan.schule im Schul-Look erreichbar |
 | 38 | 14.–20.9. | 0 · **i18n-Gerüst** (next-intl, Routing, `profiles.locale`) zusammen mit dem Theme, weil beides `layout.tsx`/`proxy.ts` anfasst; `events`-Migration + `hasEventAccess` | `/en/` rendert, Nils kann Termine anlegen |
 | 39 | 21.–27.9. | **1 · Kalender-UI** (Liste, Detail, CTA), `/api/events.json`; **Fr 26.9.: VAAS-Kohorte kommt per Code in die App** | Termine in App + Website-Sidebar aus einer Quelle; 13 Beta-Nutzer aktiv |
 | 40 | 28.9.–4.10. | 1 · Mobile-Politur Kalender, erstes Kohorten-Feedback; Stripe-Webhook-Skelett + `stripe_events` | **Checkpoint 1 (Fr 2.10.)** |
@@ -194,4 +194,4 @@ Erste Aktion nach Freigabe: Projekt-`ISA.md` für rhythm-gym anlegen, dann KW37.
 - Plan nach `rhythm-gym/Plans/phasenplan-schule-des-lebens-v2.md` kopieren, Juli-Plan mit Hinweis „ersetzt durch v2" belassen.
 - Memory `project_handpan-schule-des-lebens.md` auf v2-Stand bringen (15 Wochen, Theme-Schicht, de+en, Kalender vorgezogen).
 - Anschlussstellen für KW37 sind benannt: `app/globals.css`, `app/layout.tsx`, `components/Nav.tsx`, `components/Logo.tsx`, `proxy.ts`, `app/lib/course-access.ts`, `app/lib/supabase/database.types.ts`, Website `css/style.css` + `fonts/fonts.css` + `js/main.js` (`loadEvents`).
-- Erste Bau-Probe: app.handpan.schule zeigt Schul-Tokens, rhythmgym.io unverändert — Interceptor-Screenshots beider Hosts bei 390×844.
+- Erste Bau-Probe: lernen.handpan.schule zeigt Schul-Tokens, rhythmgym.io unverändert — Interceptor-Screenshots beider Hosts bei 390×844.

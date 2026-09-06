@@ -12,11 +12,11 @@ updated: 2026-09-06T13:01:34+0200
 
 ## Problem
 
-rhythm-gym ist eine funktionierende Trainings-App (rhythmgym.io) mit Profilen, Kurszugang über `enrollments`, Drip-Unlock, Sequencer und Pattern-Bibliothek — aber sie trägt nur die Gym-Marke (Anton/Barlow, Amber #F5A623 auf Schwarz). Die Handpan Schule des Lebens braucht bis 21.12.2026 einen eigenen Ort (`app.handpan.schule`), der Skool ablöst: Kurse, Termine, DMs, später Feed — im Look der Website handpan.schule (Navy #0A0E14, Gold #D4A574, Fraunces/Spectral). Heute gibt es keinen Theme-Mechanismus, keine Host-Erkennung, keine Termine, keine i18n, keinen Kaufweg außer Codes. Die Website verspricht ein Abo, das es nicht gibt, und am 26.9. startet ein Kurs mit 13 Teilnehmern, die die App als Beta-Kohorte nutzen sollen.
+rhythm-gym ist eine funktionierende Trainings-App (rhythmgym.io) mit Profilen, Kurszugang über `enrollments`, Drip-Unlock, Sequencer und Pattern-Bibliothek — aber sie trägt nur die Gym-Marke (Anton/Barlow, Amber #F5A623 auf Schwarz). Die Handpan Schule des Lebens braucht bis 21.12.2026 einen eigenen Ort (`lernen.handpan.schule`), der Skool ablöst: Kurse, Termine, DMs, später Feed — im Look der Website handpan.schule (Navy #0A0E14, Gold #D4A574, Fraunces/Spectral). Heute gibt es keinen Theme-Mechanismus, keine Host-Erkennung, keine Termine, keine i18n, keinen Kaufweg außer Codes. Die Website verspricht ein Abo, das es nicht gibt, und am 26.9. startet ein Kurs mit 13 Teilnehmern, die die App als Beta-Kohorte nutzen sollen.
 
 ## Vision
 
-Ein Schüler öffnet app.handpan.schule auf dem Handy und ist sofort in der Schule: dunkles Navy, goldene Akzente, die Serifen der Website, das Logo — dieselbe Bühne wie handpan.schule, nur jetzt mit Tür nach innen. Nils öffnet rhythmgym.io und sieht das Gym wie immer. Beide sind dieselbe App, dieselbe Datenbank, dasselbe Konto. Kein Nutzer merkt, dass unter der Oberfläche nichts dupliziert wurde.
+Ein Schüler öffnet lernen.handpan.schule auf dem Handy und ist sofort in der Schule: dunkles Navy, goldene Akzente, die Serifen der Website, das Logo — dieselbe Bühne wie handpan.schule, nur jetzt mit Tür nach innen. Nils öffnet rhythmgym.io und sieht das Gym wie immer. Beide sind dieselbe App, dieselbe Datenbank, dasselbe Konto. Kein Nutzer merkt, dass unter der Oberfläche nichts dupliziert wurde.
 
 ## Out of Scope
 
@@ -42,16 +42,16 @@ Für KW37: kein Kalender (KW38–40), kein i18n-Gerüst (KW38), kein Stripe (KW4
 
 ## Goal
 
-Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (Website-Tokens 1:1, Fraunces/Spectral, Schul-Logo und -Nav), unter `data-brand="gym"` pixelgleich wie heute; die Marke wird in `proxy.ts` aus dem Host (`app.handpan.schule` → schule, sonst gym) oder dem Cookie `brand` bestimmt, `tsc` und `bun test` sind grün, und beide Marken sind bei 390×844 per Interceptor-Screenshot belegt.
+Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (Website-Tokens 1:1, Fraunces/Spectral, Schul-Logo und -Nav), unter `data-brand="gym"` pixelgleich wie heute; die Marke wird in `proxy.ts` aus dem Host (`lernen.handpan.schule` → schule, sonst gym) oder dem Cookie `brand` bestimmt, `tsc` und `bun test` sind grün, und beide Marken sind bei 390×844 per Interceptor-Screenshot belegt.
 
 ## Criteria
 
 ### Brand-Erkennung
 - [x] ISC-1: `app/lib/brand.ts` exportiert `type Brand = 'gym' | 'schule'` und `resolveBrand(host, cookie)`
-- [x] ISC-2: `resolveBrand('app.handpan.schule', undefined)` → `'schule'` (bun test)
+- [x] ISC-2: `resolveBrand('lernen.handpan.schule', undefined)` → `'schule'` (bun test)
 - [x] ISC-3: `resolveBrand('www.rhythmgym.io', undefined)` → `'gym'` (bun test)
 - [x] ISC-4: `resolveBrand('localhost:3000', 'schule')` → `'schule'` — Cookie gewinnt (bun test)
-- [x] ISC-5: `resolveBrand('app.handpan.schule', 'gym')` → `'gym'` — Cookie gewinnt auch gegen Host (bun test)
+- [x] ISC-5: `resolveBrand('lernen.handpan.schule', 'gym')` → `'gym'` — Cookie gewinnt auch gegen Host (bun test)
 - [x] ISC-6: `proxy.ts` setzt Request-Header `x-brand` auf das Ergebnis, bevor `updateSession` läuft
 - [x] ISC-7: `app/layout.tsx` liest `x-brand` über `headers()` und setzt `<html data-brand="…">`
 - [x] ISC-8: `curl -s -H 'Cookie: brand=schule' localhost:3000/ | grep -c 'data-brand="schule"'` = 1
@@ -138,7 +138,7 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 ## Verification
 
 - ISC-1–5: `bun test` — 24 pass, 0 fail (tests/brand.test.ts + course-access)
-- ISC-6–9: curl — `data-brand="gym"` ohne Cookie, `data-brand="schule"` mit Cookie auf localhost; `X-Forwarded-Host: app.handpan.schule` + Cookie gym → schule
+- ISC-6–9: curl — `data-brand="gym"` ohne Cookie, `data-brand="schule"` mit Cookie auf localhost; `X-Forwarded-Host: lernen.handpan.schule` + Cookie gym → schule
 - ISC-10–14, 18: Read globals.css — Schul-Block mit den genannten Werten, Font-Variablen in `:root` und Schul-Block
 - ISC-15: `rg -c` Font-Literale → nur `app/globals.css:3`
 - ISC-16: `ls public/fonts/schule | wc -l` = 12; ISC-17: 13 `@font-face`, Import in globals.css
