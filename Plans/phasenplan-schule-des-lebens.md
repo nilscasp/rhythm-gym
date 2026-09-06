@@ -1,5 +1,7 @@
 # Phasenplan: rhythm-gym → Handpan Schule des Lebens (Phase 1 „Schulraum")
 
+> **Ersetzt am 2026-09-06 durch `phasenplan-schule-des-lebens-v2.md`.** Blöcke A/B wurden nicht begonnen; v2 baselined den September-Stand (15 Restwochen, Theme-Schicht statt Fork, de+en, Kalender vorgezogen, Feed/Karte Januar 2027, Bau mit Opus).
+
 **Zeitraum:** Woche 1 = Mo, 6. Juli 2026 · Ziel-Launch: **Wintersonnenwende, 21. Dezember 2026** (24 Wochen)
 
 ---
