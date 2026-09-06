@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Brand } from '../app/lib/brand';
 
 export function Footer({ brand = 'gym' }: { brand?: Brand }) {
@@ -67,6 +68,23 @@ export function Footer({ brand = 'gym' }: { brand?: Brand }) {
             </>
           )}
         </p>
+
+        <nav
+          aria-label="Rechtliches"
+          style={{
+            display: 'flex',
+            gap: 18,
+            fontFamily: 'var(--font-body)',
+            fontSize: 13,
+          }}
+        >
+          <Link href="/impressum" style={{ color: 'var(--muted)' }}>
+            Impressum
+          </Link>
+          <Link href="/datenschutz" style={{ color: 'var(--muted)' }}>
+            Datenschutz
+          </Link>
+        </nav>
 
         {/* Gym: --border ist ein sattes Braun. Unter der Schule ist --border
             12%-Gold und damit unlesbar — dort trägt --muted die Zeile. */}

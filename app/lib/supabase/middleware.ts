@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/** Seiten, die ohne Login erreichbar sein müssen (Pflichtangaben, später Lead-Magnet). */
+const PUBLIC_PATHS = new Set(['/impressum', '/datenschutz'])
+
 export async function updateSession(
   request: NextRequest,
   extraRequestHeaders?: Record<string, string>
@@ -56,12 +59,13 @@ export async function updateSession(
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Auth gate: everything except the landing and the /auth/* surface is
-  // members-only. Unauthenticated requests get bounced back to the landing,
-  // which carries the Login/Signup CTAs. Static assets and _next/* are already
-  // excluded by the proxy matcher in `proxy.ts`.
+  // Auth gate: everything except the landing, the /auth/* surface and the
+  // legal pages is members-only. Unauthenticated requests get bounced back to
+  // the landing, which carries the Login/Signup CTAs. Static assets and _next/*
+  // are already excluded by the proxy matcher in `proxy.ts`.
   const pathname = request.nextUrl.pathname
-  const isPublic = pathname === '/' || pathname.startsWith('/auth/')
+  const isPublic =
+    pathname === '/' || pathname.startsWith('/auth/') || PUBLIC_PATHS.has(pathname)
 
   if (!isPublic && !user) {
     const url = request.nextUrl.clone()
