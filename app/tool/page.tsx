@@ -793,7 +793,7 @@ function HandpanMaschineInner() {
         style={{
           minHeight: '100vh',
           background: 'var(--black)',
-          fontFamily: "'Barlow', 'Inter', sans-serif",
+          fontFamily: "var(--font-body)",
           padding: '40px 20px',
           color: 'var(--text)',
         }}
@@ -802,7 +802,7 @@ function HandpanMaschineInner() {
         <div style={{ maxWidth: '1400px', margin: '0 auto 40px', textAlign: 'center' }}>
           <h1
             style={{
-              fontFamily: "'Anton', sans-serif",
+              fontFamily: "var(--font-display)",
               fontSize: 'clamp(36px, 6vw, 64px)',
               fontWeight: 400,
               letterSpacing: '-1px',
@@ -847,14 +847,14 @@ function HandpanMaschineInner() {
           >
             <div
               style={{
-                fontFamily: "'Barlow', sans-serif",
+                fontFamily: "var(--font-body)",
                 fontSize: 14,
                 color: 'var(--text)',
               }}
             >
               <span
                 style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontFamily: "var(--font-ui)",
                   fontSize: 11,
                   letterSpacing: 2,
                   textTransform: 'uppercase',
@@ -869,7 +869,7 @@ function HandpanMaschineInner() {
             <Link
               href={`/${fromSource}`}
               style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontSize: 12,
                 letterSpacing: 1.5,
                 textTransform: 'uppercase',
@@ -907,7 +907,7 @@ function HandpanMaschineInner() {
             >
               <h2
                 style={{
-                  fontFamily: "'Anton', sans-serif",
+                  fontFamily: "var(--font-display)",
                   fontSize: '26px',
                   color: 'var(--cream)',
                   margin: 0,
@@ -927,7 +927,7 @@ function HandpanMaschineInner() {
                     padding: '10px 20px',
                     borderRadius: '4px',
                     cursor: 'pointer',
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 700,
                     fontSize: '13px',
                     letterSpacing: '2px',
@@ -949,7 +949,7 @@ function HandpanMaschineInner() {
                     padding: '10px 20px',
                     borderRadius: '4px',
                     cursor: 'pointer',
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 700,
                     fontSize: '13px',
                     letterSpacing: '2px',
@@ -975,7 +975,7 @@ function HandpanMaschineInner() {
                       padding: '10px 20px',
                       borderRadius: '4px',
                       cursor: saving ? 'wait' : 'pointer',
-                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontWeight: 700,
                       fontSize: '13px',
                       letterSpacing: '2px',
@@ -1073,7 +1073,7 @@ function HandpanMaschineInner() {
                 <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <span
                     style={{
-                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontSize: '11px',
                       fontWeight: 700,
                       letterSpacing: '2px',
@@ -1104,7 +1104,7 @@ function HandpanMaschineInner() {
                   />
                   <span
                     style={{
-                      fontFamily: "'Anton', sans-serif",
+                      fontFamily: "var(--font-display)",
                       fontSize: '22px',
                       color: 'var(--cream)',
                       letterSpacing: '0.5px',
@@ -1113,7 +1113,7 @@ function HandpanMaschineInner() {
                       flexShrink: 0,
                     }}
                   >
-                    {bpm}<span style={{ fontSize: '11px', color: 'var(--muted)', marginLeft: 3, fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: '1.5px' }}>BPM</span>
+                    {bpm}<span style={{ fontSize: '11px', color: 'var(--muted)', marginLeft: 3, fontFamily: "var(--font-ui)", letterSpacing: '1.5px' }}>BPM</span>
                   </span>
                 </div>
 
@@ -1131,7 +1131,7 @@ function HandpanMaschineInner() {
                           padding: '5px 9px',
                           cursor: 'pointer',
                           color: isActive ? 'var(--amber)' : 'var(--muted)',
-                          fontFamily: "'Barlow Condensed', sans-serif",
+                          fontFamily: "var(--font-ui)",
                           fontWeight: 700,
                           fontSize: '11px',
                           letterSpacing: '1px',
@@ -1239,7 +1239,7 @@ function HandpanMaschineInner() {
                   <Volume2 size={11} color={metronomeEnabled ? 'var(--muted2)' : 'var(--border2)'} />
                   <span
                     style={{
-                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontSize: '10px',
                       fontWeight: 600,
                       letterSpacing: '1.5px',
@@ -1267,7 +1267,7 @@ function HandpanMaschineInner() {
                   <Volume2 size={11} color={subdivisionsEnabled ? 'var(--muted2)' : 'var(--border2)'} />
                   <span
                     style={{
-                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontSize: '10px',
                       fontWeight: 600,
                       letterSpacing: '1.5px',
@@ -1295,7 +1295,7 @@ function HandpanMaschineInner() {
                   <SlidersHorizontal size={11} color="var(--amber)" />
                   <span
                     style={{
-                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontSize: '10px',
                       fontWeight: 600,
                       letterSpacing: '1.5px',
@@ -1495,7 +1495,7 @@ function HandpanMaschineInner() {
                   alignItems: 'center',
                   gap: '8px',
                   marginBottom: '10px',
-                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontFamily: "var(--font-ui)",
                   fontSize: '11px',
                   color: 'var(--muted)',
                   letterSpacing: '2px',
@@ -1523,7 +1523,7 @@ function HandpanMaschineInner() {
                           padding: '8px 6px',
                           borderRadius: '3px',
                           cursor: 'pointer',
-                          fontFamily: "'Barlow Condensed', sans-serif",
+                          fontFamily: "var(--font-ui)",
                           fontWeight: 700,
                           fontSize: '12px',
                           letterSpacing: '1px',
@@ -1543,7 +1543,7 @@ function HandpanMaschineInner() {
             <div>
               <h3
                 style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontFamily: "var(--font-ui)",
                   fontSize: '13px',
                   color: 'var(--muted)',
                   marginBottom: '12px',
@@ -1567,7 +1567,7 @@ function HandpanMaschineInner() {
                         padding: '8px 16px',
                         borderRadius: '4px',
                         cursor: 'pointer',
-                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontFamily: "var(--font-ui)",
                         fontWeight: 600,
                         fontSize: '13px',
                         letterSpacing: '1px',
@@ -1611,7 +1611,7 @@ function HandpanMaschineInner() {
                       color: 'var(--black)',
                       padding: '12px 24px',
                       borderRadius: '2px',
-                      fontFamily: "'Barlow Condensed', sans-serif",
+                      fontFamily: "var(--font-ui)",
                       fontWeight: 700,
                       fontSize: '13px',
                       letterSpacing: '2px',
@@ -1640,7 +1640,7 @@ function HandpanMaschineInner() {
           >
             <h3
               style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontSize: '13px',
                 color: 'var(--amber)',
                 marginBottom: '16px',
@@ -1664,7 +1664,7 @@ function HandpanMaschineInner() {
                     fontSize: '13px',
                     color: 'var(--text)',
                     margin: '0 0 8px 0',
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 700,
                     letterSpacing: '2px',
                     textTransform: 'uppercase',
@@ -1702,7 +1702,7 @@ function HandpanMaschineInner() {
                     fontSize: '13px',
                     color: 'var(--text)',
                     margin: '0 0 8px 0',
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontWeight: 700,
                     letterSpacing: '2px',
                     textTransform: 'uppercase',
@@ -1764,7 +1764,7 @@ function HandpanMaschineInner() {
               <h2
                 id="tool-save-modal-title"
                 style={{
-                  fontFamily: 'Anton, sans-serif',
+                  fontFamily: 'var(--font-display)',
                   fontSize: '22px',
                   letterSpacing: '2px',
                   textTransform: 'uppercase',
@@ -1928,7 +1928,7 @@ function HandpanMaschineInner() {
               color: 'var(--cream)',
               padding: '12px 22px',
               borderRadius: '6px',
-              fontFamily: "'Barlow Condensed', sans-serif",
+              fontFamily: "var(--font-ui)",
               fontWeight: 600,
               fontSize: '14px',
               letterSpacing: '1.5px',
@@ -1957,7 +1957,7 @@ export default function HandpanMaschinePage() {
             alignItems: 'center',
             justifyContent: 'center',
             color: 'var(--muted)',
-            fontFamily: "'Barlow Condensed', sans-serif",
+            fontFamily: "var(--font-ui)",
             letterSpacing: 2,
             textTransform: 'uppercase',
             fontSize: 13,
@@ -2019,7 +2019,7 @@ const TOOL_CSS = `
 .tool-save-modal-field {
   display: block;
   margin-bottom: 14px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -2039,7 +2039,7 @@ const TOOL_CSS = `
   border-radius: 6px;
   padding: 10px 12px;
   color: var(--cream);
-  font-family: 'Barlow', 'Barlow Condensed', sans-serif;
+  font-family: 'Barlow', var(--font-ui);
   font-size: 15px;
   letter-spacing: 0.5px;
   text-transform: none;
@@ -2050,7 +2050,7 @@ const TOOL_CSS = `
 .tool-save-modal-field textarea {
   resize: vertical;
   min-height: 70px;
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
 }
 .tool-save-modal-field input:focus,
 .tool-save-modal-field textarea:focus {
@@ -2073,7 +2073,7 @@ const TOOL_CSS = `
 .tool-save-modal-btn {
   padding: 10px 20px;
   border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2px;
@@ -2165,7 +2165,7 @@ const TOOL_CSS = `
   margin-bottom: 20px;
 }
 .tool-mixer-title {
-  font-family: Anton, sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -2173,7 +2173,7 @@ const TOOL_CSS = `
   margin: 0;
 }
 .tool-mixer-sub {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -2206,7 +2206,7 @@ const TOOL_CSS = `
   margin-bottom: 7px;
 }
 .tool-mixer-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 1.5px;
@@ -2224,7 +2224,7 @@ const TOOL_CSS = `
   text-transform: none;
 }
 .tool-mixer-value {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -2254,7 +2254,7 @@ const TOOL_CSS = `
 .tool-mixer-btn {
   padding: 10px 20px;
   border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2px;
@@ -2338,7 +2338,7 @@ const TOOL_CSS = `
   flex-wrap: wrap;
 }
 .tool-page-axis-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -2351,7 +2351,7 @@ const TOOL_CSS = `
   border-radius: 3px;
   padding: 5px 9px;
   cursor: pointer;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 11px;
   letter-spacing: 1px;
@@ -2373,7 +2373,7 @@ const TOOL_CSS = `
 }
 .tool-page-grid-hint {
   align-self: center;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1px;
@@ -2395,7 +2395,7 @@ const TOOL_CSS = `
   gap: 14px;
   margin: 12px 0 16px;
   padding: 8px 0;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;

@@ -638,7 +638,7 @@ const BIBLIOTHEK_CSS = `
   text-align: center;
 }
 .lib-hero-kicker {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -646,7 +646,7 @@ const BIBLIOTHEK_CSS = `
   margin-bottom: 16px;
 }
 .lib-hero h1 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(36px, 6vw, 64px);
   letter-spacing: 2px;
   color: var(--cream);
@@ -698,7 +698,7 @@ const BIBLIOTHEK_CSS = `
 }
 .lib-layer-map a:hover::after { opacity: 1; }
 .lib-layer-map .lib-lm-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   color: var(--amber);
   display: block;
@@ -706,7 +706,7 @@ const BIBLIOTHEK_CSS = `
   margin-bottom: 6px;
 }
 .lib-layer-map .lib-lm-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -728,14 +728,14 @@ const BIBLIOTHEK_CSS = `
   border-bottom: 1px solid var(--border);
 }
 .lib-layer-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 42px;
   color: var(--amber);
   line-height: 1;
   opacity: 0.3;
 }
 .lib-layer-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(22px, 3vw, 30px);
   letter-spacing: 1px;
   color: var(--cream);
@@ -769,7 +769,7 @@ const BIBLIOTHEK_CSS = `
 }
 .lib-entry-main { min-width: 0; }
 .lib-entry-term {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -789,7 +789,7 @@ const BIBLIOTHEK_CSS = `
   font-style: italic;
 }
 .lib-entry-tag {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -807,7 +807,7 @@ const BIBLIOTHEK_CSS = `
   align-items: center;
   gap: 6px;
   margin-top: 10px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -830,7 +830,7 @@ const BIBLIOTHEK_CSS = `
   margin: 24px 0;
 }
 .lib-highlight-box .lib-hb-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -851,7 +851,7 @@ const BIBLIOTHEK_CSS = `
   margin: 16px 0;
 }
 .lib-comp-table th {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -868,7 +868,7 @@ const BIBLIOTHEK_CSS = `
   vertical-align: top;
 }
 .lib-comp-table td:first-child {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 600;
   color: var(--cream);
   white-space: nowrap;
@@ -895,7 +895,7 @@ const BIBLIOTHEK_CSS = `
 }
 .lib-pill:hover { border-color: var(--border2, #3A3428); }
 .lib-pill strong {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 600;
   color: var(--cream);
@@ -922,7 +922,7 @@ const BIBLIOTHEK_CSS = `
   margin: 48px 0;
 }
 .lib-quick-ref .lib-qr-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 20px;
   letter-spacing: 1px;
   color: var(--cream);
@@ -941,13 +941,13 @@ const BIBLIOTHEK_CSS = `
   border: 1px solid rgba(46,42,30,0.4);
 }
 .lib-qr-item .lib-qr-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 28px;
   color: var(--amber);
   line-height: 1;
 }
 .lib-qr-item .lib-qr-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -977,7 +977,7 @@ const BIBLIOTHEK_CSS = `
   background: linear-gradient(135deg, rgba(245,166,35,0.10), rgba(255,107,53,0.05));
 }
 .lib-vertiefung-kicker {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -985,7 +985,7 @@ const BIBLIOTHEK_CSS = `
   margin-bottom: 8px;
 }
 .lib-vertiefung-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 1px;
   color: var(--cream);
@@ -1019,7 +1019,7 @@ const BIBLIOTHEK_CSS = `
 .lib-poem-author {
   margin-top: 16px;
   font-style: normal;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;

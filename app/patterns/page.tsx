@@ -191,7 +191,7 @@ const KURSE_CSS = `
     background: var(--black);
     color: var(--cream);
     padding: 56px 24px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
   .kurse-wrap {
     max-width: 1100px;
@@ -207,7 +207,7 @@ const KURSE_CSS = `
     margin-bottom: 20px;
   }
   .kurse-section-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(24px, 3vw, 32px);
     line-height: 1;
     color: var(--cream);
@@ -223,7 +223,7 @@ const KURSE_CSS = `
     max-width: 640px;
   }
   .kurse-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 4px;
     text-transform: uppercase;
@@ -231,7 +231,7 @@ const KURSE_CSS = `
     margin-bottom: 12px;
   }
   .kurse-head h1 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(36px, 5vw, 56px);
     line-height: 1;
     color: var(--cream);
@@ -280,7 +280,7 @@ const KURSE_CSS = `
     border: 1px solid var(--amber);
     border-radius: 2px;
     padding: 4px 10px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -292,7 +292,7 @@ const KURSE_CSS = `
     border-color: var(--border);
   }
   .kurse-card-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 24px;
     color: var(--cream);
     margin: 0;
@@ -310,7 +310,7 @@ const KURSE_CSS = `
     display: flex;
     gap: 12px;
     color: var(--muted);
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -331,7 +331,7 @@ const KURSE_CSS = `
     border: none;
     padding: 10px 20px;
     border-radius: 3px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-weight: 700;
     font-size: 12px;
     letter-spacing: 2px;
@@ -342,7 +342,7 @@ const KURSE_CSS = `
   .kurse-cta-primary:hover { background: var(--cream); }
   .kurse-enroll-form { margin-left: auto; }
   .kurse-cta-secondary {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -358,7 +358,7 @@ const KURSE_CSS = `
     color: var(--black);
   }
   .kurse-enrolled {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -384,7 +384,7 @@ const KURSE_CSS = `
     line-height: 1.6;
   }
   .kurse-future-tag {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;

@@ -514,7 +514,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
 const PB_CSS = `
 .pb {
   color: var(--text);
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
   min-height: 100vh;
   padding: 24px 0 80px;
@@ -535,7 +535,7 @@ const PB_CSS = `
   margin-bottom: 28px;
 }
 .pb-header-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -543,7 +543,7 @@ const PB_CSS = `
   margin-bottom: 12px;
 }
 .pb-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   color: var(--cream);
   font-size: clamp(36px, 5vw, 56px);
   letter-spacing: -1px;
@@ -559,7 +559,7 @@ const PB_CSS = `
   margin-top: 18px;
 }
 .pb-back-link {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -591,7 +591,7 @@ const PB_CSS = `
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, transform 0.2s, color 0.2s, box-shadow 0.2s;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -623,14 +623,14 @@ const PB_CSS = `
   text-align: center;
 }
 .pb-stat-value {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 44px;
   line-height: 1;
   color: var(--amber);
 }
 .pb-stat-label {
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -648,7 +648,7 @@ const PB_CSS = `
 .pb-legend-title {
   color: var(--amber);
   margin-bottom: 16px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -700,7 +700,7 @@ const PB_CSS = `
 
 /* ─── Category overview ─── */
 .pb-categories-title {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   color: var(--cream);
   margin-bottom: 20px;
   font-size: clamp(28px, 3.5vw, 40px);
@@ -737,7 +737,7 @@ const PB_CSS = `
   gap: 12px;
 }
 .pb-category-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 20px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -749,7 +749,7 @@ const PB_CSS = `
   color: var(--amber);
   padding: 4px 12px;
   border-radius: 16px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -772,7 +772,7 @@ const PB_CSS = `
   border: 1px solid var(--border);
   padding: 4px 10px;
   border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -798,7 +798,7 @@ const PB_CSS = `
 }
 .pb-filter-group label {
   color: var(--amber);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -811,7 +811,7 @@ const PB_CSS = `
   color: var(--text);
   padding: 10px 14px;
   border-radius: 4px;
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   min-width: 180px;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -829,7 +829,7 @@ const PB_CSS = `
   border: 1px solid var(--amber);
   padding: 11px 22px;
   border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 2px;
@@ -846,7 +846,7 @@ const PB_CSS = `
 /* ─── Result count + empty state ─── */
 .pb-result-count {
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -903,7 +903,7 @@ const PB_CSS = `
   letter-spacing: 0.5px;
 }
 .pb-pattern-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 20px;
   color: var(--cream);
   margin: 8px 0;
@@ -915,7 +915,7 @@ const PB_CSS = `
   color: var(--black);
   padding: 4px 12px;
   border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -1019,7 +1019,7 @@ const PB_CSS = `
   border: 1px solid var(--border);
   padding: 4px 11px;
   border-radius: 4px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1033,7 +1033,7 @@ const PB_CSS = `
   padding: 8px 14px;
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 2px;

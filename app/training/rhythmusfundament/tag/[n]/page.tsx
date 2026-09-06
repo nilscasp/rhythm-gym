@@ -276,7 +276,7 @@ const TAG_CSS = `
     background: var(--black);
     color: var(--cream);
     padding: 36px 20px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
   .tag-wrap {
     max-width: 1180px;
@@ -290,7 +290,7 @@ const TAG_CSS = `
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -319,14 +319,14 @@ const TAG_CSS = `
     border-bottom: 1px solid var(--border);
   }
   .tag-num {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 13px;
     letter-spacing: 4px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .tag-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(32px, 5vw, 48px);
     letter-spacing: 1.5px;
     line-height: 1.05;
@@ -387,7 +387,7 @@ const TAG_CSS = `
   }
   .tag-grafiken summary {
     cursor: pointer;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -441,14 +441,14 @@ const TAG_CSS = `
     text-align: right;
   }
   .tag-nav-hint {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .tag-nav-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 16px;
     letter-spacing: 1px;
     line-height: 1.2;

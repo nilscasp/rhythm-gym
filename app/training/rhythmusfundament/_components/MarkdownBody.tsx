@@ -264,7 +264,7 @@ export function MarkdownBody({ markdown }: MarkdownBodyProps) {
           display: flex;
           flex-direction: column;
           gap: 28px;
-          font-family: 'Barlow', sans-serif;
+          font-family: var(--font-body);
           color: var(--text, var(--cream));
           line-height: 1.65;
           font-size: 16px;
@@ -285,7 +285,7 @@ export function MarkdownBody({ markdown }: MarkdownBodyProps) {
           align-items: baseline;
           gap: 12px;
           margin: 0;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 14px;
           font-weight: 700;
           letter-spacing: 3px;

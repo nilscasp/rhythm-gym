@@ -198,7 +198,7 @@ const INDEX_CSS = `
     background: var(--black);
     color: var(--cream);
     padding: 48px 20px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
   .rf-wrap {
     max-width: 1180px;
@@ -231,14 +231,14 @@ const INDEX_CSS = `
     pointer-events: none;
   }
   .rf-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .rf-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(36px, 6vw, 56px);
     letter-spacing: 2px;
     line-height: 1.05;
@@ -301,7 +301,7 @@ const INDEX_CSS = `
     background: var(--amber-dim, rgba(245,166,35,0.12));
     color: var(--amber);
     border-radius: 4px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -330,14 +330,14 @@ const INDEX_CSS = `
     border-bottom: 1px solid var(--border);
   }
   .rf-cycle-num {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .rf-cycle-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 26px;
     letter-spacing: 1px;
     line-height: 1.1;
@@ -351,7 +351,7 @@ const INDEX_CSS = `
     max-width: 64ch;
   }
   .rf-cycle-range {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -382,14 +382,14 @@ const INDEX_CSS = `
     transform: translateY(-1px);
   }
   .rf-day-num {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2.5px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .rf-day-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     letter-spacing: 0.5px;
     line-height: 1.15;
@@ -405,7 +405,7 @@ const INDEX_CSS = `
     overflow: hidden;
   }
   .rf-day-meta {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;

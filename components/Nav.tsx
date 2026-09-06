@@ -4,21 +4,32 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from './Logo';
+import type { Brand } from '../app/lib/brand';
 
 type NavItem = { href: string; label: string; cta?: boolean; adminOnly?: boolean };
 
-const items: NavItem[] = [
-  { href: '/anleitung', label: 'Anleitung' },
-  { href: '/glossar', label: 'Glossar' },
-  { href: '/patterns', label: 'Patterns' },
-  { href: '/training', label: 'Training' },
-  { href: '/bausteine', label: 'Bausteine' },
-  { href: '/coach', label: 'Coach', adminOnly: true },
-  { href: '/tool', label: 'Tool', cta: true },
-];
+const ITEMS: Record<Brand, NavItem[]> = {
+  gym: [
+    { href: '/anleitung', label: 'Anleitung' },
+    { href: '/glossar', label: 'Glossar' },
+    { href: '/patterns', label: 'Patterns' },
+    { href: '/training', label: 'Training' },
+    { href: '/bausteine', label: 'Bausteine' },
+    { href: '/coach', label: 'Coach', adminOnly: true },
+    { href: '/tool', label: 'Tool', cta: true },
+  ],
+  // Die Schule zeigt weniger: was ein Schüler braucht, in seiner Sprache.
+  schule: [
+    { href: '/training', label: 'Kurse' },
+    { href: '/patterns', label: 'Patterns' },
+    { href: '/glossar', label: 'Glossar' },
+    { href: '/coach', label: 'Coach', adminOnly: true },
+    { href: '/tool', label: 'Werkzeug', cta: true },
+  ],
+};
 
 const linkBase: React.CSSProperties = {
-  fontFamily: "'Barlow Condensed', sans-serif",
+  fontFamily: "var(--font-ui)",
   fontSize: 13,
   letterSpacing: 2,
   textTransform: 'uppercase',
@@ -28,9 +39,11 @@ const linkBase: React.CSSProperties = {
 export function Nav({
   isAuthenticated = false,
   isAdmin = false,
+  brand = 'gym',
 }: {
   isAuthenticated?: boolean;
   isAdmin?: boolean;
+  brand?: Brand;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -38,8 +51,8 @@ export function Nav({
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');
 
-  // Admin-only Items rausfiltern, wenn der User kein Admin ist.
-  const visibleItems = items.filter((it) => !it.adminOnly || isAdmin);
+  // Admin-only Items rausfiltern, wenn der Angemeldete kein Admin ist.
+  const visibleItems = ITEMS[brand].filter((it) => !it.adminOnly || isAdmin);
 
   return (
     <nav
@@ -47,7 +60,7 @@ export function Nav({
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        background: 'rgba(10,9,7,0.92)',
+        background: 'color-mix(in srgb, var(--black) 92%, transparent)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border)',
@@ -64,7 +77,7 @@ export function Nav({
           gap: 24,
         }}
       >
-        <Logo size={32} />
+        <Logo size={32} brand={brand} />
 
         {/* ── Unauthenticated: Login CTAs only — Tool/Bibliothek/etc. are members-only ── */}
         {!isAuthenticated && (
@@ -158,7 +171,7 @@ export function Nav({
                 padding: '8px 12px',
                 borderRadius: 2,
                 cursor: 'pointer',
-                fontFamily: "'Barlow Condensed', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontSize: 12,
                 letterSpacing: 2,
                 textTransform: 'uppercase',
@@ -211,6 +224,11 @@ export function Nav({
           .nav-desktop { display: none !important; }
           .nav-burger { display: inline-block !important; }
           .nav-mobile-menu { display: ${open ? 'flex' : 'none'} !important; }
+        }
+        /* Auf sehr schmalen Geräten bleibt nur das Signet — der lange
+           Schul-Name würde die Login-Buttons aus der Zeile drängen. */
+        @media (max-width: 380px) {
+          .logo-wordmark-schule { display: none !important; }
         }
       `}</style>
     </nav>

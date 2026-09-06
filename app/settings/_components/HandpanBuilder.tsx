@@ -208,7 +208,7 @@ const BUILDER_CSS = `
   }
   .inst-b-row--sel { border-color: var(--amber); }
   .inst-b-role {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -223,7 +223,7 @@ const BUILDER_CSS = `
     border: 1px solid var(--border);
     color: var(--cream);
     font-size: 16px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
     padding: 8px 10px;
     border-radius: 3px;
     outline: none;
@@ -250,7 +250,7 @@ const BUILDER_CSS = `
     color: var(--amber);
     padding: 10px 16px;
     border-radius: 3px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 13px;
     letter-spacing: 1px;
     text-transform: uppercase;

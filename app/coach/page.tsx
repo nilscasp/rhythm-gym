@@ -505,7 +505,7 @@ const COACH_CSS = `
     background: var(--black);
     color: var(--cream);
     padding: 56px 24px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
   .cch-wrap {
     max-width: 1080px;
@@ -520,14 +520,14 @@ const COACH_CSS = `
     gap: 8px;
   }
   .cch-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 4px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .cch-head h1 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(32px, 5vw, 48px);
     line-height: 1;
     margin: 4px 0 0;
@@ -557,14 +557,14 @@ const COACH_CSS = `
     gap: 6px;
   }
   .cch-stat-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--muted);
   }
   .cch-stat-value {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 32px;
     line-height: 1;
     color: var(--cream);
@@ -582,7 +582,7 @@ const COACH_CSS = `
     gap: 4px;
   }
   .cch-section-head h2 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(22px, 3vw, 28px);
     line-height: 1;
     margin: 4px 0 0;
@@ -608,7 +608,7 @@ const COACH_CSS = `
     gap: 14px;
   }
   .cch-level-bar-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -633,7 +633,7 @@ const COACH_CSS = `
     background: var(--muted);
   }
   .cch-level-bar-count {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     text-align: right;
     color: var(--cream);
@@ -673,7 +673,7 @@ const COACH_CSS = `
     min-width: 0;
   }
   .cch-row-name {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     letter-spacing: 0.5px;
     color: var(--cream);
@@ -685,7 +685,7 @@ const COACH_CSS = `
   .cch-admin-badge {
     display: inline-block;
     margin-left: 8px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -714,14 +714,14 @@ const COACH_CSS = `
     gap: 2px;
   }
   .cch-stat-mini-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--muted);
   }
   .cch-stat-mini-value {
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 500;
     color: var(--cream);
@@ -732,7 +732,7 @@ const COACH_CSS = `
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 13px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -765,7 +765,7 @@ const COACH_CSS = `
     padding-top: 8px;
   }
   .cch-back {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -798,7 +798,7 @@ const COACH_CSS = `
   }
   .cch-code-field--grow { flex: 1; min-width: 180px; }
   .cch-code-field span {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -810,7 +810,7 @@ const COACH_CSS = `
     border-radius: 4px;
     color: var(--cream);
     padding: 10px 12px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
     font-size: 16px; /* ≥16px — verhindert iOS-Auto-Zoom (Mobile-Regel) */
   }
   .cch-code-field input:focus {
@@ -823,7 +823,7 @@ const COACH_CSS = `
     border: none;
     border-radius: 4px;
     padding: 12px 20px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -856,7 +856,7 @@ const COACH_CSS = `
     color: var(--muted2);
     padding: 8px 14px;
     border-radius: 4px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;

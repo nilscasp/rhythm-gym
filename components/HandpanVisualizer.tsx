@@ -266,7 +266,7 @@ export default function HandpanVisualizer({
               textAnchor="middle"
               fontSize={11}
               fill="rgba(122,112,96,0.7)"
-              fontFamily="'Barlow Condensed', sans-serif"
+              fontFamily="var(--font-ui)"
               fontWeight={600}
               letterSpacing="1px"
             >
@@ -290,7 +290,7 @@ export default function HandpanVisualizer({
           textAnchor="middle"
           fontSize={12}
           fill="rgba(232,183,110,0.6)"
-          fontFamily="'Barlow Condensed', sans-serif"
+          fontFamily="var(--font-ui)"
           fontWeight={700}
           letterSpacing="1.5px"
         >
@@ -315,7 +315,7 @@ export default function HandpanVisualizer({
               textAnchor="middle"
               fontSize={8}
               fill="rgba(245,166,35,0.55)"
-              fontFamily="'Barlow Condensed', sans-serif"
+              fontFamily="var(--font-ui)"
               fontWeight={600}
               letterSpacing="1px"
             >
@@ -342,7 +342,7 @@ export default function HandpanVisualizer({
               textAnchor="middle"
               fontSize={7}
               fill="rgba(213,204,184,0.5)"
-              fontFamily="'Barlow Condensed', sans-serif"
+              fontFamily="var(--font-ui)"
               fontWeight={600}
               letterSpacing="1px"
             >

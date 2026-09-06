@@ -141,7 +141,7 @@ const MEINE_CSS = `
     background: var(--black);
     color: var(--cream);
     padding: 56px 24px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
   .meine-wrap {
     max-width: 1100px;
@@ -152,7 +152,7 @@ const MEINE_CSS = `
   }
   .meine-head { margin-bottom: 32px; }
   .meine-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 4px;
     text-transform: uppercase;
@@ -160,7 +160,7 @@ const MEINE_CSS = `
     margin-bottom: 12px;
   }
   .meine-head h1 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(36px, 5vw, 56px);
     line-height: 1;
     color: var(--cream);
@@ -179,7 +179,7 @@ const MEINE_CSS = `
 
   .meine-section-head { margin-bottom: 20px; }
   .meine-section-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(24px, 3vw, 32px);
     line-height: 1;
     color: var(--cream);
@@ -221,7 +221,7 @@ const MEINE_CSS = `
     gap: 10px;
   }
   .meine-card-title {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 18px;
     color: var(--cream);
     margin: 0;
@@ -230,7 +230,7 @@ const MEINE_CSS = `
     line-height: 1.1;
   }
   .meine-card-meta {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -269,7 +269,7 @@ const MEINE_CSS = `
     gap: 4px;
   }
   .meine-tag {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -289,7 +289,7 @@ const MEINE_CSS = `
     flex-wrap: wrap;
   }
   .meine-card-open {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -308,7 +308,7 @@ const MEINE_CSS = `
     background: transparent;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -356,7 +356,7 @@ const MEINE_CSS = `
     line-height: 1.6;
   }
   .meine-future-tag {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;

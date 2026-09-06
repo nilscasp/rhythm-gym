@@ -402,14 +402,12 @@ export default async function SettingsPage({
 // Styles — prefixed `.set-` to avoid collisions
 // ──────────────────────────────────────────────────────────────────────
 const SETTINGS_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@300;400;600&family=Barlow+Condensed:wght@300;400;700&display=swap');
-
   .set-page {
     min-height: 100vh;
     background: var(--black);
     color: var(--cream);
     padding: 56px 24px 96px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
   }
   .set-wrap {
     max-width: 640px;
@@ -424,14 +422,14 @@ const SETTINGS_CSS = `
     gap: 8px;
   }
   .set-eyebrow {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 4px;
     text-transform: uppercase;
     color: var(--amber);
   }
   .set-head h1 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(32px, 5vw, 44px);
     letter-spacing: 1px;
     line-height: 1;
@@ -459,7 +457,7 @@ const SETTINGS_CSS = `
     gap: 8px;
   }
   .set-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -472,7 +470,7 @@ const SETTINGS_CSS = `
     border: 1px solid var(--border);
     color: var(--cream);
     font-size: 15px;
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
     padding: 12px 14px;
     border-radius: 3px;
     outline: none;
@@ -502,7 +500,7 @@ const SETTINGS_CSS = `
     gap: 2px;
   }
   .set-meta-label {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -524,7 +522,7 @@ const SETTINGS_CSS = `
     border: none;
     padding: 12px 22px;
     border-radius: 3px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 2px;
@@ -536,7 +534,7 @@ const SETTINGS_CSS = `
     background: var(--cream);
   }
   .set-cancel {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -553,7 +551,7 @@ const SETTINGS_CSS = `
   .set-section { margin-top: 16px; }
   .set-section-head { margin-bottom: 16px; }
   .set-section-head h2 {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: clamp(22px, 3vw, 28px);
     line-height: 1;
     color: var(--cream);
@@ -567,7 +565,7 @@ const SETTINGS_CSS = `
     color: var(--muted);
     padding: 12px 22px;
     border-radius: 3px;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 2px;
@@ -618,7 +616,7 @@ const SETTINGS_CSS = `
     line-height: 1.6;
   }
   .set-future-tag {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -672,7 +670,7 @@ const SETTINGS_CSS = `
     margin-bottom: 2px;
   }
   .set-level-num {
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     color: var(--muted);
@@ -681,7 +679,7 @@ const SETTINGS_CSS = `
     color: var(--amber);
   }
   .set-level-name {
-    font-family: 'Anton', sans-serif;
+    font-family: var(--font-display);
     font-size: 20px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -690,7 +688,7 @@ const SETTINGS_CSS = `
   }
   .set-level-anchor {
     display: block;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     letter-spacing: 2px;
     text-transform: uppercase;

@@ -1,6 +1,56 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { Waveform } from '../components/Waveform';
 import { createClient } from './lib/supabase/server';
+import { BRAND_HEADER, DEFAULT_BRAND, isBrand } from './lib/brand';
+
+/* Schul-Landing: eigener Hero + drei Karten. Die Klassen aus LANDING_CSS
+   werden wiederverwendet; nur die zwei Amber-Literale im Hero-Hintergrund
+   und die Versalien der Buttons werden für die Schule übersteuert. */
+const SCHULE_CSS = `
+[data-brand="schule"] .lp-hero::before {
+  background-image:
+    linear-gradient(var(--amber-glow) 1px, transparent 1px),
+    linear-gradient(90deg, var(--amber-glow) 1px, transparent 1px);
+}
+[data-brand="schule"] .lp-hero::after {
+  background: radial-gradient(circle, var(--amber-dim) 0%, transparent 70%);
+}
+[data-brand="schule"] .lp-hero h1 { text-transform: none; letter-spacing: -0.01em; }
+[data-brand="schule"] .lp-btn-primary,
+[data-brand="schule"] .lp-btn-secondary { text-transform: none; letter-spacing: 0.5px; font-size: 15px; }
+.schule-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+.schule-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+.schule-card h2 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+.schule-card p {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+`;
+
+const schuleCards = [
+  { title: 'Kurse', text: 'Rhythmus Fundament, Tag für Tag freigeschaltet.' },
+  { title: 'Werkzeug', text: 'Die Handpan-Maschine: Patterns hören, bauen, mitspielen.' },
+  { title: 'Termine', text: 'Live-Trainings und Fragerunden — bald hier im Kalender.' },
+];
 
 const tickerItems = [
   'Daily Practice',
@@ -49,6 +99,47 @@ export default async function LandingPage() {
   const ctaFreeLabel = isAuthenticated ? 'Zum Training' : 'Kostenlos starten';
   const ctaPremiumLabel = isAuthenticated ? 'Vollzugang öffnen' : 'Jetzt Mitglied werden';
   const ctaManifestoLabel = isAuthenticated ? 'Weiter zum Training' : 'Training beginnen';
+
+  const brandHeader = (await headers()).get(BRAND_HEADER);
+  const brand = isBrand(brandHeader) ? brandHeader : DEFAULT_BRAND;
+
+  if (brand === 'schule') {
+    return (
+      <>
+        <style>{LANDING_CSS}</style>
+        <style>{SCHULE_CSS}</style>
+        <main className="lp">
+          <section className="lp-hero">
+            <div className="lp-hero-eyebrow">Handpan Schule des Lebens</div>
+            <h1>Dein Ort zum Üben.</h1>
+            <p className="lp-hero-sub">
+              Kurse, Termine und Werkzeuge der Schule — an einem Ort. Du übst in deinem Tempo,
+              ich gehe den Weg mit dir.
+            </p>
+            <div className="lp-hero-actions">
+              <Link href={ctaHref} className="lp-btn-primary">
+                {isAuthenticated ? 'Zu deinen Kursen' : 'Konto erstellen'}
+              </Link>
+              {!isAuthenticated && (
+                <Link href="/auth/login" className="lp-btn-secondary">
+                  Einloggen
+                </Link>
+              )}
+            </div>
+          </section>
+
+          <section className="schule-cards">
+            {schuleCards.map((c) => (
+              <div key={c.title} className="schule-card">
+                <h2>{c.title}</h2>
+                <p>{c.text}</p>
+              </div>
+            ))}
+          </section>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
@@ -286,7 +377,7 @@ const LANDING_CSS = `
   pointer-events: none;
 }
 .lp-hero-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -300,7 +391,7 @@ const LANDING_CSS = `
   background: var(--amber);
 }
 .lp-hero h1 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(56px, 10vw, 140px);
   line-height: 0.92;
   letter-spacing: -1px;
@@ -330,7 +421,7 @@ const LANDING_CSS = `
   color: var(--black);
   padding: 16px 36px;
   border-radius: 2px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 15px; font-weight: 700;
   letter-spacing: 2px; text-transform: uppercase;
   text-decoration: none;
@@ -344,7 +435,7 @@ const LANDING_CSS = `
 }
 .lp-btn-secondary {
   color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px; letter-spacing: 2px;
   text-transform: uppercase;
   text-decoration: none;
@@ -357,7 +448,7 @@ const LANDING_CSS = `
 /* ─── WAVEFORM ─── */
 .lp-waveform-section { padding: 0 24px 80px; position: relative; z-index: 1; }
 .lp-waveform-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px; letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--muted);
@@ -367,7 +458,7 @@ const LANDING_CSS = `
 .lp-beat-labels { display: flex; gap: 6px; margin-top: 8px; }
 .lp-beat-labels span {
   flex: 1; text-align: center;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px; color: var(--border);
 }
 .lp-beat-labels span.show { color: var(--muted); }
@@ -386,7 +477,7 @@ const LANDING_CSS = `
   animation: ticker-scroll 30s linear infinite;
 }
 .lp-ticker-item {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px; letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--muted);
@@ -407,28 +498,28 @@ const LANDING_CSS = `
 .lp-stat:first-child { padding-left: 0; }
 .lp-stat:last-child { border-right: none; }
 .lp-stat-number {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 48px; line-height: 1;
   color: var(--cream);
 }
 .lp-stat-label {
   font-size: 12px; color: var(--muted);
   margin-top: 6px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   letter-spacing: 1px; text-transform: uppercase;
 }
 
 /* ─── SECTION (WHAT IS) ─── */
 .lp-section { padding: 100px 24px; }
 .lp-section-eyebrow {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px; letter-spacing: 4px;
   text-transform: uppercase; color: var(--amber);
   margin-bottom: 20px;
 }
 .lp-section h2,
 .lp-pricing h2 {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(36px, 5vw, 72px);
   line-height: 0.95; color: var(--cream);
   max-width: 700px;
@@ -452,14 +543,14 @@ const LANDING_CSS = `
 }
 .lp-pillar:hover { border-color: var(--amber); transform: translateX(4px); }
 .lp-pillar-num {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 32px; color: var(--border);
   line-height: 1; min-width: 40px;
   transition: color 0.2s;
 }
 .lp-pillar:hover .lp-pillar-num { color: var(--amber); }
 .lp-pillar-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 18px; font-weight: 700;
   letter-spacing: 1px; text-transform: uppercase;
   color: var(--cream); margin-bottom: 8px;
@@ -486,24 +577,24 @@ const LANDING_CSS = `
 .lp-price-badge {
   position: absolute; top: -1px; right: 28px;
   background: var(--amber); color: var(--black);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px; font-weight: 700;
   letter-spacing: 2px; text-transform: uppercase;
   padding: 5px 12px;
 }
 .lp-price-tier {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px; letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--muted); margin-bottom: 20px;
 }
 .lp-price-amount {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 56px; line-height: 1;
   color: var(--cream);
 }
 .lp-price-amount span {
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   font-size: 20px; font-weight: 300;
   color: var(--muted);
 }
@@ -526,7 +617,7 @@ const LANDING_CSS = `
   display: block; text-align: center;
   border: 1px solid var(--border); color: var(--muted);
   padding: 13px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px; letter-spacing: 2px;
   text-transform: uppercase; text-decoration: none;
   transition: all 0.2s; border-radius: 2px;
@@ -536,7 +627,7 @@ const LANDING_CSS = `
   display: block; text-align: center;
   background: var(--amber); color: var(--black);
   padding: 13px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px; font-weight: 700;
   letter-spacing: 2px; text-transform: uppercase;
   text-decoration: none;
@@ -554,7 +645,7 @@ const LANDING_CSS = `
 .lp-manifesto::before {
   content: 'RHYTHM';
   position: absolute;
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: 300px;
   color: rgba(245,166,35,0.03);
   top: 50%; left: 50%;
@@ -564,7 +655,7 @@ const LANDING_CSS = `
   letter-spacing: -10px;
 }
 .lp-manifesto-quote {
-  font-family: 'Anton', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(28px, 4vw, 54px);
   line-height: 1.1; color: var(--cream);
   max-width: 800px; margin: 0 auto;

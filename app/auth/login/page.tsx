@@ -110,14 +110,15 @@ function LoginPageInner() {
             <Link
               href="/"
               style={{
-                fontFamily: "'Anton', sans-serif",
+                fontFamily: "var(--font-display)",
                 fontSize: 28,
                 letterSpacing: 3,
-                color: '#F5EDD8',
+                color: 'var(--cream)',
                 textDecoration: 'none',
               }}
             >
-              RHYTHM<span style={{ color: '#F5A623' }}>GYM</span>
+              <span className="wm-gym">RHYTHM<span style={{ color: 'var(--amber)' }}>GYM</span></span>
+              <span className="wm-schule" style={{ letterSpacing: 1, fontSize: 22 }}>Handpan Schule des Lebens</span>
             </Link>
           </div>
 
@@ -132,8 +133,8 @@ function LoginPageInner() {
           {/* Card */}
           <div
             style={{
-              backgroundColor: '#1C1A14',
-              border: '1px solid #2E2A1E',
+              backgroundColor: 'var(--card)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               padding: 40,
             }}
@@ -143,7 +144,7 @@ function LoginPageInner() {
               style={{
                 display: 'flex',
                 marginBottom: 32,
-                borderBottom: '1px solid #2E2A1E',
+                borderBottom: '1px solid var(--border)',
               }}
             >
               {(['login', 'signup'] as const).map((m) => (
@@ -157,13 +158,13 @@ function LoginPageInner() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontSize: 13,
                     letterSpacing: 2,
                     textTransform: 'uppercase',
-                    color: mode === m ? '#F5A623' : '#7A7060',
+                    color: mode === m ? 'var(--amber)' : 'var(--muted)',
                     borderBottom:
-                      mode === m ? '2px solid #F5A623' : '2px solid transparent',
+                      mode === m ? '2px solid var(--amber)' : '2px solid transparent',
                     transition: 'all 0.2s',
                   }}
                 >
@@ -177,11 +178,11 @@ function LoginPageInner() {
               <div>
                 <label
                   style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontSize: 11,
                     letterSpacing: 2,
                     textTransform: 'uppercase',
-                    color: '#7A7060',
+                    color: 'var(--muted)',
                     display: 'block',
                     marginBottom: 8,
                   }}
@@ -197,14 +198,14 @@ function LoginPageInner() {
                   onFocus={handleInputFocus}
                   style={{
                     width: '100%',
-                    backgroundColor: '#0A0907',
-                    border: '1px solid #2E2A1E',
+                    backgroundColor: 'var(--black)',
+                    border: '1px solid var(--border)',
                     borderRadius: 2,
                     padding: '12px 16px',
-                    color: '#F5EDD8',
+                    color: 'var(--cream)',
                     // 16px verhindert iOS Auto-Zoom beim Fokus (alles <16px zoomt).
                     fontSize: 16,
-                    fontFamily: "'Barlow', sans-serif",
+                    fontFamily: "var(--font-body)",
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -213,11 +214,11 @@ function LoginPageInner() {
               <div>
                 <label
                   style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontFamily: "var(--font-ui)",
                     fontSize: 11,
                     letterSpacing: 2,
                     textTransform: 'uppercase',
-                    color: '#7A7060',
+                    color: 'var(--muted)',
                     display: 'block',
                     marginBottom: 8,
                   }}
@@ -235,14 +236,14 @@ function LoginPageInner() {
                   }}
                   style={{
                     width: '100%',
-                    backgroundColor: '#0A0907',
-                    border: '1px solid #2E2A1E',
+                    backgroundColor: 'var(--black)',
+                    border: '1px solid var(--border)',
                     borderRadius: 2,
                     padding: '12px 16px',
-                    color: '#F5EDD8',
+                    color: 'var(--cream)',
                     // 16px verhindert iOS Auto-Zoom beim Fokus (alles <16px zoomt).
                     fontSize: 16,
-                    fontFamily: "'Barlow', sans-serif",
+                    fontFamily: "var(--font-body)",
                     outline: 'none',
                     boxSizing: 'border-box',
                   }}
@@ -257,7 +258,7 @@ function LoginPageInner() {
                   marginTop: 16,
                   fontSize: 14,
                   color: message.startsWith('✅') ? '#4ade80' : '#f87171',
-                  fontFamily: "'Barlow', sans-serif",
+                  fontFamily: "var(--font-body)",
                 }}
               >
                 {message}
@@ -272,12 +273,12 @@ function LoginPageInner() {
               style={{
                 marginTop: 24,
                 width: '100%',
-                background: '#F5A623',
-                color: '#0A0907',
+                background: 'var(--amber)',
+                color: 'var(--black)',
                 border: 'none',
                 padding: '14px',
                 borderRadius: 2,
-                fontFamily: "'Barlow Condensed', sans-serif",
+                fontFamily: "var(--font-ui)",
                 fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: 2,
@@ -299,11 +300,11 @@ function LoginPageInner() {
               textAlign: 'center',
               marginTop: 24,
               fontSize: 13,
-              color: '#7A7060',
-              fontFamily: "'Barlow', sans-serif",
+              color: 'var(--muted)',
+              fontFamily: "var(--font-body)",
             }}
           >
-            <Link href="/" style={{ color: '#7A7060', textDecoration: 'none' }}>
+            <Link href="/" style={{ color: 'var(--muted)', textDecoration: 'none' }}>
               ← Zurück zur Startseite
             </Link>
           </p>
@@ -314,8 +315,6 @@ function LoginPageInner() {
 }
 
 const LOGIN_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@300;400;600&family=Barlow+Condensed:wght@300;400;700&display=swap');
-
   /* iPad-Fix für die Auth-Form:
      vorher 100vh + overflow:hidden + center → iOS-Tastatur überdeckte Inputs,
      weil 100vh nicht auf den geschrumpften Visual Viewport reagiert und
@@ -326,7 +325,7 @@ const LOGIN_CSS = `
   .login-page {
     min-height: 100vh;
     min-height: 100dvh;
-    background-color: #0A0907;
+    background-color: var(--black);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -357,21 +356,21 @@ const LOGIN_CSS = `
   }
   .login-beta-tag {
     flex-shrink: 0;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: var(--font-ui);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: #0A0907;
-    background: #F5A623;
+    color: var(--black);
+    background: var(--amber);
     padding: 3px 8px;
     border-radius: 2px;
     line-height: 1.4;
   }
   .login-beta-text {
-    font-family: 'Barlow', sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
-    color: #F5EDD8;
+    color: var(--cream);
     line-height: 1.4;
   }
 `

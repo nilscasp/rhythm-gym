@@ -46,7 +46,7 @@ export function BunnyVideoEmbed({
               padding: 14px 16px;
               color: #ff8b8b;
               font-size: 13px;
-              font-family: 'Barlow', sans-serif;
+              font-family: var(--font-body);
             }
           `}</style>
         </div>

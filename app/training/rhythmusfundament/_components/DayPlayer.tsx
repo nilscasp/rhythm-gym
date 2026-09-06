@@ -614,7 +614,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           display: flex;
           flex-direction: column;
           gap: 18px;
-          font-family: 'Barlow', sans-serif;
+          font-family: var(--font-body);
         }
 
         .dp-presets {
@@ -644,7 +644,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           background: var(--amber-dim, rgba(245, 166, 35, 0.12));
         }
         .dp-preset-label {
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 14px;
           font-weight: 700;
           letter-spacing: 1px;
@@ -677,7 +677,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           display: flex;
           flex-wrap: wrap;
           gap: 12px;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 12px;
           letter-spacing: 1.5px;
           text-transform: uppercase;
@@ -699,7 +699,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 13px;
           font-weight: 700;
           transition: outline 0.05s;
@@ -719,7 +719,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
         .dp-counting {
           display: grid;
           gap: 3px;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 10px;
           letter-spacing: 0.5px;
           color: var(--muted);
@@ -755,7 +755,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           padding: 12px 22px;
           border-radius: 6px;
           border: none;
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 14px;
           font-weight: 700;
           letter-spacing: 2px;
@@ -788,14 +788,14 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           min-width: 160px;
         }
         .dp-bpm-label {
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 11px;
           letter-spacing: 2px;
           text-transform: uppercase;
           color: var(--muted);
         }
         .dp-bpm-value {
-          font-family: 'Anton', sans-serif;
+          font-family: var(--font-display);
           font-size: 18px;
           color: var(--cream);
           min-width: 80px;
@@ -814,7 +814,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           border: 1px solid var(--border);
           background: transparent;
           color: var(--muted);
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           font-size: 12px;
           letter-spacing: 1.5px;
           text-transform: uppercase;
@@ -841,7 +841,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
         .dp-hint {
           font-size: 11px;
           color: var(--muted);
-          font-family: 'Barlow Condensed', sans-serif;
+          font-family: var(--font-ui);
           letter-spacing: 1px;
           text-transform: uppercase;
         }
