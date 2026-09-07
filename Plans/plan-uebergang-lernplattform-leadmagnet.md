@@ -138,6 +138,12 @@ Regel aus `rhythm-gym/CLAUDE.md`: Fable Konzept/Copy-Review und Consent-Design, 
 
 ---
 
+## Stand 2026-09-07 (Bau-Session nach Freigabe „bau es zuende")
+
+Umgesetzt und lokal committed, **nicht gepusht**: Pakete 0, 1, 2, 3, 4 (Website-Teil), 5, 6, 12 sowie die Texte für 7 (M1–M3) und 13 (Skool-Posts). Migration 0005 ist in der Live-Datenbank angewandt (additiv). Alle elf Entscheidungen laufen mit der Empfehlung als Default.
+
+Offen und warum: **7** Brevo-Einrichtung (Listen, DOI-Vorlage, Automation, API-Schlüssel in Vercel) braucht Nils' Brevo-Konto, Anleitung in `docs/handpan-schule/brevo-setup.md`; Wartelisten-Formular „Eröffnung" (`WAITLIST_FORM_URL` in `community/index.html`) zeigt bis dahin auf das Footer-Formular. **8** Startseiten-Hero bleibt bis Checkpoint 1 (KW41). **9, 10, 11** warten auf Kalender, M1–M3-Freigabe und Kaufweg. **13** Nav/Footer/Weiterleitung erst KW51. Interceptor-Probe: Chrome erlaubt kein Fenster unter 500 px, die 390er-Messungen stammen aus dem In-App-Browser; Interceptor-Verbindung brach im Lauf ab (Follow-up).
+
 ## 5 · Deine Entscheidungen (mit Empfehlung)
 
 1. **`/community/` als Brücke statt Weiterleitung, Weiterleitung erst KW51?** – *Empfehlung: ja.*
