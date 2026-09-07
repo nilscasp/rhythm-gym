@@ -1,8 +1,13 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-/** Seiten, die ohne Login erreichbar sein müssen (Pflichtangaben, später Lead-Magnet). */
-const PUBLIC_PATHS = new Set(['/impressum', '/datenschutz'])
+/**
+ * Seiten und Endpunkte, die ohne Login erreichbar sein müssen: Pflichtangaben,
+ * der Lead-Magnet `/tag-1` (Tag 1 geschenkt, `noindex`) und sein Formular-
+ * Endpunkt `/api/briefe` — der muss auch ohne Cookie durchkommen, sonst
+ * schluckt die Auth-Schleuse den POST und antwortet mit einem Redirect auf `/`.
+ */
+const PUBLIC_PATHS = new Set(['/impressum', '/datenschutz', '/tag-1', '/api/briefe'])
 
 export async function updateSession(
   request: NextRequest,
@@ -59,10 +64,11 @@ export async function updateSession(
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Auth gate: everything except the landing, the /auth/* surface and the
-  // legal pages is members-only. Unauthenticated requests get bounced back to
-  // the landing, which carries the Login/Signup CTAs. Static assets and _next/*
-  // are already excluded by the proxy matcher in `proxy.ts`.
+  // Auth gate: everything except the landing, the /auth/* surface and the paths
+  // in PUBLIC_PATHS (Pflichtangaben, Lead-Magnet, Brief-Endpunkt) is
+  // members-only. Unauthenticated requests get bounced back to the landing,
+  // which carries the Login/Signup CTAs. Static assets and _next/* are already
+  // excluded by the proxy matcher in `proxy.ts`.
   const pathname = request.nextUrl.pathname
   const isPublic =
     pathname === '/' || pathname.startsWith('/auth/') || PUBLIC_PATHS.has(pathname)

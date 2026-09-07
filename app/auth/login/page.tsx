@@ -4,8 +4,39 @@ import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '../../lib/supabase/client'
+import { CONSENT_TEXT, CONSENT_TEXT_VERSION } from '../../lib/consent'
 
 type Mode = 'login' | 'signup'
+
+/**
+ * Das Wort, das im Einwilligungstext zur Datenschutzerklärung verlinkt wird.
+ * Der Text selbst bleibt eine Quelle (app/lib/consent.ts) — hier wird er nur
+ * an dieser Stelle aufgetrennt, damit die Version im Protokoll und der
+ * gelesene Wortlaut garantiert derselbe sind.
+ */
+const CONSENT_LINK_WORD = 'Datenschutzerklärung'
+
+function ConsentLabelText() {
+  const at = CONSENT_TEXT.indexOf(CONSENT_LINK_WORD)
+  if (at === -1) return <>{CONSENT_TEXT}</>
+  return (
+    <>
+      {CONSENT_TEXT.slice(0, at)}
+      <Link
+        href="/datenschutz"
+        target="_blank"
+        rel="noopener noreferrer"
+        // Ohne stopPropagation würde der Klick auf den Link zusätzlich das
+        // Label auslösen und damit die Checkbox umschalten.
+        onClick={(e) => e.stopPropagation()}
+        style={{ color: 'var(--amber)', textDecoration: 'underline' }}
+      >
+        {CONSENT_LINK_WORD}
+      </Link>
+      {CONSENT_TEXT.slice(at + CONSENT_LINK_WORD.length)}
+    </>
+  )
+}
 
 export default function LoginPage() {
   return (
@@ -21,6 +52,8 @@ function LoginPageInner() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState<Mode>(initialMode)
+  // Nicht vorangekreuzt und freiwillig: ohne Haken gibt es nur Konto-Mails.
+  const [consent, setConsent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const supabase = createClient()
@@ -49,6 +82,14 @@ function LoginPageInner() {
           // versehentlich kaputter Wert kann Auth so nicht mehr lahmlegen.
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
+            // Wandert als raw_user_meta_data in auth.users und wird von
+            // handle_new_user() ins Profil kopiert (Migration 0005). Damit ist
+            // protokolliert, WANN und ZU WELCHEM TEXT jemand Ja gesagt hat.
+            data: {
+              marketing_consent: consent,
+              marketing_consent_text_version: CONSENT_TEXT_VERSION,
+              marketing_consent_at: consent ? new Date().toISOString() : null,
+            },
           },
         })
         if (error) {
@@ -251,6 +292,39 @@ function LoginPageInner() {
               </div>
             </div>
 
+            {/* Einwilligung Briefe — nur beim Konto anlegen, nie vorangekreuzt, freiwillig */}
+            {mode === 'signup' && (
+              <label
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  alignItems: 'flex-start',
+                  marginTop: 20,
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 14,
+                  lineHeight: 1.5,
+                  color: 'var(--muted2)',
+                  cursor: 'pointer',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    marginTop: 2,
+                    flexShrink: 0,
+                    accentColor: 'var(--amber)',
+                  }}
+                />
+                <span>
+                  <ConsentLabelText />
+                </span>
+              </label>
+            )}
+
             {/* Message */}
             {message && (
               <p
@@ -293,6 +367,23 @@ function LoginPageInner() {
                   ? 'Einloggen →'
                   : 'Account erstellen →'}
             </button>
+
+            <p
+              style={{
+                marginTop: 14,
+                fontSize: 12,
+                lineHeight: 1.5,
+                textAlign: 'center',
+                color: 'var(--muted)',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              Mit dem Konto akzeptierst du die{' '}
+              <Link href="/datenschutz" style={{ color: 'var(--muted)', textDecoration: 'underline' }}>
+                Datenschutzerklärung
+              </Link>
+              .
+            </p>
           </div>
 
           <p

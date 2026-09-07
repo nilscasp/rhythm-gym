@@ -329,6 +329,7 @@ export type Database = {
       profiles: {
         Row: {
           active_handpan_id: string | null
+          brevo_synced_at: string | null
           created_at: string | null
           current_level: number | null
           current_streak: number | null
@@ -338,11 +339,14 @@ export type Database = {
           is_admin: boolean
           last_practice_date: string | null
           longest_streak: number | null
+          marketing_consent_at: string | null
+          marketing_consent_text_version: string | null
           plan: string | null
           stripe_customer_id: string | null
         }
         Insert: {
           active_handpan_id?: string | null
+          brevo_synced_at?: string | null
           created_at?: string | null
           current_level?: number | null
           current_streak?: number | null
@@ -352,11 +356,14 @@ export type Database = {
           is_admin?: boolean
           last_practice_date?: string | null
           longest_streak?: number | null
+          marketing_consent_at?: string | null
+          marketing_consent_text_version?: string | null
           plan?: string | null
           stripe_customer_id?: string | null
         }
         Update: {
           active_handpan_id?: string | null
+          brevo_synced_at?: string | null
           created_at?: string | null
           current_level?: number | null
           current_streak?: number | null
@@ -366,6 +373,8 @@ export type Database = {
           is_admin?: boolean
           last_practice_date?: string | null
           longest_streak?: number | null
+          marketing_consent_at?: string | null
+          marketing_consent_text_version?: string | null
           plan?: string | null
           stripe_customer_id?: string | null
         }
