@@ -365,7 +365,7 @@ function LoginPageInner() {
                 ? 'Laden...'
                 : mode === 'login'
                   ? 'Einloggen →'
-                  : 'Account erstellen →'}
+                  : 'Konto erstellen →'}
             </button>
 
             <p

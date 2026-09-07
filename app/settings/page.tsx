@@ -1,12 +1,54 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { createClient } from '../lib/supabase/server'
+import { BRAND_HEADER, DEFAULT_BRAND, isBrand, type Brand } from '../lib/brand'
 import { OnboardingInstrumentStep } from './_components/OnboardingInstrumentStep'
+import { InstrumentSection } from './_components/InstrumentSection'
+import { BriefeSection } from './_components/BriefeSection'
 
-export const metadata = {
-  title: 'Einstellungen — Rhythm Gym',
-  description: 'Dein Profil und deine Einstellungen.',
+async function currentBrand(): Promise<Brand> {
+  const value = (await headers()).get(BRAND_HEADER)
+  return isBrand(value) ? value : DEFAULT_BRAND
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await currentBrand()
+  return {
+    title: brand === 'schule' ? 'Dein Profil — Handpan Schule des Lebens' : 'Einstellungen — Rhythm Gym',
+    description: 'Dein Profil und deine Einstellungen.',
+  }
+}
+
+// Was der jeweilige Ort seinen Leuten sagt. Die Schule spricht von „Profil"
+// und vermeidet die Marketing-Wörter des Gyms.
+const COPY: Record<Brand, {
+  eyebrow: string
+  title: string
+  sub: string
+  welcomeEyebrow: string
+  accessLabel: string
+  accessValue: (plan: string) => string
+}> = {
+  gym: {
+    eyebrow: 'Dein Profil',
+    title: 'Einstellungen',
+    sub: 'Wie sollen wir dich ansprechen und wo stehst du gerade?',
+    welcomeEyebrow: 'Willkommen im Rhythm Gym',
+    accessLabel: 'Plan',
+    accessValue: (plan) => plan,
+  },
+  schule: {
+    eyebrow: 'Dein Profil',
+    title: 'Dein Profil',
+    sub: 'Wie ich dich ansprechen darf, wo du gerade stehst und womit du spielst.',
+    welcomeEyebrow: 'Willkommen in der Schule',
+    accessLabel: 'Dein Zugang',
+    accessValue: (plan) =>
+      plan === 'premium' ? 'Innerer Kreis' : 'Offener Raum',
+  },
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -148,6 +190,7 @@ type FlashKey =
   | 'email-unchanged'
   | 'email-confirm-sent'
   | 'email-error'
+  | 'instrument'
   | null
 
 function readFlash(msg: string | undefined, detail: string | undefined): {
@@ -163,6 +206,8 @@ function readFlash(msg: string | undefined, detail: string | undefined): {
       }
     case 'email-unchanged':
       return { kind: 'warn', text: 'Email blieb unverändert.' }
+    case 'instrument':
+      return { kind: 'ok', text: 'Dein Instrument ist gespeichert. Deine Übungen klingen ab jetzt in diesen Tönen.' }
     case 'email-error':
       return {
         kind: 'err',
@@ -188,15 +233,47 @@ export default async function SettingsPage({
   const flash = readFlash(sp?.msg, sp?.detail)
   const isOnboarding = sp?.onboarding === 'true'
   const isInstrumentStep = isOnboarding && sp?.step === 'instrument'
+  const brand = await currentBrand()
+  const copy = COPY[brand]
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, current_level, plan')
+    .select(
+      'full_name, current_level, plan, active_handpan_id, current_streak, longest_streak, last_practice_date, marketing_consent_at, brevo_synced_at',
+    )
     .eq('id', user.id)
     .maybeSingle()
 
   const currentName = profile?.full_name ?? ''
   const currentLevel = profile?.current_level ?? 0
+
+  // Instrument und Übungstage nur außerhalb des Onboardings — dort führt der
+  // Schritt-2-Bildschirm ohnehin durch die Instrumentenwahl.
+  let activeHandpan: { id: string; name: string; scaleName: string | null } | null = null
+  let practiceDays = 0
+  if (!isOnboarding) {
+    if (profile?.active_handpan_id) {
+      const { data: pan } = await supabase
+        .from('handpans')
+        .select('id, name, scale_name')
+        .eq('id', profile.active_handpan_id)
+        .maybeSingle()
+      if (pan) activeHandpan = { id: pan.id, name: pan.name, scaleName: pan.scale_name }
+    }
+    const { count } = await supabase
+      .from('daily_activity')
+      .select('day', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+    practiceDays = count ?? 0
+  }
+
+  const lastPractice = profile?.last_practice_date
+    ? new Date(profile.last_practice_date).toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+    : null
 
   return (
     <>
@@ -208,7 +285,7 @@ export default async function SettingsPage({
             {isInstrumentStep ? (
               <>
                 <div className="set-eyebrow">Schritt 2 von 2 · Dein Instrument</div>
-                <h1>WELCHE HANDPAN SPIELST DU?</h1>
+                <h1>Welche Handpan spielst du?</h1>
                 <p className="set-sub">
                   Wähl deine Skala — oder bau dein Instrument frei. Damit klingen
                   deine Übungen später in genau deinen Tönen.
@@ -216,20 +293,18 @@ export default async function SettingsPage({
               </>
             ) : isOnboarding ? (
               <>
-                <div className="set-eyebrow">Willkommen im Rhythm Gym</div>
-                <h1>SCHÖN, DASS DU DA BIST</h1>
+                <div className="set-eyebrow">{copy.welcomeEyebrow}</div>
+                <h1>Schön, dass du da bist</h1>
                 <p className="set-sub">
                   Bevor es losgeht — wie sollen wir dich ansprechen? Wir brauchen nur
-                  deinen Vornamen, das Spiel-Level kannst du wählen wenn du magst.
+                  deinen Vornamen, deine Stufe kannst du wählen wenn du magst.
                 </p>
               </>
             ) : (
               <>
-                <div className="set-eyebrow">Dein Profil</div>
-                <h1>EINSTELLUNGEN</h1>
-                <p className="set-sub">
-                  Wie sollen wir dich ansprechen und wo stehst du gerade?
-                </p>
+                <div className="set-eyebrow">{copy.eyebrow}</div>
+                <h1>{copy.title}</h1>
+                <p className="set-sub">{copy.sub}</p>
               </>
             )}
           </header>
@@ -309,8 +384,8 @@ export default async function SettingsPage({
               </div>
               {profile?.plan && (
                 <div className="set-meta-item">
-                  <span className="set-meta-label">Plan</span>
-                  <span className="set-meta-value">{profile.plan}</span>
+                  <span className="set-meta-label">{copy.accessLabel}</span>
+                  <span className="set-meta-value">{copy.accessValue(profile.plan)}</span>
                 </div>
               )}
             </div>
@@ -329,11 +404,85 @@ export default async function SettingsPage({
 
           {!isOnboarding && (
             <>
+              {/* ── DEIN INSTRUMENT ── */}
+              <section className="set-section">
+                <header className="set-section-head">
+                  <div className="set-eyebrow">Klang</div>
+                  <h2>Dein Instrument</h2>
+                </header>
+                <div className="set-form">
+                  <p className="set-hint">
+                    Deine Übungen klingen in den Tönen deiner eigenen Handpan. Wenn du
+                    eine andere spielst, wähl sie hier — du kannst sie auch frei bauen.
+                  </p>
+                  <InstrumentSection current={activeHandpan} />
+                </div>
+              </section>
+
+              {/* ── DEINE PRAXIS ── */}
+              <section className="set-section">
+                <header className="set-section-head">
+                  <div className="set-eyebrow">Praxis</div>
+                  <h2>Deine Übungstage</h2>
+                </header>
+                <div className="set-form">
+                  {practiceDays === 0 ? (
+                    <p className="set-hint">
+                      Hier zählt sich, was du tust. Sobald du deine erste Übung
+                      abschließt, beginnt die Zählung.
+                    </p>
+                  ) : (
+                    <>
+                      <dl className="set-stats">
+                        <div className="set-stat">
+                          <dt>Serie</dt>
+                          <dd>{profile?.current_streak ?? 0}</dd>
+                          <span className="set-stat-unit">
+                            {(profile?.current_streak ?? 0) === 1 ? 'Tag am Stück' : 'Tage am Stück'}
+                          </span>
+                        </div>
+                        <div className="set-stat">
+                          <dt>Längste Serie</dt>
+                          <dd>{profile?.longest_streak ?? 0}</dd>
+                          <span className="set-stat-unit">
+                            {(profile?.longest_streak ?? 0) === 1 ? 'Tag' : 'Tage'}
+                          </span>
+                        </div>
+                        <div className="set-stat">
+                          <dt>Tage geübt</dt>
+                          <dd>{practiceDays}</dd>
+                          <span className="set-stat-unit">insgesamt</span>
+                        </div>
+                      </dl>
+                      <p className="set-hint">
+                        {lastPractice
+                          ? `Zuletzt geübt am ${lastPractice}. Nur du siehst diese Zahlen.`
+                          : 'Nur du siehst diese Zahlen.'}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </section>
+
+              {/* ── BRIEFE AUS DER SCHULE ── */}
+              <section className="set-section">
+                <header className="set-section-head">
+                  <div className="set-eyebrow">Post</div>
+                  <h2>Briefe aus der Schule</h2>
+                </header>
+                <div className="set-form">
+                  <BriefeSection
+                    consentAt={profile?.marketing_consent_at ?? null}
+                    brevoSynced={!!profile?.brevo_synced_at}
+                  />
+                </div>
+              </section>
+
               {/* ── EMAIL ÄNDERN ── */}
               <section className="set-section">
                 <header className="set-section-head">
                   <div className="set-eyebrow">Login</div>
-                  <h2>EMAIL-ADRESSE</h2>
+                  <h2>E-Mail-Adresse</h2>
                 </header>
                 <form action={updateEmail} className="set-form">
                   <div className="set-field">
@@ -363,7 +512,7 @@ export default async function SettingsPage({
               <section className="set-section">
                 <header className="set-section-head">
                   <div className="set-eyebrow">Sitzung</div>
-                  <h2>ABMELDEN</h2>
+                  <h2>Abmelden</h2>
                 </header>
                 <div className="set-form">
                   <p className="set-hint">
@@ -381,11 +530,15 @@ export default async function SettingsPage({
                 <div className="set-future-tag">Bald</div>
                 <p>
                   Weitere Profil-Felder folgen — unter anderem dein
-                  {' '}<strong>Handpan-Rad</strong> (Skill-Karte für deine technischen Fähigkeiten),
-                  Skala deiner Handpan, und Lern-Ziele. Account-Löschung auf Anfrage an {' '}
-                  <a href="mailto:kontakt@nilscaspar.de" className="set-inline-link">
-                    kontakt@nilscaspar.de
-                  </a>.
+                  {' '}<strong>Handpan-Rad</strong> (eine Karte deiner technischen Fähigkeiten)
+                  und deine Lern-Ziele. Dein Konto löschen kannst du jederzeit: eine
+                  kurze Nachricht an {' '}
+                  <a
+                    href={brand === 'schule' ? 'mailto:kontakt@handpan.schule' : 'mailto:kontakt@nilscaspar.de'}
+                    className="set-inline-link"
+                  >
+                    {brand === 'schule' ? 'kontakt@handpan.schule' : 'kontakt@nilscaspar.de'}
+                  </a>{' '}genügt.
                 </p>
               </aside>
             </>
@@ -748,5 +901,58 @@ const SETTINGS_CSS = `
     .set-level-name {
       font-size: 18px;
     }
+    .set-stats {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  }
+
+  /* ── Übungstage — drei ruhige Zahlen, nur für dich sichtbar ────────── */
+  .set-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 0 0 18px;
+  }
+  .set-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--card);
+  }
+  .set-stat dt {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .set-stat dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--amber);
+  }
+  .set-stat-unit {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── Schule: Serifen tragen keine Versalien ───────────────────────────
+     Das Gym bleibt in Anton-Großbuchstaben; unter der Schul-Marke steht
+     Fraunces, und die liest sich in normaler Schreibweise deutlich ruhiger. */
+  [data-brand="schule"] .set-head h1,
+  [data-brand="schule"] .set-section-head h2,
+  [data-brand="schule"] .set-future-tag {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  [data-brand="schule"] .set-stat dd {
+    font-size: 32px;
   }
 `

@@ -19,10 +19,14 @@ const ITEMS: Record<Brand, NavItem[]> = {
     { href: '/tool', label: 'Tool', cta: true },
   ],
   // Die Schule zeigt weniger: was ein Schüler braucht, in seiner Sprache.
+  // „Profil" steht bewusst in der Navigation — im Gym führt nur der Trainings-Hub
+  // dorthin, und wer seine Handpan-Stufe oder sein Instrument ändern will, soll
+  // dafür nicht erst einen Umweg suchen müssen.
   schule: [
     { href: '/training', label: 'Kurse' },
     { href: '/patterns', label: 'Patterns' },
     { href: '/glossar', label: 'Glossar' },
+    { href: '/settings', label: 'Profil' },
     { href: '/coach', label: 'Coach', adminOnly: true },
     { href: '/tool', label: 'Werkzeug', cta: true },
   ],

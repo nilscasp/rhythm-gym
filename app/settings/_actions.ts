@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '../lib/supabase/server'
 import type { Json } from '../lib/supabase/database.types'
+import { CONSENT_TEXT_VERSION } from '../lib/consent'
+import { isBrevoConfigured, upsertConfirmedContact } from '../lib/brevo'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // saveHandpanAction
@@ -90,5 +92,117 @@ export async function saveHandpanAction(
 
   revalidatePath('/training')
   revalidatePath('/settings')
+  // Wer aus den Einstellungen kommt, bleibt in den Einstellungen — sonst wirft
+  // ein Instrumentwechsel die Person unvermittelt ins Training. Ohne das Feld
+  // bleibt der Onboarding-Weg unverändert.
+  if (String(formData.get('return_to')) === '/settings') {
+    redirect('/settings?msg=instrument')
+  }
   redirect('/training')
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// updateBriefeConsentAction
+// Einwilligung für die „Briefe aus der Schule" in den Einstellungen umschalten.
+//
+// Die Einwilligung selbst liegt in `profiles` (Zeitpunkt + Textversion) — das
+// ist das Protokoll. Brevo ist der Versandweg; die Übertragung dorthin darf
+// niemals das Speichern kippen, sonst hängt die Einwilligung an der Laune eines
+// fremden Dienstes. Scheitert sie, bleibt `brevo_synced_at` null und der
+// nächste Sync-Lauf holt es nach.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type ConsentState = { status: 'idle' | 'ok' | 'error'; message?: string }
+
+const CONSENT_SAVE_FAILED =
+  'Speichern fehlgeschlagen — versuch es gleich noch einmal.'
+
+export async function updateBriefeConsentAction(
+  _prev: ConsentState,
+  formData: FormData,
+): Promise<ConsentState> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/login')
+
+  const raw = formData.get('consent')
+  const optIn = raw === 'on' || raw === 'true'
+
+  if (!optIn) {
+    // Bewusst KEIN Brevo-Aufruf beim Abmelden: den Kontakt entfernt Nils dort
+    // von Hand, oder die Person nutzt den Abmelde-Link in jeder Mail. Ein
+    // automatischer Löschruf würde bei einem Fehler unbemerkt scheitern und
+    // beide Seiten auseinanderlaufen lassen — hier zählt, dass von uns nichts
+    // Neues mehr rausgeht.
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        marketing_consent_at: null,
+        marketing_consent_text_version: null,
+        brevo_synced_at: null,
+      })
+      .eq('id', user.id)
+    if (error) {
+      console.error('[briefe-einwilligung] Abmeldung konnte nicht gespeichert werden')
+      return { status: 'error', message: CONSENT_SAVE_FAILED }
+    }
+
+    revalidatePath('/settings')
+    return {
+      status: 'ok',
+      message:
+        'Gespeichert. Du bekommst keine neuen Briefe mehr. Aus einer Mail, die schon unterwegs ist, kommst du jederzeit über den Abmelde-Link am Ende raus.',
+    }
+  }
+
+  const consentAt = new Date().toISOString()
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      marketing_consent_at: consentAt,
+      marketing_consent_text_version: CONSENT_TEXT_VERSION,
+      // Zurück auf null, damit der Sync die Adresse erneut überträgt.
+      brevo_synced_at: null,
+    })
+    .eq('id', user.id)
+  if (error) {
+    console.error('[briefe-einwilligung] Einwilligung konnte nicht gespeichert werden')
+    return { status: 'error', message: CONSENT_SAVE_FAILED }
+  }
+
+  // Nur bestätigte Adressen gehen raus — eine unbestätigte wäre ein offenes
+  // Tor, jemand anderes auf die Liste zu setzen.
+  if (isBrevoConfigured() && user.email && user.email_confirmed_at) {
+    const result = await upsertConfirmedContact({
+      email: user.email,
+      consentAt,
+      source: 'profil',
+    })
+
+    if (!result.ok) {
+      // Nie die Adresse ins Log — Status und adressfreie Meldung genügen.
+      console.error(
+        `[briefe-einwilligung] Übertragung an den Versand fehlgeschlagen (Status ${result.status}): ${result.message}`,
+      )
+      revalidatePath('/settings')
+      return {
+        status: 'ok',
+        message:
+          'Gespeichert. Die Übertragung an den Versand hakt gerade — ich schaue nach.',
+      }
+    }
+
+    const { error: syncErr } = await supabase
+      .from('profiles')
+      .update({ brevo_synced_at: new Date().toISOString() })
+      .eq('id', user.id)
+    if (syncErr) {
+      console.error('[briefe-einwilligung] Sync-Zeitpunkt konnte nicht gespeichert werden')
+    }
+  }
+
+  revalidatePath('/settings')
+  return { status: 'ok', message: 'Gespeichert. Du bekommst die Briefe aus der Schule.' }
 }

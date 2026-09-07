@@ -1,13 +1,24 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
+import { BRAND_HEADER, DEFAULT_BRAND, isBrand, type Brand } from '../lib/brand'
 import { RedeemCodeCard } from './_components/RedeemCodeCard'
 
-export const metadata = {
-  title: 'Training — Rhythm Gym',
-  description:
-    'Dein persönlicher Trainings-Hub. Aktive Programme, Praxis-Spiegel und Patterns an einem Ort.',
+async function currentBrand(): Promise<Brand> {
+  const value = (await headers()).get(BRAND_HEADER)
+  return isBrand(value) ? value : DEFAULT_BRAND
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await currentBrand()
+  return {
+    title: brand === 'schule' ? 'Deine Kurse — Handpan Schule des Lebens' : 'Training — Rhythm Gym',
+    description:
+      'Dein persönlicher Trainings-Hub. Aktive Programme, Praxis-Spiegel und Patterns an einem Ort.',
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -118,6 +129,7 @@ function streakLevel(streak: number): { name: string; level: number } {
 // ──────────────────────────────────────────────────────────────────────
 
 export default async function TrainingHubPage() {
+  const brand = await currentBrand()
   const supabase = await createClient()
 
   // A. Auth gate
@@ -237,7 +249,9 @@ export default async function TrainingHubPage() {
         <div className="hub-wrap">
           {/* ── HERO ── */}
           <section className="hub-hero">
-            <div className="hub-hero-kicker">Rhythm Gym · Personal</div>
+            <div className="hub-hero-kicker">
+              {brand === 'schule' ? 'Handpan Schule des Lebens · Dein Raum' : 'Rhythm Gym · Personal'}
+            </div>
             <h1>
               {userFirstName ? (
                 <>
