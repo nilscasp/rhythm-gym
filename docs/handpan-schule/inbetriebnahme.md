@@ -62,10 +62,17 @@ Für jeden Payment-Link, der einen Kurs verkauft: Stripe → Payment Links → L
 
 | Schlüssel | Wert | Pflicht |
 |---|---|---|
-| `program_slug` | `rhythmusfundament` | **ja** |
+| `program_slug` | `rhythmusfundament` **oder** `von-anfang-an-spielen` | **ja** |
 | `drip_start` | `2026-09-12` (Format `JJJJ-MM-TT`) | nein |
 
-**Zu `program_slug`:** Der Wert muss exakt dem `slug` in der Tabelle `programs` entsprechen. Heute gibt es dort genau einen: `rhythmusfundament`. Für „Von Anfang an spielen" existiert noch **kein** Programm in der Datenbank — solange das so ist, kann dieser Kurs nicht automatisch freigeschaltet werden, dort bleibt der Zugangscode der Weg.
+**Zu `program_slug`:** Der Wert muss exakt dem `slug` in der Tabelle `programs` entsprechen. Es gibt zwei:
+
+| Kurs | `program_slug` | Kursraum in der App |
+|---|---|---|
+| Rhythmus Fundament | `rhythmusfundament` | 44 Tage, täglich freigeschaltet |
+| Von Anfang an spielen | `von-anfang-an-spielen` | Terminliste mit Zoom-Tür (Live-Kurs, kein Tagesmaterial) |
+
+Ein Tippfehler hier ist die häufigste Ursache für „bezahlt, aber nichts passiert". Kopier den Wert, tipp ihn nicht ab.
 
 **Zu `drip_start`:** Leer lassen heißt „alles sofort offen". Ein Datum heißt: Tag 1 an diesem Datum, danach täglich einer. Bei einem Verkauf mit fester Kohorte trägst du hier den Kohortenstart ein, bei einem Verkauf, der jederzeit läuft, lässt du es leer.
 
@@ -167,4 +174,4 @@ Nicht Teil der Inbetriebnahme, aber auf der Liste:
 - **AGB und Widerrufsbelehrung** fehlen. Für den Verkauf digitaler Leistungen an Verbraucher sind sie Pflicht, und sie sind keine Entwicklerarbeit.
 - **Umsatzsteuer:** Du führst das Kleinunternehmer-Verfahren. Beim Verkauf ins EU-Ausland gelten eigene Regeln; das gehört vor den ersten Auslandsverkauf geklärt.
 - **Kein englischer Kursinhalt.** Der Laden unter `/en/kurse` sammelt deshalb Adressen, statt zu verkaufen. Ein Kurs wird erst käuflich, wenn er in der Sprache wirklich lieferbar ist und im Katalog eine echte `checkoutUrl` steht.
-- **Programm „Von Anfang an spielen"** existiert nicht in der Datenbank. Solange das so ist, geht dieser Kurs nur über Zugangscodes.
+- **Live-Termine für „Von Anfang an spielen" fehlen.** Der Kurs startet am 26.9. und läuft zehn Wochen. Im Kalender steht bisher nur der Kursstart, ohne Zoom-Adresse. Sobald du die Termine und den Link hast, können sie als Serie eingetragen werden — dann sehen die Teilnehmer sie in ihrem Kursraum mit der Tür zum Raum.
