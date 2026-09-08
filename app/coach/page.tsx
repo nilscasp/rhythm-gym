@@ -3,8 +3,18 @@ import Link from 'next/link'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
 import { formatDateDE } from '../lib/course-access'
+import {
+  KIND_LABELS,
+  formatEventDate,
+  formatEventTime,
+  isEventKind,
+  localized,
+} from '../lib/event-access'
+import { utcISOToBerlinLocal } from '../lib/event-time'
 import { createAccessCodeAction, toggleAccessCodeAction } from './_actions'
 import { PendingSubmitButton } from './_components/PendingSubmitButton'
+import { DeleteEventForm } from './_components/DeleteEventForm'
+import { EventForm } from './_components/EventForm'
 
 export const metadata = {
   title: 'Coach-Sicht — Rhythm Gym',
@@ -16,6 +26,36 @@ export const metadata = {
 // ──────────────────────────────────────────────────────────────────────
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row']
+
+// Termine ohne `zoom_url`: das Spalten-Privileg ist für anon/authenticated
+// entzogen (Migration 0006), eine Anfrage mit dieser Spalte schlüge fehl. Ob
+// eine Tür hinterlegt ist, steht deshalb bewusst nicht in der Liste.
+const EVENT_COLUMNS =
+  'id, title, description, starts_at, ends_at, kind, visibility, location, program_id, series_id, all_day, website_link' as const
+
+type EventListRow = Pick<
+  Database['public']['Tables']['events']['Row'],
+  | 'id'
+  | 'title'
+  | 'description'
+  | 'starts_at'
+  | 'ends_at'
+  | 'kind'
+  | 'visibility'
+  | 'location'
+  | 'program_id'
+  | 'series_id'
+  | 'all_day'
+  | 'website_link'
+>
+
+// Sichtbarkeit in Nils' Worten — dieselbe Tabelle wie im Formular.
+const VISIBILITY_SHORT: Record<string, string> = {
+  public: 'Offen',
+  members: 'Mit Konto',
+  premium: 'Innerer Kreis',
+  program: 'Im Kurs',
+}
 
 type AccessCodeRow = Pick<
   Database['public']['Tables']['access_codes']['Row'],
@@ -112,6 +152,12 @@ function firstNameOr(name: string | null, fallback: string): string {
 // ──────────────────────────────────────────────────────────────────────
 
 export default async function CoachPage() {
+  // Einmal am Anfang festhalten, statt „abgelaufen?" mitten in der Liste gegen
+  // die Uhr zu prüfen. Die Regel react-hooks/purity zielt auf Client-Rendering,
+  // das mehrfach laufen kann; diese Seite wird pro Anfrage einmal auf dem
+  // Server gebaut, und genau dieser Zeitpunkt ist gemeint.
+  // eslint-disable-next-line react-hooks/purity
+  const renderedAt = Date.now()
   const supabase = await createClient()
 
   // A. Auth gate
@@ -131,8 +177,18 @@ export default async function CoachPage() {
   // C. Parallel reads (RLS lässt Admins alle Zeilen sehen — siehe Migration
   //    add_admin_role_and_rls_policies)
   const since90 = daysAgoUTC(90)
-  const [profilesRes, completionsRes, patternsRes, activityRes, enrollmentsRes, codesRes] =
-    await Promise.all([
+  const nowISO = new Date().toISOString()
+  const [
+    profilesRes,
+    completionsRes,
+    patternsRes,
+    activityRes,
+    enrollmentsRes,
+    codesRes,
+    upcomingRes,
+    pastRes,
+    programsRes,
+  ] = await Promise.all([
       supabase
         .from('profiles')
         .select(
@@ -147,10 +203,34 @@ export default async function CoachPage() {
         .from('access_codes')
         .select('id, code, max_uses, uses, expires_at, drip_start_date, active, note, created_at')
         .order('created_at', { ascending: false }),
+      // Die nächsten 50 Termine …
+      supabase
+        .from('events')
+        .select(EVENT_COLUMNS)
+        .gte('starts_at', nowISO)
+        .order('starts_at', { ascending: true })
+        .limit(50),
+      // … und die letzten 10 vergangenen, damit Nils sieht, was gerade war.
+      supabase
+        .from('events')
+        .select(EVENT_COLUMNS)
+        .lt('starts_at', nowISO)
+        .order('starts_at', { ascending: false })
+        .limit(10),
+      supabase.from('programs').select('id, title').order('title', { ascending: true }),
     ])
 
   const profiles: ProfileRow[] = (profilesRes.data ?? []) as ProfileRow[]
   const codes: AccessCodeRow[] = (codesRes.data as AccessCodeRow[] | null) ?? []
+
+  // Vergangenes kommt absteigend zurück — umdrehen, damit die ganze Liste
+  // durchgehend aufsteigend läuft und „jetzt" mittendrin steht.
+  const pastEvents = ((pastRes.data as EventListRow[] | null) ?? []).slice().reverse()
+  const upcomingEvents = (upcomingRes.data as EventListRow[] | null) ?? []
+  const events: EventListRow[] = [...pastEvents, ...upcomingEvents]
+
+  const programs = (programsRes.data ?? []) as { id: string; title: string }[]
+  const programTitleById = new Map(programs.map((p) => [p.id, p.title]))
 
   // Aggregate maps per user
   const completionsByUser = new Map<string, number>()
@@ -382,7 +462,7 @@ export default async function CoachPage() {
               <ul className="cch-list">
                 {codes.map((c) => {
                   const expired = c.expires_at
-                    ? new Date(c.expires_at).getTime() < Date.now()
+                    ? new Date(c.expires_at).getTime() < renderedAt
                     : false
                   const exhausted = c.uses >= c.max_uses
                   const status = !c.active
@@ -422,6 +502,103 @@ export default async function CoachPage() {
                           </button>
                         </form>
                       </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </section>
+
+          {/* ── Termine ───────────────────────────────────────────────── */}
+          <section className="cch-section">
+            <header className="cch-section-head">
+              <div className="cch-eyebrow">Kalender · Was stattfindet</div>
+              <h2>TERMINE</h2>
+              <p className="cch-sub">
+                Titel, Zeit und Beschreibung sieht jeder — auch ohne Konto. Nur
+                die Zoom-Tür hängt an der Sichtbarkeit.
+              </p>
+            </header>
+
+            <details className="cch-event-new">
+              <summary>Neuen Termin anlegen</summary>
+              <EventForm programs={programs} />
+            </details>
+
+            {events.length === 0 ? (
+              <div className="cch-empty">
+                Noch keine Termine. Leg oben den ersten an — er erscheint sofort
+                im Kalender und auf der Startseite.
+              </div>
+            ) : (
+              <ul className="cch-list">
+                {events.map((e) => {
+                  const title = localized(e.title) || '(ohne Titel)'
+                  const isPast = e.starts_at < nowISO
+                  const kindLabel = isEventKind(e.kind) ? KIND_LABELS[e.kind] : e.kind
+                  const programTitle = e.program_id
+                    ? (programTitleById.get(e.program_id) ?? '—')
+                    : '—'
+                  return (
+                    <li
+                      key={e.id}
+                      className={`cch-row cch-event-row ${isPast ? 'cch-event-row--past' : 'cch-event-row--next'}`}
+                    >
+                      <div className="cch-row-main">
+                        <div className="cch-row-name">{title}</div>
+                        <div className="cch-row-email">
+                          {formatEventDate(e.starts_at)}
+                          {e.all_day ? ' · ganztägig' : ` · ${formatEventTime(e.starts_at, e.ends_at)}`}
+                          {e.location ? ` · ${e.location}` : ''}
+                          {e.series_id ? ' · Serie' : ''}
+                        </div>
+                      </div>
+
+                      <div className="cch-row-stats cch-row-stats--3">
+                        <Stat label="Art" value={kindLabel} />
+                        <Stat
+                          label="Sichtbar"
+                          value={VISIBILITY_SHORT[e.visibility] ?? e.visibility}
+                        />
+                        <Stat label="Kurs" value={programTitle} />
+                      </div>
+
+                      <div className="cch-event-actions">
+                        <DeleteEventForm
+                          id={e.id}
+                          title={title}
+                          hasSeries={Boolean(e.series_id)}
+                        />
+                      </div>
+
+                      <details className="cch-event-edit">
+                        <summary>Bearbeiten</summary>
+                        <EventForm
+                          programs={programs}
+                          event={{
+                            id: e.id,
+                            titleDe: localized(e.title),
+                            descriptionDe: localized(e.description),
+                            startsAtLocal: utcISOToBerlinLocal(e.starts_at),
+                            durationMinutes: e.ends_at
+                              ? Math.round(
+                                  (new Date(e.ends_at).getTime() -
+                                    new Date(e.starts_at).getTime()) /
+                                    60_000,
+                                )
+                              : null,
+                            kind: e.kind,
+                            visibility: e.visibility,
+                            location: e.location ?? '',
+                            // Die Tür lässt sich nicht auslesen (Spalten-Privileg
+                            // entzogen) — leer lassen heißt beim Sichern: gelöscht.
+                            zoomUrl: '',
+                            programId: e.program_id,
+                            websiteLink: e.website_link ?? '',
+                            allDay: e.all_day,
+                          }}
+                        />
+                      </details>
                     </li>
                   )
                 })}
@@ -871,6 +1048,110 @@ const COACH_CSS = `
     .cch-code-form { flex-direction: column; align-items: stretch; }
     .cch-code-actions { justify-content: flex-start; }
     .cch-code-toggle { width: 100%; }
+  }
+
+  /* Termine */
+  .cch-event-new, .cch-event-edit {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .cch-event-new > summary, .cch-event-edit > summary {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    padding: 14px 18px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .cch-event-new > summary::-webkit-details-marker,
+  .cch-event-edit > summary::-webkit-details-marker { display: none; }
+  .cch-event-new > summary::before, .cch-event-edit > summary::before {
+    content: '+ ';
+  }
+  .cch-event-new[open] > summary::before, .cch-event-edit[open] > summary::before {
+    content: '– ';
+  }
+  .cch-event-edit {
+    grid-column: 1 / -1;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border);
+    border-radius: 0;
+    margin-top: 4px;
+  }
+  .cch-event-edit > summary { padding: 12px 0 0; color: var(--muted2); }
+  .cch-event-edit > summary:hover { color: var(--amber); }
+
+  .cch-event-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 4px 18px 18px;
+    align-items: start;
+  }
+  .cch-event-field--wide { grid-column: 1 / -1; }
+  .cch-event-form textarea, .cch-event-form select {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--cream);
+    padding: 10px 12px;
+    font-family: var(--font-body);
+    font-size: 16px; /* ≥16px — verhindert iOS-Auto-Zoom (Mobile-Regel) */
+    width: 100%;
+  }
+  .cch-event-form textarea { resize: vertical; line-height: 1.5; }
+  .cch-event-form textarea:focus, .cch-event-form select:focus {
+    outline: none;
+    border-color: var(--amber);
+  }
+  .cch-event-hint {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .cch-event-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted2);
+    cursor: pointer;
+  }
+  .cch-event-check input { accent-color: var(--amber); width: 16px; height: 16px; }
+  .cch-event-check--small { font-size: 11px; }
+  .cch-event-submit { grid-column: 1 / -1; }
+  .cch-event-submit .cch-code-create { width: 100%; }
+
+  .cch-event-row--next { border-left-color: var(--amber); }
+  .cch-event-row--past { border-left-color: rgba(122, 112, 96, 0.4); opacity: 0.7; }
+  .cch-row-stats--3 { grid-template-columns: repeat(3, 1fr); }
+  .cch-event-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .cch-event-delete {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .cch-event-delete-btn:hover {
+    border-color: var(--warm);
+    color: var(--warm);
+  }
+
+  @media (max-width: 700px) {
+    .cch-event-form { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .cch-event-actions { justify-content: flex-start; }
+    .cch-event-delete { justify-content: flex-start; width: 100%; }
+    .cch-event-delete-btn { flex: 1; }
   }
 
   /* Tablet */

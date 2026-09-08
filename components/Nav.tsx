@@ -24,6 +24,7 @@ const ITEMS: Record<Brand, NavItem[]> = {
   // dafür nicht erst einen Umweg suchen müssen.
   schule: [
     { href: '/training', label: 'Kurse' },
+    { href: '/termine', label: 'Termine' },
     { href: '/patterns', label: 'Patterns' },
     { href: '/glossar', label: 'Glossar' },
     { href: '/settings', label: 'Profil' },

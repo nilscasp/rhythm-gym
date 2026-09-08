@@ -20,6 +20,8 @@ const karten = [
   {
     titel: 'Termine',
     text: 'Live-Trainings und Fragerunden. Die Zoom-Tür hängt direkt am Termin.',
+    href: '/termine',
+    linkText: 'Kommende Termine ansehen',
   },
 ];
 
@@ -126,6 +128,11 @@ export function LandingSchule({ isAuthenticated }: { isAuthenticated: boolean })
               <div key={k.titel} className="schule-card">
                 <h3>{k.titel}</h3>
                 <p>{k.text}</p>
+                {k.href && (
+                  <Link href={k.href} className="schule-card-link">
+                    {k.linkText} →
+                  </Link>
+                )}
               </div>
             ))}
           </div>
@@ -286,6 +293,20 @@ const SCHULE_CSS = `
   background: var(--card);
   border: 1px solid var(--border);
   padding: 24px;
+}
+.schule-card-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--amber);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border2);
+  padding-bottom: 2px;
+}
+.schule-card-link:hover {
+  border-color: var(--amber);
 }
 .schule-card h3 {
   font-family: var(--font-display);

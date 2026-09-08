@@ -7,7 +7,19 @@ import { NextResponse, type NextRequest } from 'next/server'
  * Endpunkt `/api/briefe` — der muss auch ohne Cookie durchkommen, sonst
  * schluckt die Auth-Schleuse den POST und antwortet mit einem Redirect auf `/`.
  */
-const PUBLIC_PATHS = new Set(['/impressum', '/datenschutz', '/tag-1', '/api/briefe'])
+const PUBLIC_PATHS = new Set([
+  '/impressum',
+  '/datenschutz',
+  '/tag-1',
+  '/api/briefe',
+  // Der Kalender ist auch ein Schaufenster: Titel, Zeit und Ort sieht jeder,
+  // die Zoom-Tür hängt an der Zugriffsregel (Migration 0006).
+  '/termine',
+  '/api/events.json',
+])
+
+/** Öffentliche Pfade mit Unterseiten, z. B. /termine/{id}. */
+const PUBLIC_PREFIXES = ['/termine/']
 
 export async function updateSession(
   request: NextRequest,
@@ -71,7 +83,10 @@ export async function updateSession(
   // excluded by the proxy matcher in `proxy.ts`.
   const pathname = request.nextUrl.pathname
   const isPublic =
-    pathname === '/' || pathname.startsWith('/auth/') || PUBLIC_PATHS.has(pathname)
+    pathname === '/' ||
+    pathname.startsWith('/auth/') ||
+    PUBLIC_PATHS.has(pathname) ||
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 
   if (!isPublic && !user) {
     const url = request.nextUrl.clone()

@@ -211,6 +211,71 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          all_day: boolean
+          created_at: string
+          created_by: string | null
+          description: Json | null
+          ends_at: string | null
+          id: string
+          kind: string
+          location: string | null
+          program_id: string | null
+          series_id: string | null
+          starts_at: string
+          title: Json
+          updated_at: string | null
+          visibility: string
+          website_link: string | null
+          zoom_url: string | null
+        }
+        Insert: {
+          all_day?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: Json | null
+          ends_at?: string | null
+          id?: string
+          kind: string
+          location?: string | null
+          program_id?: string | null
+          series_id?: string | null
+          starts_at: string
+          title: Json
+          updated_at?: string | null
+          visibility?: string
+          website_link?: string | null
+          zoom_url?: string | null
+        }
+        Update: {
+          all_day?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: Json | null
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          location?: string | null
+          program_id?: string | null
+          series_id?: string | null
+          starts_at?: string
+          title?: Json
+          updated_at?: string | null
+          visibility?: string
+          website_link?: string | null
+          zoom_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercises: {
         Row: {
           created_at: string | null
@@ -563,6 +628,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      event_zoom_url: { Args: { p_event_id: string }; Returns: string }
       is_admin_user: { Args: { check_uid: string }; Returns: boolean }
       redeem_access_code: { Args: { p_code: string }; Returns: Json }
     }
