@@ -311,15 +311,18 @@ export default async function TrainingHubPage() {
                       {p.description && (
                         <p className="hub-card-desc">{p.description}</p>
                       )}
-                      <div className="hub-progress">
-                        <div className="hub-progress-bar" aria-hidden="true">
-                          <span className="hub-progress-fill" style={{ width: `${pct}%` }} />
+                      {/* Live-Kurse haben keine Übungen in der App. Ein Balken
+                          mit „0 von 0 abgehakt" wäre dort eine falsche Aussage. */}
+                      {total > 0 ? (
+                        <div className="hub-progress">
+                          <div className="hub-progress-bar" aria-hidden="true">
+                            <span className="hub-progress-fill" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="hub-progress-label">
+                            {done} von {total} Übungen abgehakt · <strong>{pct} %</strong>
+                          </span>
                         </div>
-                        <span className="hub-progress-label">
-                          {done} von {total} Übungen abgehakt
-                          {total > 0 ? <> · <strong>{pct} %</strong></> : null}
-                        </span>
-                      </div>
+                      ) : null}
                       <Link
                         href={`/training/${p.slug}`}
                         className="hub-cta-secondary"
