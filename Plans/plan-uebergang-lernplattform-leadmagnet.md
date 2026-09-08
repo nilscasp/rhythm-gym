@@ -144,6 +144,20 @@ Umgesetzt und lokal committed, **nicht gepusht**: Pakete 0, 1, 2, 3, 4 (Website-
 
 Offen und warum: **7** Brevo-Einrichtung (Listen, DOI-Vorlage, Automation, API-Schlüssel in Vercel) braucht Nils' Brevo-Konto, Anleitung in `docs/handpan-schule/brevo-setup.md`; Wartelisten-Formular „Eröffnung" (`WAITLIST_FORM_URL` in `community/index.html`) zeigt bis dahin auf das Footer-Formular. **8** Startseiten-Hero bleibt bis Checkpoint 1 (KW41). **9, 10, 11** warten auf Kalender, M1–M3-Freigabe und Kaufweg. **13** Nav/Footer/Weiterleitung erst KW51. Interceptor-Probe: Chrome erlaubt kein Fenster unter 500 px, die 390er-Messungen stammen aus dem In-App-Browser; Interceptor-Verbindung brach im Lauf ab (Follow-up).
 
+## Richtungsänderung 2026-09-08 — zwei Sprachen, zwei Strategien
+
+Nils hat die Grundannahme des Plans für den deutschen Bereich umgedreht. Der Plan bleibt als Beschreibung des Gebauten gültig; was hier steht, hat Vorrang.
+
+**Deutsch: die Plattform bleibt unsichtbar.** Die Skool-Gruppe läuft weiter und wird aktiv gepflegt — sie ist der Gemeinschaftsort, nicht die Plattform. Auf handpan.schule wird die Lernplattform **gar nicht erwähnt**: kein Link, kein Menüpunkt, kein Hinweis auf den Kursseiten. Kursteilnehmer bekommen ihren Zugang per Mail. Damit sind zurückgenommen: die Brücke auf `/community/`, die drei Türen, das Wartelisten-Formular, „Innerer Kreis", der 21.12. als Umzugsdatum und die Hinweise auf den Kursseiten. Auch die Plattform selbst spricht nicht mehr vom Umzug.
+
+Was aus dem Umbau **bleibt**, weil es unabhängig richtig ist: der Double-Opt-in-Hinweis unter allen 24 Newsletter-Formularen, der Brevo-Absatz in der Datenschutzerklärung, und dass „Community-Abo ab August 2026" nirgends mehr steht — dieses Versprechen war ohnehin falsch.
+
+**Englisch: ein Laden für Selbstlerner.** Der englische Bereich wird passiv gepflegt: fertige Kurse ohne Begleitung, ohne Live-Termine, ohne Gemeinschaft. Die englische Website bekommt einen deutlichen Menüpunkt „Courses", der auf `lernen.handpan.schule/en/kurse` führt. Dort stehen die Kurse mit Preis und Kaufknopf.
+
+**Stand heute, unbedingt beachten:** Es existiert **kein englischer Kursinhalt** — keine englischen Videos, keine englischen Tagestexte; `scripts/dub/` ist Werkzeug, kein Ergebnis. Deshalb steht im Katalog (`app/lib/courses-catalog.ts`) jeder Kurs auf `preparing`, und die Seite sammelt Adressen statt zu verkaufen. Ein Kurs wird erst dann `available`, wenn er in der Sprache wirklich lieferbar ist **und** `checkoutUrl` auf einen echten Stripe-Link zeigt.
+
+**Offen:** Die fünf weiteren Sprachen (es, fr, ja, pt, zh) folgen vermutlich der englischen Logik, das ist noch nicht entschieden.
+
 ## 5 · Deine Entscheidungen (mit Empfehlung)
 
 1. **`/community/` als Brücke statt Weiterleitung, Weiterleitung erst KW51?** – *Empfehlung: ja.*
