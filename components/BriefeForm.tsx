@@ -1,17 +1,40 @@
 'use client';
 
 import { useState } from 'react';
+import type { Messages } from '../messages/de';
 
 /* Anmeldeformular für die Briefe aus der Schule.
    Markenfrei: nur Tokens und die drei Font-Variablen, keine Brand-Logik.
-   Der Aufrufer entscheidet über `source`, wo die Adresse herkommt. */
+   Der Aufrufer entscheidet über `source`, wo die Adresse herkommt.
 
-const FEHLER_TEXT =
-  'Das hat gerade nicht geklappt. Versuch es gleich noch einmal oder schreib mir.';
+   Sprachfrei ebenso: als Client Component kann das Formular `getMessages()`
+   nicht aufrufen — der Header lebt auf dem Server. Also reicht der Aufrufer
+   die fertigen Texte UND die schon lokalisierte Datenschutz-Adresse herein.
+   Eine Sprachentscheidung im Client gäbe es sonst zweimal, und die zweite
+   wäre die falsche. */
 
 type Status = 'idle' | 'sending' | 'done' | 'error';
 
-export function BriefeForm({ source }: { source: string }) {
+export function BriefeForm({
+  source,
+  messages,
+  privacyHref,
+}: {
+  source: string;
+  messages: Messages['briefe'];
+  privacyHref: string;
+}) {
+  /* Der Zustimmungssatz nennt die Datenschutzerklärung beim Namen; das Wort
+     selbst wird zum Link. Statt den Satz in drei Übersetzungsschlüssel zu
+     zerlegen, wird er hier einmal um `privacyWord` herum aufgeteilt — so
+     bleibt der Satz in `messages/*` ein lesbarer Satz. Fehlt das Wort im
+     Text (Tippfehler in einer Übersetzung), steht der Satz ohne Link da,
+     statt dass die Seite abstürzt. */
+  const cut = messages.consent.indexOf(messages.privacyWord);
+  const consentBefore = cut === -1 ? messages.consent : messages.consent.slice(0, cut);
+  const consentAfter =
+    cut === -1 ? '' : messages.consent.slice(cut + messages.privacyWord.length);
+
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [consent, setConsent] = useState(false);
@@ -40,11 +63,11 @@ export function BriefeForm({ source }: { source: string }) {
       const meldung =
         body && typeof body === 'object' && typeof (body as { error?: unknown }).error === 'string'
           ? (body as { error: string }).error
-          : FEHLER_TEXT;
+          : messages.error;
       setFehler(meldung);
       setStatus('error');
     } catch {
-      setFehler(FEHLER_TEXT);
+      setFehler(messages.error);
       setStatus('error');
     }
   }
@@ -54,8 +77,7 @@ export function BriefeForm({ source }: { source: string }) {
       <>
         <style>{BRIEFE_CSS}</style>
         <p className="briefe-done" role="status">
-          Fast geschafft: Schau in dein Postfach und klick den Bestätigungslink. Dann öffnet sich
-          Tag 1.
+          {messages.success}
         </p>
       </>
     );
@@ -66,7 +88,7 @@ export function BriefeForm({ source }: { source: string }) {
       <style>{BRIEFE_CSS}</style>
       <form className="briefe-form" onSubmit={onSubmit}>
         <label className="briefe-label" htmlFor="briefe-email">
-          Deine E-Mail
+          {messages.emailLabel}
         </label>
         <input
           id="briefe-email"
@@ -104,14 +126,14 @@ export function BriefeForm({ source }: { source: string }) {
             required
           />
           <span>
-            Ja, schick mir Briefe aus der Schule: Impulse zu Handpan und Bewusstsein, Termine und
-            Einladungen zu Kursen. Abmelden geht in jeder Mail. Mehr in der{' '}
-            <a href="/datenschutz">Datenschutzerklärung</a>.
+            {consentBefore}
+            {cut === -1 ? null : <a href={privacyHref}>{messages.privacyWord}</a>}
+            {consentAfter}
           </span>
         </label>
 
         <button className="briefe-btn" type="submit" disabled={status === 'sending'}>
-          Tag 1 holen
+          {status === 'sending' ? messages.sending : messages.submit}
         </button>
 
         {status === 'error' && (

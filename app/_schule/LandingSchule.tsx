@@ -1,12 +1,20 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { BriefeForm } from '../../components/BriefeForm';
+import { getMessages } from '../../messages/server';
+import { localizeHref } from '../lib/locale';
 import { LANDING_CSS } from '../_landing/landing-css';
 
 /* Landingpage der Schul-Marke (lernen.handpan.schule).
    Die .lp-* Klassen kommen aus LANDING_CSS; SCHULE_CSS übersteuert nur,
    was die Schule anders braucht, und ergänzt die neuen Abschnitte.
-   Nur Tokens und die drei Font-Variablen — keine Farb- oder Font-Literale. */
+   Nur Tokens und die drei Font-Variablen — keine Farb- oder Font-Literale.
+
+   Sprache: die Landing-Texte bleiben vorerst deutsch (Phasenplan v2 — die
+   Extraktion der Landing-Copy ist ein eigener Schritt). Übersetzt ist hier
+   nur, was `messages/*` schon kennt: das Briefe-Formular. Und die interne
+   Adresse zu den Terminen läuft durch `localizeHref`, damit sie unter /en
+   nicht aus der Sprache herausführt. */
 
 const karten = [
   {
@@ -69,14 +77,14 @@ const fragen: { frage: string; antwort: React.ReactNode }[] = [
   },
   {
     frage: 'Was kostet das Konto?',
-    antwort: <>Nichts. Kurse und der Innere Kreis haben eigene Preise, dein Konto bleibt frei.</>,
+    antwort: <>Nichts. Kurse haben eigene Preise, dein Konto bleibt frei.</>,
   },
   {
-    frage: 'Was wird aus Skool?',
+    frage: 'Wo trifft sich die Community?',
     antwort: (
       <>
-        Bis zum 21. Dezember 2026 treffen wir uns weiter dort. Danach zieht die Community hierher
-        um. Skool bleibt bis Ende Januar 2027 lesbar.
+        Auf Skool. Dort laufen die Live-Sessions und der Austausch dazwischen, kostenlos und
+        offen. Hier findest du die Kurse, das Werkzeug und die Termine.
       </>
     ),
   },
@@ -90,7 +98,9 @@ const fragen: { frage: string; antwort: React.ReactNode }[] = [
   },
 ];
 
-export function LandingSchule({ isAuthenticated }: { isAuthenticated: boolean }) {
+export async function LandingSchule({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const { locale, t } = await getMessages();
+
   return (
     <>
       <style>{LANDING_CSS}</style>
@@ -129,7 +139,7 @@ export function LandingSchule({ isAuthenticated }: { isAuthenticated: boolean })
                 <h3>{k.titel}</h3>
                 <p>{k.text}</p>
                 {k.href && (
-                  <Link href={k.href} className="schule-card-link">
+                  <Link href={localizeHref(k.href, locale)} className="schule-card-link">
                     {k.linkText} →
                   </Link>
                 )}
@@ -194,8 +204,7 @@ export function LandingSchule({ isAuthenticated }: { isAuthenticated: boolean })
         <section className="schule-section">
           <h2 className="schule-h2">Was es kostet</h2>
           <p className="schule-text">
-            Dein Konto ist kostenlos. Kurse sind eigene Wege mit eigenem Preis. Der Innere Kreis
-            öffnet am 21. Dezember 2026.
+            Dein Konto ist kostenlos. Kurse sind eigene Wege mit eigenem Preis.
           </p>
         </section>
 
@@ -219,7 +228,11 @@ export function LandingSchule({ isAuthenticated }: { isAuthenticated: boolean })
             Ein Tag aus dem Rhythmus-Fundament: ein Video, eine Übung, eine Frage für den Weg. Trag
             deine E-Mail ein, bestätige den Link, und Tag 1 ist offen.
           </p>
-          <BriefeForm source="landing" />
+          <BriefeForm
+            source="landing"
+            messages={t.briefe}
+            privacyHref={localizeHref('/datenschutz', locale)}
+          />
           <p className="schule-leise">
             <Link href="/auth/login?mode=signup">Oder gleich ein Konto anlegen.</Link>
           </p>

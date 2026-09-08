@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { currentLocale, getMessages } from '../../messages/server'
+import { localizeHref, type Locale } from '../lib/locale'
 import { createClient } from '../lib/supabase/server'
 import {
-  KIND_LABELS,
-  accessHint,
   berlinDate,
   eventTimeLabel,
   groupByMonth,
@@ -12,7 +12,14 @@ import {
   localized,
   monthLabel,
 } from '../lib/event-access'
-import { EVENT_COLUMNS, currentViewer, type Termin } from './_viewer'
+import {
+  EVENT_COLUMNS,
+  LIST_LOAD_ERROR,
+  LIST_META,
+  currentViewer,
+  hintFor,
+  type Termin,
+} from './_viewer'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // /termine — der Kalender als Schaufenster (Phasenplan v2 §4).
@@ -24,26 +31,33 @@ import { EVENT_COLUMNS, currentViewer, type Termin } from './_viewer'
 // und auch dort nur aus `event_zoom_url()`.
 //
 // Ist die Tür zu, sagt die Karte in einer ruhigen Zeile, woran es liegt
-// (accessHint) — kein Schloss-Symbol, kein Verkaufsdruck.
+// (`hintFor`) — kein Schloss-Symbol, kein Verkaufsdruck.
+//
+// Sprache: `getMessages()` liest den Header, den `proxy.ts` gesetzt hat. Jede
+// interne Adresse läuft durch `localizeHref`, damit `/en/termine` nicht auf
+// halbem Weg nach Deutsch zurückfällt.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Termine — Handpan Schule des Lebens',
-  description:
-    'Live-Trainings, Fragerunden und Workshops mit Datum, Uhrzeit und Ort — offen einsehbar, auch ohne Konto.',
+export async function generateMetadata(): Promise<Metadata> {
+  return LIST_META[await currentLocale()]
 }
 
-/** Tageszahl und Monatskürzel für das Datumsschild, beides aus den Helfern. */
-function dateBadge(startsAt: string): { day: string; month: string } {
+/**
+ * Tageszahl und Monatskürzel für das Datumsschild, beides aus den Helfern.
+ * Die Tageszahl kommt aus dem ISO-Datum (sprachunabhängig), das Kürzel aus dem
+ * Monatsnamen der jeweiligen Sprache — „Sep" hier, „Sep" dort, „Mai"/„May" da.
+ */
+function dateBadge(startsAt: string, locale: Locale): { day: string; month: string } {
   return {
     day: String(Number(berlinDate(startsAt).slice(8, 10))),
-    month: monthLabel(startsAt).split(' ')[0].slice(0, 3),
+    month: monthLabel(startsAt, locale).split(' ')[0].slice(0, 3),
   }
 }
 
 export default async function TerminePage() {
+  const { locale, t } = await getMessages()
   const supabase = await createClient()
   const viewer = await currentViewer(supabase)
 
@@ -62,7 +76,7 @@ export default async function TerminePage() {
   }
 
   const events = (data ?? []) as Termin[]
-  const groups = groupByMonth(events)
+  const groups = groupByMonth(events, locale)
 
   return (
     <>
@@ -70,40 +84,36 @@ export default async function TerminePage() {
       <main className="tm-page">
         <div className="tm-wrap">
           <header className="tm-header">
-            <p className="tm-eyebrow">Die Schule</p>
-            <h1 className="tm-title">Kommende Termine</h1>
-            <p className="tm-intro">
-              Live-Trainings, Fragerunden und Workshops. Was offen ist, siehst du
-              auch ohne Konto.
-            </p>
+            <p className="tm-eyebrow">{t.events.eyebrow}</p>
+            <h1 className="tm-title">{t.events.title}</h1>
+            <p className="tm-intro">{t.events.intro}</p>
           </header>
 
           {error ? (
             <p className="tm-empty" role="status">
-              Die Termine lassen sich gerade nicht laden. Versuch es bitte gleich
-              noch einmal.
+              {LIST_LOAD_ERROR[locale]}
             </p>
           ) : groups.length === 0 ? (
-            <p className="tm-empty">
-              Gerade ist nichts geplant. Sobald ein Termin steht, findest du ihn
-              hier.
-            </p>
+            <p className="tm-empty">{t.events.empty}</p>
           ) : (
             groups.map((group) => (
               <section key={group.key} className="tm-month">
                 <h2 className="tm-month-title">{group.label}</h2>
                 <ul className="tm-list">
                   {group.events.map((event) => {
-                    const badge = dateBadge(event.starts_at)
+                    const badge = dateBadge(event.starts_at, locale)
                     const access = hasEventAccess(viewer, event)
-                    const hint = accessHint(access)
+                    const hint = hintFor(access, t)
                     const kindLabel = isEventKind(event.kind)
-                      ? KIND_LABELS[event.kind]
+                      ? t.events.kinds[event.kind]
                       : null
 
                     return (
                       <li key={event.id}>
-                        <Link href={`/termine/${event.id}`} className="tm-card">
+                        <Link
+                          href={localizeHref(`/termine/${event.id}`, locale)}
+                          className="tm-card"
+                        >
                           <div className="tm-badge" aria-hidden="true">
                             <span className="tm-badge-day">{badge.day}</span>
                             <span className="tm-badge-month">{badge.month}</span>
@@ -112,14 +122,19 @@ export default async function TerminePage() {
                           <div className="tm-card-body">
                             <div className="tm-card-head">
                               <h3 className="tm-card-title">
-                                {localized(event.title)}
+                                {localized(event.title, locale)}
                               </h3>
                               {kindLabel ? (
                                 <span className="tm-tag">{kindLabel}</span>
                               ) : null}
                             </div>
 
-                            <p className="tm-meta">{eventTimeLabel(event)}</p>
+                            <p className="tm-meta">
+                              {eventTimeLabel(event, {
+                                locale,
+                                allDayLabel: t.events.allDay,
+                              })}
+                            </p>
                             {event.location ? (
                               <p className="tm-place">{event.location}</p>
                             ) : null}

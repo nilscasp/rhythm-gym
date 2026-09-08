@@ -1,17 +1,23 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { currentLocale, getMessages } from '../../../messages/server'
+import { localizeHref } from '../../lib/locale'
 import { createClient } from '../../lib/supabase/server'
 import {
-  KIND_LABELS,
-  accessHint,
   eventTimeLabel,
   formatEventDate,
   hasEventAccess,
   isEventKind,
   localized,
 } from '../../lib/event-access'
-import { EVENT_COLUMNS, currentViewer, type Termin } from '../_viewer'
+import {
+  EVENT_COLUMNS,
+  currentViewer,
+  detailTitle,
+  hintFor,
+  type Termin,
+} from '../_viewer'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // /termine/[id] — der einzelne Termin, und die einzige Stelle im Verzeichnis,
@@ -41,10 +47,9 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
-const FALLBACK_TITLE = 'Termin — Handpan Schule des Lebens'
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
+  const locale = await currentLocale()
   const supabase = await createClient()
 
   // Eine ungültige uuid endet hier als Lesefehler, nicht als Absturz.
@@ -54,14 +59,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq('id', id)
     .maybeSingle()
 
-  const title = data ? localized(data.title) : ''
-  return {
-    title: title ? `${title} — Handpan Schule des Lebens` : FALLBACK_TITLE,
-  }
+  return { title: detailTitle(data ? localized(data.title, locale) : '', locale) }
 }
 
 export default async function TerminPage({ params }: PageProps) {
   const { id } = await params
+  const { locale, t } = await getMessages()
   const supabase = await createClient()
   const viewer = await currentViewer(supabase)
 
@@ -82,9 +85,9 @@ export default async function TerminPage({ params }: PageProps) {
 
   const event = data as Termin
   const access = hasEventAccess(viewer, event)
-  const hint = accessHint(access)
+  const hint = hintFor(access, t)
   const reason = access.canJoin ? null : access.reason
-  const kindLabel = isEventKind(event.kind) ? KIND_LABELS[event.kind] : null
+  const kindLabel = isEventKind(event.kind) ? t.events.kinds[event.kind] : null
 
   // Der einzige Aufruf der Tür-Funktion — und nur, wenn die Anzeige-Logik
   // ohnehin schon zustimmt. Ohne Zugang wird sie gar nicht erst gefragt.
@@ -103,7 +106,7 @@ export default async function TerminPage({ params }: PageProps) {
     zoomUrl = typeof url === 'string' && url.trim() !== '' ? url : null
   }
 
-  const paragraphs = localized(event.description)
+  const paragraphs = localized(event.description, locale)
     .split(/\n\s*\n/)
     .map((part) => part.trim())
     .filter(Boolean)
@@ -113,15 +116,16 @@ export default async function TerminPage({ params }: PageProps) {
       <style>{TERMIN_CSS}</style>
       <main className="tv-page">
         <div className="tv-wrap">
-          <Link href="/termine" className="tv-back">
-            ← Alle Termine
+          <Link href={localizeHref('/termine', locale)} className="tv-back">
+            {t.events.back}
           </Link>
 
           <header className="tv-header">
             {kindLabel ? <p className="tv-tag">{kindLabel}</p> : null}
-            <h1 className="tv-title">{localized(event.title)}</h1>
+            <h1 className="tv-title">{localized(event.title, locale)}</h1>
             <p className="tv-when">
-              {formatEventDate(event.starts_at)} · {eventTimeLabel(event)}
+              {formatEventDate(event.starts_at, locale)} ·{' '}
+              {eventTimeLabel(event, { locale, allDayLabel: t.events.allDay })}
             </p>
             {event.location ? (
               <p className="tv-place">{event.location}</p>
@@ -148,7 +152,7 @@ export default async function TerminPage({ params }: PageProps) {
                     rel="noopener noreferrer"
                     className="tv-cta tv-cta--primary"
                   >
-                    Zum Raum
+                    {t.events.door}
                   </a>
                 </div>
               ) : event.website_link ? (
@@ -162,14 +166,14 @@ export default async function TerminPage({ params }: PageProps) {
                     rel="noopener noreferrer"
                     className="tv-cta tv-cta--secondary"
                   >
-                    Mehr auf handpan.schule
+                    {t.events.moreOnWebsite}
                   </a>
                 </div>
               ) : (
                 // Nur wenn ein Raum vorgesehen, aber noch nicht eingetragen ist.
                 // Ohne Raum und ohne Seite versprechen wir keine Tür.
                 ROOM_KINDS.has(event.kind) ? (
-                  <p className="tv-muted">Die Tür öffnet kurz vor Beginn.</p>
+                  <p className="tv-muted">{t.events.doorSoon}</p>
                 ) : null
               )
             ) : (
@@ -178,28 +182,34 @@ export default async function TerminPage({ params }: PageProps) {
 
                 {reason === 'login' ? (
                   <div className="tv-cta-row">
-                    <Link href="/auth/login" className="tv-cta tv-cta--primary">
-                      Einloggen
-                    </Link>
                     <Link
-                      href="/auth/login?mode=signup"
+                      href={localizeHref('/auth/login', locale)}
+                      className="tv-cta tv-cta--primary"
+                    >
+                      {t.events.login}
+                    </Link>
+                    {/* `localizeHref` präfixt nur den Pfad — die Abfrage wird
+                        danach angehängt, sonst zählte sie als Teil des Pfads. */}
+                    <Link
+                      href={`${localizeHref('/auth/login', locale)}?mode=signup`}
                       className="tv-cta tv-cta--secondary"
                     >
-                      Kostenloses Konto
+                      {t.events.freeAccount}
                     </Link>
                   </div>
                 ) : null}
 
                 {reason === 'premium' ? (
-                  <p className="tv-muted">
-                    Der Innere Kreis öffnet am 21. Dezember 2026.
-                  </p>
+                  <p className="tv-muted">{t.events.circleOpens}</p>
                 ) : null}
 
                 {reason === 'program' ? (
                   <div className="tv-cta-row">
-                    <Link href="/training" className="tv-cta tv-cta--primary">
-                      Zu den Kursen
+                    <Link
+                      href={localizeHref('/training', locale)}
+                      className="tv-cta tv-cta--primary"
+                    >
+                      {t.events.toCourses}
                     </Link>
                   </div>
                 ) : null}

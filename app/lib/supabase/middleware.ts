@@ -16,6 +16,8 @@ const PUBLIC_PATHS = new Set([
   // die Zoom-Tür hängt an der Zugriffsregel (Migration 0006).
   '/termine',
   '/api/events.json',
+  // Der Laden für Selbststudium-Kurse — er richtet sich an Menschen ohne Konto.
+  '/kurse',
 ])
 
 /** Öffentliche Pfade mit Unterseiten, z. B. /termine/{id}. */
@@ -23,7 +25,13 @@ const PUBLIC_PREFIXES = ['/termine/']
 
 export async function updateSession(
   request: NextRequest,
-  extraRequestHeaders?: Record<string, string>
+  extraRequestHeaders?: Record<string, string>,
+  /**
+   * Ziel für ein internes Umschreiben. Gesetzt, wenn die Adresse ein
+   * Sprachpräfix trug (`/en/termine`): gerendert wird `/termine`, die Adresse
+   * im Browser bleibt die englische.
+   */
+  rewriteTo?: URL
 ): Promise<NextResponse> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
@@ -46,9 +54,14 @@ export async function updateSession(
     return headers
   }
 
-  let response = NextResponse.next({
-    request: { headers: forwardedHeaders() },
-  })
+  // Eine Stelle, die die Antwort baut: entweder ein normales Weiterreichen oder
+  // ein internes Umschreiben (Sprachpräfix). Beide tragen dieselben Header.
+  const buildResponse = () =>
+    rewriteTo
+      ? NextResponse.rewrite(rewriteTo, { request: { headers: forwardedHeaders() } })
+      : NextResponse.next({ request: { headers: forwardedHeaders() } })
+
+  let response = buildResponse()
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -59,9 +72,7 @@ export async function updateSession(
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value)
         })
-        response = NextResponse.next({
-          request: { headers: forwardedHeaders() },
-        })
+        response = buildResponse()
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options)
         })
@@ -81,7 +92,9 @@ export async function updateSession(
   // members-only. Unauthenticated requests get bounced back to the landing,
   // which carries the Login/Signup CTAs. Static assets and _next/* are already
   // excluded by the proxy matcher in `proxy.ts`.
-  const pathname = request.nextUrl.pathname
+  // Beim Umschreiben zaehlt der Zielpfad: `/en/termine` ist oeffentlich, weil
+  // `/termine` es ist. Ohne das faengt die Schleuse jede englische Adresse ab.
+  const pathname = rewriteTo ? rewriteTo.pathname : request.nextUrl.pathname
   const isPublic =
     pathname === '/' ||
     pathname.startsWith('/auth/') ||

@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { BRAND_COOKIE, BRAND_HEADER, resolveBrand } from './app/lib/brand'
+import { LOCALE_HEADER, resolveLocale } from './app/lib/locale'
 import { updateSession } from './app/lib/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
@@ -11,7 +12,26 @@ export async function proxy(request: NextRequest) {
     request.cookies.get(BRAND_COOKIE)?.value
   )
 
-  return await updateSession(request, { [BRAND_HEADER]: brand })
+  // Zweite Entscheidungsstelle, gleiches Muster: die Sprache. `/en/termine`
+  // wird intern zu `/termine` — es gibt jede Seite nur einmal im Dateibaum,
+  // die Sprache reist als Header mit. Deutsch bleibt präfixfrei, damit keine
+  // bestehende Adresse bricht.
+  const { locale, pathname, fromPath } = resolveLocale(
+    request.nextUrl.pathname,
+    request.headers.get('accept-language')
+  )
+
+  const headers = { [BRAND_HEADER]: brand, [LOCALE_HEADER]: locale }
+
+  if (fromPath) {
+    // Ohne das Präfix weitersuchen: die Auth-Schleuse und die Routen sehen den
+    // nackten Pfad, sonst gälte /en/termine als geschützte Unterseite.
+    const url = request.nextUrl.clone()
+    url.pathname = pathname
+    return await updateSession(request, headers, url)
+  }
+
+  return await updateSession(request, headers)
 }
 
 export const config = {

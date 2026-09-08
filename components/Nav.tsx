@@ -5,8 +5,19 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from './Logo';
 import type { Brand } from '../app/lib/brand';
+import { DEFAULT_LOCALE, localizeHref, switchLocaleHref, type Locale } from '../app/lib/locale';
+import { messagesFor } from '../messages';
 
-type NavItem = { href: string; label: string; cta?: boolean; adminOnly?: boolean };
+type NavKey = 'courses' | 'events' | 'patterns' | 'glossary' | 'profile' | 'coach' | 'tool';
+type NavItem = {
+  href: string;
+  /** Feste Beschriftung — das Gym wird nur deutsch bedient. */
+  label?: string;
+  /** Schlüssel in `messages` — die Schule spricht zwei Sprachen. */
+  key?: NavKey;
+  cta?: boolean;
+  adminOnly?: boolean;
+};
 
 const ITEMS: Record<Brand, NavItem[]> = {
   gym: [
@@ -23,13 +34,13 @@ const ITEMS: Record<Brand, NavItem[]> = {
   // dorthin, und wer seine Handpan-Stufe oder sein Instrument ändern will, soll
   // dafür nicht erst einen Umweg suchen müssen.
   schule: [
-    { href: '/training', label: 'Kurse' },
-    { href: '/termine', label: 'Termine' },
-    { href: '/patterns', label: 'Patterns' },
-    { href: '/glossar', label: 'Glossar' },
-    { href: '/settings', label: 'Profil' },
-    { href: '/coach', label: 'Coach', adminOnly: true },
-    { href: '/tool', label: 'Werkzeug', cta: true },
+    { href: '/training', key: 'courses' },
+    { href: '/termine', key: 'events' },
+    { href: '/patterns', key: 'patterns' },
+    { href: '/glossar', key: 'glossary' },
+    { href: '/settings', key: 'profile' },
+    { href: '/coach', key: 'coach', adminOnly: true },
+    { href: '/tool', key: 'tool', cta: true },
   ],
 };
 
@@ -45,19 +56,36 @@ export function Nav({
   isAuthenticated = false,
   isAdmin = false,
   brand = 'gym',
+  locale = DEFAULT_LOCALE,
 }: {
   isAuthenticated?: boolean;
   isAdmin?: boolean;
   brand?: Brand;
+  locale?: Locale;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const t = messagesFor(locale);
+
+  // Der Wechsler zeigt immer die jeweils ANDERE Sprache und bleibt auf
+  // derselben Seite. Nur die Schule ist zweisprachig — das Gym ist englisch
+  // benannt, aber deutsch bedient, dort wäre der Schalter ein leeres Versprechen.
+  const other: Locale = locale === 'de' ? 'en' : 'de';
+  const switchHref = switchLocaleHref(pathname ?? '/', other);
+  const switchLabel = other === 'en' ? t.nav.toEnglish : t.nav.toGerman;
+  const showSwitch = brand === 'schule';
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');
 
   // Admin-only Items rausfiltern, wenn der Angemeldete kein Admin ist.
-  const visibleItems = ITEMS[brand].filter((it) => !it.adminOnly || isAdmin);
+  const visibleItems = ITEMS[brand]
+    .filter((it) => !it.adminOnly || isAdmin)
+    .map((it) => ({
+      ...it,
+      text: it.key ? t.nav[it.key] : (it.label ?? ''),
+      to: localizeHref(it.href, locale),
+    }));
 
   return (
     <nav
@@ -87,18 +115,27 @@ export function Nav({
         {/* ── Unauthenticated: Login CTAs only — Tool/Bibliothek/etc. are members-only ── */}
         {!isAuthenticated && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+            {showSwitch && (
+              <Link
+                href={switchHref}
+                hrefLang={other}
+                style={{ ...linkBase, color: 'var(--muted)', textDecoration: 'none', fontSize: 12 }}
+              >
+                {switchLabel}
+              </Link>
+            )}
             <Link
-              href="/auth/login"
+              href={localizeHref('/auth/login', locale)}
               style={{
                 ...linkBase,
                 color: 'var(--muted)',
                 textDecoration: 'none',
               }}
             >
-              Einloggen
+              {t.nav.login}
             </Link>
             <Link
-              href="/auth/login?mode=signup"
+              href={`${localizeHref('/auth/login', locale)}?mode=signup`}
               style={{
                 ...linkBase,
                 background: 'var(--amber)',
@@ -110,7 +147,7 @@ export function Nav({
                 textDecoration: 'none',
               }}
             >
-              Konto erstellen
+              {t.nav.signup}
             </Link>
           </div>
         )}
@@ -133,7 +170,7 @@ export function Nav({
                   return (
                     <li key={it.href}>
                       <Link
-                        href={it.href}
+                        href={it.to}
                         style={{
                           ...linkBase,
                           background: 'var(--amber)',
@@ -145,7 +182,7 @@ export function Nav({
                           display: 'inline-block',
                         }}
                       >
-                        {it.label}
+                        {it.text}
                       </Link>
                     </li>
                   );
@@ -153,10 +190,10 @@ export function Nav({
                 return (
                   <li key={it.href}>
                     <Link
-                      href={it.href}
+                      href={it.to}
                       style={{ ...linkBase, color: active ? 'var(--amber)' : 'var(--muted)' }}
                     >
-                      {it.label}
+                      {it.text}
                     </Link>
                   </li>
                 );
@@ -164,7 +201,7 @@ export function Nav({
             </ul>
 
             <button
-              aria-label="Menü öffnen"
+              aria-label={t.nav.openMenu}
               aria-expanded={open}
               onClick={() => setOpen((o) => !o)}
               className="nav-burger"
@@ -182,7 +219,7 @@ export function Nav({
                 textTransform: 'uppercase',
               }}
             >
-              {open ? 'Schließen' : 'Menü'}
+              {open ? t.nav.close : t.nav.menu}
             </button>
           </>
         )}
@@ -205,7 +242,7 @@ export function Nav({
           {visibleItems.map((it) => (
             <li key={it.href}>
               <Link
-                href={it.href}
+                href={it.to}
                 onClick={() => setOpen(false)}
                 style={{
                   ...linkBase,
@@ -217,7 +254,7 @@ export function Nav({
                   fontSize: 14,
                 }}
               >
-                {it.label}{it.cta ? ' →' : ''}
+                {it.text}{it.cta ? ' →' : ''}
               </Link>
             </li>
           ))}

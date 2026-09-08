@@ -1,4 +1,5 @@
 import type { Database, Json } from './supabase/database.types'
+import type { Locale } from './locale'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Termine — Zugriff, Sprache, Darstellung (Phasenplan v2 §4)
@@ -33,7 +34,10 @@ export type EventKind = (typeof EVENT_KINDS)[number]
 export const EVENT_VISIBILITIES = ['public', 'members', 'premium', 'program'] as const
 export type EventVisibility = (typeof EVENT_VISIBILITIES)[number]
 
-/** Wie ein Termin in der Schule heißt. Keine Marketing-Wörter. */
+/**
+ * Deutsche Bezeichnungen — Rückfall für Stellen ohne Sprachkontext
+ * (z. B. die Website-Schnittstelle). Die Oberfläche nimmt `messages/*`.
+ */
 export const KIND_LABELS: Record<EventKind, string> = {
   live_training: 'Live-Training',
   qa: 'Fragerunde',
@@ -128,43 +132,45 @@ export function hasEventAccess(
     : { canJoin: false, reason: 'program', programId: event.program_id }
 }
 
-/** Was am Termin steht, wenn die Tür zu ist. Du-Form, keine Tabu-Wörter. */
-export function accessHint(access: EventAccess): string | null {
-  if (access.canJoin) return null
-  switch (access.reason) {
-    case 'login':
-      return 'Melde dich an, dann siehst du hier die Tür zum Raum.'
-    case 'premium':
-      return 'Dieser Termin gehört zum Inneren Kreis.'
-    case 'program':
-      return 'Dieser Termin gehört zu einem Kurs. Wer dabei ist, kommt hier hinein.'
-  }
-}
-
 // ── Zeit ─────────────────────────────────────────────────────────────────────
 // Alles wird als timestamptz gespeichert und in Berliner Zeit angezeigt — wie
 // beim Drip. Der Server kann in einer anderen Zone stehen, darum immer explizit.
 
-function parts(date: Date, options: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat('de-DE', { timeZone: EVENT_TIMEZONE, ...options }).format(
-    date,
+/** Intl-Kennung je Sprache. Die Zeitzone bleibt immer Berlin. */
+function tag(locale: Locale): string {
+  return locale === 'en' ? 'en-GB' : 'de-DE'
+}
+
+function parts(
+  date: Date,
+  options: Intl.DateTimeFormatOptions,
+  locale: Locale = 'de',
+): string {
+  return new Intl.DateTimeFormat(tag(locale), {
+    timeZone: EVENT_TIMEZONE,
+    ...options,
+  }).format(date)
+}
+
+/** „Fr., 26. September" bzw. „Sat, 26 September" */
+export function formatEventDate(startsAt: string, locale: Locale = 'de'): string {
+  return parts(
+    new Date(startsAt),
+    { weekday: 'short', day: 'numeric', month: 'long' },
+    locale,
   )
 }
 
-/** „Fr, 26. September" */
-export function formatEventDate(startsAt: string): string {
-  return parts(new Date(startsAt), {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'long',
-  })
-}
-
 /** „19:00" bzw. „19:00 – 20:30" */
-export function formatEventTime(startsAt: string, endsAt?: string | null): string {
-  const start = parts(new Date(startsAt), { hour: '2-digit', minute: '2-digit' })
+export function formatEventTime(
+  startsAt: string,
+  endsAt?: string | null,
+  locale: Locale = 'de',
+): string {
+  const clock = { hour: '2-digit', minute: '2-digit' } as const
+  const start = parts(new Date(startsAt), clock, locale)
   if (!endsAt) return start
-  const end = parts(new Date(endsAt), { hour: '2-digit', minute: '2-digit' })
+  const end = parts(new Date(endsAt), clock, locale)
   return `${start} – ${end}`
 }
 
@@ -172,13 +178,13 @@ export function formatEventTime(startsAt: string, endsAt?: string | null): strin
  * Zeitzeile für die Anzeige. Ganztägige Termine haben keine Uhrzeit — dann
  * steht dort nichts statt einer erfundenen Stunde.
  */
-export function eventTimeLabel(event: {
-  starts_at: string
-  ends_at?: string | null
-  all_day?: boolean | null
-}): string {
-  if (event.all_day) return 'ganztägig'
-  return formatEventTime(event.starts_at, event.ends_at)
+export function eventTimeLabel(
+  event: { starts_at: string; ends_at?: string | null; all_day?: boolean | null },
+  options: { locale?: Locale; allDayLabel?: string } = {},
+): string {
+  const locale = options.locale ?? 'de'
+  if (event.all_day) return options.allDayLabel ?? 'ganztägig'
+  return formatEventTime(event.starts_at, event.ends_at, locale)
 }
 
 /** Schlüssel und Beschriftung für die Monatsgruppen der Liste. */
@@ -186,8 +192,8 @@ export function monthKey(startsAt: string): string {
   return parts(new Date(startsAt), { year: 'numeric', month: '2-digit' })
 }
 
-export function monthLabel(startsAt: string): string {
-  return parts(new Date(startsAt), { month: 'long', year: 'numeric' })
+export function monthLabel(startsAt: string, locale: Locale = 'de'): string {
+  return parts(new Date(startsAt), { month: 'long', year: 'numeric' }, locale)
 }
 
 /** ISO-Datum in Berliner Zeit (YYYY-MM-DD) — Schema der Website-Leiste. */
@@ -202,6 +208,7 @@ export function berlinDate(startsAt: string): string {
 /** Gruppiert aufsteigend sortierte Termine nach Monat, Reihenfolge bleibt erhalten. */
 export function groupByMonth<T extends { starts_at: string }>(
   events: readonly T[],
+  locale: Locale = 'de',
 ): { key: string; label: string; events: T[] }[] {
   const groups: { key: string; label: string; events: T[] }[] = []
   for (const event of events) {
@@ -210,7 +217,7 @@ export function groupByMonth<T extends { starts_at: string }>(
     if (last && last.key === key) {
       last.events.push(event)
     } else {
-      groups.push({ key, label: monthLabel(event.starts_at), events: [event] })
+      groups.push({ key, label: monthLabel(event.starts_at, locale), events: [event] })
     }
   }
   return groups

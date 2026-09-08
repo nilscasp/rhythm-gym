@@ -628,8 +628,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_pending_enrollments: { Args: Record<string, never>; Returns: Json }
       event_zoom_url: { Args: { p_event_id: string }; Returns: string }
+      grant_enrollment_by_email: {
+        Args: {
+          p_email: string
+          p_program_slug: string
+          p_drip_start?: string | null
+          p_session_id?: string | null
+        }
+        Returns: Json
+      }
       is_admin_user: { Args: { check_uid: string }; Returns: boolean }
+      set_membership_by_customer: {
+        Args: { p_customer_id: string; p_email: string; p_active: boolean }
+        Returns: Json
+      }
       redeem_access_code: { Args: { p_code: string }; Returns: Json }
     }
     Enums: {

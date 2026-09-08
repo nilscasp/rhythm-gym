@@ -7,11 +7,18 @@ import { Footer } from '../components/Footer';
 import { ChromeGate } from '../components/ChromeGate';
 import { createClient } from './lib/supabase/server';
 import { BRAND_HEADER, BRAND_META, DEFAULT_BRAND, isBrand, type Brand } from './lib/brand';
+import { DEFAULT_LOCALE, LOCALE_HEADER, isLocale, type Locale } from './lib/locale';
 
 /** Liest die Marke, die `proxy.ts` als Request-Header mitgeschickt hat. */
 async function currentBrand(): Promise<Brand> {
   const value = (await headers()).get(BRAND_HEADER);
   return isBrand(value) ? value : DEFAULT_BRAND;
+}
+
+/** Sprache aus `proxy.ts` — dasselbe Muster wie die Marke. */
+async function currentLocale(): Promise<Locale> {
+  const value = (await headers()).get(LOCALE_HEADER);
+  return isLocale(value) ? value : DEFAULT_LOCALE;
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,6 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const brand = await currentBrand();
+  const locale = await currentLocale();
 
   const supabase = await createClient();
   const {
@@ -44,7 +52,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   }
 
   return (
-    <html lang="de" data-brand={brand}>
+    <html lang={locale} data-brand={brand}>
       <head>
         {/* Gym-Fonts kommen weiter vom Google-CDN. Die Schule bringt ihre
             eigenen woff2 mit (app/fonts-schule.css) — kein Fremd-Request. */}
@@ -67,7 +75,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <ChromeGate hideOn={['/auth']}>
-          <Nav isAuthenticated={isAuthenticated} isAdmin={isAdmin} brand={brand} />
+          <Nav isAuthenticated={isAuthenticated} isAdmin={isAdmin} brand={brand} locale={locale} />
         </ChromeGate>
         {children}
         <ChromeGate hideOn={['/auth']}>

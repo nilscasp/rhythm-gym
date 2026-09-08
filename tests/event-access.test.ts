@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 import {
   ANONYMOUS,
-  accessHint,
   berlinDate,
+  eventTimeLabel,
   formatEventDate,
   formatEventTime,
   groupByMonth,
@@ -64,11 +64,6 @@ describe('hasEventAccess', () => {
     expect(hasEventAccess(member, event).canJoin).toBe(true)
   })
 
-  test('der Hinweis am Termin nennt den Grund und schweigt bei offener Tür', () => {
-    expect(accessHint({ canJoin: true })).toBeNull()
-    expect(accessHint({ canJoin: false, reason: 'premium' })).toContain('Inneren Kreis')
-    expect(accessHint({ canJoin: false, reason: 'login' })).toContain('an')
-  })
 })
 
 describe('localized', () => {
@@ -122,6 +117,19 @@ describe('Zeit in Berliner Zone', () => {
 
   test('Monatsbeschriftung', () => {
     expect(monthLabel(winter)).toBe('Dezember 2026')
+  })
+
+  test('Monat und Datum folgen der Sprache', () => {
+    expect(monthLabel(winter, 'en')).toBe('December 2026')
+    expect(formatEventDate(sommer, 'en')).toContain('September')
+    expect(formatEventDate(sommer, 'en')).not.toContain('.')
+  })
+
+  test('ganztägig wird in der Sprache der Seite beschriftet', () => {
+    const ganztags = { starts_at: winter, all_day: true }
+    expect(eventTimeLabel(ganztags)).toBe('ganztägig')
+    expect(eventTimeLabel(ganztags, { allDayLabel: 'all day' })).toBe('all day')
+    expect(eventTimeLabel({ starts_at: winter, all_day: false })).toBe('19:00')
   })
 })
 

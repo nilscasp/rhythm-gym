@@ -19,9 +19,54 @@ export async function GET(request: Request) {
     // Darf den Login nie blockieren: Fehler werden geloggt (ohne Adresse) und
     // beim nächsten Callback erneut versucht, weil brevo_synced_at NULL bleibt.
     await syncBriefeConsent(supabase)
+    // Ebenfalls nie blockierend: ein vor der Anmeldung getätigter Kauf holt
+    // hier sein Konto ein.
+    await claimPurchases(supabase)
   }
 
   return NextResponse.redirect(`${origin}/training`)
+}
+
+/**
+ * Löst Käufe ein, die vor dem Konto getätigt wurden (Migration 0007).
+ *
+ * Wer über einen Payment-Link kauft, hat oft noch kein Konto. Der Webhook parkt
+ * den Kauf dann in `pending_enrollments` unter der Adresse. Genau hier — nach
+ * der Mailbestätigung — wird daraus ein Enrollment.
+ *
+ * Bewusst der NORMALE Client, nicht der service_role-Client:
+ * `claim_pending_enrollments()` läuft als `authenticated` und liest die Adresse
+ * selbst aus `auth.users`, und zwar nur die bestätigte. Damit kann niemand mit
+ * einer fremden, unbestätigten Adresse einen fremden Kauf einsammeln. Würde der
+ * Webhook-Client das hier tun, müsste diese Route der Adresse glauben, die ihr
+ * gereicht wird — genau die Vertrauensstellung, die die Funktion vermeidet.
+ *
+ * Ein Fehlschlag ist folgenlos: die Zeile bleibt unclaimed und der nächste
+ * Login versucht es erneut. Der Redirect passiert in jedem Fall.
+ */
+async function claimPurchases(supabase: ServerClient): Promise<void> {
+  try {
+    const { data, error } = await supabase.rpc('claim_pending_enrollments')
+    if (error) {
+      console.error('[auth/callback] Kauf-Einlösung fehlgeschlagen:', error.message)
+      return
+    }
+
+    // Nur die Anzahl, nie die Adresse.
+    const claimed =
+      data && typeof data === 'object' && !Array.isArray(data)
+        ? (data as { claimed?: unknown }).claimed
+        : undefined
+
+    if (typeof claimed === 'number' && claimed > 0) {
+      console.info('[auth/callback] Käufe eingelöst:', claimed)
+    }
+  } catch (err) {
+    console.error(
+      '[auth/callback] Kauf-Einlösung Fehler:',
+      err instanceof Error ? err.message : err
+    )
+  }
 }
 
 /**
