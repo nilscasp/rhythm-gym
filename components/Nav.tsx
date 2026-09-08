@@ -52,6 +52,52 @@ const linkBase: React.CSSProperties = {
   transition: 'color 0.2s',
 };
 
+/**
+ * Der Sprachschalter. Steht bewusst auf Modulebene: als Funktion innerhalb von
+ * `Nav` wäre es bei jedem Rendern eine neue Komponente, die ihren Zustand
+ * verliert (react-hooks/static-components).
+ *
+ * Sichtbar ist nur das Kürzel — „In English" ausgeschrieben sprengt die
+ * Kopfzeile bei 390px. Der ganze Satz steht in `aria-label` und `title`.
+ */
+function LocaleSwitch({
+  href,
+  code,
+  title,
+  lang,
+  block = false,
+  onNavigate,
+}: {
+  href: string;
+  code: string;
+  title: string;
+  lang: string;
+  block?: boolean;
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      hrefLang={lang}
+      title={title}
+      aria-label={title}
+      onClick={onNavigate}
+      style={{
+        ...linkBase,
+        color: 'var(--muted)',
+        textDecoration: 'none',
+        fontSize: 12,
+        border: '1px solid var(--border)',
+        borderRadius: 2,
+        padding: block ? '12px 14px' : '7px 10px',
+        display: block ? 'block' : 'inline-block',
+      }}
+    >
+      {code}
+    </Link>
+  );
+}
+
 export function Nav({
   isAuthenticated = false,
   isAdmin = false,
@@ -72,7 +118,10 @@ export function Nav({
   // benannt, aber deutsch bedient, dort wäre der Schalter ein leeres Versprechen.
   const other: Locale = locale === 'de' ? 'en' : 'de';
   const switchHref = switchLocaleHref(pathname ?? '/', other);
-  const switchLabel = other === 'en' ? t.nav.toEnglish : t.nav.toGerman;
+  // „In English" / „Auf Deutsch" ausgeschrieben sprengt die Kopfzeile bei
+  // 390px — dort steht nur das Kürzel, vorgelesen wird der ganze Satz.
+  const switchLabel = other.toUpperCase();
+  const switchTitle = other === 'en' ? t.nav.toEnglish : t.nav.toGerman;
   const showSwitch = brand === 'schule';
 
   const isActive = (href: string) =>
@@ -116,13 +165,12 @@ export function Nav({
         {!isAuthenticated && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
             {showSwitch && (
-              <Link
+              <LocaleSwitch
                 href={switchHref}
-                hrefLang={other}
-                style={{ ...linkBase, color: 'var(--muted)', textDecoration: 'none', fontSize: 12 }}
-              >
-                {switchLabel}
-              </Link>
+                code={switchLabel}
+                title={switchTitle}
+                lang={other}
+              />
             )}
             <Link
               href={localizeHref('/auth/login', locale)}
@@ -198,6 +246,16 @@ export function Nav({
                   </li>
                 );
               })}
+              {showSwitch && (
+                <li>
+                  <LocaleSwitch
+                    href={switchHref}
+                    code={switchLabel}
+                    title={switchTitle}
+                    lang={other}
+                  />
+                </li>
+              )}
             </ul>
 
             <button
@@ -258,6 +316,18 @@ export function Nav({
               </Link>
             </li>
           ))}
+          {showSwitch && (
+            <li>
+              <LocaleSwitch
+                href={switchHref}
+                code={switchLabel}
+                title={switchTitle}
+                lang={other}
+                block
+                onNavigate={() => setOpen(false)}
+              />
+            </li>
+          )}
         </ul>
       )}
 

@@ -9,10 +9,14 @@ import {
   unlockDateForDay,
 } from '../../../../lib/course-access'
 import {
+  COURSE_TOTAL_DAYS,
+  PLANNED_DAY_NUMBERS,
+  RHYTHMUS_CYCLES,
   RHYTHMUS_DAYS,
   cycleForDay,
   type RhythmusDay,
 } from '../../../../../data/rhythmusfundament-days'
+import { DayNav, type NavCycle } from '../../_components/DayNav'
 import { DayPlayer } from '../../_components/DayPlayer'
 import { rowToHandpan, derivePitchMap, type PitchMap } from '../../../../lib/handpan'
 import { MarkdownBody } from '../../_components/MarkdownBody'
@@ -102,6 +106,43 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
       ? formatDateDE(unlockDateForDay(access.dripStartDate, next.number))
       : null
 
+  // Die Tagesleiste bekommt jeden der 44 Tage — auch die gesperrten und die
+  // noch nicht hochgeladenen. Was gesperrt ist, entscheidet dieselbe Regel wie
+  // der Server-Redirect oben: alles über `maxUnlockedDay`.
+  const unlockLabelFor = (dayNumber: number): string | null =>
+    access.dripStartDate && dayNumber > access.maxUnlockedDay
+      ? formatDateDE(unlockDateForDay(access.dripStartDate, dayNumber))
+      : null
+
+  const navCycles: NavCycle[] = RHYTHMUS_CYCLES.map((c) => {
+    const vorhandene = RHYTHMUS_DAYS.filter(
+      (d) => d.number >= c.dayRange[0] && d.number <= c.dayRange[1],
+    ).map((d) => ({
+      number: d.number,
+      title: d.title,
+      locked: d.number > access.maxUnlockedDay,
+      unlockLabel: unlockLabelFor(d.number),
+      planned: false,
+    }))
+
+    const geplante = PLANNED_DAY_NUMBERS.filter(
+      (n) => n >= c.dayRange[0] && n <= c.dayRange[1],
+    ).map((n) => ({
+      number: n,
+      title: 'Inhalt folgt',
+      // Ohne Inhalt bleibt der Tag zu, auch wenn der Drip ihn längst freigäbe.
+      locked: true,
+      unlockLabel: unlockLabelFor(n),
+      planned: true,
+    }))
+
+    return {
+      number: c.number,
+      title: c.title,
+      days: [...vorhandene, ...geplante].sort((a, b) => a.number - b.number),
+    }
+  })
+
   // Aktives Instrument des Users → Pitch-Map. Damit klingt das Playback in den
   // echten Tönen seines Pans (Fallback A4/C2, wenn keins gewählt).
   let pitchMap: PitchMap | null = null
@@ -151,7 +192,15 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
     <>
       <style>{TAG_CSS}</style>
       <main className="tag-page">
-        <div className="tag-wrap">
+        <div className="tag-shell">
+          <DayNav
+            cycles={navCycles}
+            currentDay={day.number}
+            totalDays={COURSE_TOTAL_DAYS}
+            unlockedDays={access.maxUnlockedDay}
+          />
+
+          <div className="tag-wrap">
           {/* Breadcrumb / cycle pill */}
           <div className="tag-breadcrumb">
             <Link href="/training/rhythmusfundament" className="tag-crumb-link">
@@ -264,6 +313,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
               <div className="tag-nav-spacer" />
             )}
           </nav>
+          </div>
         </div>
       </main>
     </>
@@ -278,9 +328,25 @@ const TAG_CSS = `
     padding: 36px 20px 96px;
     font-family: var(--font-body);
   }
-  .tag-wrap {
+  /* Hülle: auf breiten Schirmen Tagesleiste links, Inhalt rechts.
+     Darunter eine Spalte — die Leiste klappt sich dann selbst auf. */
+  .tag-shell {
     max-width: 1180px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (min-width: 1024px) {
+    .tag-shell {
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 40px;
+    }
+  }
+
+  .tag-wrap {
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 32px;
