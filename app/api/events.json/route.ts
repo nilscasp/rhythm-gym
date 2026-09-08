@@ -56,6 +56,11 @@ export async function GET(request: Request) {
     .select(
       'id, title, description, starts_at, ends_at, kind, location, program_id, visibility, series_id, all_day, website_link, created_at, updated_at',
     )
+    // Nur öffentliche Termine. Die Leiste auf handpan.schule ist ein
+    // Schaufenster für Besucher — interne Gruppencalls und Kurs-Sessions
+    // gehören in den Kalender der Schule, nicht auf die Verkaufsseite.
+    // Ohne diesen Filter würden zehn Kurs-Sessions die Leiste zuschütten.
+    .eq('visibility', 'public')
     .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true })
     .limit(50)
