@@ -55,7 +55,7 @@ export interface RhythmusDay {
   /** 1-line ESSENZ-Auszug aus dem Markdown (für Index-Card + meta). */
   essence: string;
   /** Zyklus-Zugehörigkeit (1, 2, 3). */
-  cycle: 1 | 2 | 3;
+  cycle: 1 | 2 | 3 | 4;
   /** Mehrere Presets — User wechselt per Klick. */
   presets: RhythmusPreset[];
   /** Hat dieser Tag Overview/LowerThird PNGs unter /public/rhythmusfundament/grafiken/tag-N/? */
@@ -70,7 +70,7 @@ export interface RhythmusDay {
 }
 
 export interface RhythmusCycle {
-  number: 1 | 2 | 3;
+  number: 1 | 2 | 3 | 4;
   title: string;
   subtitle: string;
   dayRange: [number, number];
@@ -95,9 +95,15 @@ export const RHYTHMUS_CYCLES: readonly RhythmusCycle[] = [
   },
   {
     number: 3,
-    title: 'Harmonik, Form, Komposition',
-    subtitle: 'Vom Schlag zum Klang — und zur eigenen Komposition',
-    dayRange: [23, 44],
+    title: 'Unabhängigkeit und Harmonik',
+    subtitle: 'Der Handsatz bricht auf — zwei Stimmen, Akkorde, der erste Break',
+    dayRange: [23, 33],
+  },
+  {
+    number: 4,
+    title: 'Kompositionsrhythmik',
+    subtitle: 'Jedem Element seinen eigenen Atem geben — die Drei, die Form, deine Sprache',
+    dayRange: [34, 44],
   },
 ] as const;
 
@@ -1622,7 +1628,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Dreier-Rhythmik · 12 Sechzehntel statt 16',
     essence:
       'Eine neue Welt: der Dreier. Nicht mehr 4 × 4, sondern 4 × 3.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     videoId: 'd120b5b1-30e4-4e19-ada9-6fe0f9f4fe6b',
     presets: [
@@ -1659,7 +1665,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Inneres Hören · der Ton vor dem Anschlag',
     essence:
       'Bevor du den Ton spielst, sei du schon bei ihm. Inneres Hören wird zur Praxis.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     videoId: '2aa7f639-2cf0-47bf-80b8-b1e66038304c',
     presets: [
@@ -1693,7 +1699,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Ein in sich geschlossenes Element · der erste Körper',
     essence:
       'Heute baust du den ersten kompositorischen Körper — ein Element, das in sich steht.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     presets: [
       {
@@ -1726,7 +1732,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Vier Bögen · zwei Körper · der erste Kreis',
     essence:
       'Zwei kompositorische Körper über vier Bögen. Der erste Kreis schließt sich.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     videoId: '43b3b532-ef4a-49d1-a98d-8343592d6426',
     presets: [
@@ -1761,7 +1767,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Said and Done · die Form als Werkzeug',
     essence:
       'Eine Form steht. Was bisher Praxis war, wird Komposition.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     videoId: '6b7c0d7e-6494-4dcd-ae32-16bde57d1e4e',
     presets: [
@@ -1794,7 +1800,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Melodie + Harmonik + perkussive Rhythmik gleichzeitig',
     essence:
       'Drei Ebenen gleichzeitig — der Frahm-Study-Bogen schließt sich.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     videoId: '428772bd-44c2-46d2-b3ee-21ed1a7eff9e',
     presets: [
@@ -1835,7 +1841,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     subtitle: 'Kompositionsrhythmik · die Übergabe',
     essence:
       'Heute hörst du nicht mehr nach. Heute suchst du selbst — zwei Körper, vier Bögen, deine Komposition.',
-    cycle: 3,
+    cycle: 4,
     hasGrafik: true,
     videoId: '799a540c-014b-4487-8efd-4fa22aff04fa',
     presets: [
@@ -1890,7 +1896,7 @@ export function getDay(num: number): RhythmusDay | undefined {
   return RHYTHMUS_DAYS.find((d) => d.number === num);
 }
 
-export function daysInCycle(cycle: 1 | 2 | 3): readonly RhythmusDay[] {
+export function daysInCycle(cycle: 1 | 2 | 3 | 4): readonly RhythmusDay[] {
   return RHYTHMUS_DAYS.filter((d) => d.cycle === cycle);
 }
 

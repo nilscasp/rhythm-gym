@@ -17,7 +17,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // /training/rhythmusfundament — 44-Tage-Index.
 //
-// Auth-gates first. Listet die Tage gruppiert in drei Zyklen. Noch nicht
+// Auth-gates first. Listet die Tage gruppiert in vier Zyklen. Noch nicht
 // hochgeladene Tage (PLANNED_DAY_NUMBERS) erscheinen als Platzhalter. Jede Karte
 // linkt auf /training/rhythmusfundament/tag/[n] mit Markdown-Body + Player.
 //
@@ -69,7 +69,7 @@ export default async function RhythmusfundamentIndexPage() {
             <div className="rf-eyebrow">Rhythm Gym · Kurs</div>
             <h1 className="rf-title">RHYTHMUS-FUNDAMENT</h1>
             <p className="rf-tagline">
-              {COURSE_TOTAL_DAYS} Tage · drei Zyklen · vom Puls bis zur eigenen Komposition.
+              {COURSE_TOTAL_DAYS} Tage · vier Zyklen · vom Puls bis zur eigenen Komposition.
             </p>
             <p className="rf-sub">
               Wähle deinen Tag — Text, Übungen und der Rhythmus-Player sind
@@ -99,7 +99,7 @@ export default async function RhythmusfundamentIndexPage() {
                   ? `${maxUnlockedDay} von ${COURSE_TOTAL_DAYS} Tagen frei`
                   : `${COURSE_TOTAL_DAYS} Tage`}
               </span>
-              <span className="rf-chip">3 Zyklen</span>
+              <span className="rf-chip">{RHYTHMUS_CYCLES.length} Zyklen</span>
               <Link
                 href="/training/rhythmusfundament/zyklus-2-uebersicht"
                 className="rf-chip rf-chip--link"
