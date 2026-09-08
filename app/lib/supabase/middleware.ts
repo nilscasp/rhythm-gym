@@ -18,6 +18,11 @@ const PUBLIC_PATHS = new Set([
   '/api/events.json',
   // Der Laden für Selbststudium-Kurse — er richtet sich an Menschen ohne Konto.
   '/kurse',
+  // Stripe ruft ohne Cookie an. Fehlt der Pfad hier, antwortet die Schleuse mit
+  // einem Redirect auf `/` — Stripe wertet das als zugestellt, der Kauf käme nie
+  // an, und niemand würde es merken. Der Türsteher dieses Endpunkts ist die
+  // Signaturprüfung im Handler, nicht die Anmeldung.
+  '/api/stripe/webhook',
 ])
 
 /** Öffentliche Pfade mit Unterseiten, z. B. /termine/{id}. */
