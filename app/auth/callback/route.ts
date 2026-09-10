@@ -4,9 +4,24 @@ import { isBrevoConfigured, upsertConfirmedContact } from '../../lib/brevo'
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>
 
+/**
+ * Ziel nach dem Code-Tausch. Bewusst eine feste Liste statt „alles, was mit /
+ * beginnt": Präfix-Prüfungen übersehen Varianten wie `/\`, `/%09/` oder
+ * Steuerzeichen, und der Login wäre eine offene Weiterleitung. Alles, was nicht
+ * auf der Liste steht, landet wie bisher im Training.
+ */
+const NEXT_TARGETS = new Set(['/auth/passwort'])
+
+function safeNext(value: string | null): string {
+  return value && NEXT_TARGETS.has(value) ? value : '/training'
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  // Die „Passwort vergessen"-Mail hängt `next=/auth/passwort` an: nach dem
+  // Tausch soll man ein neues Passwort setzen, nicht im Training landen.
+  const next = safeNext(searchParams.get('next'))
 
   if (code) {
     const supabase = await createClient()
@@ -24,7 +39,7 @@ export async function GET(request: Request) {
     await claimPurchases(supabase)
   }
 
-  return NextResponse.redirect(`${origin}/training`)
+  return NextResponse.redirect(`${origin}${next}`)
 }
 
 /**

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '../../lib/supabase/client'
 import { CONSENT_TEXT, CONSENT_TEXT_VERSION } from '../../lib/consent'
 
-type Mode = 'login' | 'signup'
+type Mode = 'login' | 'signup' | 'reset'
 
 /**
  * Das Wort, das im Einwilligungstext zur Datenschutzerklärung verlinkt wird.
@@ -55,7 +55,9 @@ function LoginPageInner() {
   // Nicht vorangekreuzt und freiwillig: ohne Haken gibt es nur Konto-Mails.
   const [consent, setConsent] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  // Das Callback und die Passwort-Seite schicken Fehler als ?error= hierher —
+  // vorher verpufften sie, die Person sah nur das leere Formular.
+  const [message, setMessage] = useState(searchParams.get('error') ?? '')
   const supabase = createClient()
   const router = useRouter()
 
@@ -73,8 +75,22 @@ function LoginPageInner() {
           router.push('/training')
           router.refresh()
         }
+      } else if (mode === 'reset') {
+        // Der Link in der Mail führt über das Callback (Code → Sitzung) und
+        // von dort auf die Seite zum Setzen des neuen Passworts.
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/callback?next=/auth/passwort`,
+        })
+        if (error) {
+          setMessage(error.message)
+        } else {
+          // Bewusst neutral: verrät nicht, ob es die Adresse gibt.
+          setMessage(
+            '✅ Wenn es ein Konto mit dieser Adresse gibt, ist eine Mail zum Zurücksetzen unterwegs — bitte auch im Spam-Ordner nachsehen.'
+          )
+        }
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           // Expliziter Redirect aufs Callback-Route — entkoppelt den
@@ -94,6 +110,14 @@ function LoginPageInner() {
         })
         if (error) {
           setMessage(error.message)
+        } else if (data.user && data.user.identities?.length === 0) {
+          // Supabase antwortet bei einer Adresse, die schon ein bestätigtes
+          // Konto hat, mit 200 und leeren `identities` — und schickt KEINE
+          // Mail (Schutz vor Adress-Abfrage). Ohne diesen Zweig stünde hier
+          // „Bestätigungsmail gesendet", und die Person wartet vergeblich.
+          setMessage(
+            'ℹ️ Für diese Adresse gibt es schon ein Konto. Bitte einloggen — oder unten „Passwort vergessen" wählen.'
+          )
         } else {
           setMessage('✅ Bestätigungsmail gesendet — bitte E-Mail prüfen!')
         }
@@ -237,6 +261,10 @@ function LoginPageInner() {
                   inputMode="email"
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={handleInputFocus}
+                  onKeyDown={(e) => {
+                    // Beim Zurücksetzen gibt es kein Passwortfeld — Enter muss hier reichen.
+                    if (e.key === 'Enter' && mode === 'reset') handleSubmit()
+                  }}
                   style={{
                     width: '100%',
                     backgroundColor: 'var(--black)',
@@ -252,6 +280,7 @@ function LoginPageInner() {
                   }}
                 />
               </div>
+              {mode !== 'reset' && (
               <div>
                 <label
                   style={{
@@ -290,6 +319,7 @@ function LoginPageInner() {
                   }}
                 />
               </div>
+              )}
             </div>
 
             {/* Einwilligung Briefe — nur beim Konto anlegen, nie vorangekreuzt, freiwillig */}
@@ -331,7 +361,11 @@ function LoginPageInner() {
                 style={{
                   marginTop: 16,
                   fontSize: 14,
-                  color: message.startsWith('✅') ? '#4ade80' : '#f87171',
+                  color: message.startsWith('✅')
+                    ? '#4ade80'
+                    : message.startsWith('ℹ️')
+                      ? 'var(--amber)'
+                      : '#f87171',
                   fontFamily: "var(--font-body)",
                 }}
               >
@@ -365,9 +399,44 @@ function LoginPageInner() {
                 ? 'Laden...'
                 : mode === 'login'
                   ? 'Einloggen →'
-                  : 'Konto erstellen →'}
+                  : mode === 'reset'
+                    ? 'Link schicken →'
+                    : 'Konto erstellen →'}
             </button>
 
+            {/* Passwort vergessen — vom Login aus hin, vom Zurücksetzen aus zurück */}
+            {mode !== 'signup' && (
+              <p
+                style={{
+                  marginTop: 14,
+                  fontSize: 13,
+                  textAlign: 'center',
+                  fontFamily: 'var(--font-body)',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMessage('')
+                    setMode(mode === 'reset' ? 'login' : 'reset')
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    color: 'var(--muted)',
+                    textDecoration: 'underline',
+                    fontFamily: 'inherit',
+                    fontSize: 'inherit',
+                  }}
+                >
+                  {mode === 'reset' ? '← Zurück zum Login' : 'Passwort vergessen?'}
+                </button>
+              </p>
+            )}
+
+            {mode !== 'reset' && (
             <p
               style={{
                 marginTop: 14,
@@ -384,6 +453,7 @@ function LoginPageInner() {
               </Link>
               .
             </p>
+            )}
           </div>
 
           <p
