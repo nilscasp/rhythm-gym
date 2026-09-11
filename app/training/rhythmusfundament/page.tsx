@@ -22,7 +22,8 @@ import {
 // linkt auf /training/rhythmusfundament/tag/[n] mit Markdown-Body + Player.
 //
 // Der reichere Tag-12-bis-22-Player (mit Stufen, Kombis, Spielwegen, Supabase-
-// Abhaken) lebt jetzt unter /training/rhythmusfundament/zyklus-2-uebersicht.
+// Abhaken) lebt weiterhin unter /training/rhythmusfundament/zyklus-2-uebersicht,
+// ist von dieser Seite aber nicht mehr verlinkt (Menü sitzt im Tag-Player links).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const metadata = {
@@ -100,12 +101,6 @@ export default async function RhythmusfundamentIndexPage() {
                   : `${COURSE_TOTAL_DAYS} Tage`}
               </span>
               <span className="rf-chip">{RHYTHMUS_CYCLES.length} Zyklen</span>
-              <Link
-                href="/training/rhythmusfundament/zyklus-2-uebersicht"
-                className="rf-chip rf-chip--link"
-              >
-                Zyklus 2 · klassische Übersicht →
-              </Link>
             </div>
           </header>
 
@@ -306,14 +301,6 @@ const INDEX_CSS = `
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-  }
-  .rf-chip--link {
-    text-decoration: none;
-    border: 1px solid transparent;
-    transition: border-color 0.15s;
-  }
-  .rf-chip--link:hover {
-    border-color: var(--amber);
   }
 
   /* ── Cycle Section ── */
