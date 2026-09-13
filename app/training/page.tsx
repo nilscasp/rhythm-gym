@@ -5,6 +5,13 @@ import type { Metadata } from 'next'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
 import { BRAND_HEADER, DEFAULT_BRAND, isBrand, type Brand } from '../lib/brand'
+import { getCourseAccess } from '../lib/course-access'
+import {
+  getCompletedDaysByProgram,
+  nextOpenDay,
+  progressPercent,
+} from '../lib/course-progress'
+import { COURSE_TOTAL_DAYS, RHYTHMUS_DAYS } from '../../data/rhythmusfundament-days'
 import { RedeemCodeCard } from './_components/RedeemCodeCard'
 
 async function currentBrand(): Promise<Brand> {
@@ -139,8 +146,15 @@ export default async function TrainingHubPage() {
   if (!user) redirect('/auth/login')
 
   // B. Parallel reads
-  const [profileRes, enrollmentsRes, completionsRes, savedPatternsRes, activityRes] =
-    await Promise.all([
+  const [
+    profileRes,
+    enrollmentsRes,
+    completionsRes,
+    savedPatternsRes,
+    activityRes,
+    completedDaysByProgram,
+    rfAccess,
+  ] = await Promise.all([
       supabase
         .from('profiles')
         .select('full_name, plan, current_streak, current_level, last_practice_date')
@@ -168,6 +182,11 @@ export default async function TrainingHubPage() {
         .eq('user_id', user.id)
         .order('day', { ascending: false })
         .limit(60),
+      // Abgehakte Kurstage (day_completions), je Programm.
+      getCompletedDaysByProgram(supabase, user.id),
+      // Drip-Stand des Fundament-Kurses — für „Weiter mit Tag X" braucht der
+      // Hub dieselbe Regel wie die Kursseiten, nicht eine zweite.
+      getCourseAccess(supabase, user.id, RHYTHMUSFUNDAMENT_SLUG),
     ])
 
   const profile: ProfileRow | null = (profileRes.data as ProfileRow | null) ?? null
@@ -223,6 +242,20 @@ export default async function TrainingHubPage() {
   const hasRhythmusfundament = enrollments.some(
     (e) => e.programs?.slug === RHYTHMUSFUNDAMENT_SLUG
   )
+  // Nächster offener, noch nicht abgehakter Tag — Ziel des Hero-Knopfs.
+  const rfCompleted: Set<number> = rfAccess.programId
+    ? (completedDaysByProgram.get(rfAccess.programId) ?? new Set<number>())
+    : new Set<number>()
+  const rfContinueDay: number | null = hasRhythmusfundament
+    ? nextOpenDay(
+        rfCompleted,
+        rfAccess.maxUnlockedDay,
+        RHYTHMUS_DAYS.map((d) => d.number),
+      )
+    : null
+  const rfContinueHref = rfContinueDay
+    ? `/training/rhythmusfundament/tag/${rfContinueDay}`
+    : '/training/rhythmusfundament'
   // Streak is computed from daily_activity (source of truth) — the `profile.current_streak`
   // column is a denormalized cache that no job updates yet.
   const streak = computeStreak(activityDays)
@@ -271,8 +304,10 @@ export default async function TrainingHubPage() {
             )}
 
             {hasRhythmusfundament ? (
-              <Link href="/training/rhythmusfundament" className="hub-cta-primary">
-                Weiter mit Rhythmus-Fundament →
+              <Link href={rfContinueHref} className="hub-cta-primary">
+                {rfContinueDay
+                  ? `Weiter mit Tag ${rfContinueDay} →`
+                  : 'Weiter mit Rhythmus-Fundament →'}
               </Link>
             ) : (
               <Link href="/patterns" className="hub-cta-primary">
@@ -294,9 +329,17 @@ export default async function TrainingHubPage() {
                 {enrollments.map((enr) => {
                   const p = enr.programs
                   if (!p) return null
-                  const total = p.total_exercises ?? 0
-                  const done = completionsByProgram.get(p.id) ?? 0
-                  const pct = total > 0 ? Math.round((done / total) * 100) : 0
+                  // Programme mit Tagesmodell zeigen abgehakte TAGE; sonst
+                  // (alte Zählung) abgehakte Übungen. Live-Kurse ohne beides
+                  // bekommen keinen Balken.
+                  const hasDays = p.slug === RHYTHMUSFUNDAMENT_SLUG
+                  const daysDone = completedDaysByProgram.get(p.id)?.size ?? 0
+                  const total = hasDays ? COURSE_TOTAL_DAYS : (p.total_exercises ?? 0)
+                  const done = hasDays ? daysDone : (completionsByProgram.get(p.id) ?? 0)
+                  const pct = progressPercent(done, total)
+                  const unit = hasDays ? 'Tagen' : 'Übungen'
+                  const cardHref =
+                    hasDays && rfContinueDay ? rfContinueHref : `/training/${p.slug}`
                   return (
                     <article key={p.id} className="hub-card hub-program-card">
                       <div className="hub-card-top">
@@ -319,15 +362,15 @@ export default async function TrainingHubPage() {
                             <span className="hub-progress-fill" style={{ width: `${pct}%` }} />
                           </div>
                           <span className="hub-progress-label">
-                            {done} von {total} Übungen abgehakt · <strong>{pct} %</strong>
+                            {done} von {total} {unit} abgehakt · <strong>{pct} %</strong>
                           </span>
                         </div>
                       ) : null}
                       <Link
-                        href={`/training/${p.slug}`}
+                        href={cardHref}
                         className="hub-cta-secondary"
                       >
-                        Weiter →
+                        {hasDays && rfContinueDay ? `Weiter mit Tag ${rfContinueDay} →` : 'Weiter →'}
                       </Link>
                     </article>
                   )

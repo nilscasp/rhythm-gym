@@ -21,6 +21,8 @@ export const COURSE_TIMEZONE = 'Europe/Berlin'
 export type CourseAccess = {
   /** Enrollment-Zeile vorhanden? */
   enrolled: boolean
+  /** programs.id des Kurses — null, wenn nicht eingeschrieben. Für day_completions. */
+  programId: string | null
   /** ISO-Datum (YYYY-MM-DD) oder null = kein Drip, alles offen */
   dripStartDate: string | null
   /** Höchste freigeschaltete Tagesnummer (0 = noch nichts offen) */
@@ -91,11 +93,17 @@ export async function getCourseAccess(
   courseSlug: string,
 ): Promise<CourseAccess> {
   const today = berlinToday()
-  const locked: CourseAccess = { enrolled: false, dripStartDate: null, maxUnlockedDay: 0, today }
+  const locked: CourseAccess = {
+    enrolled: false,
+    programId: null,
+    dripStartDate: null,
+    maxUnlockedDay: 0,
+    today,
+  }
 
   const { data, error } = await supabase
     .from('enrollments')
-    .select('drip_start_date, programs!inner(slug)')
+    .select('program_id, drip_start_date, programs!inner(slug)')
     .eq('user_id', userId)
     .eq('programs.slug', courseSlug)
     .limit(1)
@@ -117,6 +125,7 @@ export async function getCourseAccess(
   const dripStartDate = row.drip_start_date ?? null
   return {
     enrolled: true,
+    programId: row.program_id,
     dripStartDate,
     maxUnlockedDay: unlockedThroughDay(dripStartDate, today),
     today,

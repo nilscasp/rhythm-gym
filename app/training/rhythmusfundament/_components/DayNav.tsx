@@ -28,6 +28,8 @@ export type NavDay = {
   unlockLabel: string | null
   /** Tag ist eingeplant, aber noch ohne Inhalt (41–44). */
   planned: boolean
+  /** Vom Schüler abgehakt (day_completions). */
+  done: boolean
 }
 
 export type NavCycle = {
@@ -41,11 +43,14 @@ export function DayNav({
   currentDay,
   totalDays,
   unlockedDays,
+  completedDays,
 }: {
   cycles: NavCycle[]
   currentDay: number
   totalDays: number
   unlockedDays: number
+  /** Anzahl abgehakter Tage — steht in der Kopfzeile neben „frei". */
+  completedDays: number
 }) {
   const [open, setOpen] = useState(false)
   const activeRef = useRef<HTMLAnchorElement | null>(null)
@@ -67,7 +72,7 @@ export function DayNav({
       <div className="dn-head">
         <p className="dn-title">Alle Tage</p>
         <p className="dn-count">
-          {unlockedDays} von {totalDays} frei
+          {unlockedDays} von {totalDays} frei · {completedDays} abgehakt
         </p>
         <button
           type="button"
@@ -115,7 +120,11 @@ export function DayNav({
                   <li key={day.number}>
                     <Link
                       href={`/training/rhythmusfundament/tag/${day.number}`}
-                      className={isCurrent ? 'dn-day dn-day--current' : 'dn-day'}
+                      className={
+                        'dn-day' +
+                        (isCurrent ? ' dn-day--current' : '') +
+                        (day.done ? ' dn-day--done' : '')
+                      }
                       aria-current={isCurrent ? 'page' : undefined}
                       ref={isCurrent ? activeRef : undefined}
                       onClick={() => setOpen(false)}
@@ -124,6 +133,11 @@ export function DayNav({
                       <span className="dn-day-text">
                         <span className="dn-day-title">{day.title}</span>
                       </span>
+                      {day.done ? (
+                        <span className="dn-day-check" aria-label="abgehakt" title="abgehakt">
+                          ✓
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 )
@@ -245,9 +259,20 @@ const DAY_NAV_CSS = `
   }
   .dn-day--current .dn-day-num { color: var(--amber); }
 
-  .dn-day-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .dn-day-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1 1 auto; }
   .dn-day-title { overflow-wrap: anywhere; }
   .dn-day-note { font-size: 12px; color: var(--muted); }
+
+  /* Abgehakt: Haken rechts, Nummer in Gold — die Reise wird sichtbar. */
+  .dn-day-check {
+    flex-shrink: 0;
+    margin-left: auto;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amber);
+  }
+  .dn-day--done .dn-day-num { color: var(--amber); }
 
   /* Ab Tablet-Breite: feste Spalte, die mitläuft und für sich scrollt. */
   @media (min-width: 1024px) {

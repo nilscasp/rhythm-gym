@@ -16,8 +16,10 @@ import {
   cycleForDay,
   type RhythmusDay,
 } from '../../../../../data/rhythmusfundament-days'
+import { getCompletedDays } from '../../../../lib/course-progress'
 import { DayNav, type NavCycle } from '../../_components/DayNav'
 import { DayPlayer } from '../../_components/DayPlayer'
+import { DayCheck } from '../../_components/DayCheck'
 import { rowToHandpan, derivePitchMap, type PitchMap } from '../../../../lib/handpan'
 import { MarkdownBody } from '../../_components/MarkdownBody'
 import { BunnyVideoEmbed } from '../../_components/BunnyVideoEmbed'
@@ -96,6 +98,11 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
   // Server-Redirect zum Index, der das Freischalt-Datum zeigt.
   if (day.number > access.maxUnlockedDay) redirect('/training/rhythmusfundament')
 
+  // Abgehakte Tage: für den Haken auf dieser Seite und die ✓ in der Leiste.
+  const completed = access.programId
+    ? await getCompletedDays(supabase, user.id, access.programId)
+    : new Set<number>()
+
   const markdown = await readDayMarkdown(day.number)
   const cycle = cycleForDay(day.number)
   const prev = RHYTHMUS_DAYS.find((d) => d.number === day.number - 1)
@@ -123,6 +130,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
       locked: d.number > access.maxUnlockedDay,
       unlockLabel: unlockLabelFor(d.number),
       planned: false,
+      done: completed.has(d.number),
     }))
 
     const geplante = PLANNED_DAY_NUMBERS.filter(
@@ -134,6 +142,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
       locked: true,
       unlockLabel: unlockLabelFor(n),
       planned: true,
+      done: false,
     }))
 
     return {
@@ -198,6 +207,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
             currentDay={day.number}
             totalDays={COURSE_TOTAL_DAYS}
             unlockedDays={access.maxUnlockedDay}
+            completedDays={completed.size}
           />
 
           <div className="tag-wrap">
@@ -280,6 +290,9 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
               <DayPlayer presets={day.presets} dayNumber={day.number} pitchMap={pitchMap} />
             </aside>
           </div>
+
+          {/* Tag abhaken — nach dem Inhalt, vor dem Sprung zum nächsten Tag. */}
+          <DayCheck day={day.number} done={completed.has(day.number)} />
 
           {/* Day navigation */}
           <nav className="tag-nav" aria-label="Tag-Navigation">

@@ -162,6 +162,42 @@ export type Database = {
           },
         ]
       }
+      day_completions: {
+        Row: {
+          completed_at: string
+          day_number: number
+          program_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          day_number: number
+          program_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          day_number?: number
+          program_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "day_completions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "day_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           access_code_id: string | null

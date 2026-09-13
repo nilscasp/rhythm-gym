@@ -7,6 +7,11 @@ import {
   unlockDateForDay,
 } from '../../lib/course-access'
 import {
+  getCompletedDays,
+  nextOpenDay,
+  progressPercent,
+} from '../../lib/course-progress'
+import {
   COURSE_TOTAL_DAYS,
   PLANNED_DAY_NUMBERS,
   RHYTHMUS_CYCLES,
@@ -60,6 +65,20 @@ export default async function RhythmusfundamentIndexPage() {
       ? formatDateDE(unlockDateForDay(dripStartDate, dayNumber))
       : null
 
+  // Fortschritt: abgehakte Tage + der nächste offene, noch nicht erledigte Tag.
+  const completed = access.programId
+    ? await getCompletedDays(supabase, user.id, access.programId)
+    : new Set<number>()
+  const donePct = progressPercent(completed.size, COURSE_TOTAL_DAYS)
+  const continueDay = nextOpenDay(
+    completed,
+    maxUnlockedDay,
+    RHYTHMUS_DAYS.map((d) => d.number),
+  )
+  const continueTitle = continueDay
+    ? RHYTHMUS_DAYS.find((d) => d.number === continueDay)?.title ?? null
+    : null
+
   return (
     <>
       <style>{INDEX_CSS}</style>
@@ -101,6 +120,41 @@ export default async function RhythmusfundamentIndexPage() {
                   : `${COURSE_TOTAL_DAYS} Tage`}
               </span>
               <span className="rf-chip">{RHYTHMUS_CYCLES.length} Zyklen</span>
+              <span className="rf-chip rf-chip--done">
+                {completed.size} von {COURSE_TOTAL_DAYS} Tagen abgehakt
+              </span>
+            </div>
+
+            {/* Fortschritt: Balken + Sprung zum nächsten offenen Tag. */}
+            <div className="rf-progress">
+              <div
+                className="rf-progress-bar"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={COURSE_TOTAL_DAYS}
+                aria-valuenow={completed.size}
+                aria-label="Abgehakte Tage"
+              >
+                <span className="rf-progress-fill" style={{ width: `${donePct}%` }} />
+              </div>
+              <div className="rf-progress-row">
+                <span className="rf-progress-label">
+                  {completed.size === 0
+                    ? 'Noch kein Tag abgehakt — der Haken sitzt am Ende jeder Tagesseite.'
+                    : continueDay === null && maxUnlockedDay >= RHYTHMUS_DAYS.length
+                      ? `${donePct} % — alle hochgeladenen Tage geschafft. Tag ${RHYTHMUS_DAYS.length + 1}–${COURSE_TOTAL_DAYS} folgen.`
+                      : `${donePct} % geschafft`}
+                </span>
+                {continueDay ? (
+                  <Link
+                    href={`/training/rhythmusfundament/tag/${continueDay}`}
+                    className="rf-continue"
+                  >
+                    Weiter mit Tag {continueDay}
+                    {continueTitle ? ` · ${continueTitle}` : ''} →
+                  </Link>
+                ) : null}
+              </div>
             </div>
           </header>
 
@@ -140,13 +194,16 @@ export default async function RhythmusfundamentIndexPage() {
                         </div>
                       )
                     }
+                    const done = completed.has(d.number)
                     return (
                       <Link
                         key={d.number}
                         href={`/training/rhythmusfundament/tag/${d.number}`}
-                        className="rf-day-card"
+                        className={done ? 'rf-day-card rf-day-card--done' : 'rf-day-card'}
                       >
-                        <span className="rf-day-num">Tag {d.number}</span>
+                        <span className="rf-day-num">
+                          {done ? '✓ ' : ''}Tag {d.number}
+                        </span>
                         <span className="rf-day-title">{d.title}</span>
                         <span className="rf-day-essence">{d.essence}</span>
                         <span className="rf-day-meta">
@@ -283,6 +340,69 @@ const INDEX_CSS = `
   }
   .rf-day-card--planned {
     border-style: dashed;
+  }
+  .rf-day-card--done {
+    border-color: var(--amber);
+    background: var(--amber-dim, rgba(245,166,35,0.12));
+  }
+  .rf-chip--done {
+    background: var(--amber);
+    color: var(--black);
+  }
+
+  /* ── Fortschritt ── */
+  .rf-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .rf-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .rf-progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--amber);
+    transition: width 0.3s;
+  }
+  .rf-progress-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+  .rf-progress-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rf-continue {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 18px;
+    background: var(--amber);
+    color: var(--black);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .rf-continue:hover { background: var(--amber2, var(--amber)); }
+  @media (max-width: 480px) {
+    .rf-continue { width: 100%; justify-content: center; }
   }
   .rf-meta {
     display: flex;
