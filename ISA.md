@@ -400,3 +400,4 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - ISC-125: 11.09. trägt `cal-chip--past`, computed opacity 0.55; übrige 5 Chips aktiv
 - ISC-127: `TZ=America/Los_Angeles` 22 pass; `TZ=Pacific/Kiritimati` 43 pass (calendar-month + event-access)
 - ISC-128: `bun run build` exit 0, „Compiled successfully", keine Fehler/Warnungen
+- Live (2026-09-13): Push `4f5aac2..4185588`, Vercel dpl_B63p7oBBtJCfYMcNWK8hMfL5hQeo READY (production, Commit 4185588). Interceptor auf `lernen.handpan.schule/termine` (Schul-Marke, 400 px): Monat zuerst, heute = 13, 6 Punkte, kein Overflow; Liste zeigt 17 Karten in 3 Monatsgruppen; frisch geladen ohne Parameter wieder Monat. `www.rhythmgym.io/termine` weiter `data-brand="gym"`.
