@@ -3,11 +3,11 @@ project: rhythm-gym / Handpan Schule des Lebens
 task: VIP-Stufe in der Schul-App (plan + Sichtbarkeit vip)
 slug: vip-stufe
 effort: E3
-phase: verify
-progress: 35/36
+phase: complete
+progress: 36/36
 mode: standard
 started: 2026-09-13T20:05:00+02:00
-updated: 2026-09-13T20:10:00+02:00
+updated: 2026-09-13T21:25:00+02:00
 ---
 
 ## Problem
@@ -266,8 +266,8 @@ Skool kennt drei Stufen (Standard < Premium < VIP); die App kannte zwei. Die VIP
 - [x] ISC-156: `bun run build` exit 0
 - [x] ISC-157: Mobil-Probe `/termine/5319817c…`: Titel, Zeit, Hinweis bzw. Tür, kein Overflow (Device-Mode 606 px, siehe Verification)
 - [x] ISC-158: Interceptor 390×844 Coach-Formular: „VIP" in der Sichtbarkeits-Auswahl
-- [ ] ISC-159: Anti: `www.rhythmgym.io/termine` weiter `data-brand="gym"` und 200
-- [ ] ISC-160: Live: Vercel-Deployment READY mit dem Push-Commit; Detailseite live zeigt VIP-Hinweis
+- [x] ISC-159: Anti: `www.rhythmgym.io/termine` weiter `data-brand="gym"` und 200
+- [x] ISC-160: Live: Vercel-Deployment READY mit dem Push-Commit; Detailseite live zeigt VIP-Hinweis
 - [x] ISC-161: Anti: `event_zoom_url()` für einen Kurs-Termin (`program`) verhält sich unverändert (Regression)
 - [x] ISC-162: Zweitleser (Engineer, read-only) findet keinen Bruch zwischen SQL-Funktion und `hasEventAccess`
 - [x] ISC-163: Anti: `authenticated` hat kein UPDATE-Privileg auf `profiles.plan`, `is_admin`, `stripe_customer_id`, `email` (Fund beim Bau: RLS erlaubte Selbst-Hochstufung)
@@ -404,6 +404,14 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - 2026-09-13 (VIP-Stufe): Vertagt: VAAS-Seite baut den Viewer mit `isPremium:false` — Premium/VIP-Kurs-Termine bekämen dort keine Tür (vorbestehend, fails closed). Fix: `currentViewer()` verwenden.
 - 2026-09-13 (VIP-Stufe): Mobil-Probe: Interceptor-Screenshot rendert keine iframes; Fenster nicht unter 1400 px; DevTools-Device-Mode über Claude-in-Chrome-Tastendruck gab 606 px. Für echte 390 px fehlt noch ein verlässlicher Weg (Bridge oder Device-Preset per UI).
 
+## Changelog
+
+- 2026-09-13 (VIP-Stufe)
+  - conjectured: Zwei Stufen (free/premium) reichen für die Schule; `profiles.plan` ist nur vom Webhook beschreibbar.
+  - refuted_by: Skool hat eine dritte Stufe VIP über Premium; und `profiles_update_own` ohne Spaltenbeschränkung ließ jedes Konto `plan`, `is_admin` und `email` selbst setzen (Live-Abfrage der column_privileges).
+  - learned: Sichtbarkeits- und Stufenlogik müssen als Rangfolge modelliert sein (VIP ⊇ Premium), und jede „nur der Server schreibt das"-Spalte braucht ein entzogenes Tabellen-Privileg plus Spalten-Grant — RLS allein ist zeilen-, nicht spaltenweise.
+  - criterion_now: ISC-131/132 (Rangfolge in SQL), ISC-140 (Rangfolge in TS), ISC-163/164 (kein Selbst-Update auf plan/is_admin/stripe_customer_id/email).
+
 ## Verification
 
 - ISC-1–5: `bun test` — 24 pass, 0 fail (tests/brand.test.ts + course-access)
@@ -492,3 +500,4 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - ISC-161: Kurs-Termin (`program`) mit eigenem Enrollment → OFFEN (unverändert; Enrollment a10ae12b… aktiv)
 - ISC-162: Engineer (opus, read-only): SQL/TS-Matrix deckungsgleich; Blocker `email` im Grant (Identitäts-Kaperung über Stripe-E-Mail-Zuordnung) → sofort entzogen (`vip_stufe_email_grant`); should-fix VAAS-Seite (hardcodiertes `isPremium:false`, vorbestehend, fails closed) vertagt; nit Webhook-Log → `plan` mitgeloggt
 - ISC-163/164: `column_privileges` UPDATE für authenticated: `active_handpan_id,brevo_synced_at,current_level,current_streak,full_name,last_practice_date,longest_streak,marketing_consent_at,marketing_consent_text_version` — ohne plan/is_admin/stripe_customer_id/email
+- ISC-159/160: Push `4185588..184fb46`, Vercel dpl_HgNx9pjiqT8ndKmJ4h6wT85VCYci READY (production, Commit 184fb46). Interceptor auf `lernen.handpan.schule/termine/5319817c…` (ausgeloggt): Titel, Zeit, neue Beschreibung ohne Skool-Verweis, Login-Hinweis, `data-brand="schule"`. `www.rhythmgym.io/termine` 200, `data-brand="gym"`. Eingeloggte VIP-/Free-Sicht live nicht probiert (kein Login durch die KI) — lokal belegt (ISC-145–148).
