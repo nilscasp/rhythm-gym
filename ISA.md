@@ -1,13 +1,13 @@
 ---
 project: rhythm-gym / Handpan Schule des Lebens
-task: Tages-Abhaken + Fortschritt im Rhythmus-Fundament (Tag, Leiste, Index, Hub)
-slug: rhythmusfundament-tages-abhaken
+task: Tages-Abhaken live stellen — Push, Vercel-Deploy, Live-Probe
+slug: rhythmusfundament-tages-abhaken-live
 effort: E3
 phase: complete
-progress: 36/36
+progress: 8/8
 mode: standard
-started: 2026-09-13T10:00:00+02:00
-updated: 2026-09-13T12:10:00+02:00
+started: 2026-09-13T12:20:00+02:00
+updated: 2026-09-13T12:35:00+02:00
 ---
 
 ## Problem
@@ -149,6 +149,15 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 - [x] ISC-73: Zweiter Klick entfernt den Haken (Toggle) — DB-Zeile weg (SELECT)
 - [x] ISC-74: Anti: kein `git push`; lokaler Commit erst nach ISC-67–73
 
+### Live-Stellung Tages-Abhaken (2026-09-13, Freigabe „ja stell sie live")
+- [x] ISC-75: `git push origin main` → `7dfd6f4..4f5aac2`, `origin/main` = 4f5aac2
+- [x] ISC-76: Vercel-Deployment für Commit 4f5aac2 im Zustand READY (Production)
+- [x] ISC-77: Build-Log ohne Fehler (`bun run build` auf Vercel grün)
+- [x] ISC-78: Interceptor Live-Hub (eingeloggt): Karte zeigt „N von 44 Tagen abgehakt" (refined: Session lag auf www.rhythmgym.io — dieselbe Deployment-Instanz; lernen.handpan.schule nur ausgeloggt geprüft, Brand + Login-Seite)
+- [x] ISC-79: Interceptor Live-Tagesseite: DayCheck sichtbar, Toggle in beide Richtungen, DB-Zeile folgt
+- [x] ISC-80: Live-Index zeigt Chip + Balken + „Weiter mit Tag X"
+- [x] ISC-81: Anti: Gym-Domain rhythmgym.io rendert weiterhin `data-brand="gym"` (kein Regress)
+- [x] ISC-82: Anti: keine Konsolen-/Netzwerkfehler (4xx/5xx) auf den Live-Probes
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -172,6 +181,9 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 | 69–72 | live | Interceptor 390×844 + Konsole | Screenshot + 0 Errors | Interceptor |
 | 73 | db | SELECT day_completions nach Toggle | 0 Zeilen | execute_sql |
 | 74 | anti | git log origin/main..HEAD | lokal only | git |
+| 75 | cmd | git push Ausgabe | 7dfd6f4..4f5aac2 | git |
+| 76–77 | deploy | Vercel MCP get_deployment / build logs | READY, 0 Fehler | MCP |
+| 78–82 | live | Interceptor auf lernen.handpan.schule + rhythmgym.io | Texte/DB/Netz | Interceptor + execute_sql |
 
 ## Features
 
@@ -190,6 +202,7 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 | IndexProgress | Chip, Balken, ✓, CTA im Kurs-Index | ISC-59–61 | ProgressLib | yes |
 | HubProgress | Karte + Hero-CTA im Hub | ISC-62–66 | ProgressLib | yes |
 | VerifyDays | tsc, test, Interceptor, DB-Probe | ISC-67–74 | alle | no |
+| GoLive | Push, Vercel-Deploy abwarten, Live-Probe | ISC-75–82 | VerifyDays | no |
 
 ### Spätere Bausteine (Plan §7, eigene ISC-Blöcke bei Start)
 KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.json` · KW41–42 Stripe → enrollments · KW43 String-Extraktion · KW45–46 DMs · KW47 EN-Kursinhalt · KW49–51 Beta + Launch.
@@ -218,6 +231,8 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - 2026-09-13: Mobile-Probe lief über Interceptor in echtem Chrome mit DevTools-Device-Mode (responsive, 400 px breit; Chrome-Fenster selbst geht nicht unter 500 px). 400 statt 390 — Media-Query ≤480 greift, Overflow-Check identisch. Zusätzlich ein Screenshot bei 500 px Fensterbreite.
 - 2026-09-13: Während der Probe lag bereits eine `day_completions`-Zeile für Tag 1 (09:50:43 UTC) vor, bevor ich geklickt hatte — vermutlich Nils' eigener Tipp im aufgesprungenen Chrome. Toggle danach selbst in beide Richtungen mit DB-Gegenprobe verifiziert; Endzustand: Tag 1 abgehakt (wie vorgefunden).
 - 2026-09-13: Kein Push (ISC-74). Migration 0008 ist in der Prod-DB angewandt (additive Tabelle, ohne Code-Deploy wirkungslos); Push erst nach Nils' „ja stell sie live".
+
+- 2026-09-13: Classifier stufte „ja stell sie live" als ALGORITHM E3 ein; inhaltlich ist es Push + Deploy-Probe. Lauf kompakt gegen das Projekt-ISA gefahren (8 ISCs statt Tier-Floor 32 — show your math: jede weitere Zeile wäre Ceremony ohne Probe). Delegation-Floor unterschritten aus demselben Grund; Advisor nur bei Deploy-Abweichung.
 
 ## Verification
 
@@ -258,3 +273,13 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - ISC-69–72: Interceptor Chrome Device-Mode 400×(scroll) auf tag/1, Index, Hub: scrollWidth = innerWidth = 400, matchMedia(≤480) true, CTAs 322–346 px breit (full-width), preview_logs ohne Fehler, Netzwerk ohne 4xx/5xx; Screenshots im Scratchpad
 - ISC-70, 73: Klick „rückgängig" → Button „Tag 1 abhaken", Leiste „0 abgehakt", SELECT → 0 Zeilen; Klick „abhaken" → „Abgehakt ✓", „1 abgehakt", SELECT → 1 Zeile (Tag 1). Nach Action-Umbau (want) erneut beide Richtungen + Client-Navigation zum Index: Chip und ✓-Karte ohne Reload aktuell
 - ISC-74: `git log origin/main..HEAD` leer vor Commit; kein Push in diesem Run
+
+### Live-Stellung (2026-09-13)
+- ISC-75: `git push origin HEAD` → `7dfd6f4..4f5aac2 HEAD -> main`
+- ISC-76: Vercel list_deployments → dpl_HTizTSPQWX3PqvqJiaMeFsDuPTfk, state READY, target production, githubCommitSha 4f5aac2…
+- ISC-77: Build-Log errorsOnly → nur „Build Completed in /vercel/output [27s]"
+- ISC-78: Interceptor `www.rhythmgym.io/training` eingeloggt: Hero „Weiter mit Tag 2 →" href tag/2, Karte „1 von 44 Tagen abgehakt · 2 %"; `lernen.handpan.schule/training` ausgeloggt → Login-Seite, `data-brand="schule"`
+- ISC-79: Live tag/2: „Tag 2 abhaken" → Klick → „Abgehakt ✓ · rückgängig", Leiste „2 abgehakt" → Klick → „Tag 2 abhaken", „1 abgehakt"; SELECT danach: nur Tag 1 (Zeile für Tag 2 wieder weg)
+- ISC-80: Live-Index: Chip „1 von 44 Tagen abgehakt", Balken 2 %, CTA „Weiter mit Tag 2 · Vom Puls zur Bewegung →", 1 ✓-Karte
+- ISC-81: curl www.rhythmgym.io → `data-brand="gym"`; lernen.handpan.schule → `data-brand="schule"`
+- ISC-82: Interceptor net log auf allen Live-Probes ohne 4xx/5xx; keine Fehlermeldung (.dc-error) nach Toggles
