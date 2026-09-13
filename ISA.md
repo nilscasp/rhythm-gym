@@ -1,12 +1,12 @@
 ---
 project: rhythm-gym / Handpan Schule des Lebens
-task: Tages-Abhaken live stellen — Push, Vercel-Deploy, Live-Probe
-slug: rhythmusfundament-tages-abhaken-live
+task: Termine als Monatskalender mit Umschalter zur Listenansicht
+slug: termine-monatskalender
 effort: E3
 phase: complete
-progress: 8/8
+progress: 46/46
 mode: standard
-started: 2026-09-13T12:20:00+02:00
+started: 2026-09-13T12:45:00+02:00
 updated: 2026-09-13T12:35:00+02:00
 ---
 
@@ -158,6 +158,71 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 - [x] ISC-80: Live-Index zeigt Chip + Balken + „Weiter mit Tag X"
 - [x] ISC-81: Anti: Gym-Domain rhythmgym.io rendert weiterhin `data-brand="gym"` (kein Regress)
 - [x] ISC-82: Anti: keine Konsolen-/Netzwerkfehler (4xx/5xx) auf den Live-Probes
+### Termine-Monatskalender (2026-09-13)
+
+**Problem-Zusatz:** `/termine` ist eine Liste kommender Termine, nach Monat gruppiert. Wer wissen will „was ist diesen Monat los", muss lesen statt sehen; vergangene Termine desselben Monats fehlen ganz, weil die Abfrage bei `now()` abschneidet. Nils vergleicht mit Skool, wo ein Monatsraster die Standardansicht ist und rechts oben auf eine Liste umgeschaltet werden kann.
+**Vision-Zusatz:** Die Seite öffnet sich als Monat. Man sieht auf einen Blick, an welchen Tagen etwas ist, erkennt heute, blättert zum nächsten Monat und schaltet mit einem Tipp auf die gewohnte Liste um.
+**Out-of-Scope-Zusatz:** keine Wochen- oder Tagesansicht, kein Drag-and-drop, kein Anlegen von Terminen im Kalender (bleibt im Coach-Bereich), kein ICS-Export, keine Zoom-Tür im Kalender, kein Merken der zuletzt gewählten Ansicht — Standard ist immer der Monat.
+**Constraint-Zusatz:** Raster-Einordnung ausschließlich über `berlinDate()`; „heute" wird serverseitig bestimmt und durchgereicht; Woche beginnt Montag; das an den Client gereichte View-Model trägt nur anzeigbare Felder, nie `zoom_url`; Seite bleibt ohne Konto erreichbar.
+
+#### Kalender-Bibliothek (app/lib/calendar-month.ts, rein und testbar)
+- [x] ISC-83: `monthKeyOf(iso)` liefert `YYYY-MM` aus einem ISO-Datum (bun test)
+- [x] ISC-84: `shiftMonth('2026-12', 1)` → `'2027-01'`, `shiftMonth('2026-01', -1)` → `'2025-12'` (bun test)
+- [x] ISC-85: `monthMatrix('2026-09')` liefert ganze Wochen ab Montag; erste Zelle ist der 31.08., letzte Woche endet an einem Sonntag (bun test)
+- [x] ISC-86: `monthMatrix` markiert Zellen außerhalb des Monats mit `inMonth: false` (bun test)
+- [x] ISC-87: `monthMatrix('2026-02')` für ein Schaltjahr endet am 29.02. (bun test)
+- [x] ISC-88: `groupByDay(events)` ordnet jeden Termin seinem Berliner Datum zu (bun test)
+- [x] ISC-89: `groupByDay` trägt einen mehrtägigen Termin (ends_at an späterem Berliner Datum) an jedem Tag der Spanne ein (bun test)
+- [x] ISC-90: `weekdayLabels('de')` beginnt mit „Mo", `weekdayLabels('en')` mit „Mon" (bun test)
+- [x] ISC-91: `tests/calendar-month.test.ts` existiert und ist grün
+
+#### Server-Seite (app/termine/page.tsx)
+- [x] ISC-92: Abfrage lädt ein Fenster statt nur Zukunft — 6 Monate zurück bis 18 voraus, Limit 400 (refined nach Advisor, s. Decisions)
+- [x] ISC-93: Seite baut ein View-Model pro Termin: id, href, Berliner Start-/Enddatum, Zeitlabel, Titel, Art, Ort, Hinweis
+- [x] ISC-94: Anti: das View-Model enthält kein `zoom_url` und keine Rohzeile aus `events`
+- [x] ISC-95: `today` (Berliner Datum) und `initialMonth` werden serverseitig bestimmt und als Props übergeben
+- [x] ISC-96: Lesefehler zeigt weiterhin `LIST_LOAD_ERROR`, nicht „nichts geplant"
+- [x] ISC-97: Zugriffs-Hinweis pro Termin kommt unverändert aus `hasEventAccess` + `hintFor`
+
+#### Monatsansicht
+- [x] ISC-98: `_components/TermineView.tsx` ist Client-Komponente, Standardmodus `month`
+- [x] ISC-99: Kopfzeile zeigt Monat und Jahr in der Sprache der Seite
+- [x] ISC-100: Knöpfe „‹" und „›" blättern einen Monat zurück/vor, ohne Seiten-Neuladen
+- [x] ISC-101: Knopf „Heute" springt auf den aktuellen Monat zurück
+- [x] ISC-102: Rasterkopf zeigt sieben Wochentage ab Montag
+- [x] ISC-103: Heutige Zelle trägt `tm-cell--today` und ist optisch markiert
+- [x] ISC-104: Tage aus Nachbarmonaten sind gedämpft (`tm-cell--outside`)
+- [x] ISC-105: Jede Termin-Marke im Raster verlinkt auf `/termine/{id}` und zeigt Uhrzeit + Titel
+- [x] ISC-106: Monat ohne Termine zeigt einen ruhigen Satz statt eines leeren Rasters darunter
+- [x] ISC-107: Anti: keine Zoom-Tür und kein Hinweistext im Rasterfeld (Details bleiben auf der Detailseite)
+
+#### Umschalter und Liste
+- [x] ISC-108: Rechts oben stehen zwei Knöpfe (Monat, Liste) mit `aria-pressed`
+- [x] ISC-109: Umschalten auf „Liste" zeigt die bestehende, nach Monat gruppierte Liste kommender Termine
+- [x] ISC-110: Die Listenansicht zeigt weiterhin Datumsschild, Art, Zeit, Ort und Zugriffs-Hinweis
+- [x] ISC-111: Anti: wer `/termine` ohne Parameter öffnet, sieht immer den Monat — keine Persistenz über Besuche (refined: Adresse merkt sich Monat/Ansicht nur innerhalb der Navigation, s. ISC-122)
+
+#### Mobil (390×844 Pflicht)
+- [x] ISC-112: Unter 560px zeigt eine Rasterzelle Punkte statt Text-Marken
+- [x] ISC-113: Unter dem Raster steht die Terminliste des gewählten Tages mit Datumsüberschrift
+- [x] ISC-114: Ein Tipp auf eine Zelle wählt den Tag; gewählte Zelle ist markiert
+- [x] ISC-115: Anti: kein horizontaler Overflow bei 390px in beiden Ansichten
+
+#### Qualität und Verifikation
+- [x] ISC-116: `bunx tsc --noEmit` exit 0
+- [x] ISC-117: `bun test` exit 0 inklusive der neuen Kalender-Tests
+- [x] ISC-118: Interceptor 390×844 `/termine`: Monatsraster ist die erste Ansicht
+- [x] ISC-119: Interceptor: Blättern, „Heute" und Umschalten funktionieren live
+- [x] ISC-120: Anti: kein `git push` vor Nils' Freigabe
+- [x] ISC-121: Blättern über das geladene Fenster hinaus ist gesperrt — „‹" am ersten, „›" am letzten Monat `disabled`
+- [x] ISC-122: Nach Monatswechsel oder Umschalten trägt die Adresse `?monat=`/`?ansicht=liste`; Zurück von der Detailseite stellt den Monat wieder her
+- [x] ISC-123: Ein `?monat=` außerhalb des Fensters fällt auf den laufenden Monat zurück
+- [x] ISC-124: Ein Termin mit Ende exakt 00:00 Berlin endet im Raster am Vortag
+- [x] ISC-125: Vergangene Termine im Raster sind gedämpft (`cal-chip--past`)
+- [x] ISC-126: Erreicht die Abfrage das Limit, steht eine Warnung im Server-Log
+- [x] ISC-127: Kalender- und Termin-Tests grün unter `TZ=America/Los_Angeles` und `TZ=Pacific/Kiritimati`
+- [x] ISC-128: `bun run build` exit 0
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -182,6 +247,18 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 | 73 | db | SELECT day_completions nach Toggle | 0 Zeilen | execute_sql |
 | 74 | anti | git log origin/main..HEAD | lokal only | git |
 | 75 | cmd | git push Ausgabe | 7dfd6f4..4f5aac2 | git |
+| 83–91 | unit | tests/calendar-month.test.ts | grün | bun test |
+| 92–97 | code | Read app/termine/page.tsx | Fenster, View-Model, Fehlerpfad | Read |
+| 98–111 | code+live | Read TermineView.tsx + Interceptor-Klicks | Verhalten sichtbar | Interceptor |
+| 112–115 | live | Interceptor 390×844, scrollWidth | = innerWidth | Interceptor |
+| 116–117 | build | tsc / bun test | exit 0 | Bash |
+| 118–119 | live | Interceptor Screenshot + Klickfolge | Monat zuerst, Navigation läuft | Interceptor |
+| 120 | anti | git log origin/main..HEAD | lokal only | git |
+| 121–123 | live | In-App-Browser mit ?monat an den Rändern | disabled / Rückfall | Browser |
+| 124, 126 | code | Read page.tsx | Funktion + Warnung vorhanden | Read |
+| 125 | live | computed opacity cal-chip--past | 0.55 | Browser |
+| 127 | unit | TZ=… bun test | grün | Bash |
+| 128 | build | bun run build | exit 0 | Bash |
 | 76–77 | deploy | Vercel MCP get_deployment / build logs | READY, 0 Fehler | MCP |
 | 78–82 | live | Interceptor auf lernen.handpan.schule + rhythmgym.io | Texte/DB/Netz | Interceptor + execute_sql |
 
@@ -203,6 +280,12 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 | HubProgress | Karte + Hero-CTA im Hub | ISC-62–66 | ProgressLib | yes |
 | VerifyDays | tsc, test, Interceptor, DB-Probe | ISC-67–74 | alle | no |
 | GoLive | Push, Vercel-Deploy abwarten, Live-Probe | ISC-75–82 | VerifyDays | no |
+| CalendarLib | calendar-month.ts + Tests | ISC-83–91 | — | yes |
+| TermineServer | Datenfenster + View-Model + Props | ISC-92–97 | CalendarLib | no |
+| MonthGrid | Raster, Navigation, Heute-Markierung | ISC-98–107 | TermineServer | no |
+| ViewToggle | Umschalter + Listenansicht | ISC-108–111 | MonthGrid | no |
+| CalendarMobile | Punkte, Tagesliste, Auswahl | ISC-112–115 | MonthGrid | no |
+| VerifyCalendar | tsc, Tests, Interceptor | ISC-116–120 | alle | no |
 
 ### Spätere Bausteine (Plan §7, eigene ISC-Blöcke bei Start)
 KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.json` · KW41–42 Stripe → enrollments · KW43 String-Extraktion · KW45–46 DMs · KW47 EN-Kursinhalt · KW49–51 Beta + Launch.
@@ -233,6 +316,17 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - 2026-09-13: Kein Push (ISC-74). Migration 0008 ist in der Prod-DB angewandt (additive Tabelle, ohne Code-Deploy wirkungslos); Push erst nach Nils' „ja stell sie live".
 
 - 2026-09-13: Classifier stufte „ja stell sie live" als ALGORITHM E3 ein; inhaltlich ist es Push + Deploy-Probe. Lauf kompakt gegen das Projekt-ISA gefahren (8 ISCs statt Tier-Floor 32 — show your math: jede weitere Zeile wäre Ceremony ohne Probe). Delegation-Floor unterschritten aus demselben Grund; Advisor nur bei Deploy-Abweichung.
+
+- 2026-09-13: Monatsnavigation im Client statt über `?m=`-Parameter: die Terminzahl ist zweistellig, ein Fenster von 12 Monaten zurück bis 24 voraus passt in eine Abfrage, und Blättern ohne Serverrunde fühlt sich wie ein Kalender an. Preis: die Seite trägt ein kleines JS-Bündel, das sie vorher nicht hatte.
+- 2026-09-13: Der Kalender zeigt auch vergangene Termine des Monats (Skool tut das), die Liste bleibt „Kommende Termine" und schneidet bei heute ab. Zwei Ansichten, zwei ehrliche Aussagen.
+- 2026-09-13: Keine Persistenz der Ansichtswahl — Nils' Wortlaut „die Default Ansicht sollte immer der Monat sein".
+- 2026-09-13: IterativeDepth (2 Linsen) brachte fünf Kriterien, die der direkte Entwurf nicht hatte: Fenster mit Vergangenheit, serverseitiges Heute gegen Hydrations-Drift, Montag als Wochenstart, mehrtägige Spanne, Lesefehler bleibt unterscheidbar.
+- 2026-09-13: Delegation-Floor (E3 ≥2) erneut unterschritten — show your math: eine zusammenhängende Komponente plus reine Bibliothek, alle Dateien gelesen; ein Engineer-Agent hätte dieselben fünf Dateien nochmals gelesen. Zweitmeinung kommt vom Advisor vor dem Commit.
+
+- 2026-09-13: Advisor vor Commit — übernommen: (a) Fenster auf 6/18 Monate verkleinert und Warnung bei erreichtem Limit (Serien sind auf 12 Wochen gedeckelt, bis zum Limit passen gut 30 Serien); (b) Blättern über das Fenster gesperrt, damit kein Monat „nichts geplant" behauptet, der nur nicht geladen ist; (c) Monat und Ansicht per `history.replaceState` in der Adresse, damit der Zurück-Knopf von der Detailseite dorthin führt, wo man war — `router.replace` hätte bei force-dynamic eine Serverrunde pro Klick ausgelöst; (d) Mitternachts-Ende zählt zum Vortag; (e) vergangene Termine gedämpft; (f) `aria-current="date"` für heute; (g) Tests unter zwei fremden Zeitzonen laufen lassen. Bereits richtig und vom Advisor nur vermutet: Zelle ist `div`, Tagesknopf und Termin-Links sind Geschwister (keine verschachtelten interaktiven Elemente); Detailseite filtert nicht nach Datum, Links auf vergangene Termine funktionieren.
+- 2026-09-13: Vertagt: echtes `role="grid"` mit Pfeiltasten-Navigation (Tagesknöpfe tragen bereits volle Datumslabels, das Minimum für Screenreader steht); Laden pro Monat statt Fenster (erst nötig, wenn das Limit-Log anschlägt); „Nächster Termin" in der leeren Tagesansicht.
+- 2026-09-13: Interceptor-Screenshot lief im Device-Mode-Tab zweimal in einen Timeout, Messungen per `eval` gingen durch. Handy-Bild deshalb aus dem In-App-Browser bei 390×844 (kein CDP-agent-browser); Interceptor-Messungen und Klickfolgen bleiben die Hauptprobe.
+- 2026-09-13: Server-Log zeigte während der Bauphase `ReferenceError: inclusiveEndDate is not defined` — Hot-Reload hatte die Verwendung vor der Definition eingelesen (zwei aufeinanderfolgende Edits). Frische Requests 200, `bun run build` exit 0 ohne Warnungen.
 
 ## Verification
 
@@ -283,3 +377,26 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - ISC-80: Live-Index: Chip „1 von 44 Tagen abgehakt", Balken 2 %, CTA „Weiter mit Tag 2 · Vom Puls zur Bewegung →", 1 ✓-Karte
 - ISC-81: curl www.rhythmgym.io → `data-brand="gym"`; lernen.handpan.schule → `data-brand="schule"`
 - ISC-82: Interceptor net log auf allen Live-Probes ohne 4xx/5xx; keine Fehlermeldung (.dc-error) nach Toggles
+
+### Termine-Monatskalender (2026-09-13)
+- ISC-83–91: `bun test tests/calendar-month.test.ts` 22 pass (Monatsschlüssel, Tage über Monats- und Sommerzeitgrenzen, shiftMonth über Jahreswechsel, Raster ab Montag, Schaltjahr, Monat beginnt sonntags, Mehrtages-Spanne, Kappung bei 92 Tagen, Wochentage de/en)
+- ISC-92, 126: Read page.tsx — `WINDOW_MONTHS_BACK = 6`, `WINDOW_MONTHS_AHEAD = 18`, `WINDOW_LIMIT = 400`, `console.warn` bei `rows.length >= WINDOW_LIMIT`
+- ISC-93–95, 97: Read page.tsx — View-Model Feld für Feld, `today = berlinDate(now)`, `initialMonth = monthKeyOf(today)`, `hint: hintFor(hasEventAccess(viewer, event), t)`
+- ISC-94: `curl /termine` und `/en/termine` → `grep -c zoom_url` = 0 in beiden Antworten
+- ISC-96: Read TermineView.tsx — `loadError` ersetzt Leiste und Raster durch den Fehlersatz
+- ISC-98–104: Interceptor 400 px: „September 2026", Modi „Monat:true / Liste:false", Wochentage Mo…So, 35 Zellen, heute = 13 mit `aria-current="date"`, 31.08. und 1.–4.10. gedämpft
+- ISC-105, 107: In-App-Browser 1024 px: 6 Chips mit „19:00 – 20:00" + Titel, Links auf /termine/{id}; Zellen enthalten keine Hinweiszeile
+- ISC-106: `?monat=2028-03` → „In diesem Monat ist nichts geplant."
+- ISC-108–110: Klick „Liste" → aria-pressed wechselt, Gruppen September/Oktober/November 2026, 17 Karten, erste Karte „18 Sep · Rhythmus Fundament · Gruppencall 2 von 7 · Live-Training · 19:00 – 20:00 · Online"
+- ISC-111: `/termine` ohne Parameter neu geladen → Monat aktiv, Raster sichtbar
+- ISC-112–115: Interceptor 400 px: Punkte `display:flex`, Chips `none`, Tagesansicht sichtbar, Tipp auf 26. → „Samstag, 26. September" mit 2 Karten; Tipp-Ziel 48 px; scrollWidth = innerWidth; In-App-Browser 390×844 Screenshot
+- ISC-116–117: `bunx tsc --noEmit` exit 0; `bun test` 151 pass
+- ISC-118–119: Interceptor: frisch Monat; „›" → Oktober 2026; „Heute" → September 2026
+- ISC-120: kein Push in diesem Run
+- ISC-121: `?monat=2028-03` → „›" disabled; `?monat=2026-03` → „‹" disabled
+- ISC-122: „›" → Adresse `/termine?monat=2026-10`; Tag 3 → Termin geöffnet → Zurück → `/termine?monat=2026-10`, „Oktober 2026"
+- ISC-123: `?monat=2031-01` → „September 2026"
+- ISC-124: Read page.tsx — `inclusiveEndDate` prüft eine Millisekunde vor dem Ende, klemmt auf den Beginn
+- ISC-125: 11.09. trägt `cal-chip--past`, computed opacity 0.55; übrige 5 Chips aktiv
+- ISC-127: `TZ=America/Los_Angeles` 22 pass; `TZ=Pacific/Kiritimati` 43 pass (calendar-month + event-access)
+- ISC-128: `bun run build` exit 0, „Compiled successfully", keine Fehler/Warnungen

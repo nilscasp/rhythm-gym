@@ -37,6 +37,37 @@ export const EVENT_COLUMNS =
 /** Ein Termin so, wie ihn EVENT_COLUMNS liefert. */
 export type Termin = Omit<PublicEvent, 'created_by'>
 
+/**
+ * Ein Termin, wie ihn die Oberfläche braucht — fertig formatiert, fertig
+ * übersetzt, fertig entschieden. Die Seite baut ihn auf dem Server, die
+ * Kalender-Komponente rendert ihn nur noch.
+ *
+ * Bewusst eine EIGENE Form statt `Termin` durchzureichen: was hier nicht
+ * aufgezählt ist, verlässt den Server nicht. `zoom_url` steht nicht darin und
+ * kann hier gar nicht landen — die Spalte wird nie gelesen (EVENT_COLUMNS),
+ * herausgeben darf sie ausschließlich `event_zoom_url()` auf der Detailseite.
+ */
+export type TerminView = {
+  id: string
+  /** Fertige, sprachrichtige Adresse der Detailseite. */
+  href: string
+  /** Berliner Kalendertag des Beginns (YYYY-MM-DD) — der Schlüssel fürs Raster. */
+  startDate: string
+  /** Berliner Kalendertag des Endes; gleich `startDate` bei eintägigen Terminen. */
+  endDate: string
+  /** ISO-Zeitpunkt — nur zum Sortieren. */
+  startsAt: string
+  /** „19:00 – 20:00" oder „ganztägig". */
+  timeLabel: string
+  title: string
+  kindLabel: string | null
+  location: string | null
+  /** Ruhige Zeile, warum die Tür zu ist — null, wenn sie offen steht. */
+  hint: string | null
+  badgeDay: string
+  badgeMonth: string
+}
+
 export async function currentViewer(
   supabase: SupabaseClient<Database>,
 ): Promise<Viewer> {
