@@ -100,9 +100,13 @@ export async function currentViewer(
     })
   }
 
+  const plan = profileResult.data?.plan ?? null
+
   return {
     isAuthenticated: true,
-    isPremium: profileResult.data?.plan === 'premium',
+    // Rangfolge: VIP zählt auch als Premium (Migration 0009, event_zoom_url).
+    isPremium: plan === 'premium' || plan === 'vip',
+    isVip: plan === 'vip',
     enrolledProgramIds: (enrollmentResult.data ?? []).map((row) => row.program_id),
   }
 }
@@ -131,6 +135,8 @@ export function hintFor(access: EventAccess, t: Messages): string | null {
       return t.events.hintLogin
     case 'premium':
       return t.events.hintCircle
+    case 'vip':
+      return t.events.hintVip
     case 'program':
       return t.events.hintProgram
   }

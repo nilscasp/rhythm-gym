@@ -52,6 +52,7 @@ export const de = {
     moreOnWebsite: 'Mehr auf handpan.schule',
     hintLogin: 'Melde dich an, dann siehst du hier die Tür zum Raum.',
     hintCircle: 'Dieser Termin gehört zum Inneren Kreis.',
+    hintVip: 'Dieser Termin ist für VIP-Mitglieder.',
     hintProgram:
       'Dieser Termin gehört zu einem Kurs. Wer dabei ist, kommt hier hinein.',
     circleOpens: 'Dazu sage ich dir rechtzeitig Bescheid.',

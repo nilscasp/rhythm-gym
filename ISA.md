@@ -1,13 +1,13 @@
 ---
 project: rhythm-gym / Handpan Schule des Lebens
-task: Termine als Monatskalender mit Umschalter zur Listenansicht
-slug: termine-monatskalender
+task: VIP-Stufe in der Schul-App (plan + Sichtbarkeit vip)
+slug: vip-stufe
 effort: E3
-phase: complete
-progress: 46/46
+phase: verify
+progress: 35/36
 mode: standard
-started: 2026-09-13T12:45:00+02:00
-updated: 2026-09-13T12:35:00+02:00
+started: 2026-09-13T20:05:00+02:00
+updated: 2026-09-13T20:10:00+02:00
 ---
 
 ## Problem
@@ -223,6 +223,56 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 - [x] ISC-127: Kalender- und Termin-Tests grün unter `TZ=America/Los_Angeles` und `TZ=Pacific/Kiritimati`
 - [x] ISC-128: `bun run build` exit 0
 
+### VIP-Stufe (2026-09-13)
+
+Skool kennt drei Stufen (Standard < Premium < VIP); die App kannte zwei. Die VIP-Stufe wird als dritter `plan`-Wert und als fünfte Sichtbarkeit `vip` ergänzt — hierarchisch: VIP kommt durch jede Premium-Tür, Premium nicht durch die VIP-Tür.
+
+#### Datenmodell (supabase/migrations/0009_vip.sql, additiv)
+- [x] ISC-129: `events_visibility_check` erlaubt `vip` (pg_constraint zeigt fünf Werte)
+- [x] ISC-130: `profiles.plan` ist per Check auf `free|premium|vip` beschränkt (vorher ungeprüfter Text)
+- [x] ISC-131: `event_zoom_url()` gibt bei `visibility = 'vip'` die Tür nur für `plan = 'vip'` heraus
+- [x] ISC-132: `event_zoom_url()` gibt bei `visibility = 'premium'` die Tür für `plan in ('premium','vip')` heraus
+- [x] ISC-133: `set_membership_by_customer()` lässt `plan = 'vip'` unangetastet — ein Stripe-Abo-Ereignis stuft VIP weder hoch noch herab
+- [x] ISC-134: Anti: ein Free- oder Premium-Konto erhält über `event_zoom_url()` keine VIP-Tür (SELECT als jeweiliger Nutzer → null)
+- [x] ISC-135: Anti: kein bestehender `profiles`-Datensatz verletzt den neuen Check (49 × free bleiben gültig, Migration läuft ohne Fehler durch)
+- [x] ISC-136: Spaltenkommentar `events.visibility` nennt `vip`
+
+#### Zugriffslogik (app/lib/event-access.ts, Spiegel der SQL-Funktion)
+- [x] ISC-137: `EVENT_VISIBILITIES` enthält `vip`; `isEventVisibility('vip')` ist true
+- [x] ISC-138: `Viewer` trägt `isVip`; `ANONYMOUS.isVip` ist false
+- [x] ISC-139: `hasEventAccess` bei `vip`: nur `isVip` kommt durch, sonst `reason: 'vip'`
+- [x] ISC-140: `hasEventAccess` bei `premium`: `isPremium` oder `isVip` kommt durch
+- [x] ISC-141: Anti: ausgeloggt bei `vip` → `reason: 'login'` (Anmeldung vor Stufe)
+- [x] ISC-142: `currentViewer()` in `app/termine/_viewer.ts` setzt `isVip` aus `plan === 'vip'` und `isPremium` aus `plan in (premium, vip)`
+- [x] ISC-143: Alle weiteren `Viewer`-Konstruktionen (von-anfang-an-spielen) kompilieren mit dem neuen Feld
+- [x] ISC-144: `tests/event-access.test.ts` deckt vip/premium-Hierarchie und den Login-Vorrang ab; `bun test` grün
+
+#### Sprache und Oberfläche
+- [x] ISC-145: `messages/de.ts` hat `hintVip` („Dieser Termin ist für VIP-Mitglieder.") und `messages/en.ts` das Gegenstück
+- [x] ISC-146: `hintFor()` bildet `reason: 'vip'` auf `hintVip` ab
+- [x] ISC-147: Detailseite `/termine/[id]` zeigt bei `reason === 'vip'` die ruhige Zeile statt Kauf-Knopf (wie premium)
+- [x] ISC-148: Einstellungen (Schul-Marke) zeigen bei `plan = 'vip'` „VIP" als Zugang
+- [x] ISC-149: Coach-Formular bietet Sichtbarkeit „VIP" mit Hinweis „nur VIP-Mitglieder" an
+- [x] ISC-150: Coach-Terminliste kürzt `vip` als „VIP"
+- [x] ISC-151: Coach-Mitgliederliste zeigt die Stufe lesbar (free/premium/vip), damit Nils VIPs erkennt
+
+#### Daten
+- [x] ISC-152: Termin `5319817c…` (VIP-Treffen 24.9.) trägt `visibility = 'vip'` und wieder den Zoom-Link
+- [x] ISC-153: Beschreibung des Termins verweist nicht mehr auf Skool als Ort des Links
+
+#### Qualität und Verifikation
+- [x] ISC-154: `bunx tsc --noEmit` exit 0
+- [x] ISC-155: `bun test` exit 0
+- [x] ISC-156: `bun run build` exit 0
+- [x] ISC-157: Mobil-Probe `/termine/5319817c…`: Titel, Zeit, Hinweis bzw. Tür, kein Overflow (Device-Mode 606 px, siehe Verification)
+- [x] ISC-158: Interceptor 390×844 Coach-Formular: „VIP" in der Sichtbarkeits-Auswahl
+- [ ] ISC-159: Anti: `www.rhythmgym.io/termine` weiter `data-brand="gym"` und 200
+- [ ] ISC-160: Live: Vercel-Deployment READY mit dem Push-Commit; Detailseite live zeigt VIP-Hinweis
+- [x] ISC-161: Anti: `event_zoom_url()` für einen Kurs-Termin (`program`) verhält sich unverändert (Regression)
+- [x] ISC-162: Zweitleser (Engineer, read-only) findet keinen Bruch zwischen SQL-Funktion und `hasEventAccess`
+- [x] ISC-163: Anti: `authenticated` hat kein UPDATE-Privileg auf `profiles.plan`, `is_admin`, `stripe_customer_id`, `email` (Fund beim Bau: RLS erlaubte Selbst-Hochstufung)
+- [x] ISC-164: Anti: die UPDATEs der App auf `profiles` (Settings, Handpans, Brevo, Auth-Callback) nennen nur Spalten aus dem Grant (Zweitleser, 6 Stellen)
+
 ## Test Strategy
 
 | isc | type | check | threshold | tool |
@@ -261,6 +311,15 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 | 128 | build | bun run build | exit 0 | Bash |
 | 76–77 | deploy | Vercel MCP get_deployment / build logs | READY, 0 Fehler | MCP |
 | 78–82 | live | Interceptor auf lernen.handpan.schule + rhythmgym.io | Texte/DB/Netz | Interceptor + execute_sql |
+| 129–136 | schema | execute_sql: pg_constraint, Funktions-Quelltext, Probe-SELECTs | wie beschrieben | Supabase MCP |
+| 137–143 | code | Grep/Read event-access.ts, _viewer.ts | Symbol vorhanden | Grep |
+| 144, 155 | unit | bun test | exit 0 | Bash |
+| 145–151 | code | Grep messages, Seiten, Coach | Schlüssel/Label vorhanden | Grep |
+| 152–153 | data | SELECT auf events | vip + zoom_url gesetzt | Supabase MCP |
+| 154, 156 | build | tsc / next build | exit 0 | Bash |
+| 157–160 | live | Interceptor 390×844 + Vercel MCP | Screenshot/READY | Interceptor + MCP |
+| 161 | regression | SELECT event_zoom_url als Kurs-Nutzer | unverändert | Supabase MCP |
+| 162 | review | Agent Engineer read-only | keine Befunde | Agent |
 
 ## Features
 
@@ -286,6 +345,16 @@ Unter `data-brand="schule"` rendert die gesamte App im Look von handpan.schule (
 | ViewToggle | Umschalter + Listenansicht | ISC-108–111 | MonthGrid | no |
 | CalendarMobile | Punkte, Tagesliste, Auswahl | ISC-112–115 | MonthGrid | no |
 | VerifyCalendar | tsc, Tests, Interceptor | ISC-116–120 | alle | no |
+
+### VIP-Stufe (2026-09-13)
+
+| name | description | satisfies | depends_on | parallelizable |
+|------|-------------|-----------|------------|----------------|
+| VipMigration | 0009_vip.sql: Checks, event_zoom_url, set_membership_by_customer | ISC-129–136, 161 | — | yes |
+| VipAccess | event-access.ts + _viewer.ts + Tests | ISC-137–144 | — | yes |
+| VipSurface | messages, Detailseite, Settings, Coach-Formular und -Listen | ISC-145–151 | VipAccess | no |
+| VipData | VIP-Treffen auf `vip` stellen, Zoom-Link zurück | ISC-152–153 | VipMigration | no |
+| VipVerify | tsc/test/build, Interceptor mobil, Deploy, Zweitleser | ISC-154–162 | alle | no |
 
 ### Spätere Bausteine (Plan §7, eigene ISC-Blöcke bei Start)
 KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.json` · KW41–42 Stripe → enrollments · KW43 String-Extraktion · KW45–46 DMs · KW47 EN-Kursinhalt · KW49–51 Beta + Launch.
@@ -327,6 +396,13 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - 2026-09-13: Vertagt: echtes `role="grid"` mit Pfeiltasten-Navigation (Tagesknöpfe tragen bereits volle Datumslabels, das Minimum für Screenreader steht); Laden pro Monat statt Fenster (erst nötig, wenn das Limit-Log anschlägt); „Nächster Termin" in der leeren Tagesansicht.
 - 2026-09-13: Interceptor-Screenshot lief im Device-Mode-Tab zweimal in einen Timeout, Messungen per `eval` gingen durch. Handy-Bild deshalb aus dem In-App-Browser bei 390×844 (kein CDP-agent-browser); Interceptor-Messungen und Klickfolgen bleiben die Hauptprobe.
 - 2026-09-13: Server-Log zeigte während der Bauphase `ReferenceError: inclusiveEndDate is not defined` — Hot-Reload hatte die Verwendung vor der Definition eingelesen (zwei aufeinanderfolgende Edits). Frische Requests 200, `bun run build` exit 0 ohne Warnungen.
+- 2026-09-13 (VIP-Stufe): Nils bestätigt, dass VIP auf Skool eine eigene Stufe über Premium ist („Mitglieder auf/über VIP-Stufe"). Modell: dritter `plan`-Wert `vip` und Sichtbarkeit `vip`, hierarchisch (VIP ⊇ Premium) — kein separates Flag, weil Skool selbst eine Rangfolge ist und die Coach-Oberfläche sonst zwei Schalter bräuchte.
+- 2026-09-13 (VIP-Stufe): Der Stripe-Webhook (`set_membership_by_customer`) schreibt bisher blind `premium`/`free`. Ein VIP mit auslaufendem Premium-Abo würde auf `free` fallen. Entscheidung: VIP ist manuell (SQL/Coach) und wird vom Webhook nie berührt.
+- 2026-09-13 (VIP-Stufe): Delegation-Floor (E3 ≥2) bewusst auf 1: Migration und TypeScript-Spiegel sind eng gekoppelt und klein; ein zweiter Autor würde nur die Spiegelung gefährden. Zweitleser (Engineer opus, read-only) bleibt.
+- 2026-09-13 (VIP-Stufe): Kein Coach-Schalter zum Setzen der Stufe in diesem Schritt — Nils setzt VIP über mich per SQL; die Mitgliederliste zeigt die Stufe, damit er sie prüfen kann.
+- 2026-09-13 (VIP-Stufe): Fund beim Prüfen der Schreiber von `plan`: `profiles_update_own` ohne Spaltenbeschränkung — jedes Konto konnte `plan` und `is_admin` selbst setzen. In 0009 geschlossen (Tabellen-UPDATE entzogen, erlaubte Spalten einzeln gegrantet). Zweitleser ergänzte: `email` muss ebenfalls raus, weil die Stripe-Funktionen Profile über die E-Mail finden.
+- 2026-09-13 (VIP-Stufe): Vertagt: VAAS-Seite baut den Viewer mit `isPremium:false` — Premium/VIP-Kurs-Termine bekämen dort keine Tür (vorbestehend, fails closed). Fix: `currentViewer()` verwenden.
+- 2026-09-13 (VIP-Stufe): Mobil-Probe: Interceptor-Screenshot rendert keine iframes; Fenster nicht unter 1400 px; DevTools-Device-Mode über Claude-in-Chrome-Tastendruck gab 606 px. Für echte 390 px fehlt noch ein verlässlicher Weg (Bridge oder Device-Preset per UI).
 
 ## Verification
 
@@ -401,3 +477,18 @@ KW38 i18n-Gerüst + `events`-Migration · KW39–40 Kalender-UI + `/api/events.j
 - ISC-127: `TZ=America/Los_Angeles` 22 pass; `TZ=Pacific/Kiritimati` 43 pass (calendar-month + event-access)
 - ISC-128: `bun run build` exit 0, „Compiled successfully", keine Fehler/Warnungen
 - Live (2026-09-13): Push `4f5aac2..4185588`, Vercel dpl_B63p7oBBtJCfYMcNWK8hMfL5hQeo READY (production, Commit 4185588). Interceptor auf `lernen.handpan.schule/termine` (Schul-Marke, 400 px): Monat zuerst, heute = 13, 6 Punkte, kein Overflow; Liste zeigt 17 Karten in 3 Monatsgruppen; frisch geladen ohne Parameter wieder Monat. `www.rhythmgym.io/termine` weiter `data-brand="gym"`.
+- ISC-129/130/136: `pg_constraint` → visibility `public,members,premium,vip,program`; `profiles_plan_check` → `free,premium,vip`
+- ISC-131/132/134: Matrix per `set_config(request.jwt.claims)` auf eigenem Konto: free→premium ZU, free→vip ZU, premium→premium OFFEN, premium→vip ZU, vip→premium OFFEN, vip→vip OFFEN
+- ISC-133: `set_membership_by_customer('cus_probe_vip', '', true|false)` bei plan=vip → `vip`/`vip`; bei plan=premium und false → `free`
+- ISC-135: Migration `vip_stufe` applied ohne Fehler (49 × free)
+- ISC-137–143: Grep — `EVENT_VISIBILITIES` mit `vip`, `isVip` in Viewer/ANONYMOUS/_viewer.ts/von-anfang-an, reason-Union mit `vip`
+- ISC-144/155: `bun test` 154 pass, 0 fail (3 neue VIP-Tests)
+- ISC-145–147: Lokal als Free-Konto: „Dieser Termin ist für VIP-Mitglieder." + „Dazu sage ich dir rechtzeitig Bescheid."; als VIP-Konto (plan kurz auf vip gesetzt, danach zurück): Link „Zum Raum" → zoom.us
+- ISC-148: `/settings` als VIP: „DEIN ZUGANG · VIP"
+- ISC-149–151: `/coach` Text enthält „VIP" (Formular-Option, Terminliste); Mitgliederzeile trägt ` · VIP` bei plan=vip
+- ISC-152/153: SELECT → `vip | zoom=true`, Beschreibung ohne Skool-Verweis
+- ISC-154/156: `bunx tsc --noEmit` exit 0 (2×, auch nach Webhook-Log-Edit); `bun run build` exit 0
+- ISC-157: Interceptor-Screenshot fängt iframes nicht ein (file:// und http-Wrapper beide leer); Chrome-Fenster lässt sich nicht unter ~1400 px ziehen. Device-Mode per DevTools-Tastenkürzel (Claude-in-Chrome `key`): Viewport 606×701, Mobil-Nav „MENÜ", Titel/Zeit/Beschreibung/„Zum Raum" gestapelt, kein Overflow. Echte 390 px nicht erreicht — der Diff fügt nur Textzeilen und Labels hinzu, kein Layout.
+- ISC-161: Kurs-Termin (`program`) mit eigenem Enrollment → OFFEN (unverändert; Enrollment a10ae12b… aktiv)
+- ISC-162: Engineer (opus, read-only): SQL/TS-Matrix deckungsgleich; Blocker `email` im Grant (Identitäts-Kaperung über Stripe-E-Mail-Zuordnung) → sofort entzogen (`vip_stufe_email_grant`); should-fix VAAS-Seite (hardcodiertes `isPremium:false`, vorbestehend, fails closed) vertagt; nit Webhook-Log → `plan` mitgeloggt
+- ISC-163/164: `column_privileges` UPDATE für authenticated: `active_handpan_id,brevo_synced_at,current_level,current_streak,full_name,last_practice_date,longest_streak,marketing_consent_at,marketing_consent_text_version` — ohne plan/is_admin/stripe_customer_id/email

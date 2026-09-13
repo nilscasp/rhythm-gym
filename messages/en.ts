@@ -50,6 +50,7 @@ export const en: Messages = {
     moreOnWebsite: 'More on handpan.schule',
     hintLogin: 'Log in and the door to the room appears here.',
     hintCircle: 'This one belongs to the Inner Circle.',
+    hintVip: 'This one is for VIP members.',
     hintProgram: 'This one belongs to a course. Everyone taking it comes in here.',
     circleOpens: 'I will let you know in good time.',
     toCourses: 'To your courses',

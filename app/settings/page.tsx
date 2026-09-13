@@ -47,7 +47,7 @@ const COPY: Record<Brand, {
     welcomeEyebrow: 'Willkommen in der Schule',
     accessLabel: 'Dein Zugang',
     accessValue: (plan) =>
-      plan === 'premium' ? 'Innerer Kreis' : 'Offener Raum',
+      plan === 'vip' ? 'VIP' : plan === 'premium' ? 'Innerer Kreis' : 'Offener Raum',
   },
 }
 

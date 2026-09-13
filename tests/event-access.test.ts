@@ -15,11 +15,13 @@ import {
 } from '../app/lib/event-access'
 
 const guest = ANONYMOUS
-const member: Viewer = { isAuthenticated: true, isPremium: false, enrolledProgramIds: [] }
-const circle: Viewer = { isAuthenticated: true, isPremium: true, enrolledProgramIds: [] }
+const member: Viewer = { isAuthenticated: true, isPremium: false, isVip: false, enrolledProgramIds: [] }
+const circle: Viewer = { isAuthenticated: true, isPremium: true, isVip: false, enrolledProgramIds: [] }
+const vip: Viewer = { isAuthenticated: true, isPremium: true, isVip: true, enrolledProgramIds: [] }
 const student: Viewer = {
   isAuthenticated: true,
   isPremium: false,
+  isVip: false,
   enrolledProgramIds: ['prog-rf'],
 }
 
@@ -42,6 +44,28 @@ describe('hasEventAccess', () => {
     const event = { visibility: 'premium', program_id: null }
     expect(hasEventAccess(member, event).canJoin).toBe(false)
     expect(hasEventAccess(circle, event).canJoin).toBe(true)
+  })
+
+  test('premium: VIP steht über Premium und kommt ebenfalls durch', () => {
+    const event = { visibility: 'premium', program_id: null }
+    expect(hasEventAccess(vip, event).canJoin).toBe(true)
+  })
+
+  test('vip: nur VIP kommt durch, Premium und Konto bleiben draußen', () => {
+    const event = { visibility: 'vip', program_id: null }
+    expect(hasEventAccess(vip, event).canJoin).toBe(true)
+    const premiumDenied = hasEventAccess(circle, event)
+    expect(premiumDenied.canJoin).toBe(false)
+    expect(premiumDenied.canJoin === false && premiumDenied.reason).toBe('vip')
+    expect(hasEventAccess(member, event).canJoin).toBe(false)
+  })
+
+  test('vip: Ausgeloggte werden zuerst zur Anmeldung geschickt', () => {
+    const event = { visibility: 'vip', program_id: null }
+    const access = hasEventAccess(guest, event)
+    expect(access.canJoin).toBe(false)
+    expect(access.canJoin === false && access.reason).toBe('login')
+    expect(isEventVisibility('vip')).toBe(true)
   })
 
   test('program: nur wer im Kurs eingeschrieben ist', () => {

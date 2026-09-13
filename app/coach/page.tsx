@@ -54,6 +54,7 @@ const VISIBILITY_SHORT: Record<string, string> = {
   public: 'Offen',
   members: 'Mit Konto',
   premium: 'Innerer Kreis',
+  vip: 'VIP',
   program: 'Im Kurs',
 }
 
@@ -401,7 +402,10 @@ export default async function CoachPage() {
                   return (
                     <li key={s.id} className={`cch-row cch-row--${last.tone}`}>
                       <div className="cch-row-main">
-                        <div className="cch-row-name">{displayName}</div>
+                        <div className="cch-row-name">
+                          {displayName}
+                          {s.plan === 'vip' ? ' · VIP' : s.plan === 'premium' ? ' · Innerer Kreis' : ''}
+                        </div>
                         <div className="cch-row-email">{s.email ?? '—'}</div>
                       </div>
                       <div className="cch-row-stats">

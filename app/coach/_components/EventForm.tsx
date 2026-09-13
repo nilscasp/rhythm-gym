@@ -22,6 +22,7 @@ const VISIBILITY_LABELS: Record<(typeof EVENT_VISIBILITIES)[number], string> = {
   public: 'Offen',
   members: 'Mit Konto',
   premium: 'Innerer Kreis',
+  vip: 'VIP',
   program: 'Im Kurs',
 }
 
@@ -29,6 +30,7 @@ const VISIBILITY_HINTS: Record<(typeof EVENT_VISIBILITIES)[number], string> = {
   public: 'für alle sichtbar, Tür offen',
   members: 'nur mit Konto',
   premium: 'nur Innerer Kreis',
+  vip: 'nur VIP-Mitglieder',
   program: 'nur wer im Kurs ist',
 }
 

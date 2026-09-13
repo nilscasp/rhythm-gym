@@ -313,7 +313,15 @@ async function handleSubscriptionChange(
 
   console.info(
     '[stripe/webhook] Abo-Stand gesetzt:',
-    JSON.stringify({ customer: customerId, status: subscription.status ?? null, deleted, active })
+    // `plan` kommt aus der Funktion zurück: bei VIP bleibt es 'vip', auch wenn
+    // `active` false ist (Migration 0009) — sonst sähe das Log wie ein Fehler aus.
+    JSON.stringify({
+      customer: customerId,
+      status: subscription.status ?? null,
+      deleted,
+      active,
+      plan: typeof outcome.plan === 'string' ? outcome.plan : null,
+    })
   )
 }
 

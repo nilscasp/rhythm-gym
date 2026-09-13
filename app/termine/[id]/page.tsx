@@ -199,7 +199,7 @@ export default async function TerminPage({ params }: PageProps) {
                   </div>
                 ) : null}
 
-                {reason === 'premium' ? (
+                {reason === 'premium' || reason === 'vip' ? (
                   <p className="tv-muted">{t.events.circleOpens}</p>
                 ) : null}
 

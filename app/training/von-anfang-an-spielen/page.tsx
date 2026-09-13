@@ -74,6 +74,7 @@ export default async function VonAnfangAnSpielenPage() {
   const viewer = {
     isAuthenticated: true,
     isPremium: false,
+    isVip: false,
     enrolledProgramIds: program ? [program.id] : [],
   }
 

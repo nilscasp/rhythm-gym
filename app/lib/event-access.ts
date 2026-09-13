@@ -31,7 +31,7 @@ export const EVENT_KINDS = [
 ] as const
 export type EventKind = (typeof EVENT_KINDS)[number]
 
-export const EVENT_VISIBILITIES = ['public', 'members', 'premium', 'program'] as const
+export const EVENT_VISIBILITIES = ['public', 'members', 'premium', 'vip', 'program'] as const
 export type EventVisibility = (typeof EVENT_VISIBILITIES)[number]
 
 /**
@@ -93,6 +93,8 @@ export function localized(value: Json | null | undefined, locale = 'de'): string
 export type Viewer = {
   isAuthenticated: boolean
   isPremium: boolean
+  /** VIP steht über Premium: öffnet Premium- und VIP-Türen (Migration 0009). */
+  isVip: boolean
   /** program_ids mit aktivem Enrollment */
   enrolledProgramIds: readonly string[]
 }
@@ -100,12 +102,13 @@ export type Viewer = {
 export const ANONYMOUS: Viewer = {
   isAuthenticated: false,
   isPremium: false,
+  isVip: false,
   enrolledProgramIds: [],
 }
 
 export type EventAccess =
   | { canJoin: true }
-  | { canJoin: false; reason: 'login' | 'premium' | 'program'; programId?: string }
+  | { canJoin: false; reason: 'login' | 'premium' | 'vip' | 'program'; programId?: string }
 
 /**
  * Darf diese Person die Zoom-Tür sehen? Spiegelt `event_zoom_url()` aus
@@ -121,8 +124,15 @@ export function hasEventAccess(
   if (!viewer.isAuthenticated) return { canJoin: false, reason: 'login' }
   if (visibility === 'members') return { canJoin: true }
 
+  // Rangfolge wie auf Skool: VIP öffnet beide Türen, Premium nur seine.
   if (visibility === 'premium') {
-    return viewer.isPremium ? { canJoin: true } : { canJoin: false, reason: 'premium' }
+    return viewer.isPremium || viewer.isVip
+      ? { canJoin: true }
+      : { canJoin: false, reason: 'premium' }
+  }
+
+  if (visibility === 'vip') {
+    return viewer.isVip ? { canJoin: true } : { canJoin: false, reason: 'vip' }
   }
 
   // visibility === 'program'
