@@ -38,6 +38,24 @@ function ConsentLabelText() {
   )
 }
 
+const SPAM_HINT =
+  'Bitte auch im Spam- oder Werbe-Ordner nachsehen (besonders bei GMX, Web.de und Outlook).'
+
+/**
+ * Supabase liefert englische Fehlertexte. Die häufigsten übersetzen wir und
+ * sagen gleich, was zu tun ist — die unbestätigte Adresse ist in der Praxis
+ * der Hauptgrund für „Login geht nicht".
+ */
+function loginErrorText(message: string): string {
+  if (/email not confirmed/i.test(message)) {
+    return `Deine E-Mail-Adresse ist noch nicht bestätigt. Bitte den Link in der Bestätigungsmail anklicken. ${SPAM_HINT}`
+  }
+  if (/invalid login credentials/i.test(message)) {
+    return 'E-Mail oder Passwort stimmen nicht. Falls du dich gerade erst registriert hast: zuerst den Link in der Bestätigungsmail anklicken.'
+  }
+  return message
+}
+
 export default function LoginPage() {
   return (
     <Suspense fallback={null}>
@@ -70,7 +88,7 @@ function LoginPageInner() {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) {
-          setMessage(error.message)
+          setMessage(loginErrorText(error.message))
         } else {
           router.push('/training')
           router.refresh()
@@ -86,7 +104,7 @@ function LoginPageInner() {
         } else {
           // Bewusst neutral: verrät nicht, ob es die Adresse gibt.
           setMessage(
-            '✅ Wenn es ein Konto mit dieser Adresse gibt, ist eine Mail zum Zurücksetzen unterwegs — bitte auch im Spam-Ordner nachsehen.'
+            `✅ Wenn es ein Konto mit dieser Adresse gibt, ist eine Mail zum Zurücksetzen unterwegs. ${SPAM_HINT}`
           )
         }
       } else {
@@ -119,7 +137,9 @@ function LoginPageInner() {
             'ℹ️ Für diese Adresse gibt es schon ein Konto. Bitte einloggen — oder unten „Passwort vergessen" wählen.'
           )
         } else {
-          setMessage('✅ Bestätigungsmail gesendet — bitte E-Mail prüfen!')
+          setMessage(
+            `✅ Bestätigungsmail gesendet — bitte den Link darin anklicken, erst dann klappt der Login. ${SPAM_HINT}`
+          )
         }
       }
     } catch (err) {
