@@ -1892,10 +1892,10 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
   },
   {
     number: 41,
-    title: 'Das erste Motiv erzählt',
-    subtitle: 'Kompositionsrhythmik · Variation über Wiederholung',
+    title: 'Das Motiv beginnt zu erzählen',
+    subtitle: 'Kompositionsrhythmik · Variation auf einem Motiv',
     essence:
-      'Ein Ton am Ende, der beim nächsten Mal woanders landet — und aus deinem ersten Motiv wird eine Melodie.',
+      'Eine Stelle im Motiv, jedes Mal etwas anderes gesetzt — so beginnt ein Körper zu erzählen.',
     cycle: 4,
     hasGrafik: false,
     videoId: '9736848c-eeed-404e-85f0-a1e402976c3a',
@@ -1920,10 +1920,10 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
   },
   {
     number: 42,
-    title: 'Ein Schlag mehr',
-    subtitle: 'Kompositionsrhythmik · der zweite Körper entwickelt sich',
+    title: 'Der zweite Körper antwortet',
+    subtitle: 'Kompositionsrhythmik · Variation auf dem zweiten Motiv',
     essence:
-      'Ein einziger zusätzlicher Schlag reicht für den nächsten Schritt — heute an deinem zweiten Körper.',
+      'Ein einziger zusätzlicher Anschlag an einer Stelle — und Motiv 2 ist nicht mehr dasselbe.',
     cycle: 4,
     hasGrafik: false,
     videoId: '05daed3f-6986-4a1b-8cdf-6757fb847e85',
@@ -1949,9 +1949,9 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
   {
     number: 43,
     title: 'Die Welle',
-    subtitle: 'Kompositionsrhythmik · zusammenweben',
+    subtitle: 'Kompositionsrhythmik · die zwei Teile werden eine Bewegung',
     essence:
-      'Beide variierten Körper hintereinander — Anstieg, Gipfel, Ausatmen. Dein Spiel bekommt eine Welle.',
+      'Die zwei Teile zusammengelegt — Anstieg, Gipfel, Durchatmen. So entsteht die Welle, die dein Spiel trägt.',
     cycle: 4,
     hasGrafik: false,
     videoId: 'e7e2ed0a-da6e-4834-be90-392be1229d6b',
@@ -1977,9 +1977,9 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
   {
     number: 44,
     title: 'Am Fluss',
-    subtitle: 'Abschluss · wer bin ich, was will ich',
+    subtitle: 'Der letzte Tag · die Ausrichtung auf das Wesentliche',
     essence:
-      'Keine neue Technik, sondern die Frage, die dein Üben leitet: Wer bin ich, und was will ich in meiner Musik?',
+      'Am letzten Tag keine Übung mehr, sondern eine Frage: Wer bist du, und was willst du in deiner Musik?',
     cycle: 4,
     hasGrafik: false,
     videoId: '0fcc2259-d59c-4b86-9cce-b12226664891',
