@@ -83,6 +83,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
     (d) => d.number === num,
   )
   if (!day) notFound()
+  const hasPlayer = day.presets.length > 0
 
   const supabase = await createClient()
   const {
@@ -243,7 +244,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
           ) : null}
 
           {/* Two-column layout: text + sticky player on desktop */}
-          <div className="tag-layout">
+          <div className={hasPlayer ? "tag-layout" : "tag-layout tag-layout--solo"}>
             {/* Markdown body */}
             <section className="tag-body">
               {markdown ? (
@@ -285,10 +286,12 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
               ) : null}
             </section>
 
-            {/* Player column */}
-            <aside className="tag-player-col">
-              <DayPlayer presets={day.presets} dayNumber={day.number} pitchMap={pitchMap} />
-            </aside>
+            {/* Player column — Tage ohne Übungsvorlage (z. B. Tag 44) zeigen keinen Player. */}
+            {hasPlayer ? (
+              <aside className="tag-player-col">
+                <DayPlayer presets={day.presets} dayNumber={day.number} pitchMap={pitchMap} />
+              </aside>
+            ) : null}
           </div>
 
           {/* Tag abhaken — nach dem Inhalt, vor dem Sprung zum nächsten Tag. */}
@@ -554,6 +557,9 @@ const TAG_CSS = `
       grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
       gap: 40px;
       align-items: start;
+    }
+    .tag-layout--solo {
+      grid-template-columns: minmax(0, 760px);
     }
     .tag-player-col {
       position: sticky;

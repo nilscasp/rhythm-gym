@@ -27,7 +27,7 @@ export type RhythmusHandsatzKey =
   | 'paradiddle'
   | 'frei';
 
-export type RhythmusSubdivisionKey = '4n' | '8n' | '16n' | '32n';
+export type RhythmusSubdivisionKey = '4n' | '8n' | '8t' | '16n' | '32n';
 
 export interface RhythmusPreset {
   /** Stable per-day-unique id, used in URLs + React keys. */
@@ -36,7 +36,7 @@ export interface RhythmusPreset {
   label: string;
   /** 1-line hint shown under label or in tooltip — optional. */
   hint?: string;
-  /** Strike sequence: 1–32 chars from set `.gTSD`. Defaults to 16. */
+  /** Strike sequence: 1–32 chars from set `.gTSDX` (X = Slap + Tonfeld gleichzeitig). */
   pattern: string;
   handsatz: RhythmusHandsatzKey;
   /** Empfohlenes Start-Tempo. User kann live ändern. */
@@ -1890,6 +1890,10 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
       },
     ],
   },
+  // Tag 41–44: Triolen-Raster (1 · und · die), wie in Tag 39/40 notiert und in den
+  // Videos gemessen (12er-Periodik, ~56–60 BPM). Grundbogen = Tag-39-Anker:
+  // Tonfeld/Akkord auf 1 · 3 · 4, Slap auf 2, dazwischen die Wiederholung (g).
+  // X = Slap + Tonfeld gleichzeitig (Tag 42/43).
   {
     number: 41,
     title: 'Das Motiv beginnt zu erzählen',
@@ -1901,20 +1905,31 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     videoId: '9736848c-eeed-404e-85f0-a1e402976c3a',
     presets: [
       {
-        id: 'phase-1-koerper-1',
-        label: 'Phase 1 · Körper 1 steht',
-        hint: 'Bogen 1+2 sicher, Basis läuft darunter',
-        pattern: 'TgggSggT',
+        id: 'phase-1-motiv-1',
+        label: 'Phase 1 · Motiv 1 · Bogen 1+2',
+        hint: 'Tonfeld auf 1 · 3 · 4, Slap auf 2, dazwischen Wiederholung',
+        pattern: 'TggSggTggTgg' + 'TggSggTggTgg',
         handsatz: 'frei',
-        bpm: 60,
+        bpm: 56,
+        subdivision: '8t',
       },
       {
-        id: 'phase-3-letzter-ton',
-        label: 'Phase 3 · Letzter Ton variiert',
-        hint: 'Nur der Schlusston wandert auf ein anderes Tonfeld',
-        pattern: 'TgggSggT' + 'TgggSgTT',
+        id: 'phase-4-stelle',
+        label: 'Phase 4 · Die eine Stelle variiert',
+        hint: 'Schlusston von Bogen 2 als Wiederholung — wie im Video',
+        pattern: 'TggSggTggTgg' + 'TggSggTggTTT',
         handsatz: 'frei',
-        bpm: 60,
+        bpm: 56,
+        subdivision: '8t',
+      },
+      {
+        id: 'phase-6-break',
+        label: 'Phase 6 · Bögen aneinander + Break',
+        hint: 'Am Ende ein ausgelassener Schlag — eine Mikropause',
+        pattern: 'TggSggTggTgg' + 'TggSggTgg.gg',
+        handsatz: 'frei',
+        bpm: 56,
+        subdivision: '8t',
       },
     ],
   },
@@ -1929,20 +1944,40 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     videoId: '05daed3f-6986-4a1b-8cdf-6757fb847e85',
     presets: [
       {
-        id: 'phase-1-koerper-2',
-        label: 'Phase 1 · Körper 2 steht',
-        hint: 'Bogen 3+4, Basis läuft darunter',
-        pattern: 'TgggSggg',
+        id: 'phase-1-motiv-2',
+        label: 'Phase 1 · Motiv 2 · Bogen 3+4',
+        hint: 'Unverändert, wie gestern',
+        pattern: 'TggSggTggTgg' + 'TggSggTggTgg',
         handsatz: 'frei',
-        bpm: 60,
+        bpm: 56,
+        subdivision: '8t',
       },
       {
-        id: 'phase-2-ton-auf-slap',
-        label: 'Phase 2 · Ton fällt auf den Slap',
-        hint: 'Ein Schlag mehr — rechte Hand aufs Tonfeld',
-        pattern: 'TgggDggg',
+        id: 'phase-3-slap-tonfeld',
+        label: 'Phase 3 · Slap + Tonfeld',
+        hint: 'Bogen 3 bleibt gleich, in Bogen 4 fällt ein Tonfeld auf den Slap',
+        pattern: 'TggSggTggTgg' + 'TggXggTggTgg',
         handsatz: 'frei',
-        bpm: 60,
+        bpm: 56,
+        subdivision: '8t',
+      },
+      {
+        id: 'phase-4-fill',
+        label: 'Phase 4 · Fill-In zum Ende',
+        hint: 'Zwei Töne als weicher Übergang zurück zu Motiv 1',
+        pattern: 'TggSggTggTgg' + 'TggXggTggTTT',
+        handsatz: 'frei',
+        bpm: 56,
+        subdivision: '8t',
+      },
+      {
+        id: 'phase-5-break',
+        label: 'Phase 5 · Break-Figur',
+        hint: 'Perkussives pausiert, die Tonfelder laufen alleine',
+        pattern: 'TggSggTggTgg' + 'T.....T..T..',
+        handsatz: 'frei',
+        bpm: 56,
+        subdivision: '8t',
       },
     ],
   },
@@ -1957,23 +1992,35 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     videoId: 'e7e2ed0a-da6e-4834-be90-392be1229d6b',
     presets: [
       {
-        id: 'phase-2-zusammen',
-        label: 'Phase 2 · Beide Körper',
-        hint: 'Körper 1 variiert, dann Körper 2 erweitert',
-        pattern: 'TgggSggT' + 'TgggDggg',
+        id: 'phase-1-basis',
+        label: 'Phase 1 · Basis festigen',
+        hint: 'Grundbogen, bis beide Teile von selbst tragen',
+        pattern: 'TggSggTggTgg' + 'TggSggTggTgg',
         handsatz: 'frei',
         bpm: 60,
+        subdivision: '8t',
       },
       {
-        id: 'phase-3-break',
-        label: 'Phase 3 · Break · ohne Perkussion',
-        hint: 'Rhythmische Elemente raus, der Rest bleibt stehen',
-        pattern: 'TgggTggT' + 'TgggTggg',
+        id: 'phase-2-zusammen',
+        label: 'Phase 2 · Motiv 1 → Motiv 2',
+        hint: 'Beide variierten Stellen: Schlusston wiederholt, dann Slap + Tonfeld',
+        pattern: 'TggSggTggTTT' + 'TggXggTggTgg',
         handsatz: 'frei',
         bpm: 60,
+        subdivision: '8t',
+      },
+      {
+        id: 'phase-4-break',
+        label: 'Phase 4 · Break und wieder rein',
+        hint: 'Ausatmen: nur Tonfelder — dann zurück in den Körper',
+        pattern: 'T.....T..T..' + 'TggSggTggTgg',
+        handsatz: 'frei',
+        bpm: 60,
+        subdivision: '8t',
       },
     ],
   },
+  // Tag 44: bewusst ohne Übungsvorlage — „Heute keine Stationen, keine Notation.“
   {
     number: 44,
     title: 'Am Fluss',
@@ -1983,16 +2030,7 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: false,
     videoId: '0fcc2259-d59c-4b86-9cce-b12226664891',
-    presets: [
-      {
-        id: 'frei',
-        label: 'Frei spielen',
-        hint: 'Erst fragen: Was will ich fühlen, was will ich geben?',
-        pattern: 'gggg' + 'gggg' + 'gggg' + 'gggg',
-        handsatz: 'frei',
-        bpm: 60,
-      },
-    ],
+    presets: [],
   },
 ] as const;
 

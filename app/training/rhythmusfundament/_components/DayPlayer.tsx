@@ -21,9 +21,10 @@ import type { PitchMap } from '../../../lib/handpan';
 //
 // Strike-Encoding (gleich wie /tool):
 //   . = Pause   g = Ghostnote   T = Tonfeld   S = Slap   D = Ding
+//   X = Slap + Tonfeld gleichzeitig (eine Hand slappt, die andere spielt ein Tonfeld)
 // ─────────────────────────────────────────────────────────────────────────────
 
-type StrikeChar = '.' | 'g' | 'T' | 'S' | 'D';
+type StrikeChar = '.' | 'g' | 'T' | 'S' | 'D' | 'X';
 
 interface SynthMap {
   gn: Tone.NoiseSynth | null;
@@ -60,6 +61,11 @@ const STRIKE_VISUAL: Record<
     bg: 'rgba(139, 69, 19, 0.78)',
     color: 'var(--cream)',
     label: 'D',
+  },
+  X: {
+    bg: 'linear-gradient(135deg, rgba(245, 166, 35, 0.85) 50%, rgba(156, 169, 138, 0.85) 50%)',
+    color: 'var(--black)',
+    label: 'S+T',
   },
 };
 
@@ -117,6 +123,8 @@ function beatStrideFor(sub: RhythmusSubdivisionKey): number {
       return 8;
     case '16n':
       return 4;
+    case '8t':
+      return 3;
     case '8n':
       return 2;
     case '4n':
@@ -126,7 +134,7 @@ function beatStrideFor(sub: RhythmusSubdivisionKey): number {
 
 function decodePattern(raw: string): StrikeChar[] {
   return raw.split('').map((c) => {
-    if (c === '.' || c === 'g' || c === 'T' || c === 'S' || c === 'D') {
+    if (c === '.' || c === 'g' || c === 'T' || c === 'S' || c === 'D' || c === 'X') {
       return c;
     }
     return '.';
@@ -307,6 +315,9 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
             if (synths.gn) synths.gn.triggerAttackRelease('32n', time, 0.7);
             break;
           case 'T':
+          case 'X':
+            if (c === 'X' && synths.slap)
+              synths.slap.triggerAttackRelease('16n', time, 0.85);
             if (synths.tonfeld) {
               const pm = pitchMapRef.current;
               const note = pm
@@ -463,6 +474,15 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
       }
       return out.slice(0, stepCount);
     }
+    if (subdivision === '8t') {
+      // Triolen: 1 und die 2 und die … — wiederholt pro Takt (Bogen), damit
+      // zweitaktige Muster (24 Schritte) vollständig gezählt werden.
+      const out: string[] = [];
+      while (out.length < stepCount) {
+        for (const b of beats) out.push(b, 'und', 'die');
+      }
+      return out.slice(0, stepCount);
+    }
     // 32n
     const out: string[] = [];
     for (const b of beats) {
@@ -501,7 +521,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
             Handsatz · {HANDSATZ_LABEL[handsatzKey]}
           </span>
           <span className="dp-subdivision">
-            Subdivision · {subdivision}
+            Subdivision · {subdivision === '8t' ? 'Triolen' : subdivision}
           </span>
         </div>
 
