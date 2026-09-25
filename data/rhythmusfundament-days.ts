@@ -46,7 +46,7 @@ export interface RhythmusPreset {
 }
 
 export interface RhythmusDay {
-  /** 1..40 */
+  /** 1..44 */
   number: number;
   /** Kurztitel — z.B. "Womit alles beginnt". */
   title: string;
@@ -1885,6 +1885,110 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
         label: 'Phase 5 · Form komplett',
         hint: '2 Körper, perkussiv, Breaks und Fills',
         pattern: 'TgggSggT' + 'gTggSggT'.slice(0, 8),
+        handsatz: 'frei',
+        bpm: 60,
+      },
+    ],
+  },
+  {
+    number: 41,
+    title: 'Das erste Motiv erzählt',
+    subtitle: 'Kompositionsrhythmik · Variation über Wiederholung',
+    essence:
+      'Ein Ton am Ende, der beim nächsten Mal woanders landet — und aus deinem ersten Motiv wird eine Melodie.',
+    cycle: 4,
+    hasGrafik: false,
+    videoId: '9736848c-eeed-404e-85f0-a1e402976c3a',
+    presets: [
+      {
+        id: 'phase-1-koerper-1',
+        label: 'Phase 1 · Körper 1 steht',
+        hint: 'Bogen 1+2 sicher, Basis läuft darunter',
+        pattern: 'TgggSggT',
+        handsatz: 'frei',
+        bpm: 60,
+      },
+      {
+        id: 'phase-3-letzter-ton',
+        label: 'Phase 3 · Letzter Ton variiert',
+        hint: 'Nur der Schlusston wandert auf ein anderes Tonfeld',
+        pattern: 'TgggSggT' + 'TgggSgTT',
+        handsatz: 'frei',
+        bpm: 60,
+      },
+    ],
+  },
+  {
+    number: 42,
+    title: 'Ein Schlag mehr',
+    subtitle: 'Kompositionsrhythmik · der zweite Körper entwickelt sich',
+    essence:
+      'Ein einziger zusätzlicher Schlag reicht für den nächsten Schritt — heute an deinem zweiten Körper.',
+    cycle: 4,
+    hasGrafik: false,
+    videoId: '05daed3f-6986-4a1b-8cdf-6757fb847e85',
+    presets: [
+      {
+        id: 'phase-1-koerper-2',
+        label: 'Phase 1 · Körper 2 steht',
+        hint: 'Bogen 3+4, Basis läuft darunter',
+        pattern: 'TgggSggg',
+        handsatz: 'frei',
+        bpm: 60,
+      },
+      {
+        id: 'phase-2-ton-auf-slap',
+        label: 'Phase 2 · Ton fällt auf den Slap',
+        hint: 'Ein Schlag mehr — rechte Hand aufs Tonfeld',
+        pattern: 'TgggDggg',
+        handsatz: 'frei',
+        bpm: 60,
+      },
+    ],
+  },
+  {
+    number: 43,
+    title: 'Die Welle',
+    subtitle: 'Kompositionsrhythmik · zusammenweben',
+    essence:
+      'Beide variierten Körper hintereinander — Anstieg, Gipfel, Ausatmen. Dein Spiel bekommt eine Welle.',
+    cycle: 4,
+    hasGrafik: false,
+    videoId: 'e7e2ed0a-da6e-4834-be90-392be1229d6b',
+    presets: [
+      {
+        id: 'phase-2-zusammen',
+        label: 'Phase 2 · Beide Körper',
+        hint: 'Körper 1 variiert, dann Körper 2 erweitert',
+        pattern: 'TgggSggT' + 'TgggDggg',
+        handsatz: 'frei',
+        bpm: 60,
+      },
+      {
+        id: 'phase-3-break',
+        label: 'Phase 3 · Break · ohne Perkussion',
+        hint: 'Rhythmische Elemente raus, der Rest bleibt stehen',
+        pattern: 'TgggTggT' + 'TgggTggg',
+        handsatz: 'frei',
+        bpm: 60,
+      },
+    ],
+  },
+  {
+    number: 44,
+    title: 'Am Fluss',
+    subtitle: 'Abschluss · wer bin ich, was will ich',
+    essence:
+      'Keine neue Technik, sondern die Frage, die dein Üben leitet: Wer bin ich, und was will ich in meiner Musik?',
+    cycle: 4,
+    hasGrafik: false,
+    videoId: '0fcc2259-d59c-4b86-9cce-b12226664891',
+    presets: [
+      {
+        id: 'frei',
+        label: 'Frei spielen',
+        hint: 'Erst fragen: Was will ich fühlen, was will ich geben?',
+        pattern: 'gggg' + 'gggg' + 'gggg' + 'gggg',
         handsatz: 'frei',
         bpm: 60,
       },
