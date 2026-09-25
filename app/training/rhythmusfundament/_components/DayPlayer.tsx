@@ -190,6 +190,9 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
 
   const stepCount = pattern.length;
   const beatStride = beatStrideFor(subdivision);
+  // Mehrtaktige Muster (> 16 Schritte, z. B. 2 Bögen Triolen = 24) brechen pro
+  // Takt um — eine Zeile je Bogen, sonst werden die Zellen auf dem Handy unlesbar.
+  const gridColumns = stepCount > 16 ? beatStride * 4 : stepCount;
 
   // ───────── Playback State ─────────
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -528,7 +531,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
         {/* Grid */}
         <div
           className="dp-grid"
-          style={{ gridTemplateColumns: `repeat(${stepCount}, 1fr)` }}
+          style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}
           aria-label="Rhythmus-Grid"
         >
           {pattern.map((c, i) => {
@@ -554,10 +557,11 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
         {/* Counting strip */}
         <div
           className="dp-counting"
-          style={{ gridTemplateColumns: `repeat(${stepCount}, 1fr)` }}
+          style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}
           aria-hidden="true"
         >
-          {countingSyllables.map((syl, i) => {
+          {/* Umbrochene Muster: eine Zählzeile reicht, die Spalten fluchten. */}
+          {countingSyllables.slice(0, gridColumns).map((syl, i) => {
             const isDownbeat = i % beatStride === 0;
             const hand = hands[i];
             return (
