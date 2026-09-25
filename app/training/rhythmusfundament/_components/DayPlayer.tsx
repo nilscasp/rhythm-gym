@@ -22,9 +22,11 @@ import type { PitchMap } from '../../../lib/handpan';
 // Strike-Encoding (gleich wie /tool):
 //   . = Pause   g = Ghostnote   T = Tonfeld   S = Slap   D = Ding
 //   X = Slap + Tonfeld gleichzeitig (eine Hand slappt, die andere spielt ein Tonfeld)
+//   P = Pulston — immer dasselbe Tonfeld, leiser: die tranceartige Wiederholung
+//       („ein einziger Ton auf jeder Triole", Tag 37 ff.)
 // ─────────────────────────────────────────────────────────────────────────────
 
-type StrikeChar = '.' | 'g' | 'T' | 'S' | 'D' | 'X';
+type StrikeChar = '.' | 'g' | 'T' | 'S' | 'D' | 'X' | 'P';
 
 interface SynthMap {
   gn: Tone.NoiseSynth | null;
@@ -61,6 +63,11 @@ const STRIKE_VISUAL: Record<
     bg: 'rgba(139, 69, 19, 0.78)',
     color: 'var(--cream)',
     label: 'D',
+  },
+  P: {
+    bg: 'rgba(156, 169, 138, 0.3)',
+    color: 'var(--cream)',
+    label: 'P',
   },
   X: {
     bg: 'linear-gradient(135deg, rgba(245, 166, 35, 0.85) 50%, rgba(156, 169, 138, 0.85) 50%)',
@@ -134,7 +141,7 @@ function beatStrideFor(sub: RhythmusSubdivisionKey): number {
 
 function decodePattern(raw: string): StrikeChar[] {
   return raw.split('').map((c) => {
-    if (c === '.' || c === 'g' || c === 'T' || c === 'S' || c === 'D' || c === 'X') {
+    if (c === '.' || c === 'g' || c === 'T' || c === 'S' || c === 'D' || c === 'X' || c === 'P') {
       return c;
     }
     return '.';
@@ -331,6 +338,15 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
                 : 'A4';
               synths.tonfeld.triggerAttackRelease(note, '16n', time, 0.85);
             }
+            break;
+          case 'P':
+            if (synths.tonfeld)
+              synths.tonfeld.triggerAttackRelease(
+                pitchMapRef.current?.tonfields[0] ?? 'E4',
+                '16n',
+                time,
+                0.5,
+              );
             break;
           case 'S':
             if (synths.slap)
