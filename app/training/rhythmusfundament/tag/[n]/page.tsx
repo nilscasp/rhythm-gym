@@ -23,6 +23,7 @@ import { DayCheck } from '../../_components/DayCheck'
 import { rowToHandpan, derivePitchMap, type PitchMap } from '../../../../lib/handpan'
 import { MarkdownBody } from '../../_components/MarkdownBody'
 import { PracticeVideo } from '../../_components/PracticeVideo'
+import { GrafikGalerie } from '../../_components/GrafikGalerie'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // /training/rhythmusfundament/tag/[n] — Server-Component shell.
@@ -194,9 +195,10 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
     }
   }
 
-  // Pick the "overview" graphic if present — that's the canonical hero.
-  const overviewGraphic = grafiken.find((p) => p.includes('/overview_'))
-  const lowerthirds = grafiken.filter((p) => p.includes('/lowerthird_'))
+  // Übersichten (overview_*) laufen in der Galerie, alles andere — Pattern-
+  // Grafiken und Zusatzbilder — liegt aufklappbar darunter.
+  const overviews = grafiken.filter((p) => p.includes('/overview_'))
+  const weitereGrafiken = grafiken.filter((p) => !p.includes('/overview_'))
 
   return (
     <>
@@ -258,22 +260,13 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
               )}
 
               {/* Grafiken */}
-              {overviewGraphic ? (
-                <figure className="tag-overview">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={overviewGraphic}
-                    alt={`Übersicht für Tag ${day.number}`}
-                    className="tag-overview-img"
-                  />
-                </figure>
-              ) : null}
+              <GrafikGalerie images={overviews} dayNumber={day.number} />
 
-              {lowerthirds.length > 0 ? (
+              {weitereGrafiken.length > 0 ? (
                 <details className="tag-grafiken">
-                  <summary>Pattern-Grafiken ({lowerthirds.length})</summary>
+                  <summary>Weitere Grafiken ({weitereGrafiken.length})</summary>
                   <div className="tag-grafiken-grid">
-                    {lowerthirds.map((src) => (
+                    {weitereGrafiken.map((src) => (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         key={src}
@@ -447,19 +440,6 @@ const TAG_CSS = `
   .tag-body-missing {
     color: var(--muted);
     font-style: italic;
-  }
-
-  .tag-overview {
-    margin: 0;
-    padding: 0;
-  }
-  .tag-overview-img {
-    width: 100%;
-    height: auto;
-    display: block;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 6px;
   }
 
   .tag-grafiken {
