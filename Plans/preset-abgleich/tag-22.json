@@ -12,41 +12,9 @@
   "presets": [
     {
       "id": "basis",
-      "label": "Basisrhythmus",
-      "hint": "wo wir angefangen haben · drei Schläge und eine Pause",
+      "label": "Aus den Teilen ein Stück",
+      "hint": "Drei Schläge und eine Pause — dazwischen alles, was du gefunden hast",
       "pattern": "DgggSgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "spielweg-a",
-      "label": "Option 1 · Beispiel A",
-      "hint": "ein Bogen als Loop · Stufe 2m in Takt 1 und 4",
-      "pattern": "DgTTSgggggggSgTT",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "spielweg-b",
-      "label": "Option 1 · Beispiel B",
-      "hint": "ein Bogen als Loop · ein Tonfeld am Ende jedes Takts",
-      "pattern": "DggTSggTgggTSggT",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "spielweg-c",
-      "label": "Option 1 · Beispiel C",
-      "hint": "ein Bogen als Loop · Takt 3 ganz gefüllt",
-      "pattern": "DgggSgggTTTTSggg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "option-2-vier-boegen",
-      "label": "Option 2 · 4 Bögen mit Variation",
-      "hint": "Variation wandert: Takt 1 → 2 → 3 → 4",
-      "pattern": "DgTTSgggggggSgggDgggSTTTggggSgggDgggSgggTTTTSgggDgggSgggggggSgTT",
       "handsatz": "R-L",
       "bpm": 60
     }
@@ -90,6 +58,7 @@
     "Die alten Spielweg-Presets A/B/C haben kein Gegenstück in den Grafiken. Vorschlag: IDs weiterverwenden für Beispiel A/B/C (keine Videokapitel verweisen darauf). Alternativ die alten als no-graphic behalten und beispiel-a/b/c neu anlegen.",
     "overview_tag22_schablone.png ist eine Kopie der Tag-21-Schablone (Untertitel „Tag 21“) — kein Preset.",
     "Die Beispiele sind nur Anregungen („jeder der ~3.000 Bögen ist gültig“); ein freier Editor passt hier eigentlich besser als feste Presets.",
-    "option-2-vier-boegen hat 64 Schritte (Typ-Kommentar 1–32) — Player-Darstellung prüfen."
+    "option-2-vier-boegen hat 64 Schritte (Typ-Kommentar 1–32) — Player-Darstellung prüfen.",
+    "Nils 29.09.: nur der Grundrhythmus (Grafik „Aus den Teilen ein Stück“)."
   ]
 }

@@ -8,12 +8,13 @@
     },
     {
       "label": "Option 1 · Bogen mit Variationen",
-      "start": 369
+      "start": 369,
+      "presetId": "basis"
     },
     {
       "label": "Option 2 · Lieblingsbögen kombinieren",
       "start": 390,
-      "presetId": "option-2-vier-boegen"
+      "presetId": "basis"
     }
   ]
 }

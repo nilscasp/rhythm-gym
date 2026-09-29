@@ -3,38 +3,7 @@
   "sources": [
     "content/rhythmusfundament/tag-9.md (◇ DEINE PRAXIS)"
   ],
-  "presets": [
-    {
-      "id": "fingerdrill",
-      "label": "Fingerdrill · alle fünf",
-      "pattern": "TTTTTTTTTTTTTTTT",
-      "handsatz": "frei",
-      "bpm": 64
-    },
-    {
-      "id": "unabhaengigkeit",
-      "label": "Unabhängigkeit · linke und rechte Hand",
-      "hint": "Linke Hand hält den Puls — rechte spielt",
-      "pattern": "TgTgTgTgTgTgTgTg",
-      "handsatz": "R-L",
-      "bpm": 64
-    },
-    {
-      "id": "fluss",
-      "label": "Fluss · weiche Tonleiter",
-      "pattern": "TgggTgggTgggTggg",
-      "handsatz": "paradiddle",
-      "bpm": 60
-    },
-    {
-      "id": "freispiel-wasser",
-      "label": "Freies Spiel · Wasser",
-      "hint": "5 Minuten — flüssig, weich, tragend",
-      "pattern": "TgggTgggTgggTggg",
-      "handsatz": "frei",
-      "bpm": 56
-    }
-  ],
+  "presets": [],
   "changes": [
     {
       "id": "fingerdrill",
@@ -69,6 +38,7 @@
     "Lücke: Station 2 „Double Strokes“ mit Handsatz R-R-L-L über Ding, Rim, Rücken hat kein Preset (Vorschlag: DDDD… oder gggg… mit RR-LL).",
     "Lücke: Station 3 Drei-Finger-Roll und Station 4 Handrotation — Technik, im 16er-Raster kaum abbildbar.",
     "unabhaengigkeit („Linke Hand hält den Puls“) und fluss (Paradiddle) haben keine Grundlage im Text — behalten?",
-    "Label „Unabhängigkeit · linke und rechte Hand“ ist 38 Zeichen — kürzen."
+    "Label „Unabhängigkeit · linke und rechte Hand“ ist 38 Zeichen — kürzen.",
+    "Nils 29.09.: braucht keinen Player."
   ]
 }

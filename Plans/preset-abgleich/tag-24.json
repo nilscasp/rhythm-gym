@@ -9,40 +9,29 @@
   "presets": [
     {
       "id": "gespiegelt-achtel",
-      "label": "Stufe 1 · links auf Achteln",
-      "hint": "linke Hand pulsiert auf jedem Achtel · rechte Hand trägt den Groove",
-      "pattern": "D.g.S.g.g.g.S.g.",
-      "handsatz": "L-R",
+      "label": "Teil 1 · Achtel",
+      "hint": "Linke Hand pulsiert auf jedem Achtel · rechte Hand trägt den Groove",
+      "pattern": "D...S.......S...",
+      "wiederholung": "T.T.T.T.T.T.T.T.",
+      "handsatz": "frei",
       "bpm": 60
     },
     {
       "id": "gespiegelt-offbeat",
-      "label": "Stufe 2 · links auf Offbeats",
-      "hint": "linke Hand sitzt auf jedem „e“ · rechte Hand bleibt im Groove",
-      "pattern": "Dg.gSg.g.g.gSg.g",
-      "handsatz": "L-R",
+      "label": "Teil 2 · Offbeat",
+      "hint": "Linke Hand sitzt auf jedem „e“ · rechte Hand bleibt im Groove",
+      "pattern": "D...S.......S...",
+      "wiederholung": ".T.T.T.T.T.T.T.T",
+      "handsatz": "frei",
       "bpm": 60
     },
     {
       "id": "gespiegelt-basis",
-      "label": "Stufe 3 · links alle 16tel",
-      "hint": "linke Hand füllt jeden Schlag · rechte Hand trägt den Groove",
-      "pattern": "DgggSgggggggSggg",
-      "handsatz": "L-R",
-      "bpm": 60
-    },
-    {
-      "id": "gespiegelt-melodisch",
-      "label": "Gespiegelt · melodisch · L – R",
-      "pattern": "TgggSgggTgggSggg",
-      "handsatz": "L-R",
-      "bpm": 60
-    },
-    {
-      "id": "gespiegelt-dialog",
-      "label": "Gespiegelt · Dialog · L – R",
-      "pattern": "DgggTgSgggggTgSg",
-      "handsatz": "L-R",
+      "label": "Teil 3 · Sechzehntel",
+      "hint": "Linke Hand füllt jeden Schlag · rechte Hand trägt den Groove",
+      "pattern": "D...S.......S...",
+      "wiederholung": "TTTTTTTTTTTTTTTT",
+      "handsatz": "frei",
       "bpm": 60
     }
   ],
@@ -84,6 +73,7 @@
     }
   ],
   "unclear": [
-    "Wie Tag 23: sind die grauen „Ghostnote · still“ der Groove-Hand stumm (so angenommen) oder leise hörbar? Bei hörbar wären alle drei Stufen = DgggSgggggggSggg."
+    "Wie Tag 23: sind die grauen „Ghostnote · still“ der Groove-Hand stumm (so angenommen) oder leise hörbar? Bei hörbar wären alle drei Stufen = DgggSgggggggSggg.",
+    "Nils 29.09.: wie Tag 23 umgebaut (gespiegelt), Presets ohne Grafik entfallen."
   ]
 }

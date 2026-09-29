@@ -8,65 +8,54 @@
     },
     {
       "label": "Fingerkrafttraining · Tag 2",
-      "start": 4,
-      "presetId": "fingerdrill"
+      "start": 4
     },
     {
       "label": "Mehr Intensität",
       "start": 39,
-      "presetId": "fingerdrill",
       "sub": true
     },
     {
       "label": "Double Strokes · Ding–Rim–Shoulder",
       "start": 104,
-      "presetId": "fingerdrill",
       "sub": true
     },
     {
       "label": "Double Strokes · langsamer",
       "start": 173,
-      "presetId": "fingerdrill",
       "sub": true
     },
     {
       "label": "Dreier Rolls · rechte Hand",
-      "start": 246,
-      "presetId": "fingerdrill"
+      "start": 246
     },
     {
       "label": "Dreier Rolls · linke Hand",
       "start": 300,
-      "presetId": "fingerdrill",
       "sub": true
     },
     {
       "label": "Handrotation · Zweihandroll",
-      "start": 402,
-      "presetId": "unabhaengigkeit"
+      "start": 402
     },
     {
       "label": "Handrotation · Tempo steigern",
       "start": 489,
-      "presetId": "unabhaengigkeit",
       "sub": true
     },
     {
       "label": "Handrotation · Mittelfinger",
       "start": 512,
-      "presetId": "unabhaengigkeit",
       "sub": true
     },
     {
       "label": "Einzelne Hand testen",
       "start": 541,
-      "presetId": "unabhaengigkeit",
       "sub": true
     },
     {
       "label": "Freies Spiel · Wasser (5 Min.)",
-      "start": 574,
-      "presetId": "freispiel-wasser"
+      "start": 574
     }
   ]
 }

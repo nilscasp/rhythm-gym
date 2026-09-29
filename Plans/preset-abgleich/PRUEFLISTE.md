@@ -31,10 +31,12 @@ Kein Preset wurde gelöscht. Was keine Grafik hat, ist unten markiert.
   - Tag 28: die drei Voll-Presets
   - Tag 33: Gemischt
   - Tag 35 und 36: je ein frei gewähltes Preset
-- [x] **Konzepttage:** Tag 32 hat kein Preset mehr, die Seite zeigt keinen Player (Nils, 29.09.). Tag 22 noch offen.
+- [x] **Konzepttage:** Tag 32 hat kein Preset mehr, die Seite zeigt keinen Player (Nils, 29.09.). Tag 22 nur der Grundrhythmus „Aus den Teilen ein Stück“ (Nils, 29.09.).
 - [x] **Tag 29:** nur der Basisrhythmus als ein Bogen, den Inhalt legen die Lernenden selbst darüber (Nils, 29.09.). Tag 30 noch offen.
 
 ## B · Tage ohne Grafik: prüfst du selbst am Video
+
+> Tag 9–11: kein Player (Nils, 29.09.).
 
 Die Presets hier passen oft nicht zum Praxis-Text. Ich habe nichts geändert, weil der Text nicht eindeutig ist.
 
@@ -53,7 +55,7 @@ Die Presets hier passen oft nicht zum Praxis-Text. Ich habe nichts geändert, we
 
 ## C · Anhören (eine konkrete Stelle)
 
-- [x] **Tag 23:** nach den Grafiken (v2): rechte Hand als eigene Spur auf Achteln / „e“ / allen Sechzehnteln, linke Hand Ding · Slap · Slap; Dialog-Presets entfallen. Tag 28: Voll-Presets entfallen (Nils, 29.09.). Tag 24 noch offen.
+- [x] **Tag 23:** nach den Grafiken (v2): rechte Hand als eigene Spur auf Achteln / „e“ / allen Sechzehnteln, linke Hand Ding · Slap · Slap; Dialog-Presets entfallen. Tag 28: Voll-Presets entfallen (Nils, 29.09.). Tag 24 genauso, gespiegelt (Nils, 29.09.).
 - [ ] **Tag 30:** Das Kursbuch legt den Fill *vor* die 4, die Grafik *nach* den Slap auf der 4. Das Preset folgt der Grafik. Außerdem ist Schritt 8 im Crescendo als blasser Slap gezeichnet. Slap oder Ghost?
 - [ ] **Tag 32, Solo-Break:** Der Untertitel sagt, die rechte Hand spielt solo. Eingezeichnet ist nur „Mitte“. Das Preset hat dort jetzt Pausen.
 - [ ] **Tag 33, Bogen 9/10:** Eine Grafik zeigt Stille, drei andere Grafiken und der Text zeigen Akkord plus Slaps. Das Preset folgt der Mehrheit. Außerdem empfiehlt der Text 65–80 BPM, eingestellt sind 60.

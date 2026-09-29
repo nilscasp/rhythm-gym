@@ -3,31 +3,7 @@
   "sources": [
     "content/rhythmusfundament/tag-10.md (◇ DEINE PRAXIS)"
   ],
-  "presets": [
-    {
-      "id": "lockerung",
-      "label": "Lockerung · weiche Schläge",
-      "pattern": "gggTgggTgggTgggT",
-      "handsatz": "frei",
-      "bpm": 56
-    },
-    {
-      "id": "aus-der-ruhe",
-      "label": "Aus der Ruhe heraus",
-      "hint": "Lange Pausen zwischen den Tonfeldern",
-      "pattern": "TgggggggTggggggg",
-      "handsatz": "R-L",
-      "bpm": 52
-    },
-    {
-      "id": "freispiel-erde",
-      "label": "Freies Spiel · Erde",
-      "hint": "5 Minuten — getragen, fest, im Boden",
-      "pattern": "DgggggggDggggggg",
-      "handsatz": "frei",
-      "bpm": 52
-    }
-  ],
+  "presets": [],
   "changes": [
     {
       "id": "lockerung",
@@ -53,6 +29,7 @@
   ],
   "unclear": [
     "Lücke: Station 1 „Fingerkraft im Wechsel der Hände“ mit Handsatz R-L-R-L hat kein Preset (Vorschlag: TTTT… mit R-L).",
-    "lockerung und aus-der-ruhe haben keine Grundlage im Text (Station 2 ist Massage ohne Pan, Station 4 Dynamik ohne festes Muster)."
+    "lockerung und aus-der-ruhe haben keine Grundlage im Text (Station 2 ist Massage ohne Pan, Station 4 Dynamik ohne festes Muster).",
+    "Nils 29.09.: braucht keinen Player."
   ]
 }

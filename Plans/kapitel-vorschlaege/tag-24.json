@@ -71,19 +71,16 @@
     },
     {
       "label": "Ausblick · melodisch mit Tonfeldern",
-      "start": 456,
-      "presetId": "gespiegelt-melodisch"
+      "start": 456
     },
     {
       "label": "Bass wechselt alle 2 Bögen",
       "start": 513,
-      "presetId": "gespiegelt-melodisch",
       "sub": true
     },
     {
       "label": "E als Übergang zum Basswechsel",
       "start": 541,
-      "presetId": "gespiegelt-melodisch",
       "sub": true
     }
   ]

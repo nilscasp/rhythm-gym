@@ -52,8 +52,7 @@
     },
     {
       "label": "Freies Spiel · Spannungsbogen",
-      "start": 725,
-      "presetId": "freispiel-luft"
+      "start": 725
     }
   ]
 }
