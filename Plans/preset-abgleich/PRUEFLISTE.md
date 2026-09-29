@@ -32,7 +32,7 @@ Kein Preset wurde gelöscht. Was keine Grafik hat, ist unten markiert.
   - Tag 33: Gemischt
   - Tag 35 und 36: je ein frei gewähltes Preset
 - [ ] **Konzepttage:** Tag 32 ist laut Kursbuch „zum Anhören, nicht zum Nachspielen“. Tag 22 zeigt nur Beispiele („jeder Bogen ist gültig“). Sollen beide trotzdem Presets haben?
-- [ ] **Tag 29/30 als ein langes Preset:** Die Form „3 Bögen + 1 längerer Bogen“ ist jetzt auf zwei Presets verteilt, weil anfangs nur 32 Schritte gingen. Inzwischen gehen bis 128. Zu einem Preset zusammenlegen, wie die Kombis an Tag 14–20?
+- [x] **Tag 29:** nur der Basisrhythmus als ein Bogen, den Inhalt legen die Lernenden selbst darüber (Nils, 29.09.). Tag 30 noch offen.
 
 ## B · Tage ohne Grafik: prüfst du selbst am Video
 

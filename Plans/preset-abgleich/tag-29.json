@@ -14,49 +14,9 @@
   "presets": [
     {
       "id": "standard-perkussiv",
-      "label": "Standard-Rhythmus · perkussiv",
-      "hint": "der Vier-Takt-Bogen · perkussiv · von hier aus öffnen wir den Akkord",
+      "label": "Basisrhythmus · ein Bogen",
+      "hint": "Die Unterlage — Akkorde und Töne legst du selbst darüber",
       "pattern": "DgggSgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "akkord-statisch",
-      "label": "Akkord auf der 1",
-      "hint": "der Bass wird zum Akkord · die perkussiven Akzente bleiben",
-      "pattern": "TgggSgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "akkord-auf-2",
-      "label": "Akkord auf der 2",
-      "hint": "Ding · Akkord · still · Slap",
-      "pattern": "DgggTgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "akkord-auf-4",
-      "label": "Akkord auf der 4",
-      "hint": "Ding · Slap · still · Akkord",
-      "pattern": "DgggSgggggggTggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "akkord-bogen",
-      "label": "Vierer-Struktur · Bogen 1–3",
-      "hint": "drei Anläufe: Akkord auf 1 + ein Ton am Bogenende",
-      "pattern": "TgggSgggggggSggT",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "akkord-mit-fill",
-      "label": "Vierer-Struktur · Bogen 4",
-      "hint": "der vierte Bogen schließt mit drei Tönen nach dem Slap",
-      "pattern": "TgggSgggggggSTTT",
       "handsatz": "R-L",
       "bpm": 56
     }
@@ -108,6 +68,7 @@
   "unclear": [
     "Die Vierer-Struktur (3× Bogen mit 1 Fill-Ton + 1× Bogen mit 3 Tönen) bräuchte 64 Schritte; Player-Maximum ist 32. Deshalb zwei Einzelpresets. Alternative: Player-Feature „Bogen-Folge“.",
     "Im Ordner tag-29 liegen neun Break-Grafiken (Mikro/Solo/Stop-Time, Ebenen, Funktionen, Energiekurve, Übersicht) mit Titel „Tag 29“ — inhaltlich identisch mit Tag 32, im Kursbuch Tag 29 kommt kein Break vor. Vermutlich falsch einsortiert/beschriftet; für Tag 29 ignoriert.",
-    "Tüftel-Grafiken (Akkord finden) sind Tonwahl, kein Rhythmus → kein eigenes Preset (läuft auf akkord-statisch)."
+    "Tüftel-Grafiken (Akkord finden) sind Tonwahl, kein Rhythmus → kein eigenes Preset (läuft auf akkord-statisch).",
+    "Nils 29.09.: nur der Basisrhythmus als ein Bogen, die Akkord-Varianten entfallen — das Tool ist Unterstützung, den Inhalt legen die Lernenden selbst darüber."
   ]
 }
