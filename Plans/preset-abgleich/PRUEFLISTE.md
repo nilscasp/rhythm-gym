@@ -32,7 +32,7 @@ Kein Preset wurde gelöscht. Was keine Grafik hat, ist unten markiert.
   - Tag 33: Gemischt
   - Tag 35 und 36: je ein frei gewähltes Preset
 - [x] **Konzepttage:** Tag 32 hat kein Preset mehr, die Seite zeigt keinen Player (Nils, 29.09.). Tag 22 nur der Grundrhythmus „Aus den Teilen ein Stück“ (Nils, 29.09.).
-- [x] **Tag 29:** nur der Basisrhythmus als ein Bogen, den Inhalt legen die Lernenden selbst darüber (Nils, 29.09.). Tag 30 noch offen.
+- [x] **Tag 29:** nur der Basisrhythmus als ein Bogen, den Inhalt legen die Lernenden selbst darüber (Nils, 29.09.). Tag 30 ebenso: Akkord auf der 1, Slap auf 2 und 4 (Nils, 29.09.).
 
 ## B · Tage ohne Grafik: prüfst du selbst am Video
 

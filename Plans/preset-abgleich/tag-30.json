@@ -11,33 +11,9 @@
   "presets": [
     {
       "id": "wandern-chronologisch",
-      "label": "Übung 1 · Akkord wandert",
-      "hint": "Akkord auf 1 wandert Bogen für Bogen: 1·3·5 → 2·4·6 → 3·5·7 …",
+      "label": "Basisrhythmus · Akkord auf der 1",
+      "hint": "Akkord auf der 1, Slap auf 2 und 4 — den Rest legst du selbst darüber",
       "pattern": "TgggSgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "wandern-mit-steigerung",
-      "label": "Übung 1 · die 3 wächst",
-      "hint": "Slaps auf der 3 · ansteigende Intensität von der 3 weg",
-      "pattern": "TgggSgggSSSSSggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "wandern-vier-boegen",
-      "label": "Übung 2 · Basis pendelt",
-      "hint": "Basis pendelt 2·4 ↔ 1·3, oben: 8 · 7 · 6 · 5",
-      "pattern": "TgggSgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 56
-    },
-    {
-      "id": "wandern-mit-melodie-fill",
-      "label": "Übung 2 · Bogen 4 mit Fill",
-      "hint": "der vierte Bogen schließt mit drei Tonfeldern",
-      "pattern": "TgggSgggggggSTTT",
       "handsatz": "R-L",
       "bpm": 56
     }
@@ -74,6 +50,7 @@
   ],
   "unclear": [
     "Kursbuch sagt Fill auf „den letzten drei Sechzehnteln vor der 4“, die Grafik zeigt die drei Töne NACH dem Slap auf der 4 (Schritte 13–15). Preset folgt der Grafik; Kursbuchtext prüfen.",
-    "Schritt 8 im Crescendo: in der Grafik ein sehr blasser Slap-Kreis. Als S übernommen; falls er nur Ghost sein soll → TgggSggggSSSSggg (= bisheriger Stand: g auf 8, S auf 9–12)."
+    "Schritt 8 im Crescendo: in der Grafik ein sehr blasser Slap-Kreis. Als S übernommen; falls er nur Ghost sein soll → TgggSggggSSSSggg (= bisheriger Stand: g auf 8, S auf 9–12).",
+    "Nils 29.09.: nur der Basisrhythmus (Akkord auf 1, Slap auf 2 und 4)."
   ]
 }

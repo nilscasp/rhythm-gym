@@ -16,17 +16,17 @@
     {
       "label": "Übung 1 · die 3 wächst",
       "start": 76,
-      "presetId": "wandern-mit-steigerung"
+      "presetId": "wandern-chronologisch"
     },
     {
       "label": "Übung 2 · Basis pendelt",
       "start": 183,
-      "presetId": "wandern-vier-boegen"
+      "presetId": "wandern-chronologisch"
     },
     {
       "label": "Vierter Bogen mit Fill",
       "start": 353,
-      "presetId": "wandern-mit-melodie-fill",
+      "presetId": "wandern-chronologisch",
       "sub": true
     }
   ]
