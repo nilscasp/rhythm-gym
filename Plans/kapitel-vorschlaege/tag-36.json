@@ -1,0 +1,49 @@
+{
+  "day": 36,
+  "mediaDurationSec": 646.103792,
+  "chapters": [
+    {
+      "label": "Einführung · kompositorische Rhythmik",
+      "start": 0
+    },
+    {
+      "label": "Körper 1 · geschlossene Form",
+      "start": 132,
+      "presetId": "unterlage"
+    },
+    {
+      "label": "Körper 2 · neues Objekt",
+      "start": 171,
+      "presetId": "unterlage",
+      "sub": true
+    },
+    {
+      "label": "Körper 3 · weiteres Objekt",
+      "start": 199,
+      "presetId": "unterlage",
+      "sub": true
+    },
+    {
+      "label": "Aufgabe · Körper erforschen (3 Tage)",
+      "start": 274,
+      "presetId": "unterlage"
+    },
+    {
+      "label": "Beispiel 1 · freies Spiel",
+      "start": 339,
+      "presetId": "unterlage"
+    },
+    {
+      "label": "Beispiel 2 · linke Hand mehrfach",
+      "start": 389,
+      "presetId": "unterlage",
+      "sub": true
+    },
+    {
+      "label": "Beispiel 3 · mit Dynamik",
+      "start": 475,
+      "presetId": "unterlage",
+      "sub": true
+    }
+  ]
+}

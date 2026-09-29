@@ -1,0 +1,64 @@
+{
+  "day": 34,
+  "mediaDurationSec": 768.392625,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Station 1 · Die Drei einsaugen",
+      "start": 111,
+      "presetId": "station-1-drei"
+    },
+    {
+      "label": "Station 2 · Verdoppeln auf Sechs",
+      "start": 159,
+      "presetId": "station-2-sechs"
+    },
+    {
+      "label": "Station 3 · Der Zwölfer-Takt",
+      "start": 205,
+      "presetId": "station-3-zwoelfer"
+    },
+    {
+      "label": "Station 3 · Die Walze",
+      "start": 351,
+      "presetId": "station-3-zwoelfer",
+      "sub": true
+    },
+    {
+      "label": "Station 4 · Slaps auf Tonfelder",
+      "start": 374,
+      "presetId": "station-4-tonfelder"
+    },
+    {
+      "label": "Station 4 · Random-Kombinationen",
+      "start": 398,
+      "presetId": "station-4-tonfelder",
+      "sub": true
+    },
+    {
+      "label": "Station 4 · Freier Lauf",
+      "start": 543,
+      "presetId": "station-4-tonfelder",
+      "sub": true
+    },
+    {
+      "label": "Station 5 · Links beginnend",
+      "start": 581,
+      "presetId": "station-5-links"
+    },
+    {
+      "label": "Station 5 · Tonfelder, links",
+      "start": 634,
+      "presetId": "station-5-tonfelder-links",
+      "sub": true
+    },
+    {
+      "label": "Station 6 · Entkoppeln",
+      "start": 644,
+      "presetId": "station-6-entkoppeln"
+    }
+  ]
+}

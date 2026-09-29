@@ -1,0 +1,91 @@
+{
+  "day": 10,
+  "mediaDurationSec": 581.372458,
+  "chapters": [
+    {
+      "label": "Einführung Tag 10",
+      "start": 0
+    },
+    {
+      "label": "Station 1 · Fingerkraft R–L",
+      "start": 10
+    },
+    {
+      "label": "Finger außen nach innen",
+      "start": 33,
+      "sub": true
+    },
+    {
+      "label": "Tempo erhöhen",
+      "start": 74,
+      "sub": true
+    },
+    {
+      "label": "Dehnung & Lockerung",
+      "start": 133
+    },
+    {
+      "label": "Handgelenke kreisen",
+      "start": 149,
+      "sub": true
+    },
+    {
+      "label": "Finger ausstreichen",
+      "start": 152,
+      "sub": true
+    },
+    {
+      "label": "Dehnung rechte Hand",
+      "start": 184,
+      "sub": true
+    },
+    {
+      "label": "Tai-Chi Fingerübung",
+      "start": 196,
+      "sub": true
+    },
+    {
+      "label": "Geschwindigkeitsübung 2.0",
+      "start": 234
+    },
+    {
+      "label": "Dynamikübung · zwei Hände",
+      "start": 357
+    },
+    {
+      "label": "Bass- und Melodiehand teilen",
+      "start": 374,
+      "sub": true
+    },
+    {
+      "label": "Variante · schnell, leise",
+      "start": 412,
+      "sub": true
+    },
+    {
+      "label": "Variante · langsam, schnell",
+      "start": 420,
+      "sub": true
+    },
+    {
+      "label": "Variante · langsam, leise",
+      "start": 428,
+      "sub": true
+    },
+    {
+      "label": "Freies Erforschen der Dynamik",
+      "start": 440,
+      "sub": true
+    },
+    {
+      "label": "Hände wechseln",
+      "start": 481,
+      "sub": true
+    },
+    {
+      "label": "Freies Spiel · Element Erde",
+      "start": 516,
+      "presetId": "freispiel-erde"
+    }
+  ]
+}

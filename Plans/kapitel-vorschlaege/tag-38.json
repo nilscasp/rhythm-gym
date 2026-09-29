@@ -1,0 +1,24 @@
+{
+  "day": 38,
+  "mediaDurationSec": 440.898792,
+  "chapters": [
+    {
+      "label": "Einführung · die Form des Stücks",
+      "start": 0
+    },
+    {
+      "label": "Deine Aufgabe · die Form nachbauen",
+      "start": 104,
+      "presetId": "phase-1-eine-taste"
+    },
+    {
+      "label": "Impuls · Bernstein über Beethoven",
+      "start": 204
+    },
+    {
+      "label": "Ab in die Übung",
+      "start": 435,
+      "presetId": "phase-1-eine-taste"
+    }
+  ]
+}

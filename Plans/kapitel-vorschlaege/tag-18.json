@@ -1,0 +1,57 @@
+{
+  "day": 18,
+  "mediaDurationSec": 665.91525,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 perkussiv · L – R",
+      "start": 27,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 2 perkussiv · L – R",
+      "start": 81,
+      "presetId": "stufe-2-perkussiv"
+    },
+    {
+      "label": "Stufe 3 perkussiv · L – R",
+      "start": 129,
+      "presetId": "stufe-3-perkussiv"
+    },
+    {
+      "label": "Stufe 1 melodisch · L – R",
+      "start": 185,
+      "presetId": "stufe-1-melodisch"
+    },
+    {
+      "label": "Stufe 2 melodisch · L – R",
+      "start": 227,
+      "presetId": "stufe-2-melodisch"
+    },
+    {
+      "label": "Stufe 3 melodisch · L – R",
+      "start": 252,
+      "presetId": "stufe-3-melodisch"
+    },
+    {
+      "label": "Stufe 3 melodisch · Wiederholung",
+      "start": 307,
+      "presetId": "stufe-3-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Kombi · 2 Runden · 8 Bögen",
+      "start": 365,
+      "presetId": "kombi"
+    },
+    {
+      "label": "Kombi · Ab jetzt",
+      "start": 386,
+      "presetId": "kombi",
+      "sub": true
+    }
+  ]
+}

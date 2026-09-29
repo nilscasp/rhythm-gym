@@ -1,0 +1,60 @@
+{
+  "day": 20,
+  "mediaDurationSec": 625.750125,
+  "chapters": [
+    {
+      "label": "Einführung · Tag 20",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 perkussiv · L – R",
+      "start": 20,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 1 melodisch · L – R",
+      "start": 58,
+      "presetId": "stufe-1-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 melodisch · L – R",
+      "start": 181,
+      "presetId": "stufe-2-melodisch"
+    },
+    {
+      "label": "Stufe 3 perkussiv · L – R",
+      "start": 243,
+      "presetId": "stufe-3-perkussiv"
+    },
+    {
+      "label": "Stufe 3 melodisch · L – R",
+      "start": 302,
+      "presetId": "stufe-3-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Kombi · 2m→2m→2m→3m",
+      "start": 336,
+      "presetId": "kombi"
+    },
+    {
+      "label": "Kombi · Tempo runter",
+      "start": 399,
+      "presetId": "kombi",
+      "sub": true
+    },
+    {
+      "label": "Kombi · ohne Ton spielen",
+      "start": 412,
+      "presetId": "kombi",
+      "sub": true
+    },
+    {
+      "label": "Kombi · Zählen langsam",
+      "start": 461,
+      "presetId": "kombi",
+      "sub": true
+    }
+  ]
+}

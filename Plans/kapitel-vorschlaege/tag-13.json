@@ -1,0 +1,62 @@
+{
+  "day": 13,
+  "mediaDurationSec": 658.40775,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 · Fill-In Takt 4",
+      "start": 255
+    },
+    {
+      "label": "Stufe 1 perkussiv · 1 Slap",
+      "start": 277,
+      "presetId": "stufe-1-perkussiv",
+      "sub": true
+    },
+    {
+      "label": "Stufe 1 melodisch · 1 Tonfeld",
+      "start": 316,
+      "presetId": "stufe-1-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 · Fill-In Takt 4",
+      "start": 382
+    },
+    {
+      "label": "Stufe 2 perkussiv · 2 Slaps",
+      "start": 393,
+      "presetId": "stufe-2-perkussiv",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 melodisch · 2 Tonfelder",
+      "start": 452,
+      "presetId": "stufe-2-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Stufe 3 · Fill-In Takt 4",
+      "start": 502
+    },
+    {
+      "label": "Stufe 3 perkussiv · 3 Slaps",
+      "start": 515,
+      "presetId": "stufe-3-perkussiv",
+      "sub": true
+    },
+    {
+      "label": "Stufe 3 melodisch · 3 Tonfelder",
+      "start": 578,
+      "presetId": "stufe-3-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Abschluss",
+      "start": 614
+    }
+  ]
+}

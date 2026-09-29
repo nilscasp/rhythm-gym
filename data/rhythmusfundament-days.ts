@@ -161,12 +161,13 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     hasGrafik: false,
     videoId: '95686885-6b2b-4934-8d67-f06ffe42db86',
     chapters: [
-      { label: 'Einführung · Willkommen zum Kurs', start: 0 },
-      { label: 'Vierer · R – L', start: 260, presetId: 'vierer-rl' },
-      { label: 'Vierer · L – R', start: 363, presetId: 'vierer-lr' },
-      { label: 'Vierer · R – R – L – L', start: 485, presetId: 'vierer-rrll' },
-      { label: 'Vierer · L – L – R – R', start: 605, presetId: 'vierer-llrr' },
-      { label: 'Paradiddle', start: 697, presetId: 'vierer-paradiddle' },
+      { label: 'Einführung', start: 0 },
+      { label: 'Handsatz 1 · R – L', start: 260, presetId: 'vierer-rl' },
+      { label: 'Handsatz 2 · L – R', start: 363, presetId: 'vierer-lr' },
+      { label: 'Handsatz 3 · R – R – L – L', start: 485, presetId: 'vierer-rrll' },
+      { label: 'Handsatz 4 · L – L – R – R', start: 605, presetId: 'vierer-llrr' },
+      { label: 'Handsatz 5 · Paradiddle', start: 697, presetId: 'vierer-paradiddle' },
+      { label: 'Rhythmus subdividieren (Demo)', start: 866 },
     ],
     presets: [
       {
@@ -226,13 +227,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     hasGrafik: false,
     videoId: '3f71bf4d-47e4-4c1e-8077-58b3a3db042f',
     chapters: [
-      { label: 'Einführung · Slap 3 · R–L', start: 0, presetId: 'slap-3-rl' },
-      { label: 'Handsatz 2 · Slap 3 · L–R', start: 39, presetId: 'slap-3-lr' },
-      { label: 'Handsatz 3 · R–R–L–L', start: 109, presetId: 'slap-3-rrll' },
-      { label: 'Handsatz 4 · L–L–R–R', start: 166, presetId: 'slap-3-llrr' },
-      { label: 'Handsatz 5 · Paradiddle', start: 231, presetId: 'slap-3-paradiddle' },
-      { label: 'Subdivisions · Achtel zählen', start: 310, presetId: 'achtel' },
-      { label: 'Sechzehntel spüren', start: 469, presetId: 'sechzehntel' },
+      { label: 'Einführung', start: 0 },
+      { label: 'Handsatz 2 · L – R', start: 47, presetId: 'slap-3-lr' },
+      { label: 'Handsatz 3 · R – R – L – L', start: 107, presetId: 'slap-3-rrll' },
+      { label: 'Handsatz 4 · L – L – R – R', start: 166, presetId: 'slap-3-llrr' },
+      { label: 'Handsatz 5 · Paradiddle', start: 228, presetId: 'slap-3-paradiddle' },
+      { label: 'Subdivisions · Erklärung', start: 310 },
+      { label: 'Achtel · Mitzählen', start: 367, presetId: 'achtel' },
+      { label: 'Sechzehntel · 1 e und a', start: 452, presetId: 'sechzehntel' },
+      { label: 'Sechzehntel · mit Akzenten', start: 549, presetId: 'sechzehntel', sub: true },
+      { label: 'Abschluss · Tag 2 geschafft', start: 607 },
     ],
     presets: [
       {
@@ -314,13 +318,13 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     hasGrafik: false,
     videoId: 'afe12704-f38a-4535-bda0-821620cc4f69',
     chapters: [
-      { label: 'Einführung · Akzent auf 4', start: 0 },
-      { label: 'Handsatz 1 · R – L', start: 94, presetId: 'slap-4-rl' },
-      { label: 'Handsatz 2 · L – R', start: 105, presetId: 'slap-4-lr' },
+      { label: 'Einführung', start: 0 },
+      { label: 'Handsatz 1 · R – L', start: 105, presetId: 'slap-4-rl' },
+      { label: 'Handsatz 2 · L – R', start: 123, presetId: 'slap-4-lr' },
       { label: 'Handsatz 3 · R – R – L – L', start: 159, presetId: 'slap-4-rrll' },
       { label: 'Handsatz 4 · L – L – R – R', start: 233, presetId: 'slap-4-llrr' },
       { label: 'Handsatz 5 · Paradiddle', start: 330, presetId: 'slap-4-paradiddle' },
-      { label: 'Beat ↔ Offbeat kombiniert', start: 363, presetId: 'beat-offbeat-wechsel' },
+      { label: 'Beat ↔ Offbeat im Wechsel', start: 363, presetId: 'beat-offbeat-wechsel' },
     ],
     presets: [
       {
@@ -385,12 +389,14 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     hasGrafik: false,
     videoId: '68dafc41-93e2-4981-9238-19ba5d0695de',
     chapters: [
-      { label: 'Einführung · Tonleiter & Rhythmus', start: 0 },
-      { label: 'Handsatz 1 · R – L', start: 69, presetId: 'tonleiter-rl' },
+      { label: 'Einführung', start: 0 },
+      { label: 'Handsatz 1 · R – L', start: 80, presetId: 'tonleiter-rl' },
       { label: 'Handsatz 2 · L – R', start: 198, presetId: 'tonleiter-lr' },
-      { label: 'Handsatz 3 · R–R–L–L', start: 296, presetId: 'tonleiter-rrll' },
-      { label: 'Handsatz 4 · L–L–R–R', start: 407, presetId: 'tonleiter-llrr' },
-      { label: 'Handsatz 5 · Paradiddle', start: 496, presetId: 'tonleiter-paradiddle' },
+      { label: 'Handsatz 3 · R – R – L – L', start: 296, presetId: 'tonleiter-rrll' },
+      { label: 'Handsatz 4 · L – L – R – R', start: 407, presetId: 'tonleiter-llrr' },
+      { label: 'Alternative Zählweise: eins-und', start: 496, sub: true },
+      { label: 'Handsatz 5 · Paradiddle', start: 537, presetId: 'tonleiter-paradiddle' },
+      { label: 'Abschluss & Reflexion', start: 691 },
     ],
     presets: [
       {
@@ -447,12 +453,19 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     hasGrafik: false,
     videoId: 'e5f459c4-ccce-4484-a555-e34c064597e5',
     chapters: [
-      { label: 'Einführung · Split-Hand Fingerübung', start: 0, presetId: 'paradiddle-quer' },
-      { label: 'Nur Zeigefinger · 4er-Rhythmus', start: 112 },
-      { label: 'Auf Ding + freie Tonfeld-Akzente', start: 243, presetId: 'frei-quer' },
-      { label: 'Unterseite · Faust statt Ding', start: 411 },
-      { label: 'Freie Handposition · alle Finger', start: 547 },
+      { label: 'Einführung', start: 0 },
+      { label: 'Split-Hand · Daumen/Zeigefinger', start: 9 },
+      { label: 'Split-Hand · Tonfeld 2 links', start: 46, sub: true },
+      { label: 'Nur Zeigefinger · Tonfeld 1', start: 112 },
+      { label: 'Nur Zeigefinger · andere Seite', start: 176, sub: true },
+      { label: 'Zeigefinger-Technik aufs Ding', start: 243, sub: true },
+      { label: 'Freie Exploration · Akzent = Tonfeld', start: 337, presetId: 'frei-quer' },
+      { label: 'Unterseite der Pan · Ding als Faust', start: 411 },
+      { label: 'Handsatzwechsel auf links', start: 475, sub: true },
+      { label: 'Slap-Position variieren', start: 531, sub: true },
+      { label: 'Freie Handposition · reiner Schlag', start: 547, presetId: 'frei-quer', sub: true },
       { label: 'Pan quer im Schoß · Offbeat', start: 710 },
+      { label: 'Umkehrung · Goathole als Eins', start: 780, sub: true },
     ],
     presets: [
       {
@@ -495,6 +508,17 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 1,
     hasGrafik: false,
     videoId: 'c597c615-90ae-4bc8-ba76-4b04c577f3b8',
+    chapters: [
+      { label: 'Einführung · Rückblick', start: 0 },
+      { label: 'Gu-Hole-Modulation auf der 2', start: 26 },
+      { label: 'Variante · Hand auf 2 herausziehen', start: 54, sub: true },
+      { label: 'Ohne Gu-Modulation weiterspielen', start: 116, sub: true },
+      { label: 'Neuer Rhythmus mit Pause', start: 129 },
+      { label: 'Zweihändig · rechts fest, links Pattern', start: 243, presetId: 'pattern-paradiddle' },
+      { label: 'Variante · links fest, rechts Pattern', start: 348, presetId: 'pattern-paradiddle', sub: true },
+      { label: 'Ding auf 1 · Tonfeld-Antwort', start: 408, presetId: 'pattern-basis' },
+      { label: 'Muster auf Tonleiter (8 hoch, zurück)', start: 560, presetId: 'pattern-verdichtet' },
+    ],
     presets: [
       {
         id: 'pattern-basis',
@@ -530,6 +554,17 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 1,
     hasGrafik: false,
     videoId: 'fd7eb077-1e4a-4cbe-8c5a-9cc63dcfd80e',
+    chapters: [
+      { label: 'Einführung · Dynamik', start: 0 },
+      { label: 'Dynamik · Tonfeld 1 leise-laut', start: 100 },
+      { label: 'Dynamik · Tonfeld 2 leise-laut', start: 150, sub: true },
+      { label: 'Dynamik · mit zwei Fingern', start: 234, sub: true },
+      { label: 'Dynamik · Tonumfang/Klangraum', start: 335, sub: true },
+      { label: 'Dynamik · Wechsel beider Hände', start: 391, sub: true },
+      { label: 'Dynamik · zwei Tonfelder zusammen', start: 441, sub: true },
+      { label: 'Bass-Melodie-Muster · Erklärung', start: 551 },
+      { label: 'Bass-Melodie-Muster · Ausführung', start: 658, sub: true },
+    ],
     presets: [
       {
         id: 'bogen-architektur',
@@ -565,6 +600,20 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 1,
     hasGrafik: false,
     videoId: '08dc907d-fab1-4e3b-b362-76f5e6ee6685',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Station 1 · Fingerkraft', start: 120, presetId: 'fingerkraft' },
+      { label: 'Nur Finger bewegen', start: 189, presetId: 'fingerkraft', sub: true },
+      { label: '45° Winkel · Stretching', start: 216, presetId: 'fingerkraft', sub: true },
+      { label: 'Station 2 · Schulter & Arm', start: 261, presetId: 'schulter-arm' },
+      { label: 'Tempo variieren', start: 301, presetId: 'schulter-arm', sub: true },
+      { label: 'Andere Hand · Zeigefinger', start: 323, presetId: 'schulter-arm', sub: true },
+      { label: 'Station 3 · Tonfeld-Präzision', start: 379, presetId: 'tonfeld-praezision' },
+      { label: 'Oberer Bereich', start: 418, presetId: 'tonfeld-praezision', sub: true },
+      { label: 'Unterer Bereich', start: 471, presetId: 'tonfeld-praezision', sub: true },
+      { label: 'Station 4 · Tonleiter · alle 5 Finger', start: 503, presetId: 'tonleiter-fuenf-finger' },
+      { label: 'Station 5 · Freies Spiel · Feuer', start: 642, presetId: 'freispiel-feuer' },
+    ],
     presets: [
       {
         id: 'fingerkraft',
@@ -617,6 +666,20 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 1,
     hasGrafik: false,
     videoId: 'cc22aed4-a5db-4d69-8188-3cc64871b9f5',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Fingerkrafttraining · Tag 2', start: 4, presetId: 'fingerdrill' },
+      { label: 'Mehr Intensität', start: 39, presetId: 'fingerdrill', sub: true },
+      { label: 'Double Strokes · Ding–Rim–Shoulder', start: 104, presetId: 'fingerdrill', sub: true },
+      { label: 'Double Strokes · langsamer', start: 173, presetId: 'fingerdrill', sub: true },
+      { label: 'Dreier Rolls · rechte Hand', start: 246, presetId: 'fingerdrill' },
+      { label: 'Dreier Rolls · linke Hand', start: 300, presetId: 'fingerdrill', sub: true },
+      { label: 'Handrotation · Zweihandroll', start: 402, presetId: 'unabhaengigkeit' },
+      { label: 'Handrotation · Tempo steigern', start: 489, presetId: 'unabhaengigkeit', sub: true },
+      { label: 'Handrotation · Mittelfinger', start: 512, presetId: 'unabhaengigkeit', sub: true },
+      { label: 'Einzelne Hand testen', start: 541, presetId: 'unabhaengigkeit', sub: true },
+      { label: 'Freies Spiel · Wasser (5 Min.)', start: 574, presetId: 'freispiel-wasser' },
+    ],
     presets: [
       {
         id: 'fingerdrill',
@@ -659,6 +722,26 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 1,
     hasGrafik: false,
     videoId: 'd16f9088-c03c-46a1-b820-9ff2c1301a43',
+    chapters: [
+      { label: 'Einführung Tag 10', start: 0 },
+      { label: 'Station 1 · Fingerkraft R–L', start: 10 },
+      { label: 'Finger außen nach innen', start: 33, sub: true },
+      { label: 'Tempo erhöhen', start: 74, sub: true },
+      { label: 'Dehnung & Lockerung', start: 133 },
+      { label: 'Handgelenke kreisen', start: 149, sub: true },
+      { label: 'Finger ausstreichen', start: 152, sub: true },
+      { label: 'Dehnung rechte Hand', start: 184, sub: true },
+      { label: 'Tai-Chi Fingerübung', start: 196, sub: true },
+      { label: 'Geschwindigkeitsübung 2.0', start: 234 },
+      { label: 'Dynamikübung · zwei Hände', start: 357 },
+      { label: 'Bass- und Melodiehand teilen', start: 374, sub: true },
+      { label: 'Variante · schnell, leise', start: 412, sub: true },
+      { label: 'Variante · langsam, schnell', start: 420, sub: true },
+      { label: 'Variante · langsam, leise', start: 428, sub: true },
+      { label: 'Freies Erforschen der Dynamik', start: 440, sub: true },
+      { label: 'Hände wechseln', start: 481, sub: true },
+      { label: 'Freies Spiel · Element Erde', start: 516, presetId: 'freispiel-erde' },
+    ],
     presets: [
       {
         id: 'lockerung',
@@ -694,6 +777,19 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 1,
     hasGrafik: false,
     videoId: '2b529cb1-0b54-49ea-bdba-a95d3a18f89f',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Fragen: Elemente im Spiel', start: 53, sub: true },
+      { label: 'Frage: Anteile im Spiel', start: 101, sub: true },
+      { label: 'Video ansehen · Puls & Aufbau', start: 141 },
+      { label: 'Reflexion: Dynamikaufbau', start: 305, sub: true },
+      { label: 'Fragen vor sanftem Teil', start: 340, sub: true },
+      { label: 'Video ansehen · sanfter Teil', start: 428, sub: true },
+      { label: 'Reflexion: Kontrast & Wirkung', start: 473, sub: true },
+      { label: 'Video ansehen · Fortsetzung', start: 529, sub: true },
+      { label: 'Reflexion: Stille nach Energie', start: 635, sub: true },
+      { label: 'Freies Spiel · Spannungsbogen', start: 725, presetId: 'freispiel-luft' },
+    ],
     presets: [
       {
         id: 'hoeren-basis',
@@ -734,6 +830,14 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: false,
     videoId: 'fe8c5b02-cf9d-4722-96f9-de1dc9646006',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Handsatz 1 · R – L', start: 82, presetId: 'basis-rl' },
+      { label: 'Handsatz 2 · L – R', start: 181, presetId: 'basis-lr' },
+      { label: 'Handsatz 3 · R – R – L – L', start: 298, presetId: 'basis-rrll' },
+      { label: 'Handsatz 4 · L – L – R – R', start: 430, presetId: 'basis-llrr' },
+      { label: 'Handsatz 5 · Paradiddle', start: 563, presetId: 'basis-paradiddle' },
+    ],
     presets: [
       {
         id: 'basis-rl',
@@ -782,6 +886,19 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: 'b2f8e342-b375-45db-85ca-b22c2f740244',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 · Fill-In Takt 4', start: 255 },
+      { label: 'Stufe 1 perkussiv · 1 Slap', start: 277, presetId: 'stufe-1-perkussiv', sub: true },
+      { label: 'Stufe 1 melodisch · 1 Tonfeld', start: 316, presetId: 'stufe-1-melodisch', sub: true },
+      { label: 'Stufe 2 · Fill-In Takt 4', start: 382 },
+      { label: 'Stufe 2 perkussiv · 2 Slaps', start: 393, presetId: 'stufe-2-perkussiv', sub: true },
+      { label: 'Stufe 2 melodisch · 2 Tonfelder', start: 452, presetId: 'stufe-2-melodisch', sub: true },
+      { label: 'Stufe 3 · Fill-In Takt 4', start: 502 },
+      { label: 'Stufe 3 perkussiv · 3 Slaps', start: 515, presetId: 'stufe-3-perkussiv', sub: true },
+      { label: 'Stufe 3 melodisch · 3 Tonfelder', start: 578, presetId: 'stufe-3-melodisch', sub: true },
+      { label: 'Abschluss', start: 614 },
+    ],
     presets: [
       {
         id: 'basis',
@@ -845,6 +962,20 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: '06939a8d-6cbb-4b8e-aed5-2669fe5d4f53',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Basisrhythmus · L – R', start: 19, presetId: 'basis' },
+      { label: 'Stufe 1 perkussiv · L – R', start: 28, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 1 melodisch · L – R', start: 87, presetId: 'stufe-1-melodisch' },
+      { label: 'Stufe 2 perkussiv · L – R', start: 146, presetId: 'stufe-2-perkussiv' },
+      { label: 'Stufe 2 melodisch · L – R', start: 199, presetId: 'stufe-2-melodisch' },
+      { label: 'Stufe 3 perkussiv · L – R', start: 261, presetId: 'stufe-3-perkussiv' },
+      { label: 'Stufe 3 melodisch · L – R', start: 325, presetId: 'stufe-3-melodisch' },
+      { label: 'Kombi · 4 Bögen · 1→2→3→2', start: 353, presetId: 'kombi' },
+      { label: 'Kombi · Bogen 1 · Slap', start: 358, presetId: 'kombi', sub: true },
+      { label: 'Kombi · Bogen 2 · Melodie', start: 372, presetId: 'kombi', sub: true },
+      { label: 'Kombi · Bogen 3 · Melodie', start: 391, presetId: 'kombi', sub: true },
+    ],
     presets: [
       {
         id: 'basis',
@@ -914,6 +1045,19 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: 'aa3664d1-0a62-41e5-872b-d72bbf6b5d5e',
+    chapters: [
+      { label: 'Einführung · Takt 3 füllen', start: 0 },
+      { label: 'Stufe 1 perkussiv · Slap vor 4', start: 38, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 1 melodisch', start: 100, presetId: 'stufe-1-melodisch', sub: true },
+      { label: 'Stufe 2 perkussiv', start: 161, presetId: 'stufe-2-perkussiv' },
+      { label: 'Stufe 2 melodisch', start: 217, presetId: 'stufe-2-melodisch', sub: true },
+      { label: 'Stufe 3 perkussiv', start: 268, presetId: 'stufe-3-perkussiv' },
+      { label: 'Stufe 3 melodisch', start: 336, presetId: 'stufe-3-melodisch', sub: true },
+      { label: 'Stufe 4 perkussiv · Takt 3 voll', start: 387, presetId: 'stufe-4-perkussiv' },
+      { label: 'Kombi · 1m→2m→3m→4p', start: 516, presetId: 'kombi' },
+      { label: 'Kombi · erst zuhören', start: 524, presetId: 'kombi', sub: true },
+      { label: 'Kombi · Variante Tonleiter', start: 588, presetId: 'kombi', sub: true },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1000,6 +1144,18 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: 'ce0f0493-8de6-40aa-950b-3ec9f57f90e4',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 perkussiv · L – R', start: 50, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 1 melodisch · L – R', start: 73, presetId: 'stufe-1-melodisch' },
+      { label: 'Stufe 2 perkussiv · L – R', start: 127, presetId: 'stufe-2-perkussiv' },
+      { label: 'Stufe 2 melodisch · L – R', start: 196, presetId: 'stufe-2-melodisch' },
+      { label: 'Stufe 3 perkussiv · L – R', start: 250, presetId: 'stufe-3-perkussiv' },
+      { label: 'Stufe 3 melodisch · L – R', start: 306, presetId: 'stufe-3-melodisch' },
+      { label: 'Stufe 4 perkussiv · L – R', start: 360, presetId: 'stufe-4-perkussiv' },
+      { label: 'Stufe 4 melodisch · L – R', start: 420, presetId: 'stufe-4-melodisch' },
+      { label: 'Kombi · 1m → 2m → 3m → 4p', start: 477, presetId: 'kombi' },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1085,6 +1241,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: '6d351105-26ad-401d-b170-35159c561fca',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 · perkussiv · Takt 2', start: 2, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 1 · melodisch · Takt 2', start: 60, presetId: 'stufe-1-melodisch' },
+      { label: 'Stufe 2 · perkussiv · Takt 2', start: 115, presetId: 'stufe-2-perkussiv' },
+      { label: 'Stufe 2 · melodisch · Takt 2', start: 176, presetId: 'stufe-2-melodisch' },
+      { label: 'Stufe 3 · perkussiv · Takt 2', start: 237, presetId: 'stufe-3-perkussiv' },
+      { label: 'Stufe 3 · melodisch · Takt 2', start: 293, presetId: 'stufe-3-melodisch' },
+      { label: 'Kombi · 2 Runden · 8 Bögen', start: 348, presetId: 'kombi' },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1155,6 +1321,18 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: '8aba1a4b-633e-499a-9e0b-71e22bde4455',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 perkussiv · L – R', start: 27, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 2 perkussiv · L – R', start: 81, presetId: 'stufe-2-perkussiv' },
+      { label: 'Stufe 3 perkussiv · L – R', start: 129, presetId: 'stufe-3-perkussiv' },
+      { label: 'Stufe 1 melodisch · L – R', start: 185, presetId: 'stufe-1-melodisch' },
+      { label: 'Stufe 2 melodisch · L – R', start: 227, presetId: 'stufe-2-melodisch' },
+      { label: 'Stufe 3 melodisch · L – R', start: 252, presetId: 'stufe-3-melodisch' },
+      { label: 'Stufe 3 melodisch · Wiederholung', start: 307, presetId: 'stufe-3-melodisch', sub: true },
+      { label: 'Kombi · 2 Runden · 8 Bögen', start: 365, presetId: 'kombi' },
+      { label: 'Kombi · Ab jetzt', start: 386, presetId: 'kombi', sub: true },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1224,6 +1402,15 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: 'b0714962-05f0-4a11-ab2a-c5747e0caec6',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 perkussiv · Takt 1', start: 33, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 1 melodisch · Takt 1', start: 54, presetId: 'stufe-1-melodisch' },
+      { label: 'Stufe 2 melodisch · Takt 1', start: 180, presetId: 'stufe-2-melodisch' },
+      { label: 'Stufe 2 melodisch · +1 Schlag', start: 240, sub: true },
+      { label: 'Stufe 2 melodisch · Bass dazu', start: 301, sub: true },
+      { label: 'Kombi · 2m → 2m → 2m → 3m', start: 352, presetId: 'kombi' },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1293,6 +1480,18 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: 'e0e132dc-c437-4cc1-bb88-89605e9bd782',
+    chapters: [
+      { label: 'Einführung · Tag 20', start: 0 },
+      { label: 'Stufe 1 perkussiv · L – R', start: 20, presetId: 'stufe-1-perkussiv' },
+      { label: 'Stufe 1 melodisch · L – R', start: 58, presetId: 'stufe-1-melodisch', sub: true },
+      { label: 'Stufe 2 melodisch · L – R', start: 181, presetId: 'stufe-2-melodisch' },
+      { label: 'Stufe 3 perkussiv · L – R', start: 243, presetId: 'stufe-3-perkussiv' },
+      { label: 'Stufe 3 melodisch · L – R', start: 302, presetId: 'stufe-3-melodisch', sub: true },
+      { label: 'Kombi · 2m→2m→2m→3m', start: 336, presetId: 'kombi' },
+      { label: 'Kombi · Tempo runter', start: 399, presetId: 'kombi', sub: true },
+      { label: 'Kombi · ohne Ton spielen', start: 412, presetId: 'kombi', sub: true },
+      { label: 'Kombi · Zählen langsam', start: 461, presetId: 'kombi', sub: true },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1362,6 +1561,14 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: '3dff9679-9709-4978-91a3-dabcf9b20dc1',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Übung A · Rahmen und Stille', start: 7, presetId: 'uebung-a' },
+      { label: 'Variante · hoch und runter spielen', start: 74, presetId: 'uebung-a', sub: true },
+      { label: 'Übung B · Vier mal Zwei', start: 230, presetId: 'uebung-b' },
+      { label: 'Übung C · Volle Dichte', start: 445, presetId: 'uebung-c' },
+      { label: 'Variante · ohne Slaps', start: 627, sub: true },
+    ],
     presets: [
       {
         id: 'uebung-a',
@@ -1429,6 +1636,11 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 2,
     hasGrafik: true,
     videoId: '92e1ef26-afa2-4307-8c56-29abf8ff89bc',
+    chapters: [
+      { label: 'Einführung · Rückblick Zyklus 2', start: 0 },
+      { label: 'Option 1 · Bogen mit Variationen', start: 369 },
+      { label: 'Option 2 · Lieblingsbögen kombinieren', start: 390, presetId: 'option-2-vier-boegen' },
+    ],
     presets: [
       {
         id: 'basis',
@@ -1483,6 +1695,14 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '0d15315e-672f-4109-98ba-008dbc914b6d',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 · rechts auf Achteln', start: 235, presetId: 'puls-achtel' },
+      { label: 'Stufe 1 · beide Hände zusammen', start: 296, presetId: 'puls-achtel', sub: true },
+      { label: 'Stufe 2 · rechts auf Offbeats', start: 358, presetId: 'puls-offbeat' },
+      { label: 'Stufe 3 · rechts alle 16tel', start: 468, presetId: 'puls-sechzehntel' },
+      { label: 'Stufe 3 · zweite Spielebene', start: 537, presetId: 'puls-sechzehntel', sub: true },
+    ],
     presets: [
       {
         id: 'puls-achtel',
@@ -1540,6 +1760,23 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '1d798db4-f176-49db-84b3-610e336c30dd',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Stufe 1 · links auf Achteln', start: 8, presetId: 'gespiegelt-achtel' },
+      { label: 'Skala abwärts spielen', start: 55, presetId: 'gespiegelt-achtel', sub: true },
+      { label: 'Zählung in Dreiergruppen', start: 93, presetId: 'gespiegelt-achtel', sub: true },
+      { label: 'Variation am letzten Schlag', start: 135, presetId: 'gespiegelt-achtel', sub: true },
+      { label: 'Stufe 2 · links auf Offbeats', start: 154, presetId: 'gespiegelt-offbeat' },
+      { label: 'Skala komplett rauf & runter', start: 167, presetId: 'gespiegelt-offbeat', sub: true },
+      { label: 'Stufe 3 · links alle 16tel', start: 309, presetId: 'gespiegelt-basis' },
+      { label: 'Variation am letzten Schlag', start: 332, presetId: 'gespiegelt-basis', sub: true },
+      { label: 'Letzten Takt mit Tonfeldern füllen', start: 362, presetId: 'gespiegelt-basis', sub: true },
+      { label: 'Fill-In / Break einbauen', start: 371, presetId: 'gespiegelt-basis', sub: true },
+      { label: 'Zwei Bögen je Tonfeld', start: 380, presetId: 'gespiegelt-basis', sub: true },
+      { label: 'Ausblick · melodisch mit Tonfeldern', start: 456, presetId: 'gespiegelt-melodisch' },
+      { label: 'Bass wechselt alle 2 Bögen', start: 513, presetId: 'gespiegelt-melodisch', sub: true },
+      { label: 'E als Übergang zum Basswechsel', start: 541, presetId: 'gespiegelt-melodisch', sub: true },
+    ],
     presets: [
       {
         id: 'gespiegelt-achtel',
@@ -1590,6 +1827,18 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '9f543eb1-67be-431d-ad6b-a39f16b7d1da',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Grundbogen · Bass & Höhe fest', start: 191, presetId: 'uebergang-2' },
+      { label: 'Grundbogen · Bass wechselt', start: 295, presetId: 'uebergang-2', sub: true },
+      { label: 'Fill Takt4 · ein Ton', start: 374, presetId: 'uebergang-1' },
+      { label: 'Fill 1 Ton · Bass wechselt', start: 459, presetId: 'uebergang-1', sub: true },
+      { label: 'Fill Takt4 · zwei Töne', start: 578, presetId: 'uebergang-stufen' },
+      { label: 'Fill 2 Töne · Bass wechselt', start: 636, presetId: 'uebergang-stufen', sub: true },
+      { label: 'Fill Takt4 · drei Töne', start: 784, presetId: 'fill-takt4-voll' },
+      { label: 'Fill 3 Töne · Bass wechselt', start: 876, presetId: 'fill-takt4-voll', sub: true },
+      { label: 'Abschluss', start: 988 },
+    ],
     presets: [
       {
         id: 'uebergang-2',
@@ -1706,6 +1955,20 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '28ae9c17-2f3f-4034-92fe-84e27d8414eb',
+    chapters: [
+      { label: 'Einführung · Tag 27', start: 0 },
+      { label: 'Grundbogen · Takt 2 offen', start: 76, presetId: 'grundbogen-takt2-offen' },
+      { label: 'Fill Takt 2 · ein Ton', start: 123, presetId: 'fill-takt2-ein-ton' },
+      { label: 'Variante · zweiter Ton', start: 146, presetId: 'fill-takt2-ein-ton', sub: true },
+      { label: 'Fill Takt 2 · zwei Töne', start: 205, presetId: 'mitte-zwei-tonfelder' },
+      { label: 'Zwei Versionen unter Melodie', start: 244, presetId: 'mitte-zwei-tonfelder', sub: true },
+      { label: 'Bass folgt Melodie-Wechsel', start: 273, presetId: 'mitte-zwei-tonfelder', sub: true },
+      { label: 'Freie Tonfelder unten', start: 336, presetId: 'mitte-zwei-tonfelder', sub: true },
+      { label: 'Zurück zum Anfang', start: 364, presetId: 'mitte-zwei-tonfelder', sub: true },
+      { label: 'Fill Takt 2 · drei Töne', start: 400, presetId: 'mitte-dreiklang' },
+      { label: 'Einfachere Variante', start: 502, presetId: 'mitte-dreiklang', sub: true },
+      { label: 'Mitte · Fluss', start: 575, presetId: 'mitte-fluss' },
+    ],
     presets: [
       {
         id: 'grundbogen-takt2-offen',
@@ -1761,6 +2024,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '172e0bb2-c897-4745-9f35-a858a7992b85',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Fill Takt 1 · ein Ton', start: 22, presetId: 'fill-takt1-ein-ton' },
+      { label: 'Passwechsel', start: 55, presetId: 'fill-takt1-ein-ton', sub: true },
+      { label: 'Zweierschritt beibehalten', start: 58, presetId: 'fill-takt1-ein-ton', sub: true },
+      { label: 'Fill Takt 1 · zwei Töne', start: 177, presetId: 'fill-takt1-zwei-toene' },
+      { label: 'Bassnotation · Spielrichtung', start: 275, presetId: 'fill-takt1-zwei-toene', sub: true },
+      { label: 'Fill Takt 1 · drei Töne, kompakt', start: 391, presetId: 'fill-takt1-drei-toene' },
+      { label: 'Voll · Basis', start: 521, presetId: 'voll-basis' },
+    ],
     presets: [
       {
         id: 'grundbogen-takt1-offen',
@@ -1830,6 +2103,19 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '076094dc-11e8-426a-91b9-7d85183d94fd',
+    chapters: [
+      { label: 'Einführung · harmonische Rhythmik', start: 0, presetId: 'standard-perkussiv' },
+      { label: 'Akkord auf der 1', start: 18, presetId: 'akkord-statisch' },
+      { label: 'Akkord auf 1 · Variation', start: 47, presetId: 'akkord-statisch', sub: true },
+      { label: 'Akkord auf der 2', start: 111, presetId: 'akkord-auf-2' },
+      { label: 'Akkord auf der 4', start: 188, presetId: 'akkord-auf-4' },
+      { label: 'Tonfeld-Erkundung', start: 251, sub: true },
+      { label: 'Akkord auf 1 + Melodie Takt 4', start: 384, presetId: 'akkord-statisch', sub: true },
+      { label: 'Wechsel zwischen zwei Akkorden', start: 455, sub: true },
+      { label: 'Vierer-Struktur · Bogen 1–3', start: 520, presetId: 'akkord-bogen' },
+      { label: 'Vierer-Struktur · Bogen 4', start: 530, presetId: 'akkord-mit-fill' },
+      { label: 'Vierer-Struktur · Wiederholung', start: 543, presetId: 'akkord-bogen', sub: true },
+    ],
     presets: [
       {
         id: 'standard-perkussiv',
@@ -1890,6 +2176,13 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '19f781b1-34fe-429e-99ce-f40acd9a7fa3',
+    chapters: [
+      { label: 'Einführung · Akkord wandert', start: 0, presetId: 'wandern-chronologisch' },
+      { label: 'Weiter nach oben wandern', start: 29, presetId: 'wandern-chronologisch', sub: true },
+      { label: 'Übung 1 · die 3 wächst', start: 76, presetId: 'wandern-mit-steigerung' },
+      { label: 'Übung 2 · Basis pendelt', start: 183, presetId: 'wandern-vier-boegen' },
+      { label: 'Vierter Bogen mit Fill', start: 353, presetId: 'wandern-mit-melodie-fill', sub: true },
+    ],
     presets: [
       {
         id: 'wandern-chronologisch',
@@ -1934,6 +2227,13 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '379b3ff4-d351-497a-a6af-c775a5813e64',
+    chapters: [
+      { label: 'Einführung · Schichten-Rhythmen', start: 0 },
+      { label: 'Schicht 1 · perkussive Basis', start: 42, presetId: 'schicht-1-perkussion' },
+      { label: 'Schicht 2 · + Harmonie', start: 163, presetId: 'schicht-2-harmonie' },
+      { label: 'Schicht 3 · + Melodie', start: 236, presetId: 'fusion-eins' },
+      { label: 'Aufgabe · eigenes Pattern bauen', start: 434 },
+    ],
     presets: [
       {
         id: 'schicht-1-perkussion',
@@ -1984,6 +2284,17 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '907fb281-bb95-450a-b103-7b954939139f',
+    chapters: [
+      { label: 'Einführung · Was sind Breaks', start: 0 },
+      { label: 'Beispiel 1 · Mikro-Break Takt 4', start: 435, presetId: 'break-mikro' },
+      { label: 'Beispiel 2 · ähnliche Abdämpf-Technik', start: 465 },
+      { label: 'Beispiel 3 · längerer Break', start: 485, presetId: 'break-eins' },
+      { label: 'Beispiel 4 · kombinierte Breaks', start: 525 },
+      { label: 'Einzelner Schlag als Break', start: 539, presetId: 'break-mikro', sub: true },
+      { label: 'Ganzer Takt als Break', start: 551, sub: true },
+      { label: 'Zweitaktiger Break', start: 555, presetId: 'break-solo', sub: true },
+      { label: 'Rückkehr zur Standardstruktur', start: 560, presetId: 'break-grundbogen', sub: true },
+    ],
     presets: [
       {
         id: 'break-grundbogen',
@@ -2043,6 +2354,21 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 3,
     hasGrafik: true,
     videoId: '0068f9f6-f791-41b5-8e82-472ee83cd77b',
+    chapters: [
+      { label: 'Einführung · Tag 33 Break-Gefüge', start: 0 },
+      { label: 'Station 1 · Basis-Rhythmus', start: 70, presetId: 'tonfeld-perkussiv' },
+      { label: 'Bogen 1 · drei Tonfelder', start: 171, presetId: 'bogen-1-drei-tonfelder' },
+      { label: 'Bogen 2 · zwei Tonfelder', start: 183, presetId: 'bogen-2-zwei-tonfelder' },
+      { label: 'Bogen 3 · drei Tonfelder', start: 187, presetId: 'bogen-1-drei-tonfelder' },
+      { label: 'Bogen 4 · ein Schlag', start: 191, presetId: 'bogen-4-ein-schlag' },
+      { label: 'Bogen 5 · drei Tonfelder', start: 195, presetId: 'bogen-1-drei-tonfelder' },
+      { label: 'Bogen 6 · zwei Tonfelder', start: 199, presetId: 'bogen-2-zwei-tonfelder' },
+      { label: 'Bogen 7 · drei Tonfelder', start: 203, presetId: 'bogen-1-drei-tonfelder' },
+      { label: 'Bogen 8 · vier Slaps', start: 207, presetId: 'bogen-8-vier-slaps' },
+      { label: 'Bogen 9+10 · Akkord-Break', start: 215, presetId: 'tonfeld-akkord' },
+      { label: 'Ganze Phrase · Wiederholung', start: 220, sub: true },
+      { label: 'Gemischt · Klang und Schlag', start: 258, presetId: 'gemischt' },
+    ],
     presets: [
       {
         id: 'tonfeld-perkussiv',
@@ -2110,6 +2436,19 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: 'd120b5b1-30e4-4e19-ada9-6fe0f9f4fe6b',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Station 1 · Die Drei einsaugen', start: 111, presetId: 'station-1-drei' },
+      { label: 'Station 2 · Verdoppeln auf Sechs', start: 159, presetId: 'station-2-sechs' },
+      { label: 'Station 3 · Der Zwölfer-Takt', start: 205, presetId: 'station-3-zwoelfer' },
+      { label: 'Station 3 · Die Walze', start: 351, presetId: 'station-3-zwoelfer', sub: true },
+      { label: 'Station 4 · Slaps auf Tonfelder', start: 374, presetId: 'station-4-tonfelder' },
+      { label: 'Station 4 · Random-Kombinationen', start: 398, presetId: 'station-4-tonfelder', sub: true },
+      { label: 'Station 4 · Freier Lauf', start: 543, presetId: 'station-4-tonfelder', sub: true },
+      { label: 'Station 5 · Links beginnend', start: 581, presetId: 'station-5-links' },
+      { label: 'Station 5 · Tonfelder, links', start: 634, presetId: 'station-5-tonfelder-links', sub: true },
+      { label: 'Station 6 · Entkoppeln', start: 644, presetId: 'station-6-entkoppeln' },
+    ],
     presets: [
       {
         id: 'station-1-drei',
@@ -2186,6 +2525,15 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: '2aa7f639-2cf0-47bf-80b8-b1e66038304c',
+    chapters: [
+      { label: 'Einführung · Deep Listening', start: 0 },
+      { label: 'Vorstellung · Said and Done', start: 181, sub: true },
+      { label: 'Video vorbereiten', start: 230, sub: true },
+      { label: 'Impuls · Nachher improvisieren', start: 277, sub: true },
+      { label: 'Entspannungsübung', start: 338, sub: true },
+      { label: 'Hinsetzen und Lauschen', start: 504, presetId: 'frahm-puls', sub: true },
+      { label: 'Play drücken', start: 566, presetId: 'frahm-puls', sub: true },
+    ],
     presets: [
       {
         id: 'frahm-puls',
@@ -2207,6 +2555,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: '22a92ead-fa13-46f7-8809-9b175a8b1bcd',
+    chapters: [
+      { label: 'Einführung · kompositorische Rhythmik', start: 0 },
+      { label: 'Körper 1 · geschlossene Form', start: 132, presetId: 'unterlage' },
+      { label: 'Körper 2 · neues Objekt', start: 171, presetId: 'unterlage', sub: true },
+      { label: 'Körper 3 · weiteres Objekt', start: 199, presetId: 'unterlage', sub: true },
+      { label: 'Aufgabe · Körper erforschen (3 Tage)', start: 274, presetId: 'unterlage' },
+      { label: 'Beispiel 1 · freies Spiel', start: 339, presetId: 'unterlage' },
+      { label: 'Beispiel 2 · linke Hand mehrfach', start: 389, presetId: 'unterlage', sub: true },
+      { label: 'Beispiel 3 · mit Dynamik', start: 475, presetId: 'unterlage', sub: true },
+    ],
     presets: [
       {
         id: 'unterlage',
@@ -2228,6 +2586,11 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: '43b3b532-ef4a-49d1-a98d-8343592d6426',
+    chapters: [
+      { label: 'Einführung · Fram Study', start: 0 },
+      { label: 'Vorspiel · Stück übersetzt', start: 165 },
+      { label: 'Übung · Phrase nachbauen (5 Min)', start: 443, presetId: 'motiv-1-akkorde' },
+    ],
     presets: [
       {
         id: 'pulston',
@@ -2269,6 +2632,12 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: '6b7c0d7e-6494-4dcd-ae32-16bde57d1e4e',
+    chapters: [
+      { label: 'Einführung · die Form des Stücks', start: 0 },
+      { label: 'Deine Aufgabe · die Form nachbauen', start: 104, presetId: 'phase-1-eine-taste' },
+      { label: 'Impuls · Bernstein über Beethoven', start: 204 },
+      { label: 'Ab in die Übung', start: 435, presetId: 'phase-1-eine-taste' },
+    ],
     presets: [
       {
         id: 'phase-1-eine-taste',
@@ -2320,6 +2689,15 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: '428772bd-44c2-46d2-b3ee-21ed1a7eff9e',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Phase 1 · Perkussiver Anker', start: 143, presetId: 'phase-1-anker' },
+      { label: 'Phase 2 · Ein Akkord', start: 268, presetId: 'phase-2-ein-akkord' },
+      { label: 'Phase 3 · Motiv 1 · zwei Akkorde', start: 361, presetId: 'phase-3-motiv-1' },
+      { label: 'Phase 4 · Motiv 2 · drei Tonfelder', start: 422, presetId: 'phase-4-motiv-2' },
+      { label: 'Motiv 2 · Slap dazu', start: 445, presetId: 'phase-4-motiv-2', sub: true },
+      { label: 'Motive 1+2 kombiniert', start: 516 },
+    ],
     presets: [
       {
         id: 'phase-1-anker',
@@ -2372,6 +2750,14 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: true,
     videoId: '799a540c-014b-4487-8efd-4fa22aff04fa',
+    chapters: [
+      { label: 'Einführung · Aufgabe des Tages', start: 0 },
+      { label: 'Beispiel · Fusion zweier Motive', start: 172 },
+      { label: 'Phase 2 · Körper 1 · Bogen 1+2', start: 239, presetId: 'phase-2-koerper-1' },
+      { label: 'Phase 3 · Körper 2 · Bogen 3+4', start: 285, presetId: 'phase-3-koerper-2' },
+      { label: 'Phase 4 · Perkussive Ebene dazu', start: 311, presetId: 'phase-4-perkussiv' },
+      { label: 'Phase 5 · Twist · ein Break', start: 343, presetId: 'phase-5-break' },
+    ],
     presets: [
       {
         id: 'phase-1-basis',
@@ -2437,6 +2823,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: false,
     videoId: '9736848c-eeed-404e-85f0-a1e402976c3a',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Motiv 1 vorgespielt', start: 233, presetId: 'phase-1-motiv-1' },
+      { label: 'Phase 4 · Erster Teil variieren', start: 292, presetId: 'phase-4-stelle' },
+      { label: 'Variation am Bogenende', start: 309, presetId: 'phase-4-stelle', sub: true },
+      { label: 'Wiederholung des Eintonfelds', start: 333, presetId: 'phase-4-stelle', sub: true },
+      { label: 'Vier Bögen als Arrangement üben', start: 351, presetId: 'phase-4-stelle', sub: true },
+      { label: 'Phase 6 · Bögen aneinandersetzen', start: 417, presetId: 'phase-6-break' },
+      { label: 'Kleine Breaks einbauen', start: 449, presetId: 'phase-6-break', sub: true },
+    ],
     presets: [
       {
         id: 'phase-1-motiv-1',
@@ -2479,6 +2875,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: false,
     videoId: '05daed3f-6986-4a1b-8cdf-6757fb847e85',
+    chapters: [
+      { label: 'Einführung', start: 0 },
+      { label: 'Motiv 2 · Bogen 3+4 (unverändert)', start: 177, presetId: 'phase-1-motiv-2' },
+      { label: 'Slap trifft Tonfeld', start: 192, presetId: 'phase-3-slap-tonfeld' },
+      { label: 'Wiederholung · erster Teil gleich', start: 215, presetId: 'phase-1-motiv-2', sub: true },
+      { label: 'Wiederholung · Tonfeld auf Slap', start: 223, presetId: 'phase-3-slap-tonfeld', sub: true },
+      { label: 'Fill-In zum Ende', start: 238, presetId: 'phase-4-fill' },
+      { label: 'Break-Figur', start: 306, presetId: 'phase-5-break' },
+      { label: 'Tonfelder laufen weiter', start: 313, presetId: 'phase-5-break', sub: true },
+    ],
     presets: [
       {
         id: 'phase-1-motiv-2',
@@ -2531,6 +2937,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: false,
     videoId: 'e7e2ed0a-da6e-4834-be90-392be1229d6b',
+    chapters: [
+      { label: 'Einführung · Tag 43', start: 0 },
+      { label: 'Phase 1 · Basis festigen (Entwurf)', start: 279, presetId: 'phase-1-basis' },
+      { label: 'Motiv 1 wiederholt mit Variation', start: 307, presetId: 'phase-1-basis', sub: true },
+      { label: 'Phase 2 · Motiv 1 → Motiv 2', start: 332, presetId: 'phase-2-zusammen' },
+      { label: 'Slap + Tonfeld auf Schlusston', start: 357, presetId: 'phase-2-zusammen', sub: true },
+      { label: 'Kleine Variationen einbauen', start: 366, presetId: 'phase-2-zusammen', sub: true },
+      { label: 'Phase 4 · Break (ohne Perkussion)', start: 374, presetId: 'phase-4-break' },
+      { label: 'Zurück in die Körper', start: 404, presetId: 'phase-4-break', sub: true },
+    ],
     presets: [
       {
         id: 'phase-1-basis',
@@ -2574,6 +2990,16 @@ export const RHYTHMUS_DAYS: readonly RhythmusDay[] = [
     cycle: 4,
     hasGrafik: false,
     videoId: '0fcc2259-d59c-4b86-9cce-b12226664891',
+    chapters: [
+      { label: 'Einführung · Am Fluss', start: 0 },
+      { label: 'Siddhartha · Die Fluss-Metapher', start: 87 },
+      { label: 'Übertragung aufs Handpan-Üben', start: 221 },
+      { label: 'Ausrichtung finden · Stille am Fluss', start: 350, sub: true },
+      { label: 'Wer bist du, was willst du?', start: 453 },
+      { label: 'Frage ins tägliche Üben tragen', start: 559, sub: true },
+      { label: 'Wille, Heilung und Selbsterkenntnis', start: 675 },
+      { label: 'Abschluss und Dank', start: 757 },
+    ],
     presets: [],
   },
 ] as const;

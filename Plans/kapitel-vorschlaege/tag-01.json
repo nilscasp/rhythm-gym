@@ -3,33 +3,37 @@
   "mediaDurationSec": 934.850583,
   "chapters": [
     {
-      "label": "Einführung · Willkommen zum Kurs",
+      "label": "Einführung",
       "start": 0
     },
     {
-      "label": "Vierer · R – L",
+      "label": "Handsatz 1 · R – L",
       "start": 260,
       "presetId": "vierer-rl"
     },
     {
-      "label": "Vierer · L – R",
+      "label": "Handsatz 2 · L – R",
       "start": 363,
       "presetId": "vierer-lr"
     },
     {
-      "label": "Vierer · R – R – L – L",
+      "label": "Handsatz 3 · R – R – L – L",
       "start": 485,
       "presetId": "vierer-rrll"
     },
     {
-      "label": "Vierer · L – L – R – R",
+      "label": "Handsatz 4 · L – L – R – R",
       "start": 605,
       "presetId": "vierer-llrr"
     },
     {
-      "label": "Paradiddle",
+      "label": "Handsatz 5 · Paradiddle",
       "start": 697,
       "presetId": "vierer-paradiddle"
+    },
+    {
+      "label": "Rhythmus subdividieren (Demo)",
+      "start": 866
     }
   ]
 }

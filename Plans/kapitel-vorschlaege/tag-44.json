@@ -1,0 +1,40 @@
+{
+  "day": 44,
+  "mediaDurationSec": 826.617458,
+  "chapters": [
+    {
+      "label": "Einführung · Am Fluss",
+      "start": 0
+    },
+    {
+      "label": "Siddhartha · Die Fluss-Metapher",
+      "start": 87
+    },
+    {
+      "label": "Übertragung aufs Handpan-Üben",
+      "start": 221
+    },
+    {
+      "label": "Ausrichtung finden · Stille am Fluss",
+      "start": 350,
+      "sub": true
+    },
+    {
+      "label": "Wer bist du, was willst du?",
+      "start": 453
+    },
+    {
+      "label": "Frage ins tägliche Üben tragen",
+      "start": 559,
+      "sub": true
+    },
+    {
+      "label": "Wille, Heilung und Selbsterkenntnis",
+      "start": 675
+    },
+    {
+      "label": "Abschluss und Dank",
+      "start": 757
+    }
+  ]
+}

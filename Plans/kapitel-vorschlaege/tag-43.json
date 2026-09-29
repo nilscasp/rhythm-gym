@@ -1,0 +1,49 @@
+{
+  "day": 43,
+  "mediaDurationSec": 457.081625,
+  "chapters": [
+    {
+      "label": "Einführung · Tag 43",
+      "start": 0
+    },
+    {
+      "label": "Phase 1 · Basis festigen (Entwurf)",
+      "start": 279,
+      "presetId": "phase-1-basis"
+    },
+    {
+      "label": "Motiv 1 wiederholt mit Variation",
+      "start": 307,
+      "presetId": "phase-1-basis",
+      "sub": true
+    },
+    {
+      "label": "Phase 2 · Motiv 1 → Motiv 2",
+      "start": 332,
+      "presetId": "phase-2-zusammen"
+    },
+    {
+      "label": "Slap + Tonfeld auf Schlusston",
+      "start": 357,
+      "presetId": "phase-2-zusammen",
+      "sub": true
+    },
+    {
+      "label": "Kleine Variationen einbauen",
+      "start": 366,
+      "presetId": "phase-2-zusammen",
+      "sub": true
+    },
+    {
+      "label": "Phase 4 · Break (ohne Perkussion)",
+      "start": 374,
+      "presetId": "phase-4-break"
+    },
+    {
+      "label": "Zurück in die Körper",
+      "start": 404,
+      "presetId": "phase-4-break",
+      "sub": true
+    }
+  ]
+}

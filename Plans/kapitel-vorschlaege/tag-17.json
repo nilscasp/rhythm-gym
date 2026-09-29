@@ -1,0 +1,45 @@
+{
+  "day": 17,
+  "mediaDurationSec": 600.85025,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 · perkussiv · Takt 2",
+      "start": 2,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 1 · melodisch · Takt 2",
+      "start": 60,
+      "presetId": "stufe-1-melodisch"
+    },
+    {
+      "label": "Stufe 2 · perkussiv · Takt 2",
+      "start": 115,
+      "presetId": "stufe-2-perkussiv"
+    },
+    {
+      "label": "Stufe 2 · melodisch · Takt 2",
+      "start": 176,
+      "presetId": "stufe-2-melodisch"
+    },
+    {
+      "label": "Stufe 3 · perkussiv · Takt 2",
+      "start": 237,
+      "presetId": "stufe-3-perkussiv"
+    },
+    {
+      "label": "Stufe 3 · melodisch · Takt 2",
+      "start": 293,
+      "presetId": "stufe-3-melodisch"
+    },
+    {
+      "label": "Kombi · 2 Runden · 8 Bögen",
+      "start": 348,
+      "presetId": "kombi"
+    }
+  ]
+}

@@ -103,10 +103,18 @@ ${praxisSection(day) || '(keine)'}
 Transkript (Segment-ID, Startzeit, Text):
 ${transcript}`
 
-  const proc = Bun.spawnSync(['bun', INFERENCE, '--level', 'standard', '--json', '--timeout', '180000', SYSTEM, user], {
+  // Lange Videos brauchen mehr als drei Minuten; ein zweiter Versuch fängt Ausreißer ab.
+  let proc = Bun.spawnSync(['bun', INFERENCE, '--level', 'standard', '--json', '--timeout', '360000', SYSTEM, user], {
     stdout: 'pipe',
     stderr: 'pipe',
   })
+  if (proc.exitCode !== 0) {
+    console.warn(`  Tag ${day}: erster Versuch fehlgeschlagen, zweiter …`)
+    proc = Bun.spawnSync(['bun', INFERENCE, '--level', 'standard', '--json', '--timeout', '360000', SYSTEM, user], {
+      stdout: 'pipe',
+      stderr: 'pipe',
+    })
+  }
   if (proc.exitCode !== 0) throw new Error(`Inference fehlgeschlagen (Tag ${day}): ${proc.stderr.toString()}`)
   const raw = proc.stdout.toString()
   const json = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1)) as {
@@ -192,10 +200,20 @@ const days = parseDays(process.argv[2])
 if (process.argv.includes('--apply')) {
   for (const d of days) apply(d, process.argv.includes('--replace'))
 } else {
+  const failed: number[] = []
   for (const d of days) {
     console.log(`Tag ${d} …`)
-    const { proposal, file } = await propose(d)
-    writeProposal(proposal, file)
-    console.log(`  ${proposal.chapters.length} Kapitel → Plans/kapitel-vorschlaege/tag-${pad2(d)}.md`)
+    try {
+      const { proposal, file } = await propose(d)
+      writeProposal(proposal, file)
+      console.log(`  ${proposal.chapters.length} Kapitel → Plans/kapitel-vorschlaege/tag-${pad2(d)}.md`)
+    } catch (e) {
+      failed.push(d)
+      console.error(`  Tag ${d} übersprungen: ${(e as Error).message.split('\n')[0]}`)
+    }
+  }
+  if (failed.length) {
+    console.error(`Fehlgeschlagen: ${failed.join(',')}`)
+    process.exitCode = 1
   }
 }

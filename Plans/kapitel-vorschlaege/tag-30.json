@@ -1,0 +1,33 @@
+{
+  "day": 30,
+  "mediaDurationSec": 540.79025,
+  "chapters": [
+    {
+      "label": "Einführung · Akkord wandert",
+      "start": 0,
+      "presetId": "wandern-chronologisch"
+    },
+    {
+      "label": "Weiter nach oben wandern",
+      "start": 29,
+      "presetId": "wandern-chronologisch",
+      "sub": true
+    },
+    {
+      "label": "Übung 1 · die 3 wächst",
+      "start": 76,
+      "presetId": "wandern-mit-steigerung"
+    },
+    {
+      "label": "Übung 2 · Basis pendelt",
+      "start": 183,
+      "presetId": "wandern-vier-boegen"
+    },
+    {
+      "label": "Vierter Bogen mit Fill",
+      "start": 353,
+      "presetId": "wandern-mit-melodie-fill",
+      "sub": true
+    }
+  ]
+}

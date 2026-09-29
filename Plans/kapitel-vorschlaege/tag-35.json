@@ -1,0 +1,42 @@
+{
+  "day": 35,
+  "mediaDurationSec": 572.905667,
+  "chapters": [
+    {
+      "label": "Einführung · Deep Listening",
+      "start": 0
+    },
+    {
+      "label": "Vorstellung · Said and Done",
+      "start": 181,
+      "sub": true
+    },
+    {
+      "label": "Video vorbereiten",
+      "start": 230,
+      "sub": true
+    },
+    {
+      "label": "Impuls · Nachher improvisieren",
+      "start": 277,
+      "sub": true
+    },
+    {
+      "label": "Entspannungsübung",
+      "start": 338,
+      "sub": true
+    },
+    {
+      "label": "Hinsetzen und Lauschen",
+      "start": 504,
+      "presetId": "frahm-puls",
+      "sub": true
+    },
+    {
+      "label": "Play drücken",
+      "start": 566,
+      "presetId": "frahm-puls",
+      "sub": true
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "day": 7,
+  "mediaDurationSec": 807.389917,
+  "chapters": [
+    {
+      "label": "Einführung · Dynamik",
+      "start": 0
+    },
+    {
+      "label": "Dynamik · Tonfeld 1 leise-laut",
+      "start": 100
+    },
+    {
+      "label": "Dynamik · Tonfeld 2 leise-laut",
+      "start": 150,
+      "sub": true
+    },
+    {
+      "label": "Dynamik · mit zwei Fingern",
+      "start": 234,
+      "sub": true
+    },
+    {
+      "label": "Dynamik · Tonumfang/Klangraum",
+      "start": 335,
+      "sub": true
+    },
+    {
+      "label": "Dynamik · Wechsel beider Hände",
+      "start": 391,
+      "sub": true
+    },
+    {
+      "label": "Dynamik · zwei Tonfelder zusammen",
+      "start": 441,
+      "sub": true
+    },
+    {
+      "label": "Bass-Melodie-Muster · Erklärung",
+      "start": 551
+    },
+    {
+      "label": "Bass-Melodie-Muster · Ausführung",
+      "start": 658,
+      "sub": true
+    }
+  ]
+}

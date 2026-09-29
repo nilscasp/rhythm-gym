@@ -1,0 +1,59 @@
+{
+  "day": 11,
+  "mediaDurationSec": 799.2,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Fragen: Elemente im Spiel",
+      "start": 53,
+      "sub": true
+    },
+    {
+      "label": "Frage: Anteile im Spiel",
+      "start": 101,
+      "sub": true
+    },
+    {
+      "label": "Video ansehen · Puls & Aufbau",
+      "start": 141
+    },
+    {
+      "label": "Reflexion: Dynamikaufbau",
+      "start": 305,
+      "sub": true
+    },
+    {
+      "label": "Fragen vor sanftem Teil",
+      "start": 340,
+      "sub": true
+    },
+    {
+      "label": "Video ansehen · sanfter Teil",
+      "start": 428,
+      "sub": true
+    },
+    {
+      "label": "Reflexion: Kontrast & Wirkung",
+      "start": 473,
+      "sub": true
+    },
+    {
+      "label": "Video ansehen · Fortsetzung",
+      "start": 529,
+      "sub": true
+    },
+    {
+      "label": "Reflexion: Stille nach Energie",
+      "start": 635,
+      "sub": true
+    },
+    {
+      "label": "Freies Spiel · Spannungsbogen",
+      "start": 725,
+      "presetId": "freispiel-luft"
+    }
+  ]
+}

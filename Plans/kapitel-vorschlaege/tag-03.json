@@ -3,17 +3,17 @@
   "mediaDurationSec": 698.030667,
   "chapters": [
     {
-      "label": "Einführung · Akzent auf 4",
+      "label": "Einführung",
       "start": 0
     },
     {
       "label": "Handsatz 1 · R – L",
-      "start": 94,
+      "start": 105,
       "presetId": "slap-4-rl"
     },
     {
       "label": "Handsatz 2 · L – R",
-      "start": 105,
+      "start": 123,
       "presetId": "slap-4-lr"
     },
     {
@@ -32,7 +32,7 @@
       "presetId": "slap-4-paradiddle"
     },
     {
-      "label": "Beat ↔ Offbeat kombiniert",
+      "label": "Beat ↔ Offbeat im Wechsel",
       "start": 363,
       "presetId": "beat-offbeat-wechsel"
     }

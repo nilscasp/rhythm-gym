@@ -1,0 +1,58 @@
+{
+  "day": 25,
+  "mediaDurationSec": 1004.962292,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Grundbogen · Bass & Höhe fest",
+      "start": 191,
+      "presetId": "uebergang-2"
+    },
+    {
+      "label": "Grundbogen · Bass wechselt",
+      "start": 295,
+      "presetId": "uebergang-2",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt4 · ein Ton",
+      "start": 374,
+      "presetId": "uebergang-1"
+    },
+    {
+      "label": "Fill 1 Ton · Bass wechselt",
+      "start": 459,
+      "presetId": "uebergang-1",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt4 · zwei Töne",
+      "start": 578,
+      "presetId": "uebergang-stufen"
+    },
+    {
+      "label": "Fill 2 Töne · Bass wechselt",
+      "start": 636,
+      "presetId": "uebergang-stufen",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt4 · drei Töne",
+      "start": 784,
+      "presetId": "fill-takt4-voll"
+    },
+    {
+      "label": "Fill 3 Töne · Bass wechselt",
+      "start": 876,
+      "presetId": "fill-takt4-voll",
+      "sub": true
+    },
+    {
+      "label": "Abschluss",
+      "start": 988
+    }
+  ]
+}

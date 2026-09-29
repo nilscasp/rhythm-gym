@@ -1,0 +1,55 @@
+{
+  "day": 16,
+  "mediaDurationSec": 631.088792,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 perkussiv · L – R",
+      "start": 50,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 1 melodisch · L – R",
+      "start": 73,
+      "presetId": "stufe-1-melodisch"
+    },
+    {
+      "label": "Stufe 2 perkussiv · L – R",
+      "start": 127,
+      "presetId": "stufe-2-perkussiv"
+    },
+    {
+      "label": "Stufe 2 melodisch · L – R",
+      "start": 196,
+      "presetId": "stufe-2-melodisch"
+    },
+    {
+      "label": "Stufe 3 perkussiv · L – R",
+      "start": 250,
+      "presetId": "stufe-3-perkussiv"
+    },
+    {
+      "label": "Stufe 3 melodisch · L – R",
+      "start": 306,
+      "presetId": "stufe-3-melodisch"
+    },
+    {
+      "label": "Stufe 4 perkussiv · L – R",
+      "start": 360,
+      "presetId": "stufe-4-perkussiv"
+    },
+    {
+      "label": "Stufe 4 melodisch · L – R",
+      "start": 420,
+      "presetId": "stufe-4-melodisch"
+    },
+    {
+      "label": "Kombi · 1m → 2m → 3m → 4p",
+      "start": 477,
+      "presetId": "kombi"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "day": 23,
+  "mediaDurationSec": 609.817542,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 · rechts auf Achteln",
+      "start": 235,
+      "presetId": "puls-achtel"
+    },
+    {
+      "label": "Stufe 1 · beide Hände zusammen",
+      "start": 296,
+      "presetId": "puls-achtel",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 · rechts auf Offbeats",
+      "start": 358,
+      "presetId": "puls-offbeat"
+    },
+    {
+      "label": "Stufe 3 · rechts alle 16tel",
+      "start": 468,
+      "presetId": "puls-sechzehntel"
+    },
+    {
+      "label": "Stufe 3 · zweite Spielebene",
+      "start": 537,
+      "presetId": "puls-sechzehntel",
+      "sub": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "day": 22,
+  "mediaDurationSec": 433.766667,
+  "chapters": [
+    {
+      "label": "Einführung · Rückblick Zyklus 2",
+      "start": 0
+    },
+    {
+      "label": "Option 1 · Bogen mit Variationen",
+      "start": 369
+    },
+    {
+      "label": "Option 2 · Lieblingsbögen kombinieren",
+      "start": 390,
+      "presetId": "option-2-vier-boegen"
+    }
+  ]
+}

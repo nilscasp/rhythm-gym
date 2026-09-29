@@ -1,0 +1,90 @@
+{
+  "day": 24,
+  "mediaDurationSec": 577.994083,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 · links auf Achteln",
+      "start": 8,
+      "presetId": "gespiegelt-achtel"
+    },
+    {
+      "label": "Skala abwärts spielen",
+      "start": 55,
+      "presetId": "gespiegelt-achtel",
+      "sub": true
+    },
+    {
+      "label": "Zählung in Dreiergruppen",
+      "start": 93,
+      "presetId": "gespiegelt-achtel",
+      "sub": true
+    },
+    {
+      "label": "Variation am letzten Schlag",
+      "start": 135,
+      "presetId": "gespiegelt-achtel",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 · links auf Offbeats",
+      "start": 154,
+      "presetId": "gespiegelt-offbeat"
+    },
+    {
+      "label": "Skala komplett rauf & runter",
+      "start": 167,
+      "presetId": "gespiegelt-offbeat",
+      "sub": true
+    },
+    {
+      "label": "Stufe 3 · links alle 16tel",
+      "start": 309,
+      "presetId": "gespiegelt-basis"
+    },
+    {
+      "label": "Variation am letzten Schlag",
+      "start": 332,
+      "presetId": "gespiegelt-basis",
+      "sub": true
+    },
+    {
+      "label": "Letzten Takt mit Tonfeldern füllen",
+      "start": 362,
+      "presetId": "gespiegelt-basis",
+      "sub": true
+    },
+    {
+      "label": "Fill-In / Break einbauen",
+      "start": 371,
+      "presetId": "gespiegelt-basis",
+      "sub": true
+    },
+    {
+      "label": "Zwei Bögen je Tonfeld",
+      "start": 380,
+      "presetId": "gespiegelt-basis",
+      "sub": true
+    },
+    {
+      "label": "Ausblick · melodisch mit Tonfeldern",
+      "start": 456,
+      "presetId": "gespiegelt-melodisch"
+    },
+    {
+      "label": "Bass wechselt alle 2 Bögen",
+      "start": 513,
+      "presetId": "gespiegelt-melodisch",
+      "sub": true
+    },
+    {
+      "label": "E als Übergang zum Basswechsel",
+      "start": 541,
+      "presetId": "gespiegelt-melodisch",
+      "sub": true
+    }
+  ]
+}

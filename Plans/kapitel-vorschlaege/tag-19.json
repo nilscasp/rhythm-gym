@@ -1,0 +1,40 @@
+{
+  "day": 19,
+  "mediaDurationSec": 584.458875,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 perkussiv · Takt 1",
+      "start": 33,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 1 melodisch · Takt 1",
+      "start": 54,
+      "presetId": "stufe-1-melodisch"
+    },
+    {
+      "label": "Stufe 2 melodisch · Takt 1",
+      "start": 180,
+      "presetId": "stufe-2-melodisch"
+    },
+    {
+      "label": "Stufe 2 melodisch · +1 Schlag",
+      "start": 240,
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 melodisch · Bass dazu",
+      "start": 301,
+      "sub": true
+    },
+    {
+      "label": "Kombi · 2m → 2m → 2m → 3m",
+      "start": 352,
+      "presetId": "kombi"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "day": 12,
+  "mediaDurationSec": 702.493458,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Handsatz 1 · R – L",
+      "start": 82,
+      "presetId": "basis-rl"
+    },
+    {
+      "label": "Handsatz 2 · L – R",
+      "start": 181,
+      "presetId": "basis-lr"
+    },
+    {
+      "label": "Handsatz 3 · R – R – L – L",
+      "start": 298,
+      "presetId": "basis-rrll"
+    },
+    {
+      "label": "Handsatz 4 · L – L – R – R",
+      "start": 430,
+      "presetId": "basis-llrr"
+    },
+    {
+      "label": "Handsatz 5 · Paradiddle",
+      "start": 563,
+      "presetId": "basis-paradiddle"
+    }
+  ]
+}

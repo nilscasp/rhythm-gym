@@ -1,0 +1,34 @@
+{
+  "day": 40,
+  "mediaDurationSec": 418.626542,
+  "chapters": [
+    {
+      "label": "Einführung · Aufgabe des Tages",
+      "start": 0
+    },
+    {
+      "label": "Beispiel · Fusion zweier Motive",
+      "start": 172
+    },
+    {
+      "label": "Phase 2 · Körper 1 · Bogen 1+2",
+      "start": 239,
+      "presetId": "phase-2-koerper-1"
+    },
+    {
+      "label": "Phase 3 · Körper 2 · Bogen 3+4",
+      "start": 285,
+      "presetId": "phase-3-koerper-2"
+    },
+    {
+      "label": "Phase 4 · Perkussive Ebene dazu",
+      "start": 311,
+      "presetId": "phase-4-perkussiv"
+    },
+    {
+      "label": "Phase 5 · Twist · ein Break",
+      "start": 343,
+      "presetId": "phase-5-break"
+    }
+  ]
+}

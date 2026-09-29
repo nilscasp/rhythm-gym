@@ -1,0 +1,48 @@
+{
+  "day": 28,
+  "mediaDurationSec": 557.265042,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Fill Takt 1 · ein Ton",
+      "start": 22,
+      "presetId": "fill-takt1-ein-ton"
+    },
+    {
+      "label": "Passwechsel",
+      "start": 55,
+      "presetId": "fill-takt1-ein-ton",
+      "sub": true
+    },
+    {
+      "label": "Zweierschritt beibehalten",
+      "start": 58,
+      "presetId": "fill-takt1-ein-ton",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt 1 · zwei Töne",
+      "start": 177,
+      "presetId": "fill-takt1-zwei-toene"
+    },
+    {
+      "label": "Bassnotation · Spielrichtung",
+      "start": 275,
+      "presetId": "fill-takt1-zwei-toene",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt 1 · drei Töne, kompakt",
+      "start": 391,
+      "presetId": "fill-takt1-drei-toene"
+    },
+    {
+      "label": "Voll · Basis",
+      "start": 521,
+      "presetId": "voll-basis"
+    }
+  ]
+}

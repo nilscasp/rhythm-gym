@@ -1,0 +1,48 @@
+{
+  "day": 42,
+  "mediaDurationSec": 341.59125,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Motiv 2 · Bogen 3+4 (unverändert)",
+      "start": 177,
+      "presetId": "phase-1-motiv-2"
+    },
+    {
+      "label": "Slap trifft Tonfeld",
+      "start": 192,
+      "presetId": "phase-3-slap-tonfeld"
+    },
+    {
+      "label": "Wiederholung · erster Teil gleich",
+      "start": 215,
+      "presetId": "phase-1-motiv-2",
+      "sub": true
+    },
+    {
+      "label": "Wiederholung · Tonfeld auf Slap",
+      "start": 223,
+      "presetId": "phase-3-slap-tonfeld",
+      "sub": true
+    },
+    {
+      "label": "Fill-In zum Ende",
+      "start": 238,
+      "presetId": "phase-4-fill"
+    },
+    {
+      "label": "Break-Figur",
+      "start": 306,
+      "presetId": "phase-5-break"
+    },
+    {
+      "label": "Tonfelder laufen weiter",
+      "start": 313,
+      "presetId": "phase-5-break",
+      "sub": true
+    }
+  ]
+}

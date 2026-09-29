@@ -1,0 +1,68 @@
+{
+  "day": 14,
+  "mediaDurationSec": 641.223917,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Basisrhythmus · L – R",
+      "start": 19,
+      "presetId": "basis"
+    },
+    {
+      "label": "Stufe 1 perkussiv · L – R",
+      "start": 28,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 1 melodisch · L – R",
+      "start": 87,
+      "presetId": "stufe-1-melodisch"
+    },
+    {
+      "label": "Stufe 2 perkussiv · L – R",
+      "start": 146,
+      "presetId": "stufe-2-perkussiv"
+    },
+    {
+      "label": "Stufe 2 melodisch · L – R",
+      "start": 199,
+      "presetId": "stufe-2-melodisch"
+    },
+    {
+      "label": "Stufe 3 perkussiv · L – R",
+      "start": 261,
+      "presetId": "stufe-3-perkussiv"
+    },
+    {
+      "label": "Stufe 3 melodisch · L – R",
+      "start": 325,
+      "presetId": "stufe-3-melodisch"
+    },
+    {
+      "label": "Kombi · 4 Bögen · 1→2→3→2",
+      "start": 353,
+      "presetId": "kombi"
+    },
+    {
+      "label": "Kombi · Bogen 1 · Slap",
+      "start": 358,
+      "presetId": "kombi",
+      "sub": true
+    },
+    {
+      "label": "Kombi · Bogen 2 · Melodie",
+      "start": 372,
+      "presetId": "kombi",
+      "sub": true
+    },
+    {
+      "label": "Kombi · Bogen 3 · Melodie",
+      "start": 391,
+      "presetId": "kombi",
+      "sub": true
+    }
+  ]
+}

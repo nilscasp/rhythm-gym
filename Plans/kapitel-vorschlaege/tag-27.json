@@ -1,0 +1,71 @@
+{
+  "day": 27,
+  "mediaDurationSec": 657.90725,
+  "chapters": [
+    {
+      "label": "Einführung · Tag 27",
+      "start": 0
+    },
+    {
+      "label": "Grundbogen · Takt 2 offen",
+      "start": 76,
+      "presetId": "grundbogen-takt2-offen"
+    },
+    {
+      "label": "Fill Takt 2 · ein Ton",
+      "start": 123,
+      "presetId": "fill-takt2-ein-ton"
+    },
+    {
+      "label": "Variante · zweiter Ton",
+      "start": 146,
+      "presetId": "fill-takt2-ein-ton",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt 2 · zwei Töne",
+      "start": 205,
+      "presetId": "mitte-zwei-tonfelder"
+    },
+    {
+      "label": "Zwei Versionen unter Melodie",
+      "start": 244,
+      "presetId": "mitte-zwei-tonfelder",
+      "sub": true
+    },
+    {
+      "label": "Bass folgt Melodie-Wechsel",
+      "start": 273,
+      "presetId": "mitte-zwei-tonfelder",
+      "sub": true
+    },
+    {
+      "label": "Freie Tonfelder unten",
+      "start": 336,
+      "presetId": "mitte-zwei-tonfelder",
+      "sub": true
+    },
+    {
+      "label": "Zurück zum Anfang",
+      "start": 364,
+      "presetId": "mitte-zwei-tonfelder",
+      "sub": true
+    },
+    {
+      "label": "Fill Takt 2 · drei Töne",
+      "start": 400,
+      "presetId": "mitte-dreiklang"
+    },
+    {
+      "label": "Einfachere Variante",
+      "start": 502,
+      "presetId": "mitte-dreiklang",
+      "sub": true
+    },
+    {
+      "label": "Mitte · Fluss",
+      "start": 575,
+      "presetId": "mitte-fluss"
+    }
+  ]
+}

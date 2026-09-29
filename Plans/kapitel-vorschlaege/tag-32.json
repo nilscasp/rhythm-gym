@@ -1,0 +1,51 @@
+{
+  "day": 32,
+  "mediaDurationSec": 570.361458,
+  "chapters": [
+    {
+      "label": "Einführung · Was sind Breaks",
+      "start": 0
+    },
+    {
+      "label": "Beispiel 1 · Mikro-Break Takt 4",
+      "start": 435,
+      "presetId": "break-mikro"
+    },
+    {
+      "label": "Beispiel 2 · ähnliche Abdämpf-Technik",
+      "start": 465
+    },
+    {
+      "label": "Beispiel 3 · längerer Break",
+      "start": 485,
+      "presetId": "break-eins"
+    },
+    {
+      "label": "Beispiel 4 · kombinierte Breaks",
+      "start": 525
+    },
+    {
+      "label": "Einzelner Schlag als Break",
+      "start": 539,
+      "presetId": "break-mikro",
+      "sub": true
+    },
+    {
+      "label": "Ganzer Takt als Break",
+      "start": 551,
+      "sub": true
+    },
+    {
+      "label": "Zweitaktiger Break",
+      "start": 555,
+      "presetId": "break-solo",
+      "sub": true
+    },
+    {
+      "label": "Rückkehr zur Standardstruktur",
+      "start": 560,
+      "presetId": "break-grundbogen",
+      "sub": true
+    }
+  ]
+}

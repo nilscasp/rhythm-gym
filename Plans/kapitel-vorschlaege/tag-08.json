@@ -1,0 +1,71 @@
+{
+  "day": 8,
+  "mediaDurationSec": 704.620583,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Station 1 · Fingerkraft",
+      "start": 120,
+      "presetId": "fingerkraft"
+    },
+    {
+      "label": "Nur Finger bewegen",
+      "start": 189,
+      "presetId": "fingerkraft",
+      "sub": true
+    },
+    {
+      "label": "45° Winkel · Stretching",
+      "start": 216,
+      "presetId": "fingerkraft",
+      "sub": true
+    },
+    {
+      "label": "Station 2 · Schulter & Arm",
+      "start": 261,
+      "presetId": "schulter-arm"
+    },
+    {
+      "label": "Tempo variieren",
+      "start": 301,
+      "presetId": "schulter-arm",
+      "sub": true
+    },
+    {
+      "label": "Andere Hand · Zeigefinger",
+      "start": 323,
+      "presetId": "schulter-arm",
+      "sub": true
+    },
+    {
+      "label": "Station 3 · Tonfeld-Präzision",
+      "start": 379,
+      "presetId": "tonfeld-praezision"
+    },
+    {
+      "label": "Oberer Bereich",
+      "start": 418,
+      "presetId": "tonfeld-praezision",
+      "sub": true
+    },
+    {
+      "label": "Unterer Bereich",
+      "start": 471,
+      "presetId": "tonfeld-praezision",
+      "sub": true
+    },
+    {
+      "label": "Station 4 · Tonleiter · alle 5 Finger",
+      "start": 503,
+      "presetId": "tonleiter-fuenf-finger"
+    },
+    {
+      "label": "Station 5 · Freies Spiel · Feuer",
+      "start": 642,
+      "presetId": "freispiel-feuer"
+    }
+  ]
+}

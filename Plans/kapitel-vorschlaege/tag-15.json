@@ -1,0 +1,65 @@
+{
+  "day": 15,
+  "mediaDurationSec": 664.872542,
+  "chapters": [
+    {
+      "label": "Einführung · Takt 3 füllen",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 perkussiv · Slap vor 4",
+      "start": 38,
+      "presetId": "stufe-1-perkussiv"
+    },
+    {
+      "label": "Stufe 1 melodisch",
+      "start": 100,
+      "presetId": "stufe-1-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 perkussiv",
+      "start": 161,
+      "presetId": "stufe-2-perkussiv"
+    },
+    {
+      "label": "Stufe 2 melodisch",
+      "start": 217,
+      "presetId": "stufe-2-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Stufe 3 perkussiv",
+      "start": 268,
+      "presetId": "stufe-3-perkussiv"
+    },
+    {
+      "label": "Stufe 3 melodisch",
+      "start": 336,
+      "presetId": "stufe-3-melodisch",
+      "sub": true
+    },
+    {
+      "label": "Stufe 4 perkussiv · Takt 3 voll",
+      "start": 387,
+      "presetId": "stufe-4-perkussiv"
+    },
+    {
+      "label": "Kombi · 1m→2m→3m→4p",
+      "start": 516,
+      "presetId": "kombi"
+    },
+    {
+      "label": "Kombi · erst zuhören",
+      "start": 524,
+      "presetId": "kombi",
+      "sub": true
+    },
+    {
+      "label": "Kombi · Variante Tonleiter",
+      "start": 588,
+      "presetId": "kombi",
+      "sub": true
+    }
+  ]
+}

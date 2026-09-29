@@ -3,12 +3,12 @@
   "mediaDurationSec": 741.699292,
   "chapters": [
     {
-      "label": "Einführung · Tonleiter & Rhythmus",
+      "label": "Einführung",
       "start": 0
     },
     {
       "label": "Handsatz 1 · R – L",
-      "start": 69,
+      "start": 80,
       "presetId": "tonleiter-rl"
     },
     {
@@ -17,19 +17,28 @@
       "presetId": "tonleiter-lr"
     },
     {
-      "label": "Handsatz 3 · R–R–L–L",
+      "label": "Handsatz 3 · R – R – L – L",
       "start": 296,
       "presetId": "tonleiter-rrll"
     },
     {
-      "label": "Handsatz 4 · L–L–R–R",
+      "label": "Handsatz 4 · L – L – R – R",
       "start": 407,
       "presetId": "tonleiter-llrr"
     },
     {
-      "label": "Handsatz 5 · Paradiddle",
+      "label": "Alternative Zählweise: eins-und",
       "start": 496,
+      "sub": true
+    },
+    {
+      "label": "Handsatz 5 · Paradiddle",
+      "start": 537,
       "presetId": "tonleiter-paradiddle"
+    },
+    {
+      "label": "Abschluss & Reflexion",
+      "start": 691
     }
   ]
 }

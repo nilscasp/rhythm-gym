@@ -3,30 +3,65 @@
   "mediaDurationSec": 860.818292,
   "chapters": [
     {
-      "label": "Einführung · Split-Hand Fingerübung",
-      "start": 0,
-      "presetId": "paradiddle-quer"
+      "label": "Einführung",
+      "start": 0
     },
     {
-      "label": "Nur Zeigefinger · 4er-Rhythmus",
+      "label": "Split-Hand · Daumen/Zeigefinger",
+      "start": 9
+    },
+    {
+      "label": "Split-Hand · Tonfeld 2 links",
+      "start": 46,
+      "sub": true
+    },
+    {
+      "label": "Nur Zeigefinger · Tonfeld 1",
       "start": 112
     },
     {
-      "label": "Auf Ding + freie Tonfeld-Akzente",
+      "label": "Nur Zeigefinger · andere Seite",
+      "start": 176,
+      "sub": true
+    },
+    {
+      "label": "Zeigefinger-Technik aufs Ding",
       "start": 243,
+      "sub": true
+    },
+    {
+      "label": "Freie Exploration · Akzent = Tonfeld",
+      "start": 337,
       "presetId": "frei-quer"
     },
     {
-      "label": "Unterseite · Faust statt Ding",
+      "label": "Unterseite der Pan · Ding als Faust",
       "start": 411
     },
     {
-      "label": "Freie Handposition · alle Finger",
-      "start": 547
+      "label": "Handsatzwechsel auf links",
+      "start": 475,
+      "sub": true
+    },
+    {
+      "label": "Slap-Position variieren",
+      "start": 531,
+      "sub": true
+    },
+    {
+      "label": "Freie Handposition · reiner Schlag",
+      "start": 547,
+      "presetId": "frei-quer",
+      "sub": true
     },
     {
       "label": "Pan quer im Schoß · Offbeat",
       "start": 710
+    },
+    {
+      "label": "Umkehrung · Goathole als Eins",
+      "start": 780,
+      "sub": true
     }
   ]
 }

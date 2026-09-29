@@ -1,0 +1,36 @@
+{
+  "day": 21,
+  "mediaDurationSec": 658.491167,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Übung A · Rahmen und Stille",
+      "start": 7,
+      "presetId": "uebung-a"
+    },
+    {
+      "label": "Variante · hoch und runter spielen",
+      "start": 74,
+      "presetId": "uebung-a",
+      "sub": true
+    },
+    {
+      "label": "Übung B · Vier mal Zwei",
+      "start": 230,
+      "presetId": "uebung-b"
+    },
+    {
+      "label": "Übung C · Volle Dichte",
+      "start": 445,
+      "presetId": "uebung-c"
+    },
+    {
+      "label": "Variante · ohne Slaps",
+      "start": 627,
+      "sub": true
+    }
+  ]
+}

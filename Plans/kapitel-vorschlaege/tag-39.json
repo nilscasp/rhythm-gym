@@ -1,0 +1,40 @@
+{
+  "day": 39,
+  "mediaDurationSec": 676.967958,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Phase 1 · Perkussiver Anker",
+      "start": 143,
+      "presetId": "phase-1-anker"
+    },
+    {
+      "label": "Phase 2 · Ein Akkord",
+      "start": 268,
+      "presetId": "phase-2-ein-akkord"
+    },
+    {
+      "label": "Phase 3 · Motiv 1 · zwei Akkorde",
+      "start": 361,
+      "presetId": "phase-3-motiv-1"
+    },
+    {
+      "label": "Phase 4 · Motiv 2 · drei Tonfelder",
+      "start": 422,
+      "presetId": "phase-4-motiv-2"
+    },
+    {
+      "label": "Motiv 2 · Slap dazu",
+      "start": 445,
+      "presetId": "phase-4-motiv-2",
+      "sub": true
+    },
+    {
+      "label": "Motive 1+2 kombiniert",
+      "start": 516
+    }
+  ]
+}

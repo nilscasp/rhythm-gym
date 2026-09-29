@@ -1,0 +1,49 @@
+{
+  "day": 6,
+  "mediaDurationSec": 654.320333,
+  "chapters": [
+    {
+      "label": "Einführung · Rückblick",
+      "start": 0
+    },
+    {
+      "label": "Gu-Hole-Modulation auf der 2",
+      "start": 26
+    },
+    {
+      "label": "Variante · Hand auf 2 herausziehen",
+      "start": 54,
+      "sub": true
+    },
+    {
+      "label": "Ohne Gu-Modulation weiterspielen",
+      "start": 116,
+      "sub": true
+    },
+    {
+      "label": "Neuer Rhythmus mit Pause",
+      "start": 129
+    },
+    {
+      "label": "Zweihändig · rechts fest, links Pattern",
+      "start": 243,
+      "presetId": "pattern-paradiddle"
+    },
+    {
+      "label": "Variante · links fest, rechts Pattern",
+      "start": 348,
+      "presetId": "pattern-paradiddle",
+      "sub": true
+    },
+    {
+      "label": "Ding auf 1 · Tonfeld-Antwort",
+      "start": 408,
+      "presetId": "pattern-basis"
+    },
+    {
+      "label": "Muster auf Tonleiter (8 hoch, zurück)",
+      "start": 560,
+      "presetId": "pattern-verdichtet"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "day": 37,
+  "mediaDurationSec": 506.297458,
+  "chapters": [
+    {
+      "label": "Einführung · Fram Study",
+      "start": 0
+    },
+    {
+      "label": "Vorspiel · Stück übersetzt",
+      "start": 165
+    },
+    {
+      "label": "Übung · Phrase nachbauen (5 Min)",
+      "start": 443,
+      "presetId": "motiv-1-akkorde"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "day": 41,
+  "mediaDurationSec": 497.74725,
+  "chapters": [
+    {
+      "label": "Einführung",
+      "start": 0
+    },
+    {
+      "label": "Motiv 1 vorgespielt",
+      "start": 233,
+      "presetId": "phase-1-motiv-1"
+    },
+    {
+      "label": "Phase 4 · Erster Teil variieren",
+      "start": 292,
+      "presetId": "phase-4-stelle"
+    },
+    {
+      "label": "Variation am Bogenende",
+      "start": 309,
+      "presetId": "phase-4-stelle",
+      "sub": true
+    },
+    {
+      "label": "Wiederholung des Eintonfelds",
+      "start": 333,
+      "presetId": "phase-4-stelle",
+      "sub": true
+    },
+    {
+      "label": "Vier Bögen als Arrangement üben",
+      "start": 351,
+      "presetId": "phase-4-stelle",
+      "sub": true
+    },
+    {
+      "label": "Phase 6 · Bögen aneinandersetzen",
+      "start": 417,
+      "presetId": "phase-6-break"
+    },
+    {
+      "label": "Kleine Breaks einbauen",
+      "start": 449,
+      "presetId": "phase-6-break",
+      "sub": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "day": 31,
+  "mediaDurationSec": 505.296458,
+  "chapters": [
+    {
+      "label": "Einführung · Schichten-Rhythmen",
+      "start": 0
+    },
+    {
+      "label": "Schicht 1 · perkussive Basis",
+      "start": 42,
+      "presetId": "schicht-1-perkussion"
+    },
+    {
+      "label": "Schicht 2 · + Harmonie",
+      "start": 163,
+      "presetId": "schicht-2-harmonie"
+    },
+    {
+      "label": "Schicht 3 · + Melodie",
+      "start": 236,
+      "presetId": "fusion-eins"
+    },
+    {
+      "label": "Aufgabe · eigenes Pattern bauen",
+      "start": 434
+    }
+  ]
+}
