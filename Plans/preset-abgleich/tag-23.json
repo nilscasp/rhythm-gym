@@ -11,47 +11,29 @@
   "presets": [
     {
       "id": "puls-achtel",
-      "label": "Stufe 1 · rechts auf Achteln",
-      "hint": "rechte Hand pulsiert auf jedem Achtel · linke Hand trägt den Groove",
-      "pattern": "D.g.S.g.g.g.S.g.",
-      "handsatz": "R-L",
+      "label": "Teil 1 · Achtel",
+      "hint": "Rechte Hand pulsiert auf jedem Achtel · linke Hand trägt den Groove",
+      "pattern": "D...S.......S...",
+      "wiederholung": "T.T.T.T.T.T.T.T.",
+      "handsatz": "frei",
       "bpm": 60
     },
     {
       "id": "puls-offbeat",
-      "label": "Stufe 2 · rechts auf Offbeats",
-      "hint": "rechte Hand sitzt auf jedem „e“ · linke Hand bleibt im Groove",
-      "pattern": "Dg.gSg.g.g.gSg.g",
-      "handsatz": "R-L",
+      "label": "Teil 2 · Offbeat",
+      "hint": "Rechte Hand sitzt auf jedem „e“ · linke Hand bleibt im Groove",
+      "pattern": "D...S.......S...",
+      "wiederholung": ".T.T.T.T.T.T.T.T",
+      "handsatz": "frei",
       "bpm": 60
     },
     {
       "id": "puls-sechzehntel",
-      "label": "Stufe 3 · rechts alle 16tel",
-      "hint": "rechte Hand füllt jeden Schlag · linke Hand trägt den Groove",
-      "pattern": "DgggSgggggggSggg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "dialog-basis",
-      "label": "Dialog · Basis",
-      "pattern": "DgggTgSgggggTgSg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "dialog-melodisch",
-      "label": "Dialog · melodisch",
-      "pattern": "TgTgTgSgTgTgTgSg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "dialog-paradiddle",
-      "label": "Dialog · Paradiddle",
-      "pattern": "DgggTgSgggggTgSg",
-      "handsatz": "paradiddle",
+      "label": "Teil 3 · Sechzehntel",
+      "hint": "Rechte Hand füllt jeden Schlag · linke Hand trägt den Groove",
+      "pattern": "D...S.......S...",
+      "wiederholung": "TTTTTTTTTTTTTTTT",
+      "handsatz": "frei",
       "bpm": 60
     }
   ],
@@ -102,6 +84,7 @@
   "unclear": [
     "Legende „Ghostnote · still“ bei der Groove-Hand: stumm (Bewegung) oder hörbar leise? Ich habe stumm (.) angenommen, sonst wären alle drei Stufen identisch (DgggSgggggggSggg) und der Unterschied Achtel/Offbeat/16tel ginge im Player verloren.",
     "Zwei Grafik-Generationen: v2 (R = heller Puls) vs. ältere tag23_uebersicht/tag23_teil_*/overview_tag23_teil_* (R = TON, Tonleiter-Wanderung; Teil 2 nur 4 Schläge auf dem ersten „e“). Welche lief im Video? Falls die alte: R-Schläge als T statt g, Teil 2 = DT..ST...T..ST.. (bzw. mit T auf 1,5,9,13).",
-    "Handsatz R-L ist nur Platzhalter — die Übung trennt die Hände (rechts Puls, links Groove), das bildet kein Handsatz-Key ab."
+    "Handsatz R-L ist nur Platzhalter — die Übung trennt die Hände (rechts Puls, links Groove), das bildet kein Handsatz-Key ab.",
+    "Nils 29.09.: Grafiken sind die Grundlage — Dialog-Presets entfallen; rechte Hand als eigene Spur (Tonfelder, wandern durch die Skala), linke Hand Ding · Slap · Slap, Ghostnotes still."
   ]
 }

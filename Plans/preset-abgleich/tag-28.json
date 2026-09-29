@@ -43,27 +43,6 @@
       "wiederholung": "gggggggggggggggg",
       "handsatz": "frei",
       "bpm": 60
-    },
-    {
-      "id": "voll-basis",
-      "label": "Voll · Basis",
-      "pattern": "DgTgSgTgTgTgSgTg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "voll-melodisch",
-      "label": "Voll · melodisch",
-      "pattern": "TgTTSTgTTgTTSgTg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "voll-paradiddle",
-      "label": "Voll · Paradiddle",
-      "pattern": "DgTgSgTgTgTgSgTg",
-      "handsatz": "paradiddle",
-      "bpm": 60
     }
   ],
   "changes": [
@@ -118,6 +97,7 @@
     }
   ],
   "unclear": [
-    "Die drei voll-*-Presets passen zum Tagestitel „Der Bogen wird voll“, aber zu keiner Grafik. Behalten oder streichen?"
+    "Die drei voll-*-Presets passen zum Tagestitel „Der Bogen wird voll“, aber zu keiner Grafik. Behalten oder streichen?",
+    "Nils 29.09.: Grafiken sind die Grundlage — Voll-Presets entfallen."
   ]
 }

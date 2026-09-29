@@ -40,9 +40,8 @@
       "presetId": "fill-takt1-drei-toene"
     },
     {
-      "label": "Voll · Basis",
-      "start": 521,
-      "presetId": "voll-basis"
+      "label": "Alles aufbrechen",
+      "start": 521
     }
   ]
 }

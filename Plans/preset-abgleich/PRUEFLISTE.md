@@ -53,7 +53,7 @@ Die Presets hier passen oft nicht zum Praxis-Text. Ich habe nichts geändert, we
 
 ## C · Anhören (eine konkrete Stelle)
 
-- [ ] **Tag 23/24:** Die grauen Punkte der Groove-Hand heißen „Ghostnote · still“. Ich habe sie als *stumm* gelesen, sonst klingen die drei Stufen gleich. Außerdem gibt es eine ältere Grafikserie, in der die rechte Hand Töne spielt. Welche Version läuft im Video?
+- [x] **Tag 23:** nach den Grafiken (v2): rechte Hand als eigene Spur auf Achteln / „e“ / allen Sechzehnteln, linke Hand Ding · Slap · Slap; Dialog-Presets entfallen. Tag 28: Voll-Presets entfallen (Nils, 29.09.). Tag 24 noch offen.
 - [ ] **Tag 30:** Das Kursbuch legt den Fill *vor* die 4, die Grafik *nach* den Slap auf der 4. Das Preset folgt der Grafik. Außerdem ist Schritt 8 im Crescendo als blasser Slap gezeichnet. Slap oder Ghost?
 - [ ] **Tag 32, Solo-Break:** Der Untertitel sagt, die rechte Hand spielt solo. Eingezeichnet ist nur „Mitte“. Das Preset hat dort jetzt Pausen.
 - [ ] **Tag 33, Bogen 9/10:** Eine Grafik zeigt Stille, drei andere Grafiken und der Text zeigen Akkord plus Slaps. Das Preset folgt der Mehrheit. Außerdem empfiehlt der Text 65–80 BPM, eingestellt sind 60.
