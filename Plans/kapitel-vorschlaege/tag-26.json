@@ -1,0 +1,54 @@
+{
+  "day": 26,
+  "mediaDurationSec": 461.9615,
+  "chapters": [
+    {
+      "label": "Einführung · Fill im 3. Takt",
+      "start": 0
+    },
+    {
+      "label": "Stufe 1 · ein Ton im Fill",
+      "start": 23,
+      "presetId": "melodie-takt3-langsam"
+    },
+    {
+      "label": "Bass dazu",
+      "start": 51,
+      "presetId": "melodie-takt3-langsam",
+      "sub": true
+    },
+    {
+      "label": "Alles zur Wiederholung",
+      "start": 71,
+      "presetId": "melodie-takt3-langsam",
+      "sub": true
+    },
+    {
+      "label": "Stufe 2 · zwei Töne im Fill",
+      "start": 140,
+      "presetId": "melodie-takt3-zwei-toene"
+    },
+    {
+      "label": "Bass dazu",
+      "start": 181,
+      "presetId": "melodie-takt3-zwei-toene",
+      "sub": true
+    },
+    {
+      "label": "Stufe 3 · drei Töne im Fill",
+      "start": 223,
+      "presetId": "melodie-takt3-voll"
+    },
+    {
+      "label": "Bass dazu",
+      "start": 288,
+      "sub": true,
+      "presetId": "melodie-takt3-voll"
+    },
+    {
+      "label": "Stufe 4 · der ganze Takt klingt",
+      "start": 338,
+      "presetId": "melodie-takt3-vier-toene"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "day": 14,
+  "presets": [
+    {
+      "id": "basis",
+      "label": "Basisrhythmus · L – R",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "label": "Stufe 1 perkussiv · L – R",
+      "pattern": "DgggSgggggggSggS",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "label": "Stufe 1 melodisch · L – R",
+      "pattern": "DgggSgggggggSggT",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "label": "Stufe 2 perkussiv · L – R",
+      "pattern": "DgggSgggggggSgSS",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "label": "Stufe 2 melodisch · L – R",
+      "pattern": "DgggSgggggggSgTT",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "label": "Stufe 3 perkussiv · L – R",
+      "pattern": "DgggSgggggggSSSS",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "label": "Stufe 3 melodisch · L – R",
+      "pattern": "DgggSgggggggSTTT",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "kombi",
+      "label": "Kombi · 4 Bögen · 1 → 2 → 3 → 2",
+      "hint": "vier Bögen · ein Wellenbogen · und wieder von vorn",
+      "pattern": "DgggSgggggggSggSDgggSgggggggSgTTDgggSgggggggSTTTDgggSgggggggSgTT",
+      "handsatz": "L-R",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "basis",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "kombi",
+      "kind": "new",
+      "after": "DgggSgggggggSggSDgggSgggggggSgTTDgggSgggggggSTTTDgggSgggggggSgTT",
+      "note": "Aus overview_tag14_kombi_uebung: Bogen 1 Stufe 1 perkussiv, Bogen 2 Stufe 2m, Bogen 3 Stufe 3m, Bogen 4 Stufe 2m — 4 × 16 = 64 Schritte."
+    }
+  ],
+  "sources": [
+    "grafiken/tag-14/overview_tag14_die_andere_hand.png",
+    "grafiken/tag-14/overview_tag14_kombi_uebung.png",
+    "grafiken/tag-14/live_frage_antwort.png",
+    "grafiken/tag-14/live_melodielinie_takt4.png",
+    "grafiken/tag-14/lowerthird_tag14_stufe1_perkussiv_hs2.png",
+    "grafiken/tag-14/lowerthird_tag14_stufe1_melodisch_hs2.png",
+    "grafiken/tag-14/lowerthird_tag14_stufe2_perkussiv_hs2.png",
+    "grafiken/tag-14/lowerthird_tag14_stufe2_melodisch_hs2.png",
+    "grafiken/tag-14/lowerthird_tag14_stufe3_perkussiv_hs2.png",
+    "grafiken/tag-14/lowerthird_tag14_stufe3_melodisch_hs2.png"
+  ],
+  "unclear": [
+    "Kombi-Preset hat 64 Schritte; der Typ-Kommentar in rhythmusfundament-days.ts nennt 1–32 Zeichen. DayPlayer liest pattern.length ohne Obergrenze, aber Raster-Darstellung bei 64 Schritten im Player prüfen.",
+    "Live-Grafiken (live_frage_antwort, live_melodielinie_takt4) zeigen nur Takt-4-Fragmente mit Tonhöhenrichtung (auf/ab). Rhythmisch: Spiegelung = SgTT→SgTT, Vertiefung = SgTT→STTT, Verkürzung = STTT→SggT. Kein Preset angelegt, da die Tonhöhe der Kern ist — falls gewünscht als 32-Schritt-Presets ergänzbar."
+  ]
+}

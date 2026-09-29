@@ -1,0 +1,123 @@
+{
+  "day": 28,
+  "sources": [
+    "grafiken/tag-28/overview_tag28_grundbogen_v1.png",
+    "grafiken/tag-28/overview_tag28_teil_1_v1.png",
+    "grafiken/tag-28/overview_tag28_teil_2_v1.png",
+    "grafiken/tag-28/overview_tag28_teil_3_v1.png",
+    "grafiken/tag-28/lowerthird_tag28_*_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "grundbogen-takt1-offen",
+      "label": "Grundbogen · Takt 1 offen",
+      "hint": "Bass alterniert · Mitte und Melodie laufen · der erste Takt bleibt offen",
+      "pattern": "T...T.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "fill-takt1-ein-ton",
+      "label": "Fill Takt 1 · ein Ton",
+      "hint": "Bass · Mitte · Melodie · Fill (1 Ton)",
+      "pattern": "T..TT.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "fill-takt1-zwei-toene",
+      "label": "Fill Takt 1 · zwei Töne",
+      "hint": "Bass · Mitte · Melodie · Fill (2 Töne)",
+      "pattern": "T.TTT.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "fill-takt1-drei-toene",
+      "label": "Fill Takt 1 · drei Töne",
+      "hint": "Bass · Mitte · Melodie · Fill (3 Töne)",
+      "pattern": "TTTTT.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "voll-basis",
+      "label": "Voll · Basis",
+      "pattern": "DgTgSgTgTgTgSgTg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "voll-melodisch",
+      "label": "Voll · melodisch",
+      "pattern": "TgTTSTgTTgTTSgTg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "voll-paradiddle",
+      "label": "Voll · Paradiddle",
+      "pattern": "DgTgSgTgTgTgSgTg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "grundbogen-takt1-offen",
+      "kind": "new",
+      "before": "",
+      "after": "TgggTgggggggTggg",
+      "note": "Grundbogen."
+    },
+    {
+      "id": "fill-takt1-ein-ton",
+      "kind": "new",
+      "before": "",
+      "after": "TggTTgggggggTggg",
+      "note": "Teil 1: Fill auf Schritt 3 (direkt vor der Mitte)."
+    },
+    {
+      "id": "fill-takt1-zwei-toene",
+      "kind": "new",
+      "before": "",
+      "after": "TgTTTgggggggTggg",
+      "note": "Teil 2: Fill 2–3."
+    },
+    {
+      "id": "fill-takt1-drei-toene",
+      "kind": "new",
+      "before": "",
+      "after": "TTTTTgggggggTggg",
+      "note": "Teil 3: Fill 1–3."
+    },
+    {
+      "id": "voll-basis",
+      "kind": "no-graphic",
+      "before": "DgTgSgTgTgTgSgTg",
+      "after": "DgTgSgTgTgTgSgTg",
+      "note": "Kein Gegenstück in den Grafiken."
+    },
+    {
+      "id": "voll-melodisch",
+      "kind": "no-graphic",
+      "before": "TgTTSTgTTgTTSgTg",
+      "after": "TgTTSTgTTgTTSgTg",
+      "note": "Kein Gegenstück in den Grafiken."
+    },
+    {
+      "id": "voll-paradiddle",
+      "kind": "no-graphic",
+      "before": "DgTgSgTgTgTgSgTg",
+      "after": "DgTgSgTgTgTgSgTg",
+      "note": "Kein Gegenstück in den Grafiken."
+    }
+  ],
+  "unclear": [
+    "Die drei voll-*-Presets passen zum Tagestitel „Der Bogen wird voll“, aber zu keiner Grafik. Behalten oder streichen?"
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "day": 38,
+  "sources": [
+    "grafiken/tag-38/overview_tag38_die_form_v1.png",
+    "grafiken/tag-38/overview_tag38_die_form_v6.png"
+  ],
+  "presets": [
+    {
+      "id": "phase-1-eine-taste",
+      "label": "Phase 1 · Eine Taste",
+      "hint": "Ein Tonfeld wiederholt — eine Minute, nur Anschlag und Dynamik",
+      "pattern": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-2-bass",
+      "label": "Phase 2 · Die Bassnote tritt ein",
+      "hint": "Ein tiefer Ton unter der Wiederholung",
+      "pattern": "D...........",
+      "wiederholung": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-3-motiv",
+      "label": "Phase 3 · Das Motiv aus gestern",
+      "hint": "Akzent auf 1 · 3 · 4 über der Wiederholung",
+      "pattern": "T.....T..T..T.....T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-4-break",
+      "label": "Phase 4 · Break",
+      "hint": "Stille — dann kommt das Motiv aus dem Nichts zurück",
+      "pattern": "............T.....T..T..",
+      "wiederholung": "............PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "phase-1-eine-taste",
+      "kind": "unchanged",
+      "note": "Formgrafik P1 · durchgehende Repetition"
+    },
+    {
+      "id": "phase-2-bass",
+      "kind": "unchanged",
+      "note": "Formgrafik P2 · Bass tritt unter den Puls"
+    },
+    {
+      "id": "phase-3-motiv",
+      "kind": "unchanged",
+      "note": "Formgrafik P3 · Akkord-Motiv (2 Akkorde, dann Einzeltöne)"
+    },
+    {
+      "id": "phase-4-break",
+      "kind": "unchanged",
+      "note": "entspricht die_form_v1 (Break = Stille); v6 widerspricht"
+    }
+  ],
+  "unclear": [
+    "Formgrafik ohne Schrittraster — nur Phasen-Zuordnung geprüft.",
+    "P4 Break: die_form_v1 = „Stille“, die_form_v6 = „Puls und Bass tragen“ (Puls + Bassnote, kein Motiv). Falls v6 gilt: phase-4-break → 'DPPPPPPPPPPP' + 'TPPPPPTPPTPP'.",
+    "P5 „Motiv kehrt“ und P6 „Bruch“ haben kein Preset (P5 = phase-3-motiv wiederholt; P6 nicht notierbar)."
+  ]
+}

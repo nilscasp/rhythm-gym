@@ -1,0 +1,84 @@
+{
+  "day": 25,
+  "sources": [
+    "grafiken/tag-25/overview_tag25_grundbogen_v1.png",
+    "grafiken/tag-25/overview_tag25_teil_1_v1.png",
+    "grafiken/tag-25/overview_tag25_teil_2_v1.png",
+    "grafiken/tag-25/overview_tag25_teil_3_v1.png",
+    "grafiken/tag-25/lowerthird_tag25_*_v1.png",
+    "grafiken/tag-25/frahm_sektion_12_8.png",
+    "grafiken/tag-25/frahm_handpan_uebersicht.png"
+  ],
+  "presets": [
+    {
+      "id": "uebergang-2",
+      "label": "Grundbogen · noch ohne Fill",
+      "hint": "Bass alterniert · Mitte · Melodie · der vierte Takt bleibt offen",
+      "pattern": "T...T.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "uebergang-1",
+      "label": "Fill Takt 4 · ein Ton",
+      "hint": "der vierte Takt öffnet sich von hinten — der erste Schlag",
+      "pattern": "T...T.......T..T",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "uebergang-stufen",
+      "label": "Fill Takt 4 · zwei Töne",
+      "hint": "der Fill wächst um eine Position nach vorn",
+      "pattern": "T...T.......T.TT",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "fill-takt4-voll",
+      "label": "Fill Takt 4 · drei Töne",
+      "hint": "derselbe Bogen · im vierten Takt drei Töne im Fill",
+      "pattern": "T...T.......TTTT",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "uebergang-2",
+      "kind": "label-fixed",
+      "before": "TgggTgggggggTggg",
+      "after": "TgggTgggggggTggg",
+      "note": "Pattern ist exakt der Grundbogen (T·1↔T·2 · Mitte · Melodie, links alle 16tel). Nur Label/Hint."
+    },
+    {
+      "id": "uebergang-1",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggggggTggg",
+      "after": "TgggTgggggggTggT",
+      "note": "Teil 1: Ding/Slap → Tonfelder; Fill-Ton auf Schritt 15."
+    },
+    {
+      "id": "uebergang-stufen",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggggTTTgTT",
+      "after": "TgggTgggggggTgTT",
+      "note": "Teil 2: Fill auf 14–15 (von hinten)."
+    },
+    {
+      "id": "fill-takt4-voll",
+      "kind": "new",
+      "before": "",
+      "after": "TgggTgggggggTTTT",
+      "note": "Teil 3: Fill 13–15."
+    }
+  ],
+  "unclear": [
+    "Frahm-Grafiken (12/8, „Said and Done“) sind Hörbeispiel/Exkurs, kein Übungspreset — bewusst nicht übernommen. Falls gewünscht: 8t, 12 Schritte, T + 11×g.",
+    "Mapping der alten IDs uebergang-1/-stufen auf Teil 1/2 ist inhaltlich frei gewählt (keine Videokapitel an Tag 25)."
+  ]
+}

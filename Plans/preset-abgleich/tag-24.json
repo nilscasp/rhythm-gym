@@ -1,0 +1,89 @@
+{
+  "day": 24,
+  "sources": [
+    "grafiken/tag-24/overview_tag24_teil_1_v1.png",
+    "grafiken/tag-24/overview_tag24_teil_2_v1.png",
+    "grafiken/tag-24/overview_tag24_teil_3_v1.png",
+    "grafiken/tag-24/lowerthird_tag24_teil_*_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "gespiegelt-achtel",
+      "label": "Stufe 1 · links auf Achteln",
+      "hint": "linke Hand pulsiert auf jedem Achtel · rechte Hand trägt den Groove",
+      "pattern": "D.g.S.g.g.g.S.g.",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "gespiegelt-offbeat",
+      "label": "Stufe 2 · links auf Offbeats",
+      "hint": "linke Hand sitzt auf jedem „e“ · rechte Hand bleibt im Groove",
+      "pattern": "Dg.gSg.g.g.gSg.g",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "gespiegelt-basis",
+      "label": "Stufe 3 · links alle 16tel",
+      "hint": "linke Hand füllt jeden Schlag · rechte Hand trägt den Groove",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "gespiegelt-melodisch",
+      "label": "Gespiegelt · melodisch · L – R",
+      "pattern": "TgggSgggTgggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "gespiegelt-dialog",
+      "label": "Gespiegelt · Dialog · L – R",
+      "pattern": "DgggTgSgggggTgSg",
+      "handsatz": "L-R",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "gespiegelt-achtel",
+      "kind": "new",
+      "before": "",
+      "after": "D.g.S.g.g.g.S.g.",
+      "note": "Teil 1 · Achtel (Spiegel von Tag 23). Graue „still“-Ghostnotes der Groove-Hand als Pause."
+    },
+    {
+      "id": "gespiegelt-offbeat",
+      "kind": "new",
+      "before": "",
+      "after": "Dg.gSg.g.g.gSg.g",
+      "note": "Teil 2 · Offbeat, L auf allen acht „e“."
+    },
+    {
+      "id": "gespiegelt-basis",
+      "kind": "label-fixed",
+      "before": "DgggSgggggggSggg",
+      "after": "DgggSgggggggSggg",
+      "note": "Pattern entspricht bereits Teil 3 (Sechzehntel); nur Label/Hint angepasst. ID bleibt."
+    },
+    {
+      "id": "gespiegelt-melodisch",
+      "kind": "no-graphic",
+      "before": "TgggSgggTgggSggg",
+      "after": "TgggSgggTgggSggg",
+      "note": "Kein Gegenstück in den Grafiken."
+    },
+    {
+      "id": "gespiegelt-dialog",
+      "kind": "no-graphic",
+      "before": "DgggTgSgggggTgSg",
+      "after": "DgggTgSgggggTgSg",
+      "note": "Kein Gegenstück in den Grafiken."
+    }
+  ],
+  "unclear": [
+    "Wie Tag 23: sind die grauen „Ghostnote · still“ der Groove-Hand stumm (so angenommen) oder leise hörbar? Bei hörbar wären alle drei Stufen = DgggSgggggggSggg."
+  ]
+}

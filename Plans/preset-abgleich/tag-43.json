@@ -1,0 +1,66 @@
+{
+  "day": 43,
+  "sources": [
+    "content/rhythmusfundament/tag-43.md (◇ DEINE PRAXIS) — keine Grafik"
+  ],
+  "presets": [
+    {
+      "id": "phase-1-basis",
+      "label": "Phase 1 · Basis festigen",
+      "hint": "Grundbogen, bis beide Teile von selbst tragen",
+      "pattern": "D..S..T..T..D..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 60,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-2-zusammen",
+      "label": "Phase 2 · Motiv 1 → Motiv 2",
+      "hint": "Beide variierten Stellen: Schlusston wiederholt, dann Slap + Tonfeld",
+      "pattern": "D..S..T..TTTD..X..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 60,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-4-break",
+      "label": "Phase 4 · Break und wieder rein",
+      "hint": "Ausatmen ohne Slap — dann zurück in den Körper",
+      "pattern": "D.....T..T..D..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 60,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "phase-1-basis",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPSPPTPPTPP",
+      "after": "TPPSPPTPPTPPTPPSPPTPPTPP",
+      "note": "Kein Widerspruch"
+    },
+    {
+      "id": "phase-2-zusammen",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTTTTPPXPPTPPTPP",
+      "after": "TPPSPPTPPTTTTPPXPPTPPTPP",
+      "note": "Kein Widerspruch"
+    },
+    {
+      "id": "phase-4-break",
+      "kind": "no-graphic",
+      "before": "TPPPPPTPPTPPTPPSPPTPPTPP",
+      "after": "TPPPPPTPPTPPTPPSPPTPPTPP",
+      "note": "Perkussives fällt raus, Tonfelder tragen — stimmt"
+    }
+  ],
+  "unclear": [
+    "Alles ohne Grafik, nur gegen Text geprüft (unsicher).",
+    "Phase 1 laut Text = beide Motive MIT variierten Stellen; Preset ist der unvariierte Grundbogen (weich, kein klarer Widerspruch).",
+    "Phase 3 (Welle) und Phase 5 haben kein Preset — sind dynamisch/frei, nicht notierbar."
+  ]
+}

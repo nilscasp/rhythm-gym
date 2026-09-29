@@ -1,0 +1,92 @@
+{
+  "day": 4,
+  "sources": [
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag04_tonfeld_auf_der_eins.png"
+  ],
+  "presets": [
+    {
+      "id": "tonleiter-rl",
+      "label": "Tonleiter · Slap 3 · R – L",
+      "hint": "Tonfeld 1 · Slap 3 · mit jeder Wiederholung ein Tonfeld höher",
+      "pattern": "TgSg",
+      "handsatz": "R-L",
+      "bpm": 56,
+      "subdivision": "4n"
+    },
+    {
+      "id": "tonleiter-lr",
+      "label": "Tonleiter · Slap 3 · L – R",
+      "pattern": "TgSg",
+      "handsatz": "L-R",
+      "bpm": 56,
+      "subdivision": "4n"
+    },
+    {
+      "id": "tonleiter-rrll",
+      "label": "Tonleiter · R – R – L – L",
+      "pattern": "TgSg",
+      "handsatz": "RR-LL",
+      "bpm": 56,
+      "subdivision": "4n"
+    },
+    {
+      "id": "tonleiter-llrr",
+      "label": "Tonleiter · L – L – R – R",
+      "pattern": "TgSg",
+      "handsatz": "LL-RR",
+      "bpm": 56,
+      "subdivision": "4n"
+    },
+    {
+      "id": "tonleiter-paradiddle",
+      "label": "Tonleiter · Paradiddle",
+      "hint": "Hier öffnet sich die Übung — der Paradiddle trägt am weichsten.",
+      "pattern": "TgSgTgSg",
+      "handsatz": "paradiddle",
+      "bpm": 56,
+      "subdivision": "4n"
+    }
+  ],
+  "changes": [
+    {
+      "id": "tonleiter-rl",
+      "kind": "pattern-fixed",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter · Tonfeld 1 · Slap 3 · R – L“",
+      "after": "TgSg (4n) · „Tonleiter · Slap 3 · R – L“",
+      "note": "Akzente stimmten (Ton 1, Slap 3), aber Sechzehntel-Dichte; Grafik zeigt 4 Viertel. Label war 38 Zeichen."
+    },
+    {
+      "id": "tonleiter-lr",
+      "kind": "pattern-fixed",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter · Tonfeld 1 · Slap 3 · L – R“",
+      "after": "TgSg (4n) · „Tonleiter · Slap 3 · L – R“",
+      "note": "wie tonleiter-rl; Label war 38 Zeichen"
+    },
+    {
+      "id": "tonleiter-rrll",
+      "kind": "pattern-fixed",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter · R – R – L – L“",
+      "after": "TgSg (4n) · „Tonleiter · R – R – L – L“",
+      "note": "nur Muster/Unterteilung"
+    },
+    {
+      "id": "tonleiter-llrr",
+      "kind": "pattern-fixed",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter · L – L – R – R“",
+      "after": "TgSg (4n) · „Tonleiter · L – L – R – R“",
+      "note": "nur Muster/Unterteilung"
+    },
+    {
+      "id": "tonleiter-paradiddle",
+      "kind": "pattern-fixed",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter · Paradiddle“",
+      "after": "TgSgTgSg (4n) · „Tonleiter · Paradiddle“",
+      "note": "8 Schläge (Paradiddle vollständig); Hint bleibt"
+    }
+  ],
+  "unclear": [
+    "Grundsatzentscheidung Viertel: Die Grafik zeigt nur 4 Kreise mit Zählung „1 2 3 4“ (Tag 2 bestätigt: derselbe Puls, erst danach Achtel/Sechzehntel). Vorschlag daher subdivision 4n mit 4 Schritten (Paradiddle 8 Schritte, sonst läuft nur R-L-R-R). Bei unverändert 60 BPM heißt das 1 Schlag pro Sekunde statt bisher 4 — bitte gegen das Video-Tempo hören und ggf. BPM anheben. Alternative mit identischem Klang: 16n + Muster viermal wiederholt bei BPM/4.",
+    "Player-Lücke: DayPlayer liefert bei 4n nur die Zählsilben „1 2 3 4“ (countingSyllables, kein Wiederholen) — bei 8-Schritt-Mustern (Paradiddle, Beat↔Offbeat) bleibt die zweite Hälfte der Zählleiste leer. Kleiner Fix in DayPlayer.tsx nötig, analog zum 8t-Zweig.",
+    "Grafik/Text: pro Wiederholung ein Tonfeld höher (1→8, dann von vorn). Ob der Player das T bei jedem Durchlauf weiterschaltet, habe ich nicht geprüft — sonst klingt immer derselbe Ton. Beim Paradiddle (8 Schritte) liegen zwei Takte in einem Durchlauf: zwei verschiedene Tonfelder nötig."
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "day": 35,
+  "sources": [
+    "grafiken/tag-35/deep_listening_konzept.png",
+    "grafiken/tag-35/prozess_authentisches_selbst.png"
+  ],
+  "presets": [
+    {
+      "id": "frahm-puls",
+      "label": "Nachempfinden · eine Taste",
+      "hint": "Ein Ton auf jeder Triole — Frahms Beginn als Ausgangspunkt",
+      "pattern": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "frahm-puls",
+      "kind": "no-graphic",
+      "before": "PPPPPPPPPPPP",
+      "after": "PPPPPPPPPPPP",
+      "note": "Beide Grafiken sind Konzeptbilder ohne Schrittraster"
+    }
+  ],
+  "unclear": [
+    "Tag 35 ist eine Hör-/Entspannungsübung; Text (Phase 3 „Stil nachempfinden“) gibt kein Muster vor. Preset ist frei gewählt — behalten?"
+  ]
+}

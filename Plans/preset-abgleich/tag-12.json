@@ -1,0 +1,84 @@
+{
+  "day": 12,
+  "sources": [
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag12_vier_takt_rhythmus.png"
+  ],
+  "presets": [
+    {
+      "id": "basis-rl",
+      "label": "Basisrhythmus · R – L",
+      "hint": "Ding · Slap · Stille · Slap",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "basis-lr",
+      "label": "Basisrhythmus · L – R",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "basis-rrll",
+      "label": "Basisrhythmus · R – R – L – L",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "RR-LL",
+      "bpm": 60
+    },
+    {
+      "id": "basis-llrr",
+      "label": "Basisrhythmus · L – L – R – R",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "LL-RR",
+      "bpm": 60
+    },
+    {
+      "id": "basis-paradiddle",
+      "label": "Basisrhythmus · Paradiddle",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "basis-rl",
+      "kind": "unchanged",
+      "before": "DgggSgggggggSggg (16n) · „Basisrhythmus · R – L“",
+      "after": "DgggSgggggggSggg (16n) · „Basisrhythmus · R – L“",
+      "note": "Grafik: Ding 1 · Slap 2 · Stille 3 · Slap 4 (Sechzehntel durchgezählt) = DgggSgggggggSggg — stimmt."
+    },
+    {
+      "id": "basis-lr",
+      "kind": "unchanged",
+      "before": "DgggSgggggggSggg (16n) · „Basisrhythmus · L – R“",
+      "after": "DgggSgggggggSggg (16n) · „Basisrhythmus · L – R“",
+      "note": "Grafik: Ding 1 · Slap 2 · Stille 3 · Slap 4 (Sechzehntel durchgezählt) = DgggSgggggggSggg — stimmt."
+    },
+    {
+      "id": "basis-rrll",
+      "kind": "unchanged",
+      "before": "DgggSgggggggSggg (16n) · „Basisrhythmus · R – R – L – L“",
+      "after": "DgggSgggggggSggg (16n) · „Basisrhythmus · R – R – L – L“",
+      "note": "Grafik: Ding 1 · Slap 2 · Stille 3 · Slap 4 (Sechzehntel durchgezählt) = DgggSgggggggSggg — stimmt."
+    },
+    {
+      "id": "basis-llrr",
+      "kind": "unchanged",
+      "before": "DgggSgggggggSggg (16n) · „Basisrhythmus · L – L – R – R“",
+      "after": "DgggSgggggggSggg (16n) · „Basisrhythmus · L – L – R – R“",
+      "note": "Grafik: Ding 1 · Slap 2 · Stille 3 · Slap 4 (Sechzehntel durchgezählt) = DgggSgggggggSggg — stimmt."
+    },
+    {
+      "id": "basis-paradiddle",
+      "kind": "unchanged",
+      "before": "DgggSgggggggSggg (16n) · „Basisrhythmus · Paradiddle“",
+      "after": "DgggSgggggggSggg (16n) · „Basisrhythmus · Paradiddle“",
+      "note": "Grafik: Ding 1 · Slap 2 · Stille 3 · Slap 4 (Sechzehntel durchgezählt) = DgggSgggggggSggg — stimmt."
+    }
+  ],
+  "unclear": [
+    "Der Paradiddle (8er-Einheit) läuft über 16 Schritte zweimal durch — passt. Keine offenen Punkte zur Grafik."
+  ]
+}

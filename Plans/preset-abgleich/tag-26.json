@@ -1,0 +1,98 @@
+{
+  "day": 26,
+  "sources": [
+    "grafiken/tag-26/overview_tag26_grundbogen_v1.png",
+    "grafiken/tag-26/overview_tag26_teil_1_v1.png",
+    "grafiken/tag-26/overview_tag26_teil_2_v1.png",
+    "grafiken/tag-26/overview_tag26_teil_3_v1.png",
+    "grafiken/tag-26/overview_tag26_teil_4_v1.png",
+    "grafiken/tag-26/lowerthird_tag26_*_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "grundbogen-takt3-offen",
+      "label": "Grundbogen · Takt 3 offen",
+      "hint": "Bass alterniert · Mitte und Melodie laufen · der dritte Takt bleibt offen",
+      "pattern": "T...T.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 56
+    },
+    {
+      "id": "melodie-takt3-langsam",
+      "label": "Fill Takt 3 · ein Ton",
+      "hint": "der dritte Takt öffnet sich von hinten — der erste Schlag",
+      "pattern": "T...T......TT...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 56
+    },
+    {
+      "id": "melodie-takt3-zwei-toene",
+      "label": "Fill Takt 3 · zwei Töne",
+      "hint": "der Fill wächst um eine Position nach vorn",
+      "pattern": "T...T.....TTT...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "melodie-takt3-voll",
+      "label": "Fill Takt 3 · drei Töne",
+      "hint": "drei Töne im Fill vor der Melodie",
+      "pattern": "T...T....TTTT...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "melodie-takt3-vier-toene",
+      "label": "Fill Takt 3 · ganzer Takt",
+      "hint": "ganzer dritter Takt klingt (4 Töne)",
+      "pattern": "T...T...TTTTT...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "grundbogen-takt3-offen",
+      "kind": "new",
+      "before": "",
+      "after": "TgggTgggggggTggg",
+      "note": "Grundbogen laut Kalibrierung."
+    },
+    {
+      "id": "melodie-takt3-langsam",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggTgggSggg",
+      "after": "TgggTggggggTTggg",
+      "note": "Teil 1: Fill auf Schritt 11 (von hinten), Tonfelder statt Ding/Slaps. ID bleibt (Videokapitel)."
+    },
+    {
+      "id": "melodie-takt3-zwei-toene",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggTgTgSggg",
+      "after": "TgggTgggggTTTggg",
+      "note": "Teil 2: Fill 10–11. ID bleibt (Videokapitel)."
+    },
+    {
+      "id": "melodie-takt3-voll",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggTgTTSggg",
+      "after": "TgggTggggTTTTggg",
+      "note": "Teil 3: Fill 9–11. ID bleibt (Videokapitel „Fill voll“ bei 338 s)."
+    },
+    {
+      "id": "melodie-takt3-vier-toene",
+      "kind": "new",
+      "before": "",
+      "after": "TgggTgggTTTTTggg",
+      "note": "Teil 4: Fill 8–11, fehlte bisher."
+    }
+  ],
+  "unclear": [
+    "Videokapitel: „Fill Stufe 3 · ein Schlag mehr“ (223 s) hat kein presetId, „Fill voll“ (338 s) zeigt auf melodie-takt3-voll. Nach Korrektur ist melodie-takt3-voll = Teil 3 (3 Töne); passt „Fill voll“ im Video eher zu Teil 4 (4 Töne)? Dann presetId auf melodie-takt3-vier-toene umhängen und Kapitel 223 s → melodie-takt3-voll."
+  ]
+}

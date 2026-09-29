@@ -1,0 +1,60 @@
+{
+  "day": 37,
+  "sources": [
+    "grafiken/tag-37/overview_tag37_said_and_done_v2.png",
+    "grafiken/tag-37/lowerthird_tag37_bogen_1_2_v1.png",
+    "grafiken/tag-37/lowerthird_tag37_bogen_3_6_v1.png",
+    "grafiken/tag-37/lowerthird_tag37_bogen1_akkord_A_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "pulston",
+      "label": "Linke Hand · Wiederholung",
+      "hint": "Ein einziger Ton, auf jeder Triole",
+      "pattern": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "motiv-1-akkorde",
+      "label": "Bogen 1+2 · zwei Akkorde",
+      "hint": "Akzent auf 1 · 3 · 4, Schlag 2 still — Akkord A, dann B",
+      "pattern": "T.....T..T..T.....T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "motiv-2-einzeltoene",
+      "label": "Bogen 3–6 · drei Einzeltöne",
+      "hint": "Dieselben Zählzeiten, jetzt Einzeltöne im Wechsel",
+      "pattern": "T.....T..T..T.....T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "pulston",
+      "kind": "unchanged",
+      "note": "L = Pulston durchgehend (P beibehalten)"
+    },
+    {
+      "id": "motiv-1-akkorde",
+      "kind": "unchanged",
+      "note": "A/B auf 1·3·4, HZ 2 still"
+    },
+    {
+      "id": "motiv-2-einzeltoene",
+      "kind": "unchanged",
+      "note": "X·Y·Z auf 1·3·4"
+    }
+  ],
+  "unclear": [
+    "motiv-2-einzeltoene hat Handsatz R-L, die Grafik nennt keinen Handsatz (linke Hand pulsiert, rechte spielt) — eher 'frei' wie die anderen?"
+  ]
+}

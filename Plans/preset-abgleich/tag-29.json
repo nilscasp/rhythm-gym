@@ -1,0 +1,113 @@
+{
+  "day": 29,
+  "sources": [
+    "grafiken/tag-29/overview_tag29_referenz_standard_rhythmus.png",
+    "grafiken/tag-29/overview_tag29_v1_akkord_auf_1.png",
+    "grafiken/tag-29/overview_tag29_v2_akkord_auf_2.png",
+    "grafiken/tag-29/overview_tag29_v3_akkord_auf_4.png",
+    "grafiken/tag-29/lowerthird_tag29_v*_akkord_*.png",
+    "grafiken/tag-29/overview_tag29_vierer_struktur.png",
+    "grafiken/tag-29/lowerthird_tag29_bogen4_fill_drei_tonfelder.png",
+    "grafiken/tag-29/overview_tag29_tueftel_akkord_finden.png",
+    "grafiken/tag-29/infografik_tag29_tueftel_anleitung.png"
+  ],
+  "presets": [
+    {
+      "id": "standard-perkussiv",
+      "label": "Standard-Rhythmus · perkussiv",
+      "hint": "der Vier-Takt-Bogen · perkussiv · von hier aus öffnen wir den Akkord",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "akkord-statisch",
+      "label": "Akkord auf der 1",
+      "hint": "der Bass wird zum Akkord · die perkussiven Akzente bleiben",
+      "pattern": "TgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "akkord-auf-2",
+      "label": "Akkord auf der 2",
+      "hint": "Ding · Akkord · still · Slap",
+      "pattern": "DgggTgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "akkord-auf-4",
+      "label": "Akkord auf der 4",
+      "hint": "Ding · Slap · still · Akkord",
+      "pattern": "DgggSgggggggTggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "akkord-bogen",
+      "label": "Vierer-Struktur · Bogen 1–3",
+      "hint": "drei Anläufe: Akkord auf 1 + ein Ton am Bogenende",
+      "pattern": "TgggSgggggggSggT",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "akkord-mit-fill",
+      "label": "Vierer-Struktur · Bogen 4",
+      "hint": "der vierte Bogen schließt mit drei Tönen nach dem Slap",
+      "pattern": "TgggSgggggggSTTT",
+      "handsatz": "R-L",
+      "bpm": 56
+    }
+  ],
+  "changes": [
+    {
+      "id": "standard-perkussiv",
+      "kind": "new",
+      "before": "",
+      "after": "DgggSgggggggSggg",
+      "note": "Ausgangspunkt-Grafik; Ghostnotes hier „leise“ → g."
+    },
+    {
+      "id": "akkord-statisch",
+      "kind": "label-fixed",
+      "before": "TgggSgggggggSggg",
+      "after": "TgggSgggggggSggg",
+      "note": "Pattern = Variation I; Label/Hint angepasst. Akkord (drei Tonfelder) = T."
+    },
+    {
+      "id": "akkord-auf-2",
+      "kind": "new",
+      "before": "",
+      "after": "DgggTgggggggSggg",
+      "note": "Variation II."
+    },
+    {
+      "id": "akkord-auf-4",
+      "kind": "new",
+      "before": "",
+      "after": "DgggSgggggggTggg",
+      "note": "Variation III."
+    },
+    {
+      "id": "akkord-bogen",
+      "kind": "pattern-fixed",
+      "before": "TgggSgggggggSggg",
+      "after": "TgggSgggggggSggT",
+      "note": "Vierer-Struktur Bogen 1–3: ein TON auf Schritt 15."
+    },
+    {
+      "id": "akkord-mit-fill",
+      "kind": "pattern-fixed",
+      "before": "TgggSgggggggSgTT",
+      "after": "TgggSgggggggSTTT",
+      "note": "Vierer-Struktur Bogen 4: TON auf 13–15 (nach dem Slap auf der 4)."
+    }
+  ],
+  "unclear": [
+    "Die Vierer-Struktur (3× Bogen mit 1 Fill-Ton + 1× Bogen mit 3 Tönen) bräuchte 64 Schritte; Player-Maximum ist 32. Deshalb zwei Einzelpresets. Alternative: Player-Feature „Bogen-Folge“.",
+    "Im Ordner tag-29 liegen neun Break-Grafiken (Mikro/Solo/Stop-Time, Ebenen, Funktionen, Energiekurve, Übersicht) mit Titel „Tag 29“ — inhaltlich identisch mit Tag 32, im Kursbuch Tag 29 kommt kein Break vor. Vermutlich falsch einsortiert/beschriftet; für Tag 29 ignoriert.",
+    "Tüftel-Grafiken (Akkord finden) sind Tonwahl, kein Rhythmus → kein eigenes Preset (läuft auf akkord-statisch)."
+  ]
+}

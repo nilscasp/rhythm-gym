@@ -1,0 +1,92 @@
+{
+  "day": 31,
+  "sources": [
+    "grafiken/tag-31/overview_tag31_schicht1_perkussion.png",
+    "grafiken/tag-31/overview_tag31_schicht2_harmonie.png",
+    "grafiken/tag-31/overview_tag31_schicht3_melodie.png",
+    "grafiken/tag-31/overview_tag31_pattern_komplett.png",
+    "grafiken/tag-31/overview_tag31_drei_rhythmiken.png",
+    "grafiken/tag-31/lowerthird_tag31_*.png"
+  ],
+  "presets": [
+    {
+      "id": "schicht-1-perkussion",
+      "label": "Schicht 1 · perkussive Basis",
+      "hint": "ein zusätzliches Ding nach der 2 erweitert die Bass-Struktur",
+      "pattern": "DgggSggDggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "schicht-2-harmonie",
+      "label": "Schicht 2 · + Harmonie",
+      "hint": "Akkord auf der 1 statt Ding · Slap und Ding bleiben",
+      "pattern": "TgggSggDggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "fusion-eins",
+      "label": "Schicht 3 · + Melodie",
+      "hint": "Melodie-Fill nach der 4 · das Pattern ist komplett",
+      "pattern": "TgggSggDggggSTTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "fusion-zwei",
+      "label": "Fusion · II · dichter",
+      "pattern": "TgTTSTTgTgTTSTgT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "fusion-paradiddle",
+      "label": "Fusion · Paradiddle",
+      "pattern": "TgTgSgTgTgTgSgTg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "schicht-1-perkussion",
+      "kind": "new",
+      "before": "",
+      "after": "DgggSggDggggSggg",
+      "note": "Ding auf dem letzten e vor der 3 (Schritt 7)."
+    },
+    {
+      "id": "schicht-2-harmonie",
+      "kind": "new",
+      "before": "",
+      "after": "TgggSggDggggSggg",
+      "note": "Akkord (= T) auf der 1."
+    },
+    {
+      "id": "fusion-eins",
+      "kind": "pattern-fixed",
+      "before": "TgTgSgTgTgTgSgTg",
+      "after": "TgggSggDggggSTTT",
+      "note": "Fusion I = das komplette Pattern (Schicht 3): Fill-Töne 13–15 nach dem Slap."
+    },
+    {
+      "id": "fusion-zwei",
+      "kind": "no-graphic",
+      "before": "TgTTSTTgTgTTSTgT",
+      "after": "TgTTSTTgTgTTSTgT",
+      "note": "Kein Gegenstück in den Grafiken."
+    },
+    {
+      "id": "fusion-paradiddle",
+      "kind": "no-graphic",
+      "before": "TgTgSgTgTgTgSgTg",
+      "after": "TgTgSgTgTgTgSgTg",
+      "note": "Kein Gegenstück in den Grafiken."
+    }
+  ],
+  "unclear": [
+    "lowerthird_tag31_melodie_freiraum zeigt freie Melodielinien über Takt 3+4 (\"jedes Mal anders\") — improvisiert, kein festes Pattern, daher kein Preset.",
+    "In pattern_komplett ist das Ding auf Schritt 7 nur als blasser Kreis ohne Beschriftung gezeichnet; Schicht-1-Grafik und Kursbuch bestätigen Ding → D."
+  ]
+}

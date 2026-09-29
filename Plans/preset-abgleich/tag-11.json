@@ -1,0 +1,59 @@
+{
+  "day": 11,
+  "sources": [
+    "content/rhythmusfundament/tag-11.md (◇ DEINE PRAXIS)"
+  ],
+  "presets": [
+    {
+      "id": "hoeren-basis",
+      "label": "Höre den eigenen Klang",
+      "hint": "Vierer mit Tonfeld — höre jeden Ton bis zu Ende",
+      "pattern": "TgggggggSggggggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "atmen-in-die-pause",
+      "label": "Atmen in die Pause",
+      "hint": "Pause auf 2, 3 wird zum Atemzug",
+      "pattern": "TgggggggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 52
+    },
+    {
+      "id": "freispiel-luft",
+      "label": "Freies Spiel · Luft",
+      "hint": "5 Minuten — weit, leicht, durchlässig",
+      "pattern": "TgggggggTggggggg",
+      "handsatz": "frei",
+      "bpm": 52
+    }
+  ],
+  "changes": [
+    {
+      "id": "hoeren-basis",
+      "kind": "no-graphic",
+      "before": "TgggggggSggggggg (16n) · „Höre den eigenen Klang“",
+      "after": "TgggggggSggggggg (16n) · „Höre den eigenen Klang“",
+      "note": "Kein Gegenstück im Text (Tag 11 = Hören, Notizen, freies Spiel)."
+    },
+    {
+      "id": "atmen-in-die-pause",
+      "kind": "no-graphic",
+      "before": "TgggggggggggSggg (16n) · „Atmen in die Pause“",
+      "after": "TgggggggggggSggg (16n) · „Atmen in die Pause“",
+      "note": "Kein Gegenstück im Text; Hint sagt „Pause auf 2, 3“, Muster hat dort Ghostnotes."
+    },
+    {
+      "id": "freispiel-luft",
+      "kind": "no-graphic",
+      "before": "TgggggggTggggggg (16n) · „Freies Spiel · Luft“",
+      "after": "TgggggggTggggggg (16n) · „Freies Spiel · Luft“",
+      "note": "Text: freies Spiel unter Luft, ohne Handsatz."
+    }
+  ],
+  "unclear": [
+    "Praxistext hat keine Rhythmusübung (Zuhören, Notieren, 5 min freies Spiel). hoeren-basis/atmen-in-die-pause sind erfunden — behalten?",
+    "atmen-in-die-pause: Hint „Pause auf 2, 3“ widerspricht dem eigenen Muster (Ghostnotes statt Pausen). Entweder Muster „Tggg........Sggg“ mit echten Pausen auf 2 und 3 oder Hint anpassen."
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "day": 13,
+  "presets": [
+    {
+      "id": "basis",
+      "label": "Basisrhythmus",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "label": "Stufe 1 perkussiv · 1 Slap",
+      "hint": "Takt 4 — Slap auf dem letzten e vor der 1",
+      "pattern": "DgggSgggggggSggS",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "label": "Stufe 1 melodisch · 1 Tonfeld",
+      "pattern": "DgggSgggggggSggT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "label": "Stufe 2 perkussiv · 2 Slaps",
+      "pattern": "DgggSgggggggSgSS",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "label": "Stufe 2 melodisch · 2 Tonfelder",
+      "pattern": "DgggSgggggggSgTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "label": "Stufe 3 perkussiv · 3 Slaps",
+      "pattern": "DgggSgggggggSSSS",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "label": "Stufe 3 melodisch · 3 Tonfelder",
+      "pattern": "DgggSgggggggSTTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "basis",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "kind": "label-fixed",
+      "before": "hint: Takt 4 — Slap-Sechzehntel vor der 4",
+      "after": "hint: Takt 4 — Slap auf dem letzten e vor der 1",
+      "note": "Muster stimmt; der Slap sitzt laut Grafik auf Schritt 15 (letztes e nach der 4), nicht vor der 4 — nur der Hint war falsch."
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "kind": "unchanged"
+    }
+  ],
+  "sources": [
+    "grafiken/tag-13/overview_tag13_vom_zaehlen_zum_fuellen.png",
+    "grafiken/tag-13/lowerthird_tag13_basisrhythmus_hs1.png",
+    "grafiken/tag-13/lowerthird_tag13_stufe1_perkussiv_hs1.png",
+    "grafiken/tag-13/lowerthird_tag13_stufe1_melodisch_hs1.png",
+    "grafiken/tag-13/lowerthird_tag13_stufe2_perkussiv_hs1.png",
+    "grafiken/tag-13/lowerthird_tag13_stufe2_melodisch_hs1.png",
+    "grafiken/tag-13/lowerthird_tag13_stufe3_perkussiv_hs1.png",
+    "grafiken/tag-13/lowerthird_tag13_stufe3_melodisch_hs1.png"
+  ],
+  "unclear": []
+}

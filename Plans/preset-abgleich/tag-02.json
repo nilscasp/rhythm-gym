@@ -1,0 +1,139 @@
+{
+  "day": 2,
+  "sources": [
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag02_slap_auf_der_drei.png",
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag02_vom_viertel_zum_sechzehntel.png"
+  ],
+  "presets": [
+    {
+      "id": "slap-3-rl",
+      "label": "Vierer · Slap 3 · R – L",
+      "hint": "Ding 1 · Slap 3 · Ghostnotes 2 und 4",
+      "pattern": "DgSg",
+      "handsatz": "R-L",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-3-lr",
+      "label": "Vierer · Slap 3 · L – R",
+      "pattern": "DgSg",
+      "handsatz": "L-R",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-3-rrll",
+      "label": "Vierer · Slap 3 · R – R – L – L",
+      "pattern": "DgSg",
+      "handsatz": "RR-LL",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-3-llrr",
+      "label": "Vierer · Slap 3 · L – L – R – R",
+      "pattern": "DgSg",
+      "handsatz": "LL-RR",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-3-paradiddle",
+      "label": "Vierer · Slap 3 · Paradiddle",
+      "pattern": "DgSgDgSg",
+      "handsatz": "paradiddle",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "viertel",
+      "label": "Viertel · Ding 1 · Slap 3",
+      "hint": "4 Schläge · derselbe Puls, gleich feiner geteilt",
+      "pattern": "DgSg",
+      "handsatz": "R-L",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "achtel",
+      "label": "Achtel · Ding 1 · Slap 3",
+      "hint": "8 Schläge · Ding und Slap bleiben an ihrem Platz",
+      "pattern": "DgggSggg",
+      "handsatz": "R-L",
+      "bpm": 60,
+      "subdivision": "8n"
+    },
+    {
+      "id": "sechzehntel",
+      "label": "Sechzehntel · Ding 1 · Slap 3",
+      "hint": "Dichte 16 · alle Sechzehntel als Ghostnote",
+      "pattern": "DgggggggSggggggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "slap-3-rl",
+      "kind": "pattern-fixed",
+      "before": "gggggggSgggggggg (16n) · „Vierer · Slap auf 3 · R – L“",
+      "after": "DgSg (4n) · „Vierer · Slap 3 · R – L“",
+      "note": "Bisher kaputt: kein Ding, Slap auf Schritt 7 („…“.slice-Fehler). Grafik: Ding 1 · Slap 3 · Ghost 2/4. Label auf ≤32 Zeichen vereinheitlicht."
+    },
+    {
+      "id": "slap-3-lr",
+      "kind": "pattern-fixed",
+      "before": "gggggggSgggggggg (16n) · „Vierer · Slap auf 3 · L – R“",
+      "after": "DgSg (4n) · „Vierer · Slap 3 · L – R“",
+      "note": "wie slap-3-rl"
+    },
+    {
+      "id": "slap-3-rrll",
+      "kind": "pattern-fixed",
+      "before": "gggggggSgggggggg (16n) · „Vierer · Slap auf 3 · R – R – L – L“",
+      "after": "DgSg (4n) · „Vierer · Slap 3 · R – R – L – L“",
+      "note": "wie slap-3-rl; Label war 35 Zeichen"
+    },
+    {
+      "id": "slap-3-llrr",
+      "kind": "pattern-fixed",
+      "before": "gggggggSgggggggg (16n) · „Vierer · Slap auf 3 · L – L – R – R“",
+      "after": "DgSg (4n) · „Vierer · Slap 3 · L – L – R – R“",
+      "note": "wie slap-3-rl; Label war 35 Zeichen"
+    },
+    {
+      "id": "slap-3-paradiddle",
+      "kind": "pattern-fixed",
+      "before": "gggggggSgggggggg (16n) · „Vierer · Slap auf 3 · Paradiddle“",
+      "after": "DgSgDgSg (4n) · „Vierer · Slap 3 · Paradiddle“",
+      "note": "8 Schläge, damit der Paradiddle vollständig läuft (Slap auf jeder 3)"
+    },
+    {
+      "id": "viertel",
+      "kind": "new",
+      "before": "",
+      "after": "DgSg (4n) · „Viertel · Ding 1 · Slap 3“",
+      "note": "Erste Zeile der Grafik „Vom Viertel zum Sechzehntel“ — Startpunkt von Teil 2 vor Achtel/Sechzehntel (Klang = slap-3-rl)."
+    },
+    {
+      "id": "achtel",
+      "kind": "pattern-fixed",
+      "before": "DgggggggSggggggg (16n) · „Achtel · Ding 1 · Slap 3“",
+      "after": "DgggSggg (8n) · „Achtel · Ding 1 · Slap 3“",
+      "note": "Grafik: 8 Schläge 1 und 2 und …, Ding auf 1, Slap auf 3 → 8n. Bisher identisch mit „sechzehntel“ (16n), Hint behauptete schon 8n."
+    },
+    {
+      "id": "sechzehntel",
+      "kind": "unchanged",
+      "before": "DgggggggSggggggg (16n) · „Sechzehntel · Ding 1 · Slap 3“",
+      "after": "DgggggggSggggggg (16n) · „Sechzehntel · Ding 1 · Slap 3“",
+      "note": "Grafik: Ding 1, Slap auf „3“ (Schritt 8), alle übrigen Ghost — stimmt."
+    }
+  ],
+  "unclear": [
+    "Grundsatzentscheidung Viertel: Die Grafik zeigt nur 4 Kreise mit Zählung „1 2 3 4“ (Tag 2 bestätigt: derselbe Puls, erst danach Achtel/Sechzehntel). Vorschlag daher subdivision 4n mit 4 Schritten (Paradiddle 8 Schritte, sonst läuft nur R-L-R-R). Bei unverändert 60 BPM heißt das 1 Schlag pro Sekunde statt bisher 4 — bitte gegen das Video-Tempo hören und ggf. BPM anheben. Alternative mit identischem Klang: 16n + Muster viermal wiederholt bei BPM/4.",
+    "Player-Lücke: DayPlayer liefert bei 4n nur die Zählsilben „1 2 3 4“ (countingSyllables, kein Wiederholen) — bei 8-Schritt-Mustern (Paradiddle, Beat↔Offbeat) bleibt die zweite Hälfte der Zählleiste leer. Kleiner Fix in DayPlayer.tsx nötig, analog zum 8t-Zweig.",
+    "Neues Preset „viertel“ ist klanglich identisch mit slap-3-rl — behalten (klare Dreierfolge Viertel/Achtel/Sechzehntel im Switcher) oder weglassen und Kapitel auf slap-3-rl zeigen lassen?"
+  ]
+}

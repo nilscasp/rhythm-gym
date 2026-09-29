@@ -1,0 +1,79 @@
+{
+  "day": 39,
+  "sources": [
+    "grafiken/tag-39/overview_tag39_dritte_ebene_v1.png",
+    "grafiken/tag-39/lowerthird_tag39_phase1_linke_hand_v1.png",
+    "grafiken/tag-39/lowerthird_tag39_bogen_1_2_v1.png",
+    "grafiken/tag-39/lowerthird_tag39_bogen_3_6_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "phase-1-anker",
+      "label": "Phase 1 · Der perkussive Anker",
+      "hint": "Ding auf 1, Slap auf 2, dazwischen die Wiederholung",
+      "pattern": "D..S........",
+      "wiederholung": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-2-ein-akkord",
+      "label": "Phase 2 · Ein einziger Akkord",
+      "hint": "Akkord auf 1 · 3 · 4 · Slap auf 2 · darunter die Wiederholung",
+      "pattern": "T..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-3-motiv-1",
+      "label": "Phase 3 · Motiv 1 · zwei Akkorde",
+      "hint": "Akkord A in Bogen 1, Akkord B in Bogen 2",
+      "pattern": "T..S..T..T..T..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-4-motiv-2",
+      "label": "Phase 4 · Motiv 2 · drei Tonfelder",
+      "hint": "Einzeltöne X · Y · Z auf 1 · 3 · 4 · Slap auf 2 · darunter die Wiederholung",
+      "pattern": "T..S..T..T..T..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "phase-1-anker",
+      "kind": "unchanged",
+      "note": "lowerthird phase1_linke_hand"
+    },
+    {
+      "id": "phase-2-ein-akkord",
+      "kind": "unchanged",
+      "note": "Akkord + Ding teilen Schritt 0 → T (siehe unclear)"
+    },
+    {
+      "id": "phase-3-motiv-1",
+      "kind": "unchanged",
+      "note": "bogen_1_2"
+    },
+    {
+      "id": "phase-4-motiv-2",
+      "kind": "label-fixed",
+      "before": "Tonfeld auf 1 übernimmt das Ding, Slap bleibt auf 2",
+      "after": "Einzeltöne X · Y · Z auf 1 · 3 · 4, darunter Ding und Slap",
+      "note": "Hint korrigiert: bogen_3_6 zeigt Ding weiterhin unter X auf der 1 (Untertitel „darunter Ding · Slap · Wiederholung“). Muster unverändert."
+    }
+  ],
+  "unclear": [
+    "Schritt 0 hat in Phase 2–4 Ding (links) UND Akkord/Einzelton (rechts) gleichzeitig; es gibt kein Zeichen für D+T. Aktuell T (Ding fällt weg); Tag 40 phase-4 löst denselben Fall mit D. Einheitlich entscheiden.",
+    "phase-4-motiv-2 Handsatz R-L — Grafik nennt keinen Handsatz; 'frei' wäre konsistent."
+  ]
+}

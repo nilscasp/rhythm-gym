@@ -1,0 +1,58 @@
+{
+  "day": 6,
+  "sources": [
+    "content/rhythmusfundament/tag-6.md (◇ DEINE PRAXIS)"
+  ],
+  "presets": [
+    {
+      "id": "pattern-basis",
+      "label": "Pattern · Ding · Tonfeld · Slap",
+      "hint": "Vier Bögen mit Tonfeld-Antwort",
+      "pattern": "DgggTgggSgggTggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "pattern-verdichtet",
+      "label": "Pattern verdichtet",
+      "hint": "Mehr Tonfelder auf den Off-Sechzehnteln",
+      "pattern": "DgTggTgTSgTggTgT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "pattern-paradiddle",
+      "label": "Pattern · Paradiddle",
+      "pattern": "DgggTgggSgggTggg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "pattern-basis",
+      "kind": "no-graphic",
+      "before": "DgggTgggSgggTggg (16n) · „Pattern · Ding · Tonfeld · Slap“",
+      "after": "DgggTgggSgggTggg (16n) · „Pattern · Ding · Tonfeld · Slap“",
+      "note": "Kein Gegenstück im Text (Text kennt kein Tonfeld auf 2/4, keinen Slap auf 3)."
+    },
+    {
+      "id": "pattern-verdichtet",
+      "kind": "no-graphic",
+      "before": "DgTggTgTSgTggTgT (16n) · „Pattern verdichtet“",
+      "after": "DgTggTgTSgTggTgT (16n) · „Pattern verdichtet“",
+      "note": "Kein Gegenstück im Text."
+    },
+    {
+      "id": "pattern-paradiddle",
+      "kind": "no-graphic",
+      "before": "DgggTgggSgggTggg (16n) · „Pattern · Paradiddle“",
+      "after": "DgggTgggSgggTggg (16n) · „Pattern · Paradiddle“",
+      "note": "Kein Gegenstück im Text."
+    }
+  ],
+  "unclear": [
+    "Widerspruch: Alle drei Presets (D·T·S·T) kommen im Praxistext nicht vor. Der Text beschreibt: Station 1 Vierer mit Akzent auf 4 (Faust · gn · gn · Akzent, Rückseite), Station 2 Zwei-Takt-Gerüst „Ding gn gn Akzent | Ding gn gn gn“ (Vorschlag DggSDggg / 4n), Station 3 Trance-Pattern (rechte Hand durchgehend Puls, linke Rhythmus) plus Bass auf der 1, Station 4 dasselbe durch die Tonleiter. Ich habe nichts geändert, weil der Text die Klangart des „Akzents“ und das Trance-Pattern nicht genau festlegt — bitte am Video entscheiden.",
+    "Ist der „Akzent“ in Station 1/2 ein Slap (S) oder ein Tonfeld (T)?"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "day": 4,
+  "mediaDurationSec": 741.699292,
+  "chapters": [
+    {
+      "label": "Einführung · Tonleiter & Rhythmus",
+      "start": 0
+    },
+    {
+      "label": "Handsatz 1 · R – L",
+      "start": 69,
+      "presetId": "tonleiter-rl"
+    },
+    {
+      "label": "Handsatz 2 · L – R",
+      "start": 198,
+      "presetId": "tonleiter-lr"
+    },
+    {
+      "label": "Handsatz 3 · R–R–L–L",
+      "start": 296,
+      "presetId": "tonleiter-rrll"
+    },
+    {
+      "label": "Handsatz 4 · L–L–R–R",
+      "start": 407,
+      "presetId": "tonleiter-llrr"
+    },
+    {
+      "label": "Handsatz 5 · Paradiddle",
+      "start": 496,
+      "presetId": "tonleiter-paradiddle"
+    }
+  ]
+}

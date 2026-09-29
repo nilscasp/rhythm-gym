@@ -1,0 +1,90 @@
+{
+  "day": 8,
+  "sources": [
+    "content/rhythmusfundament/tag-8.md (◇ DEINE PRAXIS)"
+  ],
+  "presets": [
+    {
+      "id": "fingerkraft",
+      "label": "Station 1 · Fingerkraft",
+      "hint": "Alle fünf Finger einzeln auf einem Tonfeld",
+      "pattern": "TTTTTTTTTTTTTTTT",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "schulter-arm",
+      "label": "Station 2 · Schulter & Arm",
+      "hint": "Große Bewegung — Tonfeld weit weg, dann nahe",
+      "pattern": "TgggTgggTgggTggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "tonfeld-praezision",
+      "label": "Station 3 · Tonfeld-Präzision",
+      "hint": "Rand, Kern, Übergang — gezielt treffen",
+      "pattern": "TgTgTgTgTgTgTgTg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "tonleiter-fuenf-finger",
+      "label": "Station 4 · Tonleiter · alle 5 Finger",
+      "hint": "Tonleiter hoch und zurück",
+      "pattern": "TgggTgggTgggTggg",
+      "handsatz": "frei",
+      "bpm": 56
+    },
+    {
+      "id": "freispiel-feuer",
+      "label": "Station 5 · Freies Spiel · Feuer",
+      "hint": "5 Minuten frei — kein Pattern, der Impuls trägt",
+      "pattern": "TgggTgggTgggTggg",
+      "handsatz": "frei",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "fingerkraft",
+      "kind": "no-graphic",
+      "before": "TTTTTTTTTTTTTTTT (16n) · „Station 1 · Fingerkraft“",
+      "after": "TTTTTTTTTTTTTTTT (16n) · „Station 1 · Fingerkraft“",
+      "note": "Text: Fingerkraft ohne Rhythmusangabe."
+    },
+    {
+      "id": "schulter-arm",
+      "kind": "no-graphic",
+      "before": "TgggTgggTgggTggg (16n) · „Station 2 · Schulter & Arm“",
+      "after": "TgggTgggTgggTggg (16n) · „Station 2 · Schulter & Arm“",
+      "note": "Text: Koordination ohne Rhythmusangabe."
+    },
+    {
+      "id": "tonfeld-praezision",
+      "kind": "no-graphic",
+      "before": "TgTgTgTgTgTgTgTg (16n) · „Station 3 · Tonfeld-Präzision“",
+      "after": "TgTgTgTgTgTgTgTg (16n) · „Station 3 · Tonfeld-Präzision“",
+      "note": "Text: Präzision ohne Rhythmusangabe."
+    },
+    {
+      "id": "tonleiter-fuenf-finger",
+      "kind": "no-graphic",
+      "before": "TgggTgggTgggTggg (16n) · „Station 4 · Tonleiter · alle 5 Finger“",
+      "after": "TgggTgggTgggTggg (16n) · „Station 4 · Tonleiter · alle 5 Finger“",
+      "note": "Text: Tonleiter hinauf und zurück. Label 37 Zeichen (> 32)."
+    },
+    {
+      "id": "freispiel-feuer",
+      "kind": "no-graphic",
+      "before": "TgggTgggTgggTggg (16n) · „Station 5 · Freies Spiel · Feuer“",
+      "after": "TgggTgggTgggTggg (16n) · „Station 5 · Freies Spiel · Feuer“",
+      "note": "Text: frei, „ohne festen Rhythmus“."
+    }
+  ],
+  "unclear": [
+    "Keine Station nennt ein Muster; alle Presets sind Platzhalter. Kein klarer Widerspruch, daher unverändert.",
+    "Label „Station 4 · Tonleiter · alle 5 Finger“ ist 37 Zeichen — kürzen, z. B. „Station 4 · Tonleiter 5 Finger“?",
+    "Freies Spiel (Feuer) sagt „ohne festen Rhythmus“ — ein Preset mit festem Muster passt nur als Puls-Begleitung; ggf. Hint anpassen."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "day": 41,
+  "sources": [
+    "Begleitbuch: overview_tag41_das_motiv_beginnt_zu_erzaehlen_v1.svg (→ PNG)",
+    "content/rhythmusfundament/tag-41.md"
+  ],
+  "presets": [
+    {
+      "id": "phase-1-motiv-1",
+      "label": "Phase 1 · Motiv 1 · Bogen 1+2",
+      "hint": "Ding auf 1, Tonfeld auf 3 · 4, Slap auf 2, dazwischen die Wiederholung",
+      "pattern": "D..S..T..T..D..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-4-stelle",
+      "label": "Phase 4 · Die eine Stelle variiert",
+      "hint": "Schlusston von Bogen 2 als Wiederholung — wie im Video",
+      "pattern": "D..S..T..T..D..S..T..TTT",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-6-break",
+      "label": "Phase 6 · Bögen aneinander + Break",
+      "hint": "Am Ende ein ausgelassener Schlag — eine Mikropause",
+      "pattern": "D..S..T..T..D..S..T.....",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPP.PP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "phase-1-motiv-1",
+      "kind": "unchanged",
+      "note": "Grafik: Akzente auf 1·3·4, Wiederholung durchlaufend — deckt sich bis auf den Slap auf 2 (siehe unclear)"
+    },
+    {
+      "id": "phase-4-stelle",
+      "kind": "unchanged",
+      "note": "Kreis 4 · „Ein-Ton-Wiederholung“ auf der 4 (drei gestapelte Punkte) ≈ TTT auf 4·und·die"
+    },
+    {
+      "id": "phase-6-break",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPSPPTPP.PP",
+      "after": "TPPSPPTPPTPPTPPSPPTPP.PP",
+      "note": "Phase 6 nur im Text"
+    }
+  ],
+  "unclear": [
+    "Grafik zeigt „HZ 2 still“ und keinen Slap; Fußzeile: „perkussive Ebene deiner Wahl“. Presets haben Slap auf 2. Streng nach Grafik wäre Motiv 1 = 'TPPPPPTPPTPP' ×2 — Slap behalten (Tag-39-Anker, Video) oder entfernen?",
+    "Grafik zeigt ein 12er-Panel „Bogen 1+2“ mit der Variation auf der 4 — unklar, ob die Variation in beiden Bögen oder nur in Bogen 2 steht (Preset: nur Bogen 2). Ein-Ton-Wiederholung = wie viele Anschläge? (3 Punkte gestapelt → TTT angenommen)",
+    "Kreis 2 (tiefer) und Kreis 3 (höher) unterscheiden sich nur in der Tonhöhe → kein eigenes Preset nötig."
+  ]
+}

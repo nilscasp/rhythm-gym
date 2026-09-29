@@ -1,0 +1,107 @@
+{
+  "day": 23,
+  "sources": [
+    "grafiken/tag-23/overview_tag23_teil_1_v2.png",
+    "grafiken/tag-23/overview_tag23_teil_2_v2.png",
+    "grafiken/tag-23/overview_tag23_teil_3_v2.png",
+    "grafiken/tag-23/lowerthird_tag23_teil_*_v2.png",
+    "grafiken/tag-23/tag23_uebersicht.png (ältere Fassung)",
+    "grafiken/tag-23/overview_tag23_teil_1.png (ältere Fassung)"
+  ],
+  "presets": [
+    {
+      "id": "puls-achtel",
+      "label": "Stufe 1 · rechts auf Achteln",
+      "hint": "rechte Hand pulsiert auf jedem Achtel · linke Hand trägt den Groove",
+      "pattern": "D.g.S.g.g.g.S.g.",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "puls-offbeat",
+      "label": "Stufe 2 · rechts auf Offbeats",
+      "hint": "rechte Hand sitzt auf jedem „e“ · linke Hand bleibt im Groove",
+      "pattern": "Dg.gSg.g.g.gSg.g",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "puls-sechzehntel",
+      "label": "Stufe 3 · rechts alle 16tel",
+      "hint": "rechte Hand füllt jeden Schlag · linke Hand trägt den Groove",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "dialog-basis",
+      "label": "Dialog · Basis",
+      "pattern": "DgggTgSgggggTgSg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "dialog-melodisch",
+      "label": "Dialog · melodisch",
+      "pattern": "TgTgTgSgTgTgTgSg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "dialog-paradiddle",
+      "label": "Dialog · Paradiddle",
+      "pattern": "DgggTgSgggggTgSg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "puls-achtel",
+      "kind": "new",
+      "before": "",
+      "after": "D.g.S.g.g.g.S.g.",
+      "note": "Teil 1 · Achtel. R-Puls (heller Kreis) = g; graue Ghostnotes der Groove-Hand sind laut Legende „still“ und laut Kursbuch spielt die linke Hand nur Ding·Slap·still·Slap → Pause."
+    },
+    {
+      "id": "puls-offbeat",
+      "kind": "new",
+      "before": "",
+      "after": "Dg.gSg.g.g.gSg.g",
+      "note": "Teil 2 · Offbeat, R auf allen acht „e“ (v2-Grafik + Kursbuch). Ältere Grafik (tag23_uebersicht) zeigt nur 4 „e“ direkt nach den Hauptzahlen."
+    },
+    {
+      "id": "puls-sechzehntel",
+      "kind": "new",
+      "before": "",
+      "after": "DgggSgggggggSggg",
+      "note": "Teil 3 · alle 16tel."
+    },
+    {
+      "id": "dialog-basis",
+      "kind": "no-graphic",
+      "before": "DgggTgSgggggTgSg",
+      "after": "DgggTgSgggggTgSg",
+      "note": "Kein Gegenstück: Grafiken zeigen keinen Dialog mit Tonfeldern. Nicht gelöscht, markiert."
+    },
+    {
+      "id": "dialog-melodisch",
+      "kind": "no-graphic",
+      "before": "TgTgTgSgTgTgTgSg",
+      "after": "TgTgTgSgTgTgTgSg",
+      "note": "Kein Gegenstück in den Grafiken."
+    },
+    {
+      "id": "dialog-paradiddle",
+      "kind": "no-graphic",
+      "before": "DgggTgSgggggTgSg",
+      "after": "DgggTgSgggggTgSg",
+      "note": "Kein Gegenstück; Handsatz wird in keiner Grafik genannt."
+    }
+  ],
+  "unclear": [
+    "Legende „Ghostnote · still“ bei der Groove-Hand: stumm (Bewegung) oder hörbar leise? Ich habe stumm (.) angenommen, sonst wären alle drei Stufen identisch (DgggSgggggggSggg) und der Unterschied Achtel/Offbeat/16tel ginge im Player verloren.",
+    "Zwei Grafik-Generationen: v2 (R = heller Puls) vs. ältere tag23_uebersicht/tag23_teil_*/overview_tag23_teil_* (R = TON, Tonleiter-Wanderung; Teil 2 nur 4 Schläge auf dem ersten „e“). Welche lief im Video? Falls die alte: R-Schläge als T statt g, Teil 2 = DT..ST...T..ST.. (bzw. mit T auf 1,5,9,13).",
+    "Handsatz R-L ist nur Platzhalter — die Übung trennt die Hände (rechts Puls, links Groove), das bildet kein Handsatz-Key ab."
+  ]
+}

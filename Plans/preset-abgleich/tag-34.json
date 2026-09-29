@@ -1,0 +1,127 @@
+{
+  "day": 34,
+  "sources": [
+    "grafiken/tag-34/overview_tag34_die_drei_tritt_ein_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_dreier_basis_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_handsatz_1_hand_to_hand_r_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_handsatz_2_hand_to_hand_l_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_tonfelder_basis_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_tonfelder_handsatz_1_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_tonfelder_handsatz_2_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_entkopplung_v1.png",
+    "grafiken/tag-34/lowerthird_tag34_entkopplung_v2.png"
+  ],
+  "presets": [
+    {
+      "id": "station-1-drei",
+      "label": "Station 1 · Die Drei einsaugen",
+      "hint": "Ding auf jeder 1 der Dreiergruppe, Handsatz wechselt je Gruppe",
+      "pattern": "DggDgg",
+      "handsatz": "R-L",
+      "bpm": 36,
+      "subdivision": "8t"
+    },
+    {
+      "id": "station-2-sechs",
+      "label": "Station 2 · Verdoppeln auf Sechs",
+      "hint": "Nur das erste Ding, der Rest läuft leise mit",
+      "pattern": "Dggggg",
+      "handsatz": "R-L",
+      "bpm": 36,
+      "subdivision": "8t"
+    },
+    {
+      "id": "station-3-zwoelfer",
+      "label": "Station 3 · Der Zwölfer-Takt",
+      "hint": "Ding auf 1, Slap auf 2 und 4, Bogen 3 still",
+      "pattern": "DggSgggggSgg",
+      "handsatz": "R-L",
+      "bpm": 36,
+      "subdivision": "8t"
+    },
+    {
+      "id": "station-4-tonfelder",
+      "label": "Station 4 · Slaps wandern auf Tonfelder",
+      "hint": "Probier die komischsten Kombinationen",
+      "pattern": "DggTgggggTgg",
+      "handsatz": "R-L",
+      "bpm": 36,
+      "subdivision": "8t"
+    },
+    {
+      "id": "station-5-links",
+      "label": "Station 5 · Die andere Hand startet",
+      "hint": "Derselbe Zwölfer, mit links beginnend",
+      "pattern": "DggSgggggSgg",
+      "handsatz": "L-R",
+      "bpm": 36,
+      "subdivision": "8t"
+    },
+    {
+      "id": "station-5-tonfelder-links",
+      "label": "Station 5 · Tonfelder, links",
+      "hint": "Hand-to-Hand links beginnend",
+      "pattern": "DggTgggggTgg",
+      "handsatz": "L-R",
+      "bpm": 36,
+      "subdivision": "8t"
+    },
+    {
+      "id": "station-6-entkoppeln",
+      "label": "Station 6 · Entkoppeln",
+      "hint": "Linke Hand durchgehend, rechte verteilt Bass · Mitte · Melodie",
+      "pattern": "T..T.....T..",
+      "wiederholung": "gggggggggggg",
+      "handsatz": "frei",
+      "bpm": 36,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "station-1-drei",
+      "kind": "no-graphic",
+      "before": "DggDgg",
+      "after": "DggDgg",
+      "note": "Keine Grafik; Text Station 1 stimmt"
+    },
+    {
+      "id": "station-2-sechs",
+      "kind": "no-graphic",
+      "before": "Dggggg",
+      "after": "Dggggg",
+      "note": "Keine Grafik; Text Station 2 stimmt"
+    },
+    {
+      "id": "station-3-zwoelfer",
+      "kind": "unchanged",
+      "note": "overview + dreier_basis + handsatz_1"
+    },
+    {
+      "id": "station-4-tonfelder",
+      "kind": "unchanged",
+      "note": "tonfelder_basis + tonfelder_handsatz_1"
+    },
+    {
+      "id": "station-5-links",
+      "kind": "unchanged",
+      "note": "handsatz_2_hand_to_hand_l"
+    },
+    {
+      "id": "station-5-tonfelder-links",
+      "kind": "new",
+      "after": "DggTgggggTgg",
+      "note": "tonfelder_handsatz_2 (Handsatz 2, L-R)"
+    },
+    {
+      "id": "station-6-entkoppeln",
+      "kind": "new",
+      "after": "TggTgggggTgg",
+      "note": "entkopplung v1/v2: L auf allen 12 (g), rechts Bass T·1↔T·2 auf 1, Mitte auf 2, Melodie auf 4"
+    }
+  ],
+  "unclear": [
+    "Entkoppeln: Grafik zeigt linke Hand auf allen 12 Schritten — kein Handsatz-Key passt exakt, daher 'frei'. Text sagt dagegen, eine Hand trägt Ding·Slap·still·Slap — Grafik zeigt nur Tonfelder (T) über Ghostnotes.",
+    "Station 1/2 (6er-Gruppen) ohne Grafik, nur Text."
+  ]
+}

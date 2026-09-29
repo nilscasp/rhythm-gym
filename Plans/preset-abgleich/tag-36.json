@@ -1,0 +1,31 @@
+{
+  "day": 36,
+  "sources": [
+    "grafiken/tag-36/koerper_konzept_v1.png",
+    "grafiken/tag-36/koerper_konzept_v2.png",
+    "grafiken/tag-36/koerper_konzept_v3.png"
+  ],
+  "presets": [
+    {
+      "id": "unterlage",
+      "label": "Unterlage für deinen Körper",
+      "hint": "Der Zwölfer aus Tag 34 — wie lang dein Körper wird, bestimmt dein Ohr",
+      "pattern": "DggSgggggSgg",
+      "handsatz": "R-L",
+      "bpm": 56,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "unterlage",
+      "kind": "no-graphic",
+      "before": "DggSgggggSgg",
+      "after": "DggSgggggSgg",
+      "note": "Körper-Konzeptgrafik ohne Schrittraster"
+    }
+  ],
+  "unclear": [
+    "Text (Phase 1–5) nennt keine Unterlage; Körper sind frei gewählt. Preset = Zwölfer aus Tag 34 als Begleitung — passt, aber nicht belegt."
+  ]
+}

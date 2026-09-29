@@ -1,0 +1,94 @@
+{
+  "day": 1,
+  "sources": [
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag01_der_vierer.png"
+  ],
+  "presets": [
+    {
+      "id": "vierer-rl",
+      "label": "Vierer · R – L",
+      "hint": "Ding auf 1, Ghostnotes 2/3/4 · Wechselschlag rechts beginnend",
+      "pattern": "Dggg",
+      "handsatz": "R-L",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "vierer-lr",
+      "label": "Vierer · L – R",
+      "hint": "Wechselschlag links beginnend",
+      "pattern": "Dggg",
+      "handsatz": "L-R",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "vierer-rrll",
+      "label": "Vierer · R – R – L – L",
+      "hint": "Doppelschlag rechts → links",
+      "pattern": "Dggg",
+      "handsatz": "RR-LL",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "vierer-llrr",
+      "label": "Vierer · L – L – R – R",
+      "hint": "Doppelschlag links → rechts",
+      "pattern": "Dggg",
+      "handsatz": "LL-RR",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "vierer-paradiddle",
+      "label": "Vierer · Paradiddle",
+      "hint": "R – L – R – R – L – R – L – L",
+      "pattern": "DgggDggg",
+      "handsatz": "paradiddle",
+      "bpm": 60,
+      "subdivision": "4n"
+    }
+  ],
+  "changes": [
+    {
+      "id": "vierer-rl",
+      "kind": "pattern-fixed",
+      "before": "Dggggggggggggggg (16n) · „Vierer · R – L“",
+      "after": "Dggg (4n) · „Vierer · R – L“",
+      "note": "Grafik: Ding 1, Ghost 2/3/4 — ein Takt, vier Schläge. Bisher Ding nur alle 16 Schläge."
+    },
+    {
+      "id": "vierer-lr",
+      "kind": "pattern-fixed",
+      "before": "Dggggggggggggggg (16n) · „Vierer · L – R“",
+      "after": "Dggg (4n) · „Vierer · L – R“",
+      "note": "Grafik: Ding 1, Ghost 2/3/4 — ein Takt, vier Schläge. Bisher Ding nur alle 16 Schläge."
+    },
+    {
+      "id": "vierer-rrll",
+      "kind": "pattern-fixed",
+      "before": "Dggggggggggggggg (16n) · „Vierer · R – R – L – L“",
+      "after": "Dggg (4n) · „Vierer · R – R – L – L“",
+      "note": "Grafik: Ding 1, Ghost 2/3/4 — ein Takt, vier Schläge. Bisher Ding nur alle 16 Schläge."
+    },
+    {
+      "id": "vierer-llrr",
+      "kind": "pattern-fixed",
+      "before": "Dggggggggggggggg (16n) · „Vierer · L – L – R – R“",
+      "after": "Dggg (4n) · „Vierer · L – L – R – R“",
+      "note": "Grafik: Ding 1, Ghost 2/3/4 — ein Takt, vier Schläge. Bisher Ding nur alle 16 Schläge."
+    },
+    {
+      "id": "vierer-paradiddle",
+      "kind": "pattern-fixed",
+      "before": "Dggggggggggggggg (16n) · „Vierer · Paradiddle“",
+      "after": "DgggDggg (4n) · „Vierer · Paradiddle“",
+      "note": "Zwei Vierer = 8 Schläge, damit der Paradiddle (R-L-R-R-L-R-L-L) vollständig läuft."
+    }
+  ],
+  "unclear": [
+    "Grundsatzentscheidung Viertel: Die Grafik zeigt nur 4 Kreise mit Zählung „1 2 3 4“ (Tag 2 bestätigt: derselbe Puls, erst danach Achtel/Sechzehntel). Vorschlag daher subdivision 4n mit 4 Schritten (Paradiddle 8 Schritte, sonst läuft nur R-L-R-R). Bei unverändert 60 BPM heißt das 1 Schlag pro Sekunde statt bisher 4 — bitte gegen das Video-Tempo hören und ggf. BPM anheben. Alternative mit identischem Klang: 16n + Muster viermal wiederholt bei BPM/4.",
+    "Player-Lücke: DayPlayer liefert bei 4n nur die Zählsilben „1 2 3 4“ (countingSyllables, kein Wiederholen) — bei 8-Schritt-Mustern (Paradiddle, Beat↔Offbeat) bleibt die zweite Hälfte der Zählleiste leer. Kleiner Fix in DayPlayer.tsx nötig, analog zum 8t-Zweig."
+  ]
+}

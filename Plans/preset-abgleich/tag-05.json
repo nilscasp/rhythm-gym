@@ -1,0 +1,73 @@
+{
+  "day": 5,
+  "sources": [
+    "content/rhythmusfundament/tag-5.md (◇ DEINE PRAXIS)"
+  ],
+  "presets": [
+    {
+      "id": "aufwaerts",
+      "label": "Tonleiter aufwärts · R – L",
+      "pattern": "TgggggggSggggggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "abwaerts",
+      "label": "Tonleiter abwärts · R – L",
+      "pattern": "TgggggggSggggggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "frei-quer",
+      "label": "Frei quer über die Pan",
+      "hint": "Freier Handsatz, frei gewählte Tonfelder",
+      "pattern": "TgggggggSggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "paradiddle-quer",
+      "label": "Paradiddle quer",
+      "pattern": "TgggggggSggggggg",
+      "handsatz": "paradiddle",
+      "bpm": 56
+    }
+  ],
+  "changes": [
+    {
+      "id": "aufwaerts",
+      "kind": "no-graphic",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter aufwärts · R – L“",
+      "after": "TgggggggSggggggg (16n) · „Tonleiter aufwärts · R – L“",
+      "note": "Nicht im Praxistext (nur im Untertitel „Tonleiter abwärts“)."
+    },
+    {
+      "id": "abwaerts",
+      "kind": "no-graphic",
+      "before": "TgggggggSggggggg (16n) · „Tonleiter abwärts · R – L“",
+      "after": "TgggggggSggggggg (16n) · „Tonleiter abwärts · R – L“",
+      "note": "Nicht im Praxistext (nur im Untertitel)."
+    },
+    {
+      "id": "frei-quer",
+      "kind": "no-graphic",
+      "before": "TgggggggSggggggg (16n) · „Frei quer über die Pan“",
+      "after": "TgggggggSggggggg (16n) · „Frei quer über die Pan“",
+      "note": "Kapitel „Auf Ding + freie Tonfeld-Akzente“ verweist hierauf; Text nennt es nicht explizit."
+    },
+    {
+      "id": "paradiddle-quer",
+      "kind": "no-graphic",
+      "before": "TgggggggSggggggg (16n) · „Paradiddle quer“",
+      "after": "TgggggggSggggggg (16n) · „Paradiddle quer“",
+      "note": "Kapitel „Split-Hand Fingerübung“ verweist hierauf; Text nennt keinen Paradiddle."
+    }
+  ],
+  "unclear": [
+    "Text-Grundrhythmus: Viertel-Vierer „Ding · gn · Slap · gn“ — alle vier Presets spielen Tonfeld (T) statt Ding auf der 1 und in Sechzehntel-Dichte. Wenn die 4n-Umstellung für Tag 1–4 kommt, hier analog „DgSg“/„TgSg“ in 4n?",
+    "Lücke: Station 3 „Slap auf der 4, Unterseite“ mit R-L und L-R (Muster DggS / 4n) hat kein Preset.",
+    "Lücke: Station 4 (Pan quer im Schoß, Vierer) hat kein eigenes Preset; Station 1/2 (Split-Hand) sind Technik, kein Muster.",
+    "Kapitel „Split-Hand Fingerübung“ → paradiddle-quer: passt inhaltlich nur bedingt, bitte am Video prüfen."
+  ]
+}

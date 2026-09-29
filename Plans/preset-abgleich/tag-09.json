@@ -1,0 +1,74 @@
+{
+  "day": 9,
+  "sources": [
+    "content/rhythmusfundament/tag-9.md (◇ DEINE PRAXIS)"
+  ],
+  "presets": [
+    {
+      "id": "fingerdrill",
+      "label": "Fingerdrill · alle fünf",
+      "pattern": "TTTTTTTTTTTTTTTT",
+      "handsatz": "frei",
+      "bpm": 64
+    },
+    {
+      "id": "unabhaengigkeit",
+      "label": "Unabhängigkeit · linke und rechte Hand",
+      "hint": "Linke Hand hält den Puls — rechte spielt",
+      "pattern": "TgTgTgTgTgTgTgTg",
+      "handsatz": "R-L",
+      "bpm": 64
+    },
+    {
+      "id": "fluss",
+      "label": "Fluss · weiche Tonleiter",
+      "pattern": "TgggTgggTgggTggg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    },
+    {
+      "id": "freispiel-wasser",
+      "label": "Freies Spiel · Wasser",
+      "hint": "5 Minuten — flüssig, weich, tragend",
+      "pattern": "TgggTgggTgggTggg",
+      "handsatz": "frei",
+      "bpm": 56
+    }
+  ],
+  "changes": [
+    {
+      "id": "fingerdrill",
+      "kind": "no-graphic",
+      "before": "TTTTTTTTTTTTTTTT (16n) · „Fingerdrill · alle fünf“",
+      "after": "TTTTTTTTTTTTTTTT (16n) · „Fingerdrill · alle fünf“",
+      "note": "Text Station 1: Fingerkraft, mehr Intensität."
+    },
+    {
+      "id": "unabhaengigkeit",
+      "kind": "no-graphic",
+      "before": "TgTgTgTgTgTgTgTg (16n) · „Unabhängigkeit · linke und rechte Hand“",
+      "after": "TgTgTgTgTgTgTgTg (16n) · „Unabhängigkeit · linke und rechte Hand“",
+      "note": "Kein Gegenstück im Text. Label 38 Zeichen (> 32)."
+    },
+    {
+      "id": "fluss",
+      "kind": "no-graphic",
+      "before": "TgggTgggTgggTggg (16n) · „Fluss · weiche Tonleiter“",
+      "after": "TgggTgggTgggTggg (16n) · „Fluss · weiche Tonleiter“",
+      "note": "Kein Gegenstück im Text (Paradiddle/Tonleiter nicht erwähnt)."
+    },
+    {
+      "id": "freispiel-wasser",
+      "kind": "no-graphic",
+      "before": "TgggTgggTgggTggg (16n) · „Freies Spiel · Wasser“",
+      "after": "TgggTgggTgggTggg (16n) · „Freies Spiel · Wasser“",
+      "note": "Text Station 5: frei, ohne festen Rhythmus."
+    }
+  ],
+  "unclear": [
+    "Lücke: Station 2 „Double Strokes“ mit Handsatz R-R-L-L über Ding, Rim, Rücken hat kein Preset (Vorschlag: DDDD… oder gggg… mit RR-LL).",
+    "Lücke: Station 3 Drei-Finger-Roll und Station 4 Handrotation — Technik, im 16er-Raster kaum abbildbar.",
+    "unabhaengigkeit („Linke Hand hält den Puls“) und fluss (Paradiddle) haben keine Grundlage im Text — behalten?",
+    "Label „Unabhängigkeit · linke und rechte Hand“ ist 38 Zeichen — kürzen."
+  ]
+}

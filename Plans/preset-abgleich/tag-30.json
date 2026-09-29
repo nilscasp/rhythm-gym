@@ -1,0 +1,79 @@
+{
+  "day": 30,
+  "sources": [
+    "grafiken/tag-30/overview_tag30_uebung1_wanderung.png",
+    "grafiken/tag-30/overview_tag30_uebung1_takt3_fill.png",
+    "grafiken/tag-30/lowerthird_tag30_uebung1*.png",
+    "grafiken/tag-30/overview_tag30_uebung2_basis.png",
+    "grafiken/tag-30/overview_tag30_uebung2_vierer_fill.png",
+    "grafiken/tag-30/lowerthird_tag30_uebung2.png"
+  ],
+  "presets": [
+    {
+      "id": "wandern-chronologisch",
+      "label": "Übung 1 · Akkord wandert",
+      "hint": "Akkord auf 1 wandert Bogen für Bogen: 1·3·5 → 2·4·6 → 3·5·7 …",
+      "pattern": "TgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "wandern-mit-steigerung",
+      "label": "Übung 1 · die 3 wächst",
+      "hint": "Slaps auf der 3 · ansteigende Intensität von der 3 weg",
+      "pattern": "TgggSgggSSSSSggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "wandern-vier-boegen",
+      "label": "Übung 2 · Basis pendelt",
+      "hint": "Basis pendelt 2·4 ↔ 1·3, oben: 8 · 7 · 6 · 5",
+      "pattern": "TgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 56
+    },
+    {
+      "id": "wandern-mit-melodie-fill",
+      "label": "Übung 2 · Bogen 4 mit Fill",
+      "hint": "der vierte Bogen schließt mit drei Tonfeldern",
+      "pattern": "TgggSgggggggSTTT",
+      "handsatz": "R-L",
+      "bpm": 56
+    }
+  ],
+  "changes": [
+    {
+      "id": "wandern-chronologisch",
+      "kind": "label-fixed",
+      "before": "TgggSgggggggSggg",
+      "after": "TgggSgggggggSggg",
+      "note": "Pattern stimmt. Label war 47 Zeichen (> 32) → gekürzt; Akkordfolge in den Hint. Quelltext nutzt unnötiges .slice(0,16) — beim Einbau als String-Literal schreiben."
+    },
+    {
+      "id": "wandern-mit-steigerung",
+      "kind": "pattern-fixed",
+      "before": "TgggSggggSSSSggg",
+      "after": "TgggSgggSSSSSggg",
+      "note": "Grafik zeigt auf allen vier Sechzehnteln von Takt 3 Slaps (Crescendo, Schritt 8 sehr leise gezeichnet), bisher g auf Schritt 8. Lautstärke-Crescendo nicht abbildbar."
+    },
+    {
+      "id": "wandern-vier-boegen",
+      "kind": "label-fixed",
+      "before": "TgggSgggggggSggg",
+      "after": "TgggSgggggggSggg",
+      "note": "Pattern stimmt; Label gekürzt/vereinheitlicht."
+    },
+    {
+      "id": "wandern-mit-melodie-fill",
+      "kind": "label-fixed",
+      "before": "TgggSgggggggSTTT",
+      "after": "TgggSgggggggSTTT",
+      "note": "Pattern stimmt mit Bogen 4 der Grafik überein; Label vereinheitlicht."
+    }
+  ],
+  "unclear": [
+    "Kursbuch sagt Fill auf „den letzten drei Sechzehnteln vor der 4“, die Grafik zeigt die drei Töne NACH dem Slap auf der 4 (Schritte 13–15). Preset folgt der Grafik; Kursbuchtext prüfen.",
+    "Schritt 8 im Crescendo: in der Grafik ein sehr blasser Slap-Kreis. Als S übernommen; falls er nur Ghost sein soll → TgggSggggSSSSggg (= bisheriger Stand: g auf 8, S auf 9–12)."
+  ]
+}

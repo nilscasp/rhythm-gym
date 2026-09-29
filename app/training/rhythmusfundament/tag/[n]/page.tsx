@@ -22,7 +22,7 @@ import { DayPlayer } from '../../_components/DayPlayer'
 import { DayCheck } from '../../_components/DayCheck'
 import { rowToHandpan, derivePitchMap, type PitchMap } from '../../../../lib/handpan'
 import { MarkdownBody } from '../../_components/MarkdownBody'
-import { BunnyVideoEmbed } from '../../_components/BunnyVideoEmbed'
+import { PracticeVideo } from '../../_components/PracticeVideo'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // /training/rhythmusfundament/tag/[n] — Server-Component shell.
@@ -236,9 +236,10 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
           {/* Video — wenn dieser Tag eine Bunny-GUID hat, zeigen wir's hier. */}
           {day.videoId ? (
             <section className="tag-video" aria-label="Tages-Video">
-              <BunnyVideoEmbed
+              <PracticeVideo
                 videoId={day.videoId}
                 title={`Tag ${day.number} · ${day.title}`}
+                chapters={day.chapters}
               />
             </section>
           ) : null}

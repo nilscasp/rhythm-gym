@@ -1,0 +1,93 @@
+{
+  "day": 27,
+  "sources": [
+    "grafiken/tag-27/overview_tag27_grundbogen_v1.png",
+    "grafiken/tag-27/overview_tag27_teil_1_v1.png",
+    "grafiken/tag-27/overview_tag27_teil_2_v1.png",
+    "grafiken/tag-27/overview_tag27_teil_3_v1.png",
+    "grafiken/tag-27/lowerthird_tag27_*_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "grundbogen-takt2-offen",
+      "label": "Grundbogen · Takt 2 offen",
+      "hint": "Bass alterniert · Mitte und Melodie laufen · der zweite Takt bleibt offen",
+      "pattern": "T...T.......T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "fill-takt2-ein-ton",
+      "label": "Fill Takt 2 · ein Ton",
+      "hint": "der zweite Takt öffnet sich von hinten — der erste Schlag",
+      "pattern": "T...T..T....T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "mitte-zwei-tonfelder",
+      "label": "Fill Takt 2 · zwei Töne",
+      "hint": "Bass · Mitte · Melodie · Fill (2 Töne)",
+      "pattern": "T...T.TT....T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "mitte-dreiklang",
+      "label": "Fill Takt 2 · drei Töne",
+      "hint": "Bass · Mitte · Melodie · Fill (3 Töne)",
+      "pattern": "T...TTTT....T...",
+      "wiederholung": "gggggggggggggggg",
+      "handsatz": "frei",
+      "bpm": 60
+    },
+    {
+      "id": "mitte-fluss",
+      "label": "Mitte · Fluss",
+      "pattern": "DgggSTTTTTTTSggg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "grundbogen-takt2-offen",
+      "kind": "new",
+      "before": "",
+      "after": "TgggTgggggggTggg",
+      "note": "Grundbogen."
+    },
+    {
+      "id": "fill-takt2-ein-ton",
+      "kind": "new",
+      "before": "",
+      "after": "TgggTggTggggTggg",
+      "note": "Teil 1: Fill auf Schritt 7."
+    },
+    {
+      "id": "mitte-zwei-tonfelder",
+      "kind": "pattern-fixed",
+      "before": "DgggSgTggTggSggg",
+      "after": "TgggTgTTggggTggg",
+      "note": "Teil 2: Fill 6–7; Tonfelder statt Ding/Slaps."
+    },
+    {
+      "id": "mitte-dreiklang",
+      "kind": "pattern-fixed",
+      "before": "DgggSgTTTTggSggg",
+      "after": "TgggTTTTggggTggg",
+      "note": "Teil 3: Fill 5–7 (direkt nach der Mitte)."
+    },
+    {
+      "id": "mitte-fluss",
+      "kind": "no-graphic",
+      "before": "DgggSTTTTTTTSggg",
+      "after": "DgggSTTTTTTTSggg",
+      "note": "Kein Gegenstück in den Grafiken."
+    }
+  ],
+  "unclear": []
+}

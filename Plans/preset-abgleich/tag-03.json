@@ -1,0 +1,108 @@
+{
+  "day": 3,
+  "sources": [
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag03_slap_auf_der_vier.png",
+    "Begleitbuch/grafik_print/svg/_neu/overview_tag03_beat_und_offbeat.png"
+  ],
+  "presets": [
+    {
+      "id": "slap-4-rl",
+      "label": "Vierer · Slap 4 · R – L",
+      "hint": "Ding 1 · Slap 4 · Ghostnotes 2 und 3",
+      "pattern": "DggS",
+      "handsatz": "R-L",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-4-lr",
+      "label": "Vierer · Slap 4 · L – R",
+      "pattern": "DggS",
+      "handsatz": "L-R",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-4-rrll",
+      "label": "Vierer · Slap 4 · R – R – L – L",
+      "pattern": "DggS",
+      "handsatz": "RR-LL",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-4-llrr",
+      "label": "Vierer · Slap 4 · L – L – R – R",
+      "pattern": "DggS",
+      "handsatz": "LL-RR",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "slap-4-paradiddle",
+      "label": "Vierer · Slap 4 · Paradiddle",
+      "pattern": "DggSDggS",
+      "handsatz": "paradiddle",
+      "bpm": 60,
+      "subdivision": "4n"
+    },
+    {
+      "id": "beat-offbeat-wechsel",
+      "label": "Beat ↔ Offbeat im Wechsel",
+      "hint": "Takt 1: Slap auf 3 · Takt 2: Slap auf 4 · nur Viertel",
+      "pattern": "DgSgDggS",
+      "handsatz": "R-L",
+      "bpm": 60,
+      "subdivision": "4n"
+    }
+  ],
+  "changes": [
+    {
+      "id": "slap-4-rl",
+      "kind": "pattern-fixed",
+      "before": "DgggggggggggSggg (16n) · „Vierer · Slap auf 4 · R – L“",
+      "after": "DggS (4n) · „Vierer · Slap 4 · R – L“",
+      "note": "Akzente stimmten (Ding 1, Slap 4), aber in Sechzehntel-Dichte; Grafik zeigt nur 4 Viertel. Label vereinheitlicht."
+    },
+    {
+      "id": "slap-4-lr",
+      "kind": "pattern-fixed",
+      "before": "DgggggggggggSggg (16n) · „Vierer · Slap auf 4 · L – R“",
+      "after": "DggS (4n) · „Vierer · Slap 4 · L – R“",
+      "note": "wie slap-4-rl"
+    },
+    {
+      "id": "slap-4-rrll",
+      "kind": "pattern-fixed",
+      "before": "DgggggggggggSggg (16n) · „Vierer · Slap auf 4 · R – R – L – L“",
+      "after": "DggS (4n) · „Vierer · Slap 4 · R – R – L – L“",
+      "note": "wie slap-4-rl; Label war 35 Zeichen"
+    },
+    {
+      "id": "slap-4-llrr",
+      "kind": "pattern-fixed",
+      "before": "DgggggggggggSggg (16n) · „Vierer · Slap auf 4 · L – L – R – R“",
+      "after": "DggS (4n) · „Vierer · Slap 4 · L – L – R – R“",
+      "note": "wie slap-4-rl; Label war 35 Zeichen"
+    },
+    {
+      "id": "slap-4-paradiddle",
+      "kind": "pattern-fixed",
+      "before": "DgggggggggggSggg (16n) · „Vierer · Slap auf 4 · Paradiddle“",
+      "after": "DggSDggS (4n) · „Vierer · Slap 4 · Paradiddle“",
+      "note": "8 Schläge, damit der Paradiddle vollständig läuft (Slap auf jeder 4)"
+    },
+    {
+      "id": "beat-offbeat-wechsel",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggDggggSgg (16n) · „Beat ↔ Offbeat im Wechsel“",
+      "after": "DgSgDggS (4n) · „Beat ↔ Offbeat im Wechsel“",
+      "note": "Bisher falsch: Slap auf 16tel-Schritt 4 und 13 (Offbeat-Sechzehntel). Grafik: zwei Takte Viertel D g S g | D g g S."
+    }
+  ],
+  "unclear": [
+    "Grundsatzentscheidung Viertel: Die Grafik zeigt nur 4 Kreise mit Zählung „1 2 3 4“ (Tag 2 bestätigt: derselbe Puls, erst danach Achtel/Sechzehntel). Vorschlag daher subdivision 4n mit 4 Schritten (Paradiddle 8 Schritte, sonst läuft nur R-L-R-R). Bei unverändert 60 BPM heißt das 1 Schlag pro Sekunde statt bisher 4 — bitte gegen das Video-Tempo hören und ggf. BPM anheben. Alternative mit identischem Klang: 16n + Muster viermal wiederholt bei BPM/4.",
+    "Player-Lücke: DayPlayer liefert bei 4n nur die Zählsilben „1 2 3 4“ (countingSyllables, kein Wiederholen) — bei 8-Schritt-Mustern (Paradiddle, Beat↔Offbeat) bleibt die zweite Hälfte der Zählleiste leer. Kleiner Fix in DayPlayer.tsx nötig, analog zum 8t-Zweig.",
+    "Text Tag 3 Teil 2 sagt „durch alle fünf Handsätze“, es gibt aber nur beat-offbeat-wechsel mit R-L. Vier weitere Presets (L-R, RR-LL, LL-RR, Paradiddle, Muster DgSgDggS / 4n) ergänzen?"
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "day": 21,
+  "sources": [
+    "grafiken/tag-21/overview_tag21_was_geblieben_ist.png",
+    "grafiken/tag-21/overview_tag21_uebung_a_rahmen_und_stille.png",
+    "grafiken/tag-21/overview_tag21_uebung_a_wandernde_verzierung.png",
+    "grafiken/tag-21/overview_tag21_uebung_b_rahmen_und_stille.png",
+    "grafiken/tag-21/overview_tag21_uebung_b_vier_mal_zwei.png",
+    "grafiken/tag-21/overview_tag21_uebung_b_aufbau.png",
+    "grafiken/tag-21/overview_tag21_uebung_c_volle_dichte.png",
+    "grafiken/tag-21/overview_tag21_uebung_c_frage_antwort.png"
+  ],
+  "presets": [
+    {
+      "id": "uebung-a",
+      "label": "Übung A · Rahmen und Stille",
+      "hint": "Stufe 3m in Takt 1 und 4 · die Mitte bleibt Basis",
+      "pattern": "DTTTSgggggggSTTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "wandernde-verzierung",
+      "label": "Wandernde Verzierung · 4 Bögen",
+      "hint": "dieselbe Stufe 2m wandert: Takt 4 → 3 → 2 → 1",
+      "pattern": "DgggSgggggggSgTTDgggSgggggTTSgggDgggSgTTggggSgggDgTTSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "uebung-b",
+      "label": "Übung B · Vier mal Zwei",
+      "hint": "Stufe 2m in jedem Takt · gleichmäßige mittlere Dichte",
+      "pattern": "DgTTSgTTggTTSgTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "aufbau",
+      "label": "Aufbau · 4 Bögen",
+      "hint": "Bogen für Bogen kommt ein Takt mit Stufe 1m hinzu",
+      "pattern": "DgggSgggggggSggTDgggSggggggTSggTDgggSggTgggTSggTDggTSggTgggTSggT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "uebung-c",
+      "label": "Übung C · Volle Dichte",
+      "hint": "Stufe 3m in jedem Takt · Splithand · linke Hand startet",
+      "pattern": "DTTTSTTTgTTTSTTT",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "frage-antwort",
+      "label": "Frage und Antwort · 2 Bögen",
+      "hint": "Frage in Takt 1 → Antwort in Takt 4 · spiele das Paar zweimal",
+      "pattern": "DgTTSgggggggSgggDgggSgggggggSgTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "uebung-d",
+      "label": "Übung D · Lieblings-Variation Takt 1",
+      "pattern": "DTTTSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "uebung-a",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggggggSgTT",
+      "after": "DTTTSgggggggSTTT",
+      "note": "Label „Lieblings-Variation Takt 4“ → „Übung A · Rahmen und Stille“ (Grafik + tag-21.md). Stufe 3m in Takt 1 und 4, Takt 3 still."
+    },
+    {
+      "id": "wandernde-verzierung",
+      "kind": "new",
+      "after": "DgggSgggggggSgTTDgggSgggggTTSgggDgggSgTTggggSgggDgTTSgggggggSggg",
+      "note": "overview_tag21_uebung_a_wandernde_verzierung: Stufe 2m wandert Takt 4 → 3 → 2 → 1, 64 Schritte."
+    },
+    {
+      "id": "uebung-b",
+      "kind": "pattern-fixed",
+      "before": "DgggSggggTTTSggg",
+      "after": "DgTTSgTTggTTSgTT",
+      "note": "Label „Lieblings-Variation Takt 3“ → „Übung B · Vier mal Zwei“. Stufe 2m in jedem Takt."
+    },
+    {
+      "id": "aufbau",
+      "kind": "new",
+      "after": "DgggSgggggggSggTDgggSggggggTSggTDgggSggTgggTSggTDggTSggTgggTSggT",
+      "note": "overview_tag21_uebung_b_aufbau: pro Bogen kommt ein Tonfeld auf dem letzten e eines Takts dazu (Takt 4, 3, 2, 1), 64 Schritte."
+    },
+    {
+      "id": "uebung-c",
+      "kind": "pattern-fixed",
+      "before": "DgggSTTTggggSggg",
+      "after": "DTTTSTTTgTTTSTTT",
+      "note": "Label „Lieblings-Variation Takt 2“ → „Übung C · Volle Dichte“; Handsatz R-L → L-R (Grafik: „linke Hand startet (L–R)“). Stufe 3m in jedem Takt."
+    },
+    {
+      "id": "frage-antwort",
+      "kind": "new",
+      "after": "DgTTSgggggggSgggDgggSgggggggSgTT",
+      "note": "overview_tag21_uebung_c_frage_antwort: Frage = Stufe 2m in Takt 1, Antwort = Stufe 2m in Takt 4, 32 Schritte."
+    },
+    {
+      "id": "uebung-d",
+      "kind": "no-graphic",
+      "note": "Keine Grafik zeigt „Lieblings-Variation Takt 1“ (DTTT + Basis). Nicht gelöscht, nur markiert — Kandidat zum Entfernen."
+    }
+  ],
+  "unclear": [
+    "overview_tag21_uebung_b_rahmen_und_stille.png ist inhaltlich identisch mit uebung_a_rahmen_und_stille (auch Titel „Übung A“ bis auf den Buchstaben). Laut tag-21.md ist Übung B „Vier mal Zwei“ — die B-Rahmen-Datei ist vermutlich falsch benannt/überzählig.",
+    "Die Grafiken ordnen „Wandernde Verzierung“ Übung A, „Aufbau“ Übung B und „Frage und Antwort“ Übung C zu; tag-21.md nennt diese drei nur als Werkzeuge unter FÜR DEN WEG. Sollen sie als eigene Presets erscheinen (vorgeschlagen) oder weg?",
+    "Handsatz A/B: tag-21.md sagt „freier Handsatz“, die Grafiken nennen keinen → R-L belassen. Soll es „frei“ werden?",
+    "Übung C: Splithand-Technik (L · Daumen · L · Zeigefinger) lässt sich nur als L-R annähern.",
+    "wandernde-verzierung und aufbau haben 64 Schritte (Typ-Kommentar 1–32) — Player-Darstellung prüfen.",
+    "overview_tag21_was_geblieben_ist ist eine leere Schablone (nur Ghostnotes) — bewusst kein Preset."
+  ]
+}

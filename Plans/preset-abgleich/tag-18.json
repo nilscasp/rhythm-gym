@@ -1,0 +1,111 @@
+{
+  "day": 18,
+  "presets": [
+    {
+      "id": "basis",
+      "label": "Basisrhythmus · L – R",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "label": "Stufe 1 perkussiv · L – R",
+      "pattern": "DgggSggSggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "label": "Stufe 1 melodisch · L – R",
+      "pattern": "DgggSggTggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "label": "Stufe 2 perkussiv · L – R",
+      "pattern": "DgggSgSSggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "label": "Stufe 2 melodisch · L – R",
+      "pattern": "DgggSgTTggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "label": "Stufe 3 perkussiv · L – R",
+      "pattern": "DgggSSSSggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "label": "Stufe 3 melodisch · L – R",
+      "pattern": "DgggSTTTggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    },
+    {
+      "id": "kombi",
+      "label": "Kombi · 2 Runden · 8 Bögen",
+      "hint": "Runde 1: 1m · 1m · 1m · 3m → Runde 2: 1m · 1m · 2m · 3m",
+      "pattern": "DgggSggTggggSgggDgggSggTggggSgggDgggSggTggggSgggDgggSTTTggggSgggDgggSggTggggSgggDgggSggTggggSgggDgggSgTTggggSgggDgggSTTTggggSggg",
+      "handsatz": "L-R",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "basis",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "kombi",
+      "kind": "new",
+      "after": "DgggSggTggggSgggDgggSggTggggSgggDgggSggTggggSgggDgggSTTTggggSgggDgggSggTggggSgggDgggSggTggggSgggDgggSgTTggggSgggDgggSTTTggggSggg",
+      "note": "Aus overview_tag18_kombi_uebung: zwei Runden à 4 Bögen, alles melodisch in Takt 2 — 8 × 16 = 128 Schritte."
+    }
+  ],
+  "sources": [
+    "grafiken/tag-18/overview_tag18_das_echo_verlaengern_ii.png",
+    "grafiken/tag-18/overview_tag18_kombi_uebung.png",
+    "grafiken/tag-18/lowerthird_tag18_stufe1_perkussiv_hs2.png",
+    "grafiken/tag-18/lowerthird_tag18_stufe1_melodisch_hs2.png",
+    "grafiken/tag-18/lowerthird_tag18_stufe2_perkussiv_hs2.png",
+    "grafiken/tag-18/lowerthird_tag18_stufe2_melodisch_hs2.png",
+    "grafiken/tag-18/lowerthird_tag18_stufe3_perkussiv_hs2.png",
+    "grafiken/tag-18/lowerthird_tag18_stufe3_melodisch_hs2.png"
+  ],
+  "unclear": [
+    "Kombi-Preset hat 128 Schritte. Alternative: zwei 64er-Presets (Runde 1 / Runde 2). Typ-Kommentar sagt 1–32 — Player-Darstellung prüfen."
+  ]
+}

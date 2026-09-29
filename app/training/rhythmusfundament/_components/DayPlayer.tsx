@@ -10,6 +10,7 @@ import type {
 } from '../../../../data/rhythmusfundament-days';
 import { resolveTonfieldIndex } from '../../../lib/handpan-mapping';
 import type { PitchMap } from '../../../lib/handpan';
+import { SELECT_PRESET_EVENT, type SelectPresetDetail } from './practice-bridge';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DayPlayer — Pro-Tag-Player für Rhythmus-Fundament.
@@ -22,7 +23,7 @@ import type { PitchMap } from '../../../lib/handpan';
 // Strike-Encoding (gleich wie /tool):
 //   . = Pause   g = Ghostnote   T = Tonfeld   S = Slap   D = Ding
 //   X = Slap + Tonfeld gleichzeitig (eine Hand slappt, die andere spielt ein Tonfeld)
-//   P = Pulston — immer dasselbe Tonfeld, leiser: die tranceartige Wiederholung
+//   P = Wiederholungston — immer dasselbe Tonfeld, leiser: die tragende Wiederholung
 //       („ein einziger Ton auf jeder Triole", Tag 37 ff.)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,8 @@ type StrikeChar = '.' | 'g' | 'T' | 'S' | 'D' | 'X' | 'P';
 interface SynthMap {
   gn: Tone.NoiseSynth | null;
   tonfeld: Tone.PluckSynth | null;
+  /** Eigener Synth für den Wiederholungston, damit er neben einem Tonfeld auf demselben Schritt klingt. */
+  wiederholung: Tone.PluckSynth | null;
   slap: Tone.NoiseSynth | null;
   ding: Tone.MembraneSynth | null;
   metronome: Tone.Synth | null;
@@ -189,6 +192,12 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
     [activePreset]
   );
 
+  // Zweite Spur: die durchlaufende Hand, die ein Tonfeld wiederholt. null = Ein-Spur-Muster.
+  const repeatLane: StrikeChar[] | null = useMemo(
+    () => (activePreset?.wiederholung ? decodePattern(activePreset.wiederholung) : null),
+    [activePreset]
+  );
+
   const handsatzKey: RhythmusHandsatzKey = activePreset?.handsatz ?? 'frei';
   const hands = useMemo(
     () => handsatzForLength(handsatzKey, pattern.length),
@@ -200,6 +209,23 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
   // Mehrtaktige Muster (> 16 Schritte, z. B. 2 Bögen Triolen = 24) brechen pro
   // Takt um — eine Zeile je Bogen, sonst werden die Zellen auf dem Handy unlesbar.
   const gridColumns = stepCount > 16 ? beatStride * 4 : stepCount;
+  const lanes: { key: 'repeat' | 'play'; cells: readonly StrikeChar[] }[] = useMemo(
+    () =>
+      repeatLane
+        ? [
+            { key: 'repeat', cells: repeatLane },
+            { key: 'play', cells: pattern },
+          ]
+        : [{ key: 'play', cells: pattern }],
+    [repeatLane, pattern]
+  );
+  const gridRows: number[][] = useMemo(() => {
+    const rows: number[][] = [];
+    for (let i = 0; i < stepCount; i += gridColumns) {
+      rows.push(Array.from({ length: Math.min(gridColumns, stepCount - i) }, (_, k) => i + k));
+    }
+    return rows;
+  }, [stepCount, gridColumns]);
 
   // ───────── Playback State ─────────
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -212,12 +238,14 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
   const synthsRef = useRef<SynthMap>({
     gn: null,
     tonfeld: null,
+    wiederholung: null,
     slap: null,
     ding: null,
     metronome: null,
   });
   const sequenceRef = useRef<Tone.Sequence | null>(null);
   const patternRef = useRef<StrikeChar[]>(pattern);
+  const repeatRef = useRef<StrikeChar[] | null>(repeatLane);
   const beatStrideRef = useRef<number>(beatStride);
   const metronomeOnRef = useRef<boolean>(false);
   const handsRef = useRef<readonly ('R' | 'L' | null)[]>(hands);
@@ -226,6 +254,9 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
   useEffect(() => {
     patternRef.current = pattern;
   }, [pattern]);
+  useEffect(() => {
+    repeatRef.current = repeatLane;
+  }, [repeatLane]);
   useEffect(() => {
     beatStrideRef.current = beatStride;
   }, [beatStride]);
@@ -259,6 +290,14 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
       }).toDestination();
       tonfeld.volume.value = -10;
       synthsRef.current.tonfeld = tonfeld;
+
+      const wiederholung = new Tone.PluckSynth({
+        attackNoise: 0.4,
+        dampening: 4500,
+        resonance: 0.7,
+      }).toDestination();
+      wiederholung.volume.value = -10;
+      synthsRef.current.wiederholung = wiederholung;
 
       const slap = new Tone.NoiseSynth({
         noise: { type: 'pink' },
@@ -314,58 +353,64 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
     const steps = patternRef.current.length || 16;
     sequenceRef.current = new Tone.Sequence(
       (time, step) => {
-        const pat = patternRef.current;
-        const c = pat[step] ?? '.';
         const synths = synthsRef.current;
         const stride = beatStrideRef.current;
         const metOn = metronomeOnRef.current;
 
-        switch (c) {
-          case 'g':
-            if (synths.gn) synths.gn.triggerAttackRelease('32n', time, 0.7);
-            break;
-          case 'T':
-          case 'X':
-            if (c === 'X' && synths.slap)
-              synths.slap.triggerAttackRelease('16n', time, 0.85);
-            if (synths.tonfeld) {
-              const pm = pitchMapRef.current;
-              const note = pm
-                ? pm.tonfields[
-                    resolveTonfieldIndex(step, handsRef.current[step]) %
-                      pm.tonfields.length
-                  ]
-                : 'A4';
-              synths.tonfeld.triggerAttackRelease(note, '16n', time, 0.85);
-            }
-            break;
-          case 'P':
-            if (synths.tonfeld)
-              synths.tonfeld.triggerAttackRelease(
-                pitchMapRef.current?.tonfields[0] ?? 'E4',
-                '16n',
-                time,
-                0.5,
-              );
-            break;
-          case 'S':
-            if (synths.slap)
-              synths.slap.triggerAttackRelease('16n', time, 0.85);
-            break;
-          case 'D':
-            if (synths.ding)
-              synths.ding.triggerAttackRelease(
-                pitchMapRef.current?.ding ?? 'C2',
-                '8n',
-                time,
-                0.95,
-              );
-            break;
-          case '.':
-          default:
-            // silence
-            break;
-        }
+        const strike = (c: StrikeChar) => {
+          switch (c) {
+            case 'g':
+              if (synths.gn) synths.gn.triggerAttackRelease('32n', time, 0.7);
+              break;
+            case 'T':
+            case 'X':
+              if (c === 'X' && synths.slap)
+                synths.slap.triggerAttackRelease('16n', time, 0.85);
+              if (synths.tonfeld) {
+                const pm = pitchMapRef.current;
+                const note = pm
+                  ? pm.tonfields[
+                      resolveTonfieldIndex(step, handsRef.current[step]) %
+                        pm.tonfields.length
+                    ]
+                  : 'A4';
+                synths.tonfeld.triggerAttackRelease(note, '16n', time, 0.85);
+              }
+              break;
+            case 'P':
+              if (synths.wiederholung)
+                synths.wiederholung.triggerAttackRelease(
+                  pitchMapRef.current?.tonfields[0] ?? 'E4',
+                  '16n',
+                  time,
+                  0.5,
+                );
+              break;
+            case 'S':
+              if (synths.slap)
+                synths.slap.triggerAttackRelease('16n', time, 0.85);
+              break;
+            case 'D':
+              if (synths.ding)
+                synths.ding.triggerAttackRelease(
+                  pitchMapRef.current?.ding ?? 'C2',
+                  '8n',
+                  time,
+                  0.95,
+                );
+              break;
+            case '.':
+            default:
+              // silence
+              break;
+          }
+        };
+        const own = patternRef.current[step] ?? '.';
+        strike(own);
+        // Gleiches Zeichen auf beiden Spuren würde denselben Synth zweimal zur
+        // selben Zeit auslösen (Tone.js wirft dann) — einmal reicht.
+        const repeat = repeatRef.current;
+        if (repeat && repeat[step] !== own) strike(repeat[step] ?? '.');
 
         if (metOn && step % stride === 0 && synths.metronome) {
           synths.metronome.triggerAttackRelease('C6', '32n', time, 0.3);
@@ -429,6 +474,20 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
     }
   }, []);
 
+  // „Selbst üben" aus der Kapitelliste unter dem Video: Preset wählen und den
+  // Player ins Bild holen. Das Tempo stellt der User danach selbst ein.
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const onSelect = (e: Event) => {
+      const { presetId } = (e as CustomEvent<SelectPresetDetail>).detail;
+      if (!presets.some((p) => p.id === presetId)) return;
+      switchPreset(presetId);
+      wrapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    window.addEventListener(SELECT_PRESET_EVENT, onSelect);
+    return () => window.removeEventListener(SELECT_PRESET_EVENT, onSelect);
+  }, [presets, switchPreset]);
+
   // Spacebar shortcut — play/pause.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -464,6 +523,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
       const s = synthsRef.current;
       if (s.gn) s.gn.dispose();
       if (s.tonfeld) s.tonfeld.dispose();
+      if (s.wiederholung) s.wiederholung.dispose();
       if (s.slap) s.slap.dispose();
       if (s.ding) s.ding.dispose();
       if (s.metronome) s.metronome.dispose();
@@ -471,47 +531,30 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
   }, []);
 
   // ───────── Render ─────────
-  // Counting strip: derive from subdivision.
+  // Counting strip: derive from subdivision, wiederholt pro Takt (Bogen), damit
+  // mehrtaktige Muster (z. B. Paradiddle in Vierteln = 8 Schritte) voll gezählt werden.
   //   16n → 1 e und de 2 e und de ...
   //   8n  → 1 + 2 + 3 + 4 +
+  //   8t  → 1 und die 2 und die ...
   //   4n  → 1 2 3 4 (each step is a full beat)
   //   32n → twice as dense as 16n
   const countingSyllables: string[] = useMemo(() => {
-    const beats = ['1', '2', '3', '4'];
-    if (subdivision === '4n') return beats;
-    if (subdivision === '8n') {
-      const out: string[] = [];
-      for (const b of beats) {
-        out.push(b, '+');
-      }
-      return out.slice(0, stepCount);
-    }
-    if (subdivision === '16n') {
-      const out: string[] = [];
-      for (const b of beats) {
-        out.push(b, 'e', 'und', 'de');
-      }
-      return out.slice(0, stepCount);
-    }
-    if (subdivision === '8t') {
-      // Triolen: 1 und die 2 und die … — wiederholt pro Takt (Bogen), damit
-      // zweitaktige Muster (24 Schritte) vollständig gezählt werden.
-      const out: string[] = [];
-      while (out.length < stepCount) {
-        for (const b of beats) out.push(b, 'und', 'die');
-      }
-      return out.slice(0, stepCount);
-    }
-    // 32n
+    const perBeat: Record<RhythmusSubdivisionKey, string[]> = {
+      '4n': [],
+      '8n': ['+'],
+      '8t': ['und', 'die'],
+      '16n': ['e', 'und', 'de'],
+      '32n': ['e', '&', 'a', 'tu', 'ka', 'ti', 'ka'],
+    };
     const out: string[] = [];
-    for (const b of beats) {
-      out.push(b, 'e', '&', 'a', 'tu', 'ka', 'ti', 'ka');
+    while (out.length < stepCount) {
+      for (const b of ['1', '2', '3', '4']) out.push(b, ...perBeat[subdivision]);
     }
     return out.slice(0, stepCount);
   }, [subdivision, stepCount]);
 
   return (
-    <div className="dp-wrap">
+    <div className="dp-wrap" ref={wrapRef}>
       {/* Preset switcher */}
       <div className="dp-presets" role="radiogroup" aria-label="Pattern wählen">
         {presets.map((p) => {
@@ -537,37 +580,51 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
         {/* Header row: handsatz + BPM */}
         <div className="dp-header">
           <span className="dp-handsatz">
-            Handsatz · {HANDSATZ_LABEL[handsatzKey]}
+            {repeatLane
+              ? 'Hände getrennt · eine Hand wiederholt ein Tonfeld'
+              : `Handsatz · ${HANDSATZ_LABEL[handsatzKey]}`}
           </span>
           <span className="dp-subdivision">
             Subdivision · {subdivision === '8t' ? 'Triolen' : subdivision}
           </span>
         </div>
 
-        {/* Grid */}
+        {/* Grid — bei zwei Spuren je Takt: oben die Wiederholung, darunter die Spielhand */}
+        {repeatLane ? (
+          <div className="dp-lanes-legend" aria-hidden="true">
+            <span className="dp-lanes-legend-repeat">oben · Wiederholung</span>
+            <span>unten · Spielhand</span>
+          </div>
+        ) : null}
         <div
           className="dp-grid"
           style={{ gridTemplateColumns: `repeat(${gridColumns}, 1fr)` }}
           aria-label="Rhythmus-Grid"
         >
-          {pattern.map((c, i) => {
-            const v = STRIKE_VISUAL[c];
-            const isDownbeat = i % beatStride === 0;
-            const isCursor = currentStep === i;
-            return (
-              <div
-                key={i}
-                className={
-                  'dp-cell' +
-                  (isDownbeat ? ' dp-cell--downbeat' : '') +
-                  (isCursor ? ' dp-cell--cursor' : '')
-                }
-                style={{ background: v.bg, color: v.color }}
-              >
-                <span className="dp-cell-label">{v.label}</span>
-              </div>
-            );
-          })}
+          {gridRows.map((row) =>
+            lanes.map((lane) =>
+              row.map((i) => {
+                const c = lane.cells[i] ?? '.';
+                const v = STRIKE_VISUAL[c];
+                const isDownbeat = i % beatStride === 0;
+                const isCursor = currentStep === i;
+                return (
+                  <div
+                    key={`${lane.key}-${i}`}
+                    className={
+                      'dp-cell' +
+                      (lane.key === 'repeat' ? ' dp-cell--repeat' : '') +
+                      (isDownbeat ? ' dp-cell--downbeat' : '') +
+                      (isCursor ? ' dp-cell--cursor' : '')
+                    }
+                    style={{ background: v.bg, color: v.color }}
+                  >
+                    <span className="dp-cell-label">{v.label}</span>
+                  </div>
+                );
+              })
+            )
+          )}
         </div>
 
         {/* Counting strip */}
@@ -579,7 +636,7 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           {/* Umbrochene Muster: eine Zählzeile reicht, die Spalten fluchten. */}
           {countingSyllables.slice(0, gridColumns).map((syl, i) => {
             const isDownbeat = i % beatStride === 0;
-            const hand = hands[i];
+            const hand = repeatLane ? null : hands[i];
             return (
               <div
                 key={i}
@@ -748,6 +805,23 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           border-color: var(--amber);
           border-width: 1px;
         }
+        .dp-cell--repeat {
+          height: 22px;
+          opacity: 0.85;
+        }
+        .dp-lanes-legend {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px 14px;
+          font-family: var(--font-ui);
+          font-size: 11px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: var(--muted);
+        }
+        .dp-lanes-legend-repeat {
+          color: var(--muted2, var(--muted));
+        }
         .dp-cell--cursor {
           outline: 2px solid var(--amber);
           outline-offset: 1px;
@@ -901,6 +975,9 @@ export function DayPlayer({ presets, pitchMap }: DayPlayerProps) {
           .dp-cell {
             height: 30px;
             font-size: 11px;
+          }
+          .dp-cell--repeat {
+            height: 18px;
           }
           .dp-counting-syl {
             font-size: 9px;

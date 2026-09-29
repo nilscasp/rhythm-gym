@@ -1,0 +1,121 @@
+{
+  "day": 33,
+  "sources": [
+    "grafiken/tag-33/overview_tag33_breaks_und_komposition_v1.png",
+    "grafiken/tag-33/overview_tag33_zehn_boegen_v1.png",
+    "grafiken/tag-33/uebungsblatt_tag33_v1.png",
+    "grafiken/tag-33/uebungsblatt_tag33_a2_v1.png",
+    "content/rhythmusfundament/tag-33.md (Station 1–5)"
+  ],
+  "presets": [
+    {
+      "id": "tonfeld-perkussiv",
+      "label": "Station 1 · Basis-Rhythmus",
+      "hint": "Ding auf 1, Slap auf 2 und 4, Takt 3 still",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "bogen-1-drei-tonfelder",
+      "label": "Bogen 1 · 3 · 5 · 7 · drei Töne",
+      "hint": "Takt 4: Slap, dann drei Tonfelder",
+      "pattern": "DgggSgggggggSTTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "bogen-2-zwei-tonfelder",
+      "label": "Bogen 2 · 6 · zwei Tonfelder",
+      "hint": "Takt 4: Slap · gn · Ton · Ton",
+      "pattern": "DgggSgggggggSgTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "bogen-4-ein-schlag",
+      "label": "Bogen 4 · ein perkussiver Schlag",
+      "hint": "Takt 4: Slap · gn · gn · Slap",
+      "pattern": "DgggSgggggggSggS",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "bogen-8-vier-slaps",
+      "label": "Bogen 8 · vier Slaps im Finale",
+      "hint": "Takt 4: die perkussive Welle",
+      "pattern": "DgggSgggggggSSSS",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "tonfeld-akkord",
+      "label": "Bogen 9 + 10 · Break mit Akkord",
+      "hint": "Akkord statt Ding auf der 1, ohne Fill",
+      "pattern": "TgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "gemischt",
+      "label": "Gemischt · Klang ↔ Schlag",
+      "pattern": "DgTgSgTgggggTgSg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "tonfeld-perkussiv",
+      "kind": "pattern-fixed",
+      "before": "DgggTgggggggTggg",
+      "after": "DgggSgggggggSggg",
+      "note": "Keine Grafik zeigt Tonfelder auf 2/4; ID auf Station 1 (Basis, Text tag-33.md) umgewidmet. Label+Hint neu."
+    },
+    {
+      "id": "bogen-1-drei-tonfelder",
+      "kind": "new",
+      "after": "DgggSgggggggSTTT",
+      "note": "Bogen 1/3/5/7 aller vier Tag-33-Grafiken"
+    },
+    {
+      "id": "bogen-2-zwei-tonfelder",
+      "kind": "new",
+      "after": "DgggSgggggggSgTT",
+      "note": "Bogen 2/6"
+    },
+    {
+      "id": "bogen-4-ein-schlag",
+      "kind": "new",
+      "after": "DgggSgggggggSggS",
+      "note": "Bogen 4"
+    },
+    {
+      "id": "bogen-8-vier-slaps",
+      "kind": "new",
+      "after": "DgggSgggggggSSSS",
+      "note": "Bogen 8"
+    },
+    {
+      "id": "tonfeld-akkord",
+      "kind": "pattern-fixed",
+      "before": "TgggTgggggggTggg",
+      "after": "TgggSgggggggSggg",
+      "note": "Break-Bogen 9/10: Akkord auf 1, Slap auf 2 und 4 (breaks_und_komposition + beide Übungsblätter + Text Station 4). Label+Hint neu."
+    },
+    {
+      "id": "gemischt",
+      "kind": "no-graphic",
+      "before": "DgTgSgTgggggTgSg",
+      "after": "DgTgSgTgggggTgSg",
+      "note": "Kein Gegenstück in Grafik oder Text — nicht gelöscht, nur markiert"
+    }
+  ],
+  "unclear": [
+    "overview_tag33_zehn_boegen_v1 zeigt Bogen 9/10 als reine Stille („die stille trägt · Break“), die anderen drei Grafiken + Text zeigen Akkord auf 1 + Slaps. Vorschlag folgt der Mehrheit (Akkord) — welche Version gilt?",
+    "gemischt (Paradiddle) hat kein Gegenstück — behalten oder streichen?",
+    "BPM 60 belassen; Text empfiehlt 65–80 BPM.",
+    "Die ganze 10-Bogen-Phrase (160 Schritte) passt nicht in ein Preset (max. 32) — daher je Bogen-Typ ein Preset.",
+    "Bonus-Weiterentwicklung am Videoende hat keine Grafik — nicht abgebildet."
+  ]
+}

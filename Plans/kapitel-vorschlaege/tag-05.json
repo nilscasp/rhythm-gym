@@ -1,0 +1,32 @@
+{
+  "day": 5,
+  "mediaDurationSec": 860.818292,
+  "chapters": [
+    {
+      "label": "Einführung · Split-Hand Fingerübung",
+      "start": 0,
+      "presetId": "paradiddle-quer"
+    },
+    {
+      "label": "Nur Zeigefinger · 4er-Rhythmus",
+      "start": 112
+    },
+    {
+      "label": "Auf Ding + freie Tonfeld-Akzente",
+      "start": 243,
+      "presetId": "frei-quer"
+    },
+    {
+      "label": "Unterseite · Faust statt Ding",
+      "start": 411
+    },
+    {
+      "label": "Freie Handposition · alle Finger",
+      "start": 547
+    },
+    {
+      "label": "Pan quer im Schoß · Offbeat",
+      "start": 710
+    }
+  ]
+}

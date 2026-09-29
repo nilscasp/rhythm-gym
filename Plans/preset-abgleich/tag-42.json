@@ -1,0 +1,83 @@
+{
+  "day": 42,
+  "sources": [
+    "content/rhythmusfundament/tag-42.md (◇ DEINE PRAXIS) — keine Grafik"
+  ],
+  "presets": [
+    {
+      "id": "phase-1-motiv-2",
+      "label": "Phase 1 · Motiv 2 · Bogen 3+4",
+      "hint": "Unverändert, wie gestern",
+      "pattern": "D..S..T..T..D..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-3-slap-tonfeld",
+      "label": "Phase 3 · Slap + Tonfeld",
+      "hint": "Bogen 3 bleibt gleich, in Bogen 4 fällt ein Tonfeld auf den Slap",
+      "pattern": "D..S..T..T..D..X..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-4-fill",
+      "label": "Phase 4 · Fill-In zum Ende",
+      "hint": "Zwei Töne als weicher Übergang zurück zu Motiv 1",
+      "pattern": "D..S..T..T..D..X..T..TTT",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-5-break",
+      "label": "Phase 5 · Break-Figur",
+      "hint": "Slap pausiert, Tonfelder und Wiederholung laufen weiter",
+      "pattern": "D..S..T..T..D.....T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 56,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "phase-1-motiv-2",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPSPPTPPTPP",
+      "after": "TPPSPPTPPTPPTPPSPPTPPTPP",
+      "note": "Kein Widerspruch zum Text"
+    },
+    {
+      "id": "phase-3-slap-tonfeld",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPXPPTPPTPP",
+      "after": "TPPSPPTPPTPPTPPXPPTPPTPP",
+      "note": "Variante C (Slap + Tonfeld) — stimmt"
+    },
+    {
+      "id": "phase-4-fill",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPXPPTPPTTT",
+      "after": "TPPSPPTPPTPPTPPXPPTPPTTT",
+      "note": "„ein, zwei Töne“ am Ende von Motiv 2 — stimmt"
+    },
+    {
+      "id": "phase-5-break",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPPPPTPPTPP",
+      "after": "TPPSPPTPPTPPTPPPPPTPPTPP",
+      "note": "Perkussives pausiert, Tonfelder laufen — stimmt"
+    }
+  ],
+  "unclear": [
+    "Alles ohne Grafik, nur gegen Text geprüft (unsicher).",
+    "Phase-1-Hint „Unverändert, wie gestern“: Text sagt Motiv 1 trägt schon die Variation von Tag 41; Preset zeigt nur Motiv 2 — kein Widerspruch, aber Hint könnte präziser sein.",
+    "Slap auf 2 wie bei Tag 41 — hängt an derselben Entscheidung (Grafik Tag 41 zeigt HZ 2 still)."
+  ]
+}

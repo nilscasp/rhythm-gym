@@ -1,0 +1,95 @@
+{
+  "day": 22,
+  "sources": [
+    "grafiken/tag-22/overview_tag22_aus_den_teilen_ein_stueck.png",
+    "grafiken/tag-22/overview_tag22_zwei_optionen.png",
+    "grafiken/tag-22/overview_tag22_schablone.png",
+    "grafiken/tag-22/moeglichkeitsraum.png",
+    "grafiken/tag-22/moeglichkeitsraum_wirklich.png",
+    "grafiken/tag-22/wahrscheinlichkeit_dieses_augenblicks.png",
+    "grafiken/tag-22/filterung_das_wunder_der_verengung.png"
+  ],
+  "presets": [
+    {
+      "id": "basis",
+      "label": "Basisrhythmus",
+      "hint": "wo wir angefangen haben · drei Schläge und eine Pause",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "spielweg-a",
+      "label": "Option 1 · Beispiel A",
+      "hint": "ein Bogen als Loop · Stufe 2m in Takt 1 und 4",
+      "pattern": "DgTTSgggggggSgTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "spielweg-b",
+      "label": "Option 1 · Beispiel B",
+      "hint": "ein Bogen als Loop · ein Tonfeld am Ende jedes Takts",
+      "pattern": "DggTSggTgggTSggT",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "spielweg-c",
+      "label": "Option 1 · Beispiel C",
+      "hint": "ein Bogen als Loop · Takt 3 ganz gefüllt",
+      "pattern": "DgggSgggTTTTSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "option-2-vier-boegen",
+      "label": "Option 2 · 4 Bögen mit Variation",
+      "hint": "Variation wandert: Takt 1 → 2 → 3 → 4",
+      "pattern": "DgTTSgggggggSgggDgggSTTTggggSgggDgggSgggTTTTSgggDgggSgggggggSgTT",
+      "handsatz": "R-L",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "basis",
+      "kind": "new",
+      "after": "DgggSgggggggSggg",
+      "note": "overview_tag22_aus_den_teilen_ein_stueck zeigt den Basisrhythmus als Ausgangspunkt; Tag 22 hatte bisher kein Basis-Preset."
+    },
+    {
+      "id": "spielweg-a",
+      "kind": "pattern-fixed",
+      "before": "DgggSgggggggSgTT",
+      "after": "DgTTSgggggggSgTT",
+      "note": "Label „Spielweg A · einfach“ → „Option 1 · Beispiel A“, Hint neu. Muster aus zwei_optionen Beispiel A."
+    },
+    {
+      "id": "spielweg-b",
+      "kind": "pattern-fixed",
+      "before": "DgggSggggTTTSgTT",
+      "after": "DggTSggTgggTSggT",
+      "note": "Label „Spielweg B · mehrschichtig“ → „Option 1 · Beispiel B“. Muster aus zwei_optionen Beispiel B (= Aufbau-Bogen 4 von Tag 21)."
+    },
+    {
+      "id": "spielweg-c",
+      "kind": "pattern-fixed",
+      "before": "DggTSggTgTTTSgTT",
+      "after": "DgggSgggTTTTSggg",
+      "note": "Label „Spielweg C · komponiert“ → „Option 1 · Beispiel C“. Muster aus zwei_optionen Beispiel C (= Stufe 4m Takt 3)."
+    },
+    {
+      "id": "option-2-vier-boegen",
+      "kind": "new",
+      "after": "DgTTSgggggggSgggDgggSTTTggggSgggDgggSgggTTTTSgggDgggSgggggggSgTT",
+      "note": "zwei_optionen Option 2: Bogen 1 Stufe 2m Takt 1, Bogen 2 Stufe 3m Takt 2, Bogen 3 Stufe 4m Takt 3, Bogen 4 Stufe 2m Takt 4 — 64 Schritte."
+    }
+  ],
+  "unclear": [
+    "Die alten Spielweg-Presets A/B/C haben kein Gegenstück in den Grafiken. Vorschlag: IDs weiterverwenden für Beispiel A/B/C (keine Videokapitel verweisen darauf). Alternativ die alten als no-graphic behalten und beispiel-a/b/c neu anlegen.",
+    "overview_tag22_schablone.png ist eine Kopie der Tag-21-Schablone (Untertitel „Tag 21“) — kein Preset.",
+    "Die Beispiele sind nur Anregungen („jeder der ~3.000 Bögen ist gültig“); ein freier Editor passt hier eigentlich besser als feste Presets.",
+    "option-2-vier-boegen hat 64 Schritte (Typ-Kommentar 1–32) — Player-Darstellung prüfen."
+  ]
+}

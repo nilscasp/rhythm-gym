@@ -5,7 +5,8 @@
 //   https://iframe.mediadelivery.net/embed/{libraryId}/{videoGuid}
 //
 // Optional-Params (?autoplay=false&loop=false&muted=false&preload=true&responsive=true)
-// werden über die Query gehängt. Library-ID kommt aus
+// werden über die Query gehängt; showSpeed=true blendet die Tempo-Wahl im
+// Zahnrad ein (0,5× zum Mitspielen — per player.js-API geht das nicht). Library-ID kommt aus
 // `NEXT_PUBLIC_BUNNY_LIBRARY_ID` — gesetzt in .env.local sobald Nils die
 // Library angelegt hat.
 //
@@ -15,6 +16,8 @@
 // localhost:3000).
 // ─────────────────────────────────────────────────────────────────────────────
 
+import type { Ref } from 'react'
+
 interface BunnyVideoEmbedProps {
   /** Bunny Video GUID — UUID Format. */
   videoId: string;
@@ -22,12 +25,15 @@ interface BunnyVideoEmbedProps {
   libraryId?: string;
   /** Title für a11y. */
   title?: string;
+  /** Zugriff aufs iframe für die player.js-Steuerung (PracticeVideo). */
+  iframeRef?: Ref<HTMLIFrameElement>;
 }
 
 export function BunnyVideoEmbed({
   videoId,
   libraryId,
   title = 'Rhythmus-Fundament Video',
+  iframeRef,
 }: BunnyVideoEmbedProps) {
   const lib = libraryId ?? process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID
 
@@ -55,11 +61,12 @@ export function BunnyVideoEmbed({
     return null
   }
 
-  const src = `https://iframe.mediadelivery.net/embed/${lib}/${videoId}?autoplay=false&loop=false&muted=false&preload=true&responsive=true`
+  const src = `https://iframe.mediadelivery.net/embed/${lib}/${videoId}?autoplay=false&loop=false&muted=false&preload=true&responsive=true&showSpeed=true`
 
   return (
     <div className="bunny-wrap">
       <iframe
+        ref={iframeRef}
         src={src}
         title={title}
         loading="lazy"

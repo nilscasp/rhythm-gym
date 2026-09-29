@@ -1,0 +1,41 @@
+{
+  "day": 2,
+  "mediaDurationSec": 666.666,
+  "chapters": [
+    {
+      "label": "Einführung · Slap 3 · R–L",
+      "start": 0,
+      "presetId": "slap-3-rl"
+    },
+    {
+      "label": "Handsatz 2 · Slap 3 · L–R",
+      "start": 39,
+      "presetId": "slap-3-lr"
+    },
+    {
+      "label": "Handsatz 3 · R–R–L–L",
+      "start": 109,
+      "presetId": "slap-3-rrll"
+    },
+    {
+      "label": "Handsatz 4 · L–L–R–R",
+      "start": 166,
+      "presetId": "slap-3-llrr"
+    },
+    {
+      "label": "Handsatz 5 · Paradiddle",
+      "start": 231,
+      "presetId": "slap-3-paradiddle"
+    },
+    {
+      "label": "Subdivisions · Achtel zählen",
+      "start": 310,
+      "presetId": "achtel"
+    },
+    {
+      "label": "Sechzehntel spüren",
+      "start": 469,
+      "presetId": "sechzehntel"
+    }
+  ]
+}

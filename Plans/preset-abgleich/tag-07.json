@@ -1,0 +1,59 @@
+{
+  "day": 7,
+  "sources": [
+    "content/rhythmusfundament/tag-7.md (◇ DEINE PRAXIS)"
+  ],
+  "presets": [
+    {
+      "id": "bogen-architektur",
+      "label": "Bogen · Architektur",
+      "hint": "Vier Takte als eine Form — Anfang, Antwort, Stille, Schluss",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "bogen-melodisch",
+      "label": "Bogen · melodisch",
+      "hint": "Tonfeld in Takt 3 füllt die Stille",
+      "pattern": "DgggSgggTgggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "bogen-paradiddle",
+      "label": "Bogen · Paradiddle",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "paradiddle",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "bogen-architektur",
+      "kind": "no-graphic",
+      "before": "DgggSgggggggSggg (16n) · „Bogen · Architektur“",
+      "after": "DgggSgggggggSggg (16n) · „Bogen · Architektur“",
+      "note": "Muster = Vier-Takt-Rhythmus von Tag 12; im Tag-7-Text nicht beschrieben."
+    },
+    {
+      "id": "bogen-melodisch",
+      "kind": "no-graphic",
+      "before": "DgggSgggTgggSggg (16n) · „Bogen · melodisch“",
+      "after": "DgggSgggTgggSggg (16n) · „Bogen · melodisch“",
+      "note": "Nicht im Text."
+    },
+    {
+      "id": "bogen-paradiddle",
+      "kind": "no-graphic",
+      "before": "DgggSgggggggSggg (16n) · „Bogen · Paradiddle“",
+      "after": "DgggSgggggggSggg (16n) · „Bogen · Paradiddle“",
+      "note": "Nicht im Text."
+    }
+  ],
+  "unclear": [
+    "Widerspruch (inhaltlich): bogen-architektur/-paradiddle spielen D·S·Stille·S — das ist der Rhythmus, den Tag 12 als „neu“ einführt. Tag 7 Text kennt ihn nicht.",
+    "Lücke: Teil 2 (Sechzehntel, Bass wechselt alle 32 Schläge zwischen Tonfeld 1/2, Melodie jeden Takt ein Tonfeld weiter) hat kein Preset; bräuchte 32 Schritte und zwei Stimmen, die Tonhöhe wählt der Player selbst — mit dem Pattern-Format nur grob abbildbar.",
+    "Teil 1 (Dynamikspiel) ist frei, kein Muster."
+  ]
+}

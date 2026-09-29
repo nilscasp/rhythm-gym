@@ -1,0 +1,40 @@
+{
+  "day": 3,
+  "mediaDurationSec": 698.030667,
+  "chapters": [
+    {
+      "label": "Einführung · Akzent auf 4",
+      "start": 0
+    },
+    {
+      "label": "Handsatz 1 · R – L",
+      "start": 94,
+      "presetId": "slap-4-rl"
+    },
+    {
+      "label": "Handsatz 2 · L – R",
+      "start": 105,
+      "presetId": "slap-4-lr"
+    },
+    {
+      "label": "Handsatz 3 · R – R – L – L",
+      "start": 159,
+      "presetId": "slap-4-rrll"
+    },
+    {
+      "label": "Handsatz 4 · L – L – R – R",
+      "start": 233,
+      "presetId": "slap-4-llrr"
+    },
+    {
+      "label": "Handsatz 5 · Paradiddle",
+      "start": 330,
+      "presetId": "slap-4-paradiddle"
+    },
+    {
+      "label": "Beat ↔ Offbeat kombiniert",
+      "start": 363,
+      "presetId": "beat-offbeat-wechsel"
+    }
+  ]
+}

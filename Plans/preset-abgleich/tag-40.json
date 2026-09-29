@@ -1,0 +1,94 @@
+{
+  "day": 40,
+  "sources": [
+    "grafiken/tag-40/overview_tag40_deine_zwei_koerper_v1.png",
+    "grafiken/tag-40/lowerthird_tag40_phase1_basis_v1.png",
+    "grafiken/tag-40/lowerthird_tag40_koerper1_bogen_1_2_v1.png",
+    "grafiken/tag-40/lowerthird_tag40_koerper2_bogen_3_4_v1.png",
+    "grafiken/tag-40/lowerthird_tag40_phase4_perkussiv_v1.png"
+  ],
+  "presets": [
+    {
+      "id": "phase-1-basis",
+      "label": "Phase 1 · Der Basis-Rhythmus läuft",
+      "hint": "Die Wiederholung — ruhig und schlicht",
+      "pattern": "PPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-2-koerper-1",
+      "label": "Phase 2 · Körper 1 · Bogen 1+2",
+      "hint": "Akzente auf 1 · 3 · 4, die 2 atmet",
+      "pattern": "T.....T..T..T.....T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-3-koerper-2",
+      "label": "Phase 3 · Körper 2 · Bogen 3+4",
+      "hint": "Gleiche Zählzeiten, anderer Charakter",
+      "pattern": "T.....T..T..T.....T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-4-perkussiv",
+      "label": "Phase 4 · Die perkussive Ebene dazu",
+      "hint": "Slap auf 2 dazu — der Akkord trägt die 1",
+      "pattern": "T..S..T..T..T..S..T..T..",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPPPPP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    },
+    {
+      "id": "phase-5-break",
+      "label": "Phase 5 · Twist · ein Break",
+      "hint": "Am Ende eines Bogens einen Schlag auslassen",
+      "pattern": "T..S..T..T..T..S..T.....",
+      "wiederholung": "PPPPPPPPPPPPPPPPPPPPP.PP",
+      "handsatz": "frei",
+      "bpm": 48,
+      "subdivision": "8t"
+    }
+  ],
+  "changes": [
+    {
+      "id": "phase-1-basis",
+      "kind": "unchanged",
+      "note": "phase1_basis"
+    },
+    {
+      "id": "phase-2-koerper-1",
+      "kind": "unchanged",
+      "note": "koerper1_bogen_1_2"
+    },
+    {
+      "id": "phase-3-koerper-2",
+      "kind": "unchanged",
+      "note": "koerper2_bogen_3_4"
+    },
+    {
+      "id": "phase-4-perkussiv",
+      "kind": "unchanged",
+      "note": "phase4_perkussiv: Ding + K auf 1 → D gewählt (siehe unclear)"
+    },
+    {
+      "id": "phase-5-break",
+      "kind": "no-graphic",
+      "before": "TPPSPPTPPTPPTPPSPPTPP.PP",
+      "after": "TPPSPPTPPTPPTPPSPPTPP.PP",
+      "note": "Keine Grafik zu Phase 5"
+    }
+  ],
+  "unclear": [
+    "phase-4-perkussiv: Schritt 0 = Ding + Akkord/Einzelton gleichzeitig; Preset setzt D (Akkord fällt weg), Tag 39 setzt in derselben Lage T. Einheitlich entscheiden.",
+    "phase-3-koerper-2 Handsatz R-L — Grafik nennt keinen; 'frei' wäre konsistent."
+  ]
+}

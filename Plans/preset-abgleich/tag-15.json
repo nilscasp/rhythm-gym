@@ -1,0 +1,142 @@
+{
+  "day": 15,
+  "presets": [
+    {
+      "id": "basis",
+      "label": "Basisrhythmus",
+      "pattern": "DgggSgggggggSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "label": "Stufe 1 perkussiv · Takt 3",
+      "hint": "Slap vor der 4 in Takt 3",
+      "pattern": "DgggSggggggSSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "label": "Stufe 1 melodisch · Takt 3",
+      "pattern": "DgggSggggggTSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "label": "Stufe 2 perkussiv · Takt 3",
+      "pattern": "DgggSgggggSSSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "label": "Stufe 2 melodisch · Takt 3",
+      "pattern": "DgggSgggggTTSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "label": "Stufe 3 perkussiv · Takt 3",
+      "pattern": "DgggSggggSSSSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "label": "Stufe 3 melodisch · Takt 3",
+      "pattern": "DgggSggggTTTSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-4-perkussiv",
+      "label": "Stufe 4 perkussiv · Takt 3",
+      "hint": "Takt 3 ganz gefüllt · vier Slaps ab der 3",
+      "pattern": "DgggSgggSSSSSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "stufe-4-melodisch",
+      "label": "Stufe 4 melodisch · Takt 3",
+      "hint": "Takt 3 ganz gefüllt · vier Tonfelder ab der 3",
+      "pattern": "DgggSgggTTTTSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    },
+    {
+      "id": "kombi",
+      "label": "Kombi · 1m → 2m → 3m → 4p",
+      "hint": "vier Bögen · drei Mal Melodie, dann ein perkussiver Hammer",
+      "pattern": "DgggSggggggTSgggDgggSgggggTTSgggDgggSggggTTTSgggDgggSgggSSSSSggg",
+      "handsatz": "R-L",
+      "bpm": 60
+    }
+  ],
+  "changes": [
+    {
+      "id": "basis",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-1-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-2-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-perkussiv",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-3-melodisch",
+      "kind": "unchanged"
+    },
+    {
+      "id": "stufe-4-perkussiv",
+      "kind": "new",
+      "after": "DgggSgggSSSSSggg",
+      "note": "lowerthird_tag15_stufe4_perkussiv_hs1.png — Stufe 4 fehlte bisher (Overview: „vier Stufen“)."
+    },
+    {
+      "id": "stufe-4-melodisch",
+      "kind": "new",
+      "after": "DgggSgggTTTTSggg",
+      "note": "lowerthird_tag15_stufe4_melodisch_hs1.png — Stufe 4 fehlte bisher (Overview: „vier Stufen“)."
+    },
+    {
+      "id": "kombi",
+      "kind": "new",
+      "after": "DgggSggggggTSgggDgggSgggggTTSgggDgggSggggTTTSgggDgggSgggSSSSSggg",
+      "note": "Aus overview_tag15_kombi_uebung: Stufe 1m → 2m → 3m → 4p in Takt 3, 64 Schritte."
+    }
+  ],
+  "sources": [
+    "grafiken/tag-15/overview_tag15_wenn_die_stille_spricht_i.png",
+    "grafiken/tag-15/overview_tag15_kombi_uebung.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe1_perkussiv_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe1_melodisch_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe2_perkussiv_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe2_melodisch_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe3_perkussiv_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe3_melodisch_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe4_perkussiv_hs1.png",
+    "grafiken/tag-15/lowerthird_tag15_stufe4_melodisch_hs1.png"
+  ],
+  "unclear": [
+    "Kombi-Preset hat 64 Schritte (Typ-Kommentar sagt 1–32) — Player-Darstellung prüfen."
+  ]
+}
