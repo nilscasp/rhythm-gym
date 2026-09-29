@@ -8,8 +8,7 @@
     },
     {
       "label": "Beispiel 1 · Mikro-Break Takt 4",
-      "start": 435,
-      "presetId": "break-mikro"
+      "start": 435
     },
     {
       "label": "Beispiel 2 · ähnliche Abdämpf-Technik",
@@ -17,8 +16,7 @@
     },
     {
       "label": "Beispiel 3 · längerer Break",
-      "start": 485,
-      "presetId": "break-eins"
+      "start": 485
     },
     {
       "label": "Beispiel 4 · kombinierte Breaks",
@@ -27,7 +25,6 @@
     {
       "label": "Einzelner Schlag als Break",
       "start": 539,
-      "presetId": "break-mikro",
       "sub": true
     },
     {
@@ -38,13 +35,11 @@
     {
       "label": "Zweitaktiger Break",
       "start": 555,
-      "presetId": "break-solo",
       "sub": true
     },
     {
       "label": "Rückkehr zur Standardstruktur",
       "start": 560,
-      "presetId": "break-grundbogen",
       "sub": true
     }
   ]

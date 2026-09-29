@@ -10,55 +10,7 @@
     "grafiken/tag-32/overview_tag32_titel_energiekurve_v1.png",
     "grafiken/tag-32/lowerthird_tag32_ebene_*/funktion_*_v1.png"
   ],
-  "presets": [
-    {
-      "id": "break-grundbogen",
-      "label": "Grundbogen · ohne Break",
-      "hint": "Basis-Rhythmus: Bass alterniert · Mitte · Melodie",
-      "pattern": "TgggTgggggggTggg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "break-mikro",
-      "label": "Mikro-Break · letzte 16tel",
-      "hint": "der Grundbogen läuft · die letzte Sechzehntel verstummt",
-      "pattern": "TgggTgggggggTgg.",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "break-solo",
-      "label": "Solo-Break · Takt 2 + 3",
-      "hint": "die linke Hand pausiert · die rechte Hand spielt allein durch Takt 2 + 3",
-      "pattern": "TgggT.......Tggg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "break-zwei",
-      "label": "Stop-Time · Takt 3 Stille",
-      "hint": "alle Stimmen halten gemeinsam an · Takt 3 wird Stille",
-      "pattern": "TgggTggg....Tggg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "break-eins",
-      "label": "Break · ein Bogen Stille",
-      "hint": "3 Bögen voll · 1 Bogen Stille",
-      "pattern": "TgTgSgTgggggSgTg",
-      "handsatz": "R-L",
-      "bpm": 60
-    },
-    {
-      "id": "break-fill",
-      "label": "Break + Fill am Ende",
-      "pattern": "TgTgSgTgggggSTTT",
-      "handsatz": "R-L",
-      "bpm": 60
-    }
-  ],
+  "presets": [],
   "changes": [
     {
       "id": "break-grundbogen",
@@ -106,6 +58,7 @@
   "unclear": [
     "Solo-Break: Untertitel sagt „rechte Hand spielt allein durch Takt 2 + 3“, eingezeichnet ist dort aber nur MITTE auf Schritt 4; die Konzept-Grafik zeigt eine durchlaufende Melodie-Stimme. Was spielt die rechte Hand im Solo — frei improvisiert? Preset derzeit mit Pausen.",
     "Tag 32 ist laut Kursbuch ein Konzepttag („zum Anhören, nicht zum Nachspielen“). Presets trotzdem anbieten?",
-    "Konzept-, Übersichts-, Ebenen-, Funktions- und Energiekurven-Grafiken sind schematisch (Stimmen-Lanes/Text), keine Zählreihe → keine Presets."
+    "Konzept-, Übersichts-, Ebenen-, Funktions- und Energiekurven-Grafiken sind schematisch (Stimmen-Lanes/Text), keine Zählreihe → keine Presets.",
+    "Nils 29.09.: Tag 32 braucht kein Preset (Konzepttag) — Seite ohne Player."
   ]
 }

@@ -31,7 +31,7 @@ Kein Preset wurde gelöscht. Was keine Grafik hat, ist unten markiert.
   - Tag 28: die drei Voll-Presets
   - Tag 33: Gemischt
   - Tag 35 und 36: je ein frei gewähltes Preset
-- [ ] **Konzepttage:** Tag 32 ist laut Kursbuch „zum Anhören, nicht zum Nachspielen“. Tag 22 zeigt nur Beispiele („jeder Bogen ist gültig“). Sollen beide trotzdem Presets haben?
+- [x] **Konzepttage:** Tag 32 hat kein Preset mehr, die Seite zeigt keinen Player (Nils, 29.09.). Tag 22 noch offen.
 - [x] **Tag 29:** nur der Basisrhythmus als ein Bogen, den Inhalt legen die Lernenden selbst darüber (Nils, 29.09.). Tag 30 noch offen.
 
 ## B · Tage ohne Grafik: prüfst du selbst am Video
