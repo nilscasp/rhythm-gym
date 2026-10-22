@@ -8,16 +8,29 @@
 //   bun scripts/seed-kurse.ts --apply --publish   # setzt zusätzlich published_at
 //
 // Optionen:
-//   --source <json>     Bunny-Zuordnung (Standard: SOURCE_JSON unten)
-//   --texts <ordner>    Skool-Texte, Unterordner je Kurs mit *-skool.md
-//   --durations         Dauer je Video über die Bunny-API holen
-//                       (BUNNY_STREAM_API_KEY, NEXT_PUBLIC_BUNNY_LIBRARY_ID)
+//   --source <json>       Bunny-Zuordnung (Standard: SOURCE_JSON unten)
+//   --texts <ordner>      Content-Hub/Lektionen, ein Unterordner je Kurs
+//   --landkarte <md>      Content-Hub/LANDKARTE.md (Titel der Aufnahmen)
+//   --durations           Dauer je Video über die Bunny-API holen
+//                         (BUNNY_STREAM_API_KEY, NEXT_PUBLIC_BUNNY_LIBRARY_ID)
+//
+// Quellen je Kurs (Stand 22.10.2026, Content-Hub auf 2T-nils-1):
+//   Handpan Kompass      hk-lNN-skool.md je Lektion, hk-uebersicht-skool.md =
+//                        Kursbeschreibung, Modul aus der Kopfzeile = Abschnitt
+//   Klang der Elemente   Skool-Texte.md (eine Datei, ## Abschnitt / ### N · Titel)
+//   Handpan Kreativ      Skool-Beschreibungen.md (## Lektion N · Titel (Dauer))
+//   Von Anfang an …      vaa3-vaa4-skool-texte.md (## Session R · Lektion N · Titel)
+//   Bibliotheken         Titel aus LANDKARTE.md, Slug = Dateiname
+// AppleDouble-Dateien („._*“) werden überall ignoriert.
 //
 // Idempotent: Programme per slug, Abschnitte per (program_id, slug), Lektionen
 // per (program_id, slug), Inhalte per lesson_id — jeder Lauf schreibt denselben
 // Stand. published_at wird nur mit --publish gesetzt und nie zurückgenommen.
 // „von-anfang-an-spielen“ existiert schon: das Programm wird nicht angefasst,
 // nur Lektionen werden angehängt.
+//
+// PDF-Anhänge: Der Storage-Upload ist noch nicht gebaut. Der Trockenlauf zeigt
+// sie, --apply überspringt sie und meldet sie als Auffälligkeit.
 //
 // Geheimnisse: SUPABASE_SERVICE_ROLE_KEY und BUNNY_STREAM_API_KEY kommen aus
 // der Umgebung (Bun lädt .env.local automatisch) und werden nie ausgegeben.
@@ -27,11 +40,33 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../app/lib/supabase/database.types'
+import {
+  ELEMENT_LETTERS,
+  type ElementeText,
+  type Landkarte,
+  type ParsedText,
+  elementHeadingFor,
+  isAppleDouble,
+  lessonKey,
+  normalize,
+  parseElementeTexte,
+  parseKompassLesson,
+  parseKompassOverview,
+  parseKreativTexte,
+  parseLandkarte,
+  parseVaaTexte,
+  sessionTitle,
+  slugify,
+  stemOf,
+  titleFromFilename,
+  titleMatchesFile,
+} from './lib/kurse-quellen'
 
 // ── Konstanten ───────────────────────────────────────────────────────────────
 
 const SOURCE_JSON = '/Volumes/2T-nils-1/Content-Hub/Upload/bunny-upload-2026-10-22.json'
 const TEXTS_DIR = '/Volumes/2T-nils-1/Content-Hub/Lektionen'
+const LANDKARTE_MD = '/Volumes/2T-nils-1/Content-Hub/LANDKARTE.md'
 
 type PlanTier = 'premium' | 'vip' | null
 
@@ -45,8 +80,6 @@ type ProgramSpec = {
   existing?: boolean
   /** Bunny-collection- bzw. Textordner-Namen (klein, ohne Sonderzeichen), die hierher gehören. */
   match: (normalized: string) => boolean
-  /** Abschnitt aus dem Dateinamen (nur Kurse mit Gliederung). */
-  sectionFor?: (fileStem: string) => { slug: string; title: string } | null
 }
 
 // programs.level / programs.category sind NOT NULL (geprüft 22.10.2026).
@@ -55,30 +88,6 @@ type ProgramSpec = {
 const DEFAULT_LEVEL = 'alle'
 const CATEGORY_COURSE = 'kurs'
 const CATEGORY_LIBRARY = 'aufzeichnung'
-
-// Klang der Elemente: Präfix-Buchstabe des Dateinamens → Abschnitt.
-// a/f/w aus dem Auftrag; e/l/ae sind Annahmen — der Trockenlauf meldet jedes
-// Präfix, das hier fehlt.
-const ELEMENT_SECTIONS: Record<string, { slug: string; title: string; order: number }> = {
-  a: { slug: 'grundlagen', title: 'Grundlagen', order: 10 },
-  f: { slug: 'feuer', title: 'Feuer', order: 20 },
-  w: { slug: 'wasser', title: 'Wasser', order: 30 },
-  e: { slug: 'erde', title: 'Erde', order: 40 },
-  l: { slug: 'luft', title: 'Luft', order: 50 },
-  ae: { slug: 'aether', title: 'Äther', order: 60 },
-}
-const unknownElementPrefixes = new Set<string>()
-
-function elementSection(stem: string) {
-  const m = normalize(stem).match(/^(ae|[a-z])[\s_-]?\d/)
-  const prefix = m?.[1] ?? normalize(stem).match(/^([a-z]+)/)?.[1] ?? ''
-  const hit = ELEMENT_SECTIONS[prefix]
-  if (!hit) {
-    unknownElementPrefixes.add(prefix || '(kein Präfix)')
-    return null
-  }
-  return { slug: hit.slug, title: hit.title }
-}
 
 const PROGRAMS: ProgramSpec[] = [
   {
@@ -96,7 +105,6 @@ const PROGRAMS: ProgramSpec[] = [
     includedInPlan: 'premium',
     sortOrder: 20,
     match: (n) => n.includes('element'),
-    sectionFor: elementSection,
   },
   {
     slug: 'handpan-kreativ',
@@ -151,6 +159,26 @@ const PROGRAMS: ProgramSpec[] = [
   },
 ]
 
+// PDF-Anhänge: Datei im Kursordner → Lektion. Die Lektion steht im Skool-Text
+// („PDF unten“) oder, wo es keinen Lektionsbezug gibt, auf der ersten Lektion.
+const ATTACHMENTS: { program: string; lesson: string; dir: string; file: string; title: string }[] = [
+  // In Skool auf der Übersichtsseite; die Kursseite hat keine Programm-Anhänge.
+  { program: 'handpan-kompass', lesson: 'l01', dir: 'Handpan Kompass', file: 'Handpan Kompass · Kursbegleiter.pdf', title: 'Handpan Kompass · Kursbegleiter' },
+  { program: 'handpan-kompass', lesson: 'l02', dir: 'Handpan Kompass', file: 'Das Rad der Handpan.pdf', title: 'Das Rad der Handpan' },
+  // In Skool auf „So gehst du vor“ (Textseite vor a1).
+  { program: 'klang-der-elemente', lesson: 'a1', dir: 'Klang der Elemente', file: 'Klang-der-Elemente-Wochenkarte.pdf', title: 'Klang der Elemente · Wochenkarte' },
+  // „Anhang zu Nachschau und Lektion 1“ (Skool-Beschreibungen.md).
+  { program: 'handpan-kreativ', lesson: 'l01', dir: 'Handpan Kreativ', file: 'Handpan Kreativ · Session 1.pdf', title: 'Handpan Kreativ · Session 1 (Folien)' },
+  { program: 'nachschauen', lesson: 'hkr1-nachschau', dir: 'Handpan Kreativ', file: 'Handpan Kreativ · Session 1.pdf', title: 'Handpan Kreativ · Session 1 (Folien)' },
+]
+
+// Dateien in Kursordnern, die bewusst nicht eingelesen werden.
+const IGNORED_TEXT_FILES = [
+  'Skool-Beschreibungen.md', // Kompass: Sammeldatei, dieselben Texte wie hk-lNN-skool.md
+  'hk-ankuendigung-skool-whatsapp.md', // Ankündigung, kein Lektionstext
+  'SCHNITTPLAN.md',
+]
+
 // ── Argumente ────────────────────────────────────────────────────────────────
 
 const argv = process.argv.slice(2)
@@ -164,6 +192,7 @@ const PUBLISH = flag('--publish')
 const DURATIONS = flag('--durations')
 const sourcePath = option('--source') ?? SOURCE_JSON
 const textsDir = option('--texts') ?? TEXTS_DIR
+const landkartePath = option('--landkarte') ?? LANDKARTE_MD
 
 if (PUBLISH && !APPLY) {
   console.log('Hinweis: --publish wirkt nur zusammen mit --apply. Läuft als Trockenlauf.')
@@ -171,29 +200,10 @@ if (PUBLISH && !APPLY) {
 
 // ── Helfer ───────────────────────────────────────────────────────────────────
 
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
-}
-
-function slugify(s: string): string {
-  return normalize(s).replace(/\s+/g, '-').slice(0, 80).replace(/-+$/, '') || 'lektion'
-}
-
-function stemOf(file: string): string {
-  return path.basename(file).replace(/\.[^.]+$/, '').replace(/[-_ ]?skool$/i, '')
-}
-
 /** Natürliche Sortierung: „a2“ vor „a10“. */
 const natural = new Intl.Collator('de', { numeric: true, sensitivity: 'base' })
+
+const nfc = (s: string) => s.normalize('NFC')
 
 function programFor(name: string): ProgramSpec | null {
   const n = normalize(name)
@@ -206,15 +216,12 @@ function programFor(name: string): ProgramSpec | null {
   return null
 }
 
-/** Titel aus der ersten „# “-Zeile, Text ohne diese Zeile. */
-function parseSkool(markdown: string): { title: string | null; body: string } {
-  const lines = markdown.replace(/\r\n/g, '\n').split('\n')
-  const i = lines.findIndex((l) => l.trim() !== '')
-  if (i >= 0) {
-    const m = lines[i].match(/^#\s+(.+?)\s*$/)
-    if (m) return { title: m[1].replace(/\*\*/g, '').trim(), body: lines.slice(i + 1).join('\n').trim() }
-  }
-  return { title: null, body: markdown.trim() }
+function listDir(dir: string): string[] {
+  return existsSync(dir) ? readdirSync(dir).filter((f) => !isAppleDouble(f)).map(nfc) : []
+}
+
+function readText(file: string): string | null {
+  return existsSync(file) ? readFileSync(file, 'utf8') : null
 }
 
 // ── Quellen lesen ────────────────────────────────────────────────────────────
@@ -222,6 +229,7 @@ function parseSkool(markdown: string): { title: string | null; body: string } {
 type Video = { collection: string; title: string; file: string; guid: string }
 
 const anomalies: string[] = []
+const notes: string[] = []
 
 function readVideos(): Video[] {
   if (!existsSync(sourcePath)) {
@@ -240,10 +248,11 @@ function readVideos(): Video[] {
     const r = (item ?? {}) as Record<string, unknown>
     const v = {
       collection: String(r.collection ?? '').trim(),
-      title: String(r.title ?? '').trim(),
-      file: String(r.file ?? '').trim(),
+      title: nfc(String(r.title ?? '').trim()),
+      file: nfc(String(r.file ?? '').trim()),
       guid: String(r.guid ?? '').trim(),
     }
+    if (isAppleDouble(v.file) || isAppleDouble(v.title)) return
     if (!v.guid) anomalies.push(`Eintrag ${i + 1} („${v.title || v.file}“) ohne guid — übersprungen`)
     else if (!v.collection) anomalies.push(`Eintrag ${i + 1} („${v.title || v.file}“) ohne collection — übersprungen`)
     else out.push(v)
@@ -251,29 +260,101 @@ function readVideos(): Video[] {
   return out
 }
 
-type SkoolText = { programSlug: string; stem: string; title: string | null; body: string; file: string }
-
-function readTexts(): SkoolText[] {
+/** Kursordner in Content-Hub/Lektionen je Programm-Slug. */
+function courseDirs(): Map<string, string> {
+  const out = new Map<string, string>()
   if (!existsSync(textsDir)) {
-    anomalies.push(`Skool-Texte nicht gefunden: ${textsDir}`)
-    return []
+    anomalies.push(`Kursordner nicht gefunden: ${textsDir}`)
+    return out
   }
-  const out: SkoolText[] = []
-  for (const dir of readdirSync(textsDir)) {
+  for (const dir of listDir(textsDir)) {
     const full = path.join(textsDir, dir)
     if (!statSync(full).isDirectory()) continue
     const spec = programFor(dir)
-    const files = readdirSync(full).filter((f) => /-skool\.md$/i.test(f))
-    if (!spec) {
-      if (files.length) anomalies.push(`Textordner „${dir}“ (${files.length} Texte) passt zu keinem Programm`)
-      continue
-    }
-    for (const f of files) {
-      const parsed = parseSkool(readFileSync(path.join(full, f), 'utf8'))
-      out.push({ programSlug: spec.slug, stem: stemOf(f), file: path.join(dir, f), ...parsed })
+    if (spec) out.set(spec.slug, full)
+    else {
+      const videos = listDir(full).filter((f) => /\.mp4$/i.test(f)).length
+      anomalies.push(`Kursordner „${dir}“ (${videos} Videos) passt zu keinem Programm — nicht eingeplant`)
     }
   }
   return out
+}
+
+type CourseTexts = {
+  kompass: Map<number, ParsedText & { file: string }>
+  kompassDescription: string | null
+  elemente: ElementeText[]
+  kreativ: ReturnType<typeof parseKreativTexte>
+  vaa: Map<string, ParsedText>
+  count: number
+}
+
+function readCourseTexts(dirs: Map<string, string>): CourseTexts {
+  const t: CourseTexts = {
+    kompass: new Map(),
+    kompassDescription: null,
+    elemente: [],
+    kreativ: { lessons: new Map(), nachschau: new Map() },
+    vaa: new Map(),
+    count: 0,
+  }
+
+  const kompassDir = dirs.get('handpan-kompass')
+  if (kompassDir) {
+    for (const f of listDir(kompassDir)) {
+      const m = f.match(/^hk-l(\d+)-skool\.md$/i)
+      if (m) {
+        const parsed = parseKompassLesson(readText(path.join(kompassDir, f)) ?? '')
+        if (parsed) {
+          t.kompass.set(Number(m[1]), { ...parsed, file: f })
+          t.count++
+        } else anomalies.push(`handpan-kompass: ${f} ohne „# “-Überschrift — nicht verwendet`)
+      } else if (/^hk-uebersicht-skool\.md$/i.test(f)) {
+        t.kompassDescription = parseKompassOverview(readText(path.join(kompassDir, f)) ?? '') || null
+      } else if (/\.md$/i.test(f) && !IGNORED_TEXT_FILES.includes(f)) {
+        anomalies.push(`handpan-kompass: unbekannte Textdatei ${f} — nicht verwendet`)
+      }
+    }
+    if (!t.kompassDescription) anomalies.push('handpan-kompass: hk-uebersicht-skool.md fehlt — keine Kursbeschreibung')
+  }
+
+  const elementeDir = dirs.get('klang-der-elemente')
+  if (elementeDir) {
+    const md = readText(path.join(elementeDir, 'Skool-Texte.md'))
+    if (md) {
+      t.elemente = parseElementeTexte(md)
+      t.count += t.elemente.length
+    } else anomalies.push('klang-der-elemente: Skool-Texte.md fehlt')
+  }
+
+  const kreativDir = dirs.get('handpan-kreativ')
+  if (kreativDir) {
+    const md = readText(path.join(kreativDir, 'Skool-Beschreibungen.md'))
+    if (md) {
+      t.kreativ = parseKreativTexte(md)
+      t.count += t.kreativ.lessons.size + t.kreativ.nachschau.size
+    } else anomalies.push('handpan-kreativ: Skool-Beschreibungen.md fehlt — Lektionen ohne Text')
+  }
+
+  const vaaDir = dirs.get('von-anfang-an-spielen')
+  if (vaaDir) {
+    for (const f of listDir(vaaDir).filter((x) => /skool.*\.md$/i.test(x))) {
+      for (const [k, v] of parseVaaTexte(readText(path.join(vaaDir, f)) ?? '')) {
+        t.vaa.set(k, v)
+        t.count++
+      }
+    }
+  }
+  return t
+}
+
+function readLandkarte(): Landkarte {
+  const md = readText(landkartePath)
+  if (!md) {
+    anomalies.push(`LANDKARTE.md nicht gefunden: ${landkartePath} — Bibliothekstitel aus Dateinamen`)
+    return { sessions: new Map(), items: new Map() }
+  }
+  return parseLandkarte(md)
 }
 
 // ── Plan bauen ───────────────────────────────────────────────────────────────
@@ -281,26 +362,216 @@ function readTexts(): SkoolText[] {
 type PlannedLesson = {
   slug: string
   title: string
+  subtitle: string | null
   sortOrder: number
   sectionSlug: string | null
-  videoGuid: string
+  mediaKind: 'video' | 'text'
+  videoGuid: string | null
   bodyMd: string | null
   durationSeconds: number | null
   sourceFile: string
 }
 
+type PlannedSection = { slug: string; title: string; sortOrder: number }
+
 type PlannedProgram = {
   spec: ProgramSpec
-  sections: { slug: string; title: string; sortOrder: number }[]
+  description: string | null
+  sections: PlannedSection[]
   lessons: PlannedLesson[]
 }
 
-function buildPlan(videos: Video[], texts: SkoolText[]): PlannedProgram[] {
+type PlannedAttachment = { program: string; lesson: string; title: string; path: string }
+
+/** Text, Abschnitt und Kennung einer Kurslektion. */
+type CourseMatch = { text: (ParsedText & { label: string }) | null; section: PlannedSection | null }
+
+function matchCourse(slug: string, key: NonNullable<ReturnType<typeof lessonKey>>, texts: CourseTexts): CourseMatch {
+  if (slug === 'handpan-kompass') {
+    const t = texts.kompass.get(key.number)
+    const section = t?.section
+      ? { slug: `modul-${t.section.number}`, title: t.section.title, sortOrder: t.section.number * 10 }
+      : null
+    return { text: t ? { ...t, label: t.file } : null, section }
+  }
+  if (slug === 'klang-der-elemente') {
+    const letter = key.letter ?? ''
+    const spec = ELEMENT_LETTERS[letter]
+    const headings = [...new Set(texts.elemente.map((e) => e.sectionHeading))]
+    const heading = elementHeadingFor(letter, headings)
+    const section = spec ? { slug: spec.slug, title: heading ?? spec.fallback, sortOrder: spec.order } : null
+    const t = heading ? texts.elemente.find((e) => e.sectionHeading === heading && e.index === key.number) : undefined
+    return { text: t ? { ...t, label: `Skool-Texte.md · ${heading} · ${t.index}` } : null, section }
+  }
+  if (slug === 'handpan-kreativ') {
+    const t = texts.kreativ.lessons.get(key.number)
+    return { text: t ? { ...t, label: `Skool-Beschreibungen.md · Lektion ${key.number}` } : null, section: null }
+  }
+  if (slug === 'von-anfang-an-spielen') {
+    const t = texts.vaa.get(`${key.round}-${key.number}`)
+    return { text: t ? { ...t, label: `Session ${key.round} · Lektion ${key.number}` } : null, section: null }
+  }
+  return { text: null, section: null }
+}
+
+function buildCourse(entry: PlannedProgram, list: Video[], texts: CourseTexts, used: Set<string>) {
+  const slug = entry.spec.slug
+  const sections = new Map<string, PlannedSection>()
+  const taken = new Set<string>()
+  const sorted = [...list].sort((a, b) => natural.compare(stemOf(a.file || a.title), stemOf(b.file || b.title)))
+
+  sorted.forEach((v, i) => {
+    const stem = stemOf(v.file || v.title)
+    const key = lessonKey(slug, stem)
+    if (!key) anomalies.push(`${slug}: „${stem}“ passt nicht zum Dateinamen-Muster — Slug aus dem Dateinamen`)
+    const lessonSlug = key?.slug ?? slugify(stem)
+    if (taken.has(lessonSlug)) {
+      anomalies.push(`${slug}: Slug ${lessonSlug} doppelt („${stem}“) — übersprungen`)
+      return
+    }
+    taken.add(lessonSlug)
+
+    const { text, section } = key ? matchCourse(slug, key, texts) : { text: null, section: null }
+    if (text) used.add(`${slug}:${text.label}`)
+    if (section && !sections.has(section.slug)) sections.set(section.slug, section)
+    if (slug === 'klang-der-elemente' && key && !ELEMENT_LETTERS[key.letter ?? '']) {
+      anomalies.push(`klang-der-elemente: unbekannter Abschnitts-Buchstabe „${key.letter}“ in „${stem}“`)
+    }
+    if (slug === 'klang-der-elemente' && section && !elementHeadingFor(key?.letter ?? '', texts.elemente.map((e) => e.sectionHeading))) {
+      anomalies.push(`klang-der-elemente: Abschnitt „${section.title}“ steht nicht in Skool-Texte.md — Name angenommen`)
+    }
+
+    let title = text?.title ?? ''
+    if (!title) {
+      title = titleFromFilename(key?.rest ?? stem)
+      anomalies.push(`${slug}: kein Skool-Text zu „${stem}“ — Titel aus dem Dateinamen: „${title}“`)
+    } else if (key && key.rest && !titleMatchesFile(title, key.rest)) {
+      anomalies.push(`${slug}: Text „${title}“ (${text?.label}) passt evtl. nicht zu „${stem}“ — bitte prüfen`)
+    }
+
+    entry.lessons.push({
+      slug: lessonSlug,
+      title,
+      subtitle: text?.subtitle ?? null,
+      sortOrder: key?.sortOrder ?? (i + 1) * 10,
+      sectionSlug: section?.slug ?? null,
+      mediaKind: 'video',
+      videoGuid: v.guid,
+      bodyMd: text?.body || null,
+      durationSeconds: text?.durationSeconds ?? null,
+      sourceFile: stem,
+    })
+  })
+
+  // Elemente: Textseiten ohne Video (z. B. „4 · Dein Beitrag zur Pattern-Mediathek“
+  // in der Ernte) werden Textlektionen — in Skool stehen sie genauso.
+  if (slug === 'klang-der-elemente') {
+    for (const e of texts.elemente) {
+      const label = `Skool-Texte.md · ${e.sectionHeading} · ${e.index}`
+      if (used.has(`${slug}:${label}`)) continue
+      const letter = Object.keys(ELEMENT_LETTERS).find((l) => elementHeadingFor(l, [e.sectionHeading]))
+      if (!letter) {
+        anomalies.push(`klang-der-elemente: Abschnitt „${e.sectionHeading}“ in Skool-Texte.md ohne Buchstaben — „${e.title}“ nicht eingeplant`)
+        continue
+      }
+      const spec = ELEMENT_LETTERS[letter]
+      const lessonSlug = `${letter}${e.index}`
+      if (taken.has(lessonSlug)) continue
+      taken.add(lessonSlug)
+      used.add(`${slug}:${label}`)
+      if (!sections.has(spec.slug)) sections.set(spec.slug, { slug: spec.slug, title: e.sectionHeading, sortOrder: spec.order })
+      const inSection = entry.lessons.filter((l) => l.sectionSlug === spec.slug)
+      const after = Math.max(0, ...inSection.map((l) => l.sortOrder))
+      entry.lessons.push({
+        slug: lessonSlug,
+        title: e.title,
+        subtitle: null,
+        sortOrder: after + 5,
+        sectionSlug: spec.slug,
+        mediaKind: 'text',
+        videoGuid: null,
+        bodyMd: e.body || null,
+        durationSeconds: null,
+        sourceFile: label,
+      })
+      notes.push(`klang-der-elemente: „${e.title}“ (${lessonSlug}) ist eine Textlektion ohne Video, wie in Skool`)
+    }
+  }
+
+  entry.lessons.sort((a, b) => a.sortOrder - b.sortOrder)
+  entry.sections = [...sections.values()].sort((a, b) => a.sortOrder - b.sortOrder)
+}
+
+function libraryTitle(slug: string, stem: string, video: Video, lk: Landkarte): string | null {
+  if (slug === 'nachschauen') {
+    const base = stem.replace(/-nachschau$/i, '')
+    return sessionTitle(lk, base, lk.items.get(stem)?.title)
+  }
+  if (slug === 'masterclasses') return lk.items.get(stem)?.title ?? null
+  if (slug === 'kompass-live') {
+    const n = stem.match(/(\d+)\s*$/)?.[1]
+    return n ? sessionTitle(lk, `hk${n}`) : null
+  }
+  // Bunny-Titel nehmen, wenn er schon lesbar ist (Leerzeichen statt Bindestriche).
+  return /\s/.test(video.title) ? video.title : null
+}
+
+/** Sitzungs-Kennung einer Aufnahme für Datum und Reihenfolge. */
+function sessionIdOf(slug: string, stem: string): string {
+  if (slug === 'kompass-live') return `hk${stem.match(/(\d+)\s*$/)?.[1] ?? ''}`
+  return stem.replace(/-(nachschau|masterclass\d*)$/i, '')
+}
+
+function buildLibrary(entry: PlannedProgram, list: Video[], lk: Landkarte, texts: CourseTexts) {
+  const slug = entry.spec.slug
+  const dated = list.map((v) => {
+    const stem = stemOf(v.file || v.title)
+    return { v, stem, date: lk.sessions.get(sessionIdOf(slug, stem))?.date ?? '' }
+  })
+  // Reihenfolge nach Sitzungsdatum (Seite zeigt absteigend: höchste sort_order = neueste),
+  // ohne Datum ans Ende, sonst nach Dateiname.
+  dated.sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999') || natural.compare(a.stem, b.stem))
+  const taken = new Set<string>()
+  dated.forEach(({ v, stem, date }, i) => {
+    const lessonSlug = slugify(stem)
+    if (taken.has(lessonSlug)) {
+      anomalies.push(`${slug}: Slug ${lessonSlug} doppelt („${stem}“) — übersprungen`)
+      return
+    }
+    taken.add(lessonSlug)
+    let title = libraryTitle(slug, stem, v, lk)
+    if (!title) {
+      title = titleFromFilename(stem)
+      anomalies.push(`${slug}: „${stem}“ nicht in LANDKARTE.md — Titel aus dem Dateinamen: „${title}“`)
+    }
+    if (!date) anomalies.push(`${slug}: „${stem}“ ohne Sitzungsdatum in LANDKARTE.md — Reihenfolge nach Dateiname`)
+    // Kreativ-Nachschau hat einen Skool-Text (Skool-Beschreibungen.md).
+    const hkr = slug === 'nachschauen' ? stem.match(/^hkr(\d+)-nachschau$/i) : null
+    const text = hkr ? texts.kreativ.nachschau.get(Number(hkr[1])) : undefined
+    entry.lessons.push({
+      slug: lessonSlug,
+      title: text?.title || title,
+      subtitle: null,
+      sortOrder: (i + 1) * 10,
+      sectionSlug: null,
+      mediaKind: 'video',
+      videoGuid: v.guid,
+      bodyMd: text?.body || null,
+      durationSeconds: text?.durationSeconds ?? null,
+      sourceFile: stem,
+    })
+  })
+  const without = entry.lessons.filter((l) => !l.bodyMd).length
+  if (without) notes.push(`${slug}: ${without} von ${entry.lessons.length} Aufnahmen ohne Beschreibung (Bibliothek, kein Pflichttext)`)
+}
+
+function buildPlan(videos: Video[], texts: CourseTexts, dirs: Map<string, string>, lk: Landkarte): PlannedProgram[] {
   const plan = new Map<string, PlannedProgram>(
-    PROGRAMS.map((spec) => [spec.slug, { spec, sections: [], lessons: [] }]),
+    PROGRAMS.map((spec) => [spec.slug, { spec, description: null, sections: [], lessons: [] }]),
   )
+  plan.get('handpan-kompass')!.description = texts.kompassDescription
   const unmatchedCollections = new Map<string, number>()
-  const usedTexts = new Set<SkoolText>()
+  const used = new Set<string>()
 
   const byProgram = new Map<string, Video[]>()
   for (const v of videos) {
@@ -317,58 +588,62 @@ function buildPlan(videos: Video[], texts: SkoolText[]): PlannedProgram[] {
 
   for (const [slug, list] of byProgram) {
     const entry = plan.get(slug)!
-    const sorted = [...list].sort((a, b) => natural.compare(a.file || a.title, b.file || b.title))
-    const taken = new Set<string>()
-    const sectionMap = new Map<string, { slug: string; title: string; sortOrder: number }>()
-
-    sorted.forEach((v, i) => {
-      const stem = stemOf(v.file || v.title)
-      const text =
-        texts.find((t) => t.programSlug === slug && normalize(t.stem) === normalize(stem)) ??
-        texts.find((t) => t.programSlug === slug && t.title && normalize(t.title) === normalize(v.title))
-      if (text) usedTexts.add(text)
-
-      const title = text?.title || v.title || stem
-      let lessonSlug = slugify(title)
-      for (let n = 2; taken.has(lessonSlug); n++) lessonSlug = `${slugify(title)}-${n}`
-      if (lessonSlug !== slugify(title)) anomalies.push(`${slug}: doppelter Titel „${title}“ → Slug ${lessonSlug}`)
-      taken.add(lessonSlug)
-
-      const section = entry.spec.sectionFor?.(stem) ?? null
-      if (section && !sectionMap.has(section.slug)) {
-        const known = Object.values(ELEMENT_SECTIONS).find((s) => s.slug === section.slug)
-        sectionMap.set(section.slug, { ...section, sortOrder: known?.order ?? 100 })
-      }
-      if (entry.spec.sectionFor && !section) {
-        anomalies.push(`${slug}: „${v.file || v.title}“ ohne erkennbaren Abschnitt → ohne Abschnitt`)
-      }
-
-      entry.lessons.push({
-        slug: lessonSlug,
-        title,
-        // Kurse: Reihenfolge der Dateinamen. Bibliotheken: dieselbe Reihenfolge,
-        // die Seite zeigt sie absteigend (höchste sort_order = neueste).
-        sortOrder: (i + 1) * 10,
-        sectionSlug: section?.slug ?? null,
-        videoGuid: v.guid,
-        bodyMd: text?.body || null,
-        durationSeconds: null,
-        sourceFile: v.file || v.title,
-      })
-      if (!text && entry.spec.kind === 'course') {
-        anomalies.push(`${slug}: kein Skool-Text zu „${v.file || v.title}“`)
-      }
-    })
-    entry.sections = [...sectionMap.values()].sort((a, b) => a.sortOrder - b.sortOrder)
+    if (entry.spec.kind === 'course') buildCourse(entry, list, texts, used)
+    else buildLibrary(entry, list, lk, texts)
   }
 
-  for (const t of texts) {
-    if (!usedTexts.has(t)) anomalies.push(`${t.programSlug}: Skool-Text ohne Video — ${t.file}`)
+  // Videos im Kursordner, die nicht in der Bunny-Liste stehen.
+  for (const [slug, dir] of dirs) {
+    const inBunny = new Set((byProgram.get(slug) ?? []).map((v) => stemOf(v.file || v.title)))
+    for (const f of listDir(dir).filter((x) => /\.mp4$/i.test(x))) {
+      if (!inBunny.has(stemOf(f))) anomalies.push(`${slug}: Video ${f} liegt im Kursordner, fehlt aber in der Bunny-Liste`)
+    }
   }
-  for (const p of unknownElementPrefixes) {
-    anomalies.push(`klang-der-elemente: unbekanntes Präfix „${p}“ — in ELEMENT_SECTIONS ergänzen`)
+
+  // Texte ohne Video.
+  for (const [n, t] of texts.kompass) {
+    if (!used.has(`handpan-kompass:${t.file}`)) anomalies.push(`handpan-kompass: Skool-Text ohne Video — ${t.file} (Lektion ${n})`)
+  }
+  for (const [n, t] of texts.kreativ.lessons) {
+    if (!used.has(`handpan-kreativ:Skool-Beschreibungen.md · Lektion ${n}`)) anomalies.push(`handpan-kreativ: Skool-Text ohne Video — Lektion ${n} „${t.title}“`)
+  }
+  for (const [k, t] of texts.vaa) {
+    const [r, n] = k.split('-')
+    if (!used.has(`von-anfang-an-spielen:Session ${r} · Lektion ${n}`)) anomalies.push(`von-anfang-an-spielen: Skool-Text ohne Video — Session ${r} · Lektion ${n} „${t.title}“`)
+  }
+
+  for (const p of plan.values()) {
+    if (p.spec.kind === 'course' && !p.spec.existing && p.lessons.length && !p.description) {
+      anomalies.push(`${p.spec.slug}: keine Kursbeschreibung gefunden (programs.description bleibt leer)`)
+    }
   }
   return [...plan.values()]
+}
+
+function planAttachments(plan: PlannedProgram[], dirs: Map<string, string>): PlannedAttachment[] {
+  const out: PlannedAttachment[] = []
+  const known = new Set<string>()
+  for (const a of ATTACHMENTS) {
+    const dir = path.join(textsDir, a.dir)
+    known.add(nfc(path.join(dir, a.file)))
+    const file = listDir(dir).find((f) => f === nfc(a.file))
+    if (!file) {
+      anomalies.push(`Anhang fehlt: ${a.dir}/${a.file}`)
+      continue
+    }
+    const lesson = plan.find((p) => p.spec.slug === a.program)?.lessons.find((l) => l.slug === a.lesson)
+    if (!lesson) {
+      anomalies.push(`Anhang ${a.file}: Lektion ${a.program}/${a.lesson} nicht im Plan`)
+      continue
+    }
+    out.push({ program: a.program, lesson: a.lesson, title: a.title, path: path.join(dir, file) })
+  }
+  for (const [slug, dir] of dirs) {
+    for (const f of listDir(dir).filter((x) => /\.pdf$/i.test(x))) {
+      if (!known.has(nfc(path.join(dir, f)))) anomalies.push(`${slug}: PDF ${f} keiner Lektion zugeordnet — in ATTACHMENTS ergänzen`)
+    }
+  }
+  return out
 }
 
 // ── Bunny-Dauer (optional) ───────────────────────────────────────────────────
@@ -382,6 +657,7 @@ async function fillDurations(plan: PlannedProgram[]) {
   }
   for (const p of plan) {
     for (const l of p.lessons) {
+      if (!l.videoGuid) continue
       try {
         const res = await fetch(`https://video.bunnycdn.com/library/${lib}/videos/${l.videoGuid}`, {
           headers: { AccessKey: key, accept: 'application/json' },
@@ -401,17 +677,38 @@ async function fillDurations(plan: PlannedProgram[]) {
 
 // ── Ausgabe ──────────────────────────────────────────────────────────────────
 
-function printSummary(plan: PlannedProgram[], videos: Video[], texts: SkoolText[]) {
+function printSummary(plan: PlannedProgram[], videos: Video[], texts: CourseTexts, attachments: PlannedAttachment[]) {
   console.log(`\nseed-kurse · ${APPLY ? 'SCHREIBEN' : 'Trockenlauf (nichts geschrieben)'}${APPLY && PUBLISH ? ' + veröffentlichen' : ''}`)
-  console.log(`Quelle: ${videos.length} Videos, ${texts.length} Skool-Texte\n`)
+  console.log(`Quelle: ${videos.length} Videos, ${texts.count} Skool-Texte\n`)
   for (const p of plan) {
     const s = p.spec
     const head = `${s.slug.padEnd(24)} ${s.kind.padEnd(8)} Abo: ${String(s.includedInPlan ?? '—').padEnd(8)}`
     const withText = p.lessons.filter((l) => l.bodyMd).length
     console.log(`${head} ${String(p.lessons.length).padStart(3)} Lektionen (${withText} mit Text)${s.existing ? ' · Programm besteht, nur Lektionen' : ''}`)
-    if (p.sections.length) console.log(`    Abschnitte: ${p.sections.map((x) => x.title).join(', ')}`)
-    const sample = p.lessons.slice(0, 3).map((l) => l.slug)
-    if (sample.length) console.log(`    z. B.: ${sample.join(', ')}${p.lessons.length > 3 ? ', …' : ''}`)
+    if (p.description) console.log(`    Beschreibung: ${p.description.replace(/\s+/g, ' ').slice(0, 90)}…`)
+    const sectionTitle = new Map(p.sections.map((x) => [x.slug, x.title]))
+    let lastSection: string | null | undefined
+    for (const l of p.lessons) {
+      if (p.sections.length && l.sectionSlug !== lastSection) {
+        console.log(`    ▸ ${l.sectionSlug ? sectionTitle.get(l.sectionSlug) : '(ohne Abschnitt)'}`)
+        lastSection = l.sectionSlug
+      }
+      const marks = [
+        l.bodyMd ? 'Text' : 'ohne Text',
+        l.mediaKind === 'text' ? 'nur Text' : null,
+        l.subtitle,
+        l.durationSeconds ? `${Math.floor(l.durationSeconds / 60)}:${String(l.durationSeconds % 60).padStart(2, '0')}` : null,
+      ].filter(Boolean)
+      console.log(`      ${String(l.sortOrder).padStart(4)}  ${l.slug.padEnd(28)} ${l.title}  [${marks.join(' · ')}]`)
+    }
+  }
+  if (attachments.length) {
+    console.log(`\nAnhänge (${attachments.length}, Storage-Upload noch nicht gebaut${APPLY ? ' — übersprungen' : ''}):`)
+    for (const a of attachments) console.log(`  · ${a.program}/${a.lesson}: ${a.title}  ← ${path.relative(textsDir, a.path)}`)
+  }
+  if (notes.length) {
+    console.log('\nHinweise:')
+    for (const n of notes) console.log(`  · ${n}`)
   }
   console.log(`\nAuffälligkeiten (${anomalies.length}):`)
   if (anomalies.length === 0) console.log('  keine')
@@ -459,6 +756,7 @@ async function apply(plan: PlannedProgram[]) {
             sort_order: s.sortOrder,
             level: DEFAULT_LEVEL,
             category: s.kind === 'library' ? CATEGORY_LIBRARY : CATEGORY_COURSE,
+            ...(p.description ? { description: p.description } : {}),
             ...(PUBLISH ? { published_at: now } : {}),
           },
           { onConflict: 'slug' },
@@ -491,9 +789,10 @@ async function apply(plan: PlannedProgram[]) {
             program_id: programId,
             slug: l.slug,
             title: l.title,
+            subtitle: l.subtitle,
             sort_order: l.sortOrder,
             section_id: l.sectionSlug ? (sectionIds.get(l.sectionSlug) ?? null) : null,
-            media_kind: 'video',
+            media_kind: l.mediaKind,
             updated_at: now,
             ...(l.durationSeconds != null ? { duration_seconds: l.durationSeconds } : {}),
             ...(PUBLISH ? { published_at: now } : {}),
@@ -518,10 +817,18 @@ async function apply(plan: PlannedProgram[]) {
 // ── Lauf ─────────────────────────────────────────────────────────────────────
 
 const videos = readVideos()
-const texts = readTexts()
-const plan = buildPlan(videos, texts)
+const dirs = courseDirs()
+const texts = readCourseTexts(dirs)
+const landkarte = readLandkarte()
+const plan = buildPlan(videos, texts, dirs, landkarte)
+const attachments = planAttachments(plan, dirs)
+if (APPLY) {
+  for (const a of attachments) {
+    anomalies.push(`Anhang übersprungen (Storage-Upload fehlt): ${a.program}/${a.lesson} „${a.title}“`)
+  }
+}
 if (DURATIONS) await fillDurations(plan)
-printSummary(plan, videos, texts)
+printSummary(plan, videos, texts, attachments)
 if (APPLY) {
   if (videos.length === 0) {
     console.error('\nAbbruch: keine Videos in der Quelle — nichts zu schreiben.')
