@@ -8,9 +8,11 @@ import { BRAND_HEADER, DEFAULT_BRAND, isBrand, type Brand } from '../lib/brand'
 import { getCourseAccess } from '../lib/course-access'
 import {
   getCompletedDaysByProgram,
+  getCompletedLessonCountsByProgram,
   nextOpenDay,
   progressPercent,
 } from '../lib/course-progress'
+import { planSatisfies, toPaidPlan } from '../lib/plan'
 import { COURSE_TOTAL_DAYS, RHYTHMUS_DAYS } from '../../data/rhythmusfundament-days'
 import { RedeemCodeCard } from './_components/RedeemCodeCard'
 
@@ -154,6 +156,9 @@ export default async function TrainingHubPage() {
     activityRes,
     completedDaysByProgram,
     rfAccess,
+    planProgramsRes,
+    lessonRowsRes,
+    completedLessonsByProgram,
   ] = await Promise.all([
       supabase
         .from('profiles')
@@ -187,6 +192,19 @@ export default async function TrainingHubPage() {
       // Drip-Stand des Fundament-Kurses — für „Weiter mit Tag X" braucht der
       // Hub dieselbe Regel wie die Kursseiten, nicht eine zweite.
       getCourseAccess(supabase, user.id, RHYTHMUSFUNDAMENT_SLUG),
+      // Kurse und Bibliotheken, die in einer Abo-Stufe enthalten sind
+      // (Migration 0010). Vor dem Einspielen fehlt die Spalte → Fehler → leer.
+      supabase
+        .from('programs')
+        .select(
+          'id, title, slug, description, level, category, total_exercises, kind, included_in_plan, sort_order'
+        )
+        .not('included_in_plan', 'is', null)
+        .not('published_at', 'is', null)
+        .order('sort_order', { ascending: true }),
+      // Veröffentlichte Lektionen (RLS) — nur für die Zählung je Programm.
+      supabase.from('lessons').select('program_id'),
+      getCompletedLessonCountsByProgram(supabase, user.id),
     ])
 
   const profile: ProfileRow | null = (profileRes.data as ProfileRow | null) ?? null
@@ -198,6 +216,19 @@ export default async function TrainingHubPage() {
   }
 
   const enrollments: EnrollmentRow[] = (enrollmentsRes.data as EnrollmentRow[] | null) ?? []
+
+  // Lektionen je Programm (DB-Kurse, Migration 0010).
+  const lessonCountByProgram = new Map<string, number>()
+  for (const row of lessonRowsRes.data ?? []) {
+    lessonCountByProgram.set(row.program_id, (lessonCountByProgram.get(row.program_id) ?? 0) + 1)
+  }
+  // Per Abo enthaltene Programme, die nicht schon als Enrollment erscheinen.
+  // Die Regel (Rangfolge) kommt aus plan.ts — dieselbe wie in course-access.ts.
+  const enrolledIds = new Set(enrollments.map((e) => e.program_id))
+  const planPrograms = (planProgramsRes.data ?? []).filter((p) => {
+    const required = toPaidPlan(p.included_in_plan)
+    return required !== null && planSatisfies(profile?.plan, required) && !enrolledIds.has(p.id)
+  })
   type CompletionRow = { exercise_id: string; exercises: { program_id: string } | null }
   const completionRows: CompletionRow[] = (completionsRes.data as CompletionRow[] | null) ?? []
   const completionCount: number = completionRows.length
@@ -334,10 +365,21 @@ export default async function TrainingHubPage() {
                   // bekommen keinen Balken.
                   const hasDays = p.slug === RHYTHMUSFUNDAMENT_SLUG
                   const daysDone = completedDaysByProgram.get(p.id)?.size ?? 0
-                  const total = hasDays ? COURSE_TOTAL_DAYS : (p.total_exercises ?? 0)
-                  const done = hasDays ? daysDone : (completionsByProgram.get(p.id) ?? 0)
+                  // DB-Kurse mit Lektionen zählen abgehakte Lektionen.
+                  const lessonTotal = hasDays ? 0 : (lessonCountByProgram.get(p.id) ?? 0)
+                  const hasLessons = lessonTotal > 0
+                  const total = hasDays
+                    ? COURSE_TOTAL_DAYS
+                    : hasLessons
+                      ? lessonTotal
+                      : (p.total_exercises ?? 0)
+                  const done = hasDays
+                    ? daysDone
+                    : hasLessons
+                      ? (completedLessonsByProgram.get(p.id) ?? 0)
+                      : (completionsByProgram.get(p.id) ?? 0)
                   const pct = progressPercent(done, total)
-                  const unit = hasDays ? 'Tagen' : 'Übungen'
+                  const unit = hasDays ? 'Tagen' : hasLessons ? 'Lektionen' : 'Übungen'
                   const cardHref =
                     hasDays && rfContinueDay ? rfContinueHref : `/training/${p.slug}`
                   return (
@@ -371,6 +413,34 @@ export default async function TrainingHubPage() {
                         className="hub-cta-secondary"
                       >
                         {hasDays && rfContinueDay ? `Weiter mit Tag ${rfContinueDay} →` : 'Weiter →'}
+                      </Link>
+                    </article>
+                  )
+                })}
+                {planPrograms.map((p) => {
+                  const isLibrary = p.kind === 'library'
+                  const total = lessonCountByProgram.get(p.id) ?? 0
+                  const done = completedLessonsByProgram.get(p.id) ?? 0
+                  const pct = progressPercent(done, total)
+                  return (
+                    <article key={p.id} className="hub-card hub-program-card">
+                      <div className="hub-card-top">
+                        <span className="hub-chip">{isLibrary ? 'BIBLIOTHEK' : 'IM ABO'}</span>
+                      </div>
+                      <h3 className="hub-card-title">{p.title}</h3>
+                      {p.description && <p className="hub-card-desc">{p.description}</p>}
+                      {!isLibrary && total > 0 ? (
+                        <div className="hub-progress">
+                          <div className="hub-progress-bar" aria-hidden="true">
+                            <span className="hub-progress-fill" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="hub-progress-label">
+                            {done} von {total} Lektionen abgehakt · <strong>{pct} %</strong>
+                          </span>
+                        </div>
+                      ) : null}
+                      <Link href={`/training/${p.slug}`} className="hub-cta-secondary">
+                        {isLibrary ? 'Öffnen →' : 'Weiter →'}
                       </Link>
                     </article>
                   )

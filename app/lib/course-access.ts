@@ -1,10 +1,19 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './supabase/database.types'
 import { COURSE_TOTAL_DAYS } from '../../data/rhythmusfundament-days'
+import { planSatisfies, toPaidPlan, type PaidPlan } from './plan'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Kurszugang = Einschreibung (enrollments). Einziger Lese-Check fürs Gating
-// der Kursrouten. Schreibwege in enrollments sind ausschließlich die
+// Kurszugang. Einziger Lese-Check fürs Gating der Kursrouten.
+//
+// Zugang hat, wer (Migration 0010, Spiegel von has_program_access()):
+//   · ein AKTIVES Enrollment hat (status null oder 'active'), oder
+//   · eine Abo-Stufe, in der der Kurs enthalten ist (programs.included_in_plan,
+//     Rangfolge aus plan.ts), oder
+//   · Admin ist.
+// `enrolled` bleibt die alte Aussage „Enrollment-Zeile vorhanden“ — darauf
+// prüft das Rhythmus Fundament weiterhin, damit es sich nicht ändert.
+// Schreibwege in enrollments sind ausschließlich die
 // DB-Funktion redeem_access_code() und Admin-Operationen — die RLS-Policy
 // enrollments_insert_own wurde entfernt (Migration fundament_access_gating).
 //
@@ -18,10 +27,21 @@ import { COURSE_TOTAL_DAYS } from '../../data/rhythmusfundament-days'
 
 export const COURSE_TIMEZONE = 'Europe/Berlin'
 
+export type AccessSource = 'enrollment' | 'plan' | 'admin'
+
 export type CourseAccess = {
-  /** Enrollment-Zeile vorhanden? */
+  /** Enrollment-Zeile vorhanden (egal welcher Status)? Alte RF-Semantik. */
   enrolled: boolean
-  /** programs.id des Kurses — null, wenn nicht eingeschrieben. Für day_completions. */
+  /** Darf diese Person den Kursinhalt sehen? (Enrollment aktiv, Abo-Stufe, Admin) */
+  hasAccess: boolean
+  /** Woher der Zugang kommt — null ohne Zugang. Enrollment schlägt Abo schlägt Admin. */
+  source: AccessSource | null
+  /** programs.included_in_plan — für „im Abo ab Premium enthalten“. */
+  includedInPlan: PaidPlan | null
+  /**
+   * programs.id des Kurses. Aus dem Enrollment, sonst aus der Programmzeile
+   * (null, wenn das Programm unbekannt ist). Für day_/lesson_completions.
+   */
   programId: string | null
   /** ISO-Datum (YYYY-MM-DD) oder null = kein Drip, alles offen */
   dripStartDate: string | null
@@ -87,55 +107,173 @@ export function formatDateDE(isoDate: string): string {
   return `${d}.${m}.${y}`
 }
 
+export type ResolveAccessInput = {
+  isAdmin: boolean
+  /** profiles.plan (beliebiger Wert, unbekannt = free) */
+  plan: unknown
+  /** programs.included_in_plan (null = nur über Enrollment) */
+  includedInPlan: unknown
+  /** Enrollment-Zeile dieses Kurses oder null */
+  enrollment: { status: string | null; drip_start_date: string | null } | null
+  today: string
+  /** Kurslänge für den Drip (RF: 44; Lektions-Kurse: 366). */
+  totalDays?: number
+}
+
+export type ResolvedAccess = Pick<
+  CourseAccess,
+  'enrolled' | 'hasAccess' | 'source' | 'includedInPlan' | 'dripStartDate' | 'maxUnlockedDay'
+>
+
+/**
+ * Reine Zugriffsentscheidung — Spiegel von has_program_access() (SQL).
+ *
+ * Drip: gilt nur, wenn der Zugang allein am Enrollment hängt. Wer den Kurs
+ * zusätzlich über die Abo-Stufe hat, bekommt alles offen (das Abo kennt keine
+ * Runde). Admin ohne aktives Enrollment sieht alles; mit aktivem Enrollment
+ * gilt dessen Drip — so verhält sich das Rhythmus Fundament genau wie vorher.
+ *
+ * Ein nicht aktives Enrollment (z. B. cancelled) gibt keinen Zugang, liefert
+ * aber weiter `enrolled` und den Drip-Stand (alte RF-Semantik).
+ */
+export function resolveAccess(input: ResolveAccessInput): ResolvedAccess {
+  const totalDays = input.totalDays ?? COURSE_TOTAL_DAYS
+  const includedInPlan = toPaidPlan(input.includedInPlan)
+  const enrollment = input.enrollment
+  const enrolled = enrollment !== null
+  const enrollmentActive = enrollment !== null && (enrollment.status ?? 'active') === 'active'
+  const byPlan = includedInPlan !== null && planSatisfies(input.plan, includedInPlan)
+
+  const source: AccessSource | null = enrollmentActive
+    ? 'enrollment'
+    : byPlan
+      ? 'plan'
+      : input.isAdmin
+        ? 'admin'
+        : null
+
+  const dripStartDate = enrollment?.drip_start_date ?? null
+  let maxUnlockedDay = enrolled ? unlockedThroughDay(dripStartDate, input.today, totalDays) : 0
+  if (byPlan || (input.isAdmin && !enrollmentActive)) maxUnlockedDay = totalDays
+
+  return {
+    enrolled,
+    hasAccess: source !== null,
+    source,
+    includedInPlan,
+    // Ohne Drip-Bindung (Abo/Admin) auch kein Datum anzeigen.
+    dripStartDate: maxUnlockedDay === totalDays && source !== 'enrollment' ? null : dripStartDate,
+    maxUnlockedDay,
+  }
+}
+
+/** Ist diese Lektion für diese Person offen? Kurszugang + Drip (unlock_day). */
+export function isLessonUnlocked(
+  lesson: { unlock_day: number | null },
+  access: Pick<CourseAccess, 'hasAccess' | 'maxUnlockedDay'>,
+): boolean {
+  if (!access.hasAccess) return false
+  if (lesson.unlock_day == null) return true
+  return lesson.unlock_day <= access.maxUnlockedDay
+}
+
+/** „Frei ab TT.MM.JJJJ“ für eine gesperrte Lektion — null ohne Drip-Datum. */
+export function lessonUnlockLabel(
+  lesson: { unlock_day: number | null },
+  access: Pick<CourseAccess, 'dripStartDate'>,
+): string | null {
+  if (lesson.unlock_day == null || !access.dripStartDate) return null
+  return formatDateDE(unlockDateForDay(access.dripStartDate, lesson.unlock_day))
+}
+
 export async function getCourseAccess(
   supabase: SupabaseClient<Database>,
   userId: string,
   courseSlug: string,
+  options: { totalDays?: number } = {},
 ): Promise<CourseAccess> {
   const today = berlinToday()
   const locked: CourseAccess = {
     enrolled: false,
+    hasAccess: false,
+    source: null,
+    includedInPlan: null,
     programId: null,
     dripStartDate: null,
     maxUnlockedDay: 0,
     today,
   }
 
-  const { data, error } = await supabase
-    .from('enrollments')
-    .select('program_id, drip_start_date, programs!inner(slug)')
-    .eq('user_id', userId)
-    .eq('programs.slug', courseSlug)
-    .limit(1)
+  const [enrollmentRes, programRes, profileRes] = await Promise.all([
+    supabase
+      .from('enrollments')
+      .select('program_id, drip_start_date, status, programs!inner(slug)')
+      .eq('user_id', userId)
+      .eq('programs.slug', courseSlug)
+      .limit(1),
+    supabase
+      .from('programs')
+      .select('id, included_in_plan')
+      .eq('slug', courseSlug)
+      .maybeSingle(),
+    supabase.from('profiles').select('plan, is_admin').eq('id', userId).maybeSingle(),
+  ])
 
   // Fail closed: ein Lesefehler darf den Kurs nicht öffnen. Der Redirect
   // landet auf /training, wo die gesperrte Karte den Weg erklärt.
-  if (error) {
+  if (enrollmentRes.error) {
     console.error('[course-access] enrollments read failed', {
       userId,
       courseSlug,
-      code: error.code,
-      message: error.message,
+      code: enrollmentRes.error.code,
+      message: enrollmentRes.error.message,
     })
     return locked
   }
-  const row = (data ?? [])[0]
-  if (!row) return locked
 
-  const dripStartDate = row.drip_start_date ?? null
+  // Programm- und Profil-Lesefehler schließen nur den Abo-/Admin-Weg — das
+  // Enrollment gilt weiter. Wichtig, solange 0010 nicht eingespielt ist
+  // (included_in_plan fehlt dann): das Rhythmus Fundament läuft unverändert.
+  if (programRes.error) {
+    console.error('[course-access] programs read failed', {
+      courseSlug,
+      code: programRes.error.code,
+      message: programRes.error.message,
+    })
+  }
+  if (profileRes.error) {
+    console.error('[course-access] profile read failed', {
+      userId,
+      code: profileRes.error.code,
+      message: profileRes.error.message,
+    })
+  }
+
+  const row = (enrollmentRes.data ?? [])[0] ?? null
+  const program = programRes.error ? null : programRes.data
+  const profile = profileRes.error ? null : profileRes.data
+
+  const resolved = resolveAccess({
+    isAdmin: profile?.is_admin === true,
+    plan: profile?.plan ?? null,
+    includedInPlan: program?.included_in_plan ?? null,
+    enrollment: row ? { status: row.status ?? null, drip_start_date: row.drip_start_date ?? null } : null,
+    today,
+    totalDays: options.totalDays,
+  })
+
   return {
-    enrolled: true,
-    programId: row.program_id,
-    dripStartDate,
-    maxUnlockedDay: unlockedThroughDay(dripStartDate, today),
+    ...resolved,
+    programId: row?.program_id ?? program?.id ?? null,
     today,
   }
 }
 
+/** Darf diese Person den Kursinhalt sehen? (Enrollment aktiv, Abo-Stufe, Admin) */
 export async function hasCourseAccess(
   supabase: SupabaseClient<Database>,
   userId: string,
   courseSlug: string,
 ): Promise<boolean> {
-  return (await getCourseAccess(supabase, userId, courseSlug)).enrolled
+  return (await getCourseAccess(supabase, userId, courseSlug)).hasAccess
 }

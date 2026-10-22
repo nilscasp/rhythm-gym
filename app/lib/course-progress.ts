@@ -99,3 +99,76 @@ export async function getCompletedDaysByProgram(
   }
   return out
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Lektions-Fortschritt (Migration 0010, lesson_completions) — für alle Kurse
+// aus der DB. day_completions oben bleibt dem Rhythmus Fundament.
+// Ob eine Lektion offen ist, entscheidet course-access.ts (isLessonUnlocked);
+// hier kommt das als Prädikat herein, damit keine zweite Regel entsteht.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Die erste Lektion in Kursreihenfolge, die offen und noch nicht abgehakt ist —
+ * oder null. `lessons` muss bereits in Kursreihenfolge sortiert sein.
+ */
+export function nextOpenLesson<T extends { id: string }>(
+  lessons: readonly T[],
+  completed: ReadonlySet<string>,
+  isUnlocked: (lesson: T) => boolean,
+): T | null {
+  for (const lesson of lessons) {
+    if (!completed.has(lesson.id) && isUnlocked(lesson)) return lesson
+  }
+  return null
+}
+
+/** Abgehakte Lektions-IDs eines Users in einem Programm. Lesefehler → leer. */
+export async function getCompletedLessons(
+  supabase: Client,
+  userId: string,
+  programId: string,
+): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from('lesson_completions')
+    .select('lesson_id, lessons!inner(program_id)')
+    .eq('user_id', userId)
+    .eq('lessons.program_id', programId)
+
+  if (error) {
+    console.error('[course-progress] lesson_completions read failed', {
+      userId,
+      programId,
+      code: error.code,
+      message: error.message,
+    })
+    return new Set()
+  }
+  return new Set((data ?? []).map((r) => r.lesson_id))
+}
+
+/** Zahl abgehakter Lektionen je program_id (für den Hub). Lesefehler → leer. */
+export async function getCompletedLessonCountsByProgram(
+  supabase: Client,
+  userId: string,
+): Promise<Map<string, number>> {
+  const out = new Map<string, number>()
+  const { data, error } = await supabase
+    .from('lesson_completions')
+    .select('lesson_id, lessons!inner(program_id)')
+    .eq('user_id', userId)
+
+  if (error) {
+    console.error('[course-progress] lesson_completions read failed', {
+      userId,
+      code: error.code,
+      message: error.message,
+    })
+    return out
+  }
+  for (const row of data ?? []) {
+    const lesson = row.lessons as { program_id: string } | { program_id: string }[] | null
+    const programId = Array.isArray(lesson) ? lesson[0]?.program_id : lesson?.program_id
+    if (programId) out.set(programId, (out.get(programId) ?? 0) + 1)
+  }
+  return out
+}

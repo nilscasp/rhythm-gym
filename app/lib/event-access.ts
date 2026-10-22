@@ -1,5 +1,6 @@
 import type { Database, Json } from './supabase/database.types'
 import type { Locale } from './locale'
+import { planSatisfies, type Plan } from './plan'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Termine — Zugriff, Sprache, Darstellung (Phasenplan v2 §4)
@@ -110,6 +111,13 @@ export type EventAccess =
   | { canJoin: true }
   | { canJoin: false; reason: 'login' | 'premium' | 'vip' | 'program'; programId?: string }
 
+/** Stufe aus den Viewer-Flags (isVip schlägt isPremium). */
+function viewerPlan(viewer: Viewer): Plan {
+  if (viewer.isVip) return 'vip'
+  if (viewer.isPremium) return 'premium'
+  return 'free'
+}
+
 /**
  * Darf diese Person die Zoom-Tür sehen? Spiegelt `event_zoom_url()` aus
  * Migration 0006 — beide müssen zusammen geändert werden.
@@ -125,14 +133,11 @@ export function hasEventAccess(
   if (visibility === 'members') return { canJoin: true }
 
   // Rangfolge wie auf Skool: VIP öffnet beide Türen, Premium nur seine.
-  if (visibility === 'premium') {
-    return viewer.isPremium || viewer.isVip
+  // Die Rangfolge selbst steht in plan.ts (Spiegel von plan_rank()).
+  if (visibility === 'premium' || visibility === 'vip') {
+    return planSatisfies(viewerPlan(viewer), visibility)
       ? { canJoin: true }
-      : { canJoin: false, reason: 'premium' }
-  }
-
-  if (visibility === 'vip') {
-    return viewer.isVip ? { canJoin: true } : { canJoin: false, reason: 'vip' }
+      : { canJoin: false, reason: visibility }
   }
 
   // visibility === 'program'

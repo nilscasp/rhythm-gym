@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Messages } from '../../messages'
 import type { Database } from '../lib/supabase/database.types'
 import type { Locale } from '../lib/locale'
+import { planSatisfies } from '../lib/plan'
 import {
   ANONYMOUS,
   type EventAccess,
@@ -104,9 +105,9 @@ export async function currentViewer(
 
   return {
     isAuthenticated: true,
-    // Rangfolge: VIP zählt auch als Premium (Migration 0009, event_zoom_url).
-    isPremium: plan === 'premium' || plan === 'vip',
-    isVip: plan === 'vip',
+    // Rangfolge: VIP zählt auch als Premium (plan.ts ↔ plan_rank()).
+    isPremium: planSatisfies(plan, 'premium'),
+    isVip: planSatisfies(plan, 'vip'),
     enrolledProgramIds: (enrollmentResult.data ?? []).map((row) => row.program_id),
   }
 }

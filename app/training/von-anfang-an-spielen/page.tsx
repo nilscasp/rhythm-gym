@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
 import { getCourseAccess } from '../../lib/course-access'
+import { CourseOutline } from '../_course/CourseOutline'
+import { loadCourseRoom } from '../_course/load'
 import {
   eventTimeLabel,
   formatEventDate,
@@ -48,8 +50,15 @@ export default async function VonAnfangAnSpielenPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  // hasAccess: aktives Enrollment (oder Admin). Der Kurs ist in keinem Abo
+  // enthalten (included_in_plan null), ein Abo öffnet ihn also nicht.
   const access = await getCourseAccess(supabase, user.id, SLUG)
-  if (!access.enrolled) redirect('/training')
+  if (!access.hasAccess) redirect('/training')
+
+  // Lektionen aus der DB (Migration 0010). Vor dem Einspielen oder ohne
+  // Lektionen bleibt der Abschnitt einfach weg.
+  const room = await loadCourseRoom(supabase, user.id, SLUG, { requirePublished: false })
+  const lessonCount = room?.lessons.length ?? 0
 
   const { data: program } = await supabase
     .from('programs')
@@ -157,6 +166,28 @@ export default async function VonAnfangAnSpielenPage() {
               </ul>
             )}
           </section>
+
+          {room && lessonCount > 0 ? (
+            <section className="va-section">
+              <h2 className="va-h2">Lektionen</h2>
+              {room.whatsappUrl ? (
+                <a
+                  href={room.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="va-door"
+                >
+                  Kursgruppe auf WhatsApp
+                </a>
+              ) : null}
+              <CourseOutline
+                baseHref={`/training/${SLUG}`}
+                sections={room.sections}
+                completed={room.completed}
+                showProgress={room.access.hasAccess}
+              />
+            </section>
+          ) : null}
 
           <section className="va-section">
             <h2 className="va-h2">Zwischen den Terminen</h2>

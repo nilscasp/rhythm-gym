@@ -6,6 +6,11 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Migration 0010 (programs.kind/included_in_plan/whatsapp_url/sort_order,
+// access_codes.whatsapp_url, program_sections, lessons, lesson_contents,
+// lesson_attachments, lesson_completions, plan_rank, has_program_access,
+// program_whatsapp_url) ist VON HAND ERGÄNZT — nach dem Einspielen mit
+// generate_typescript_types neu erzeugen.
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -27,6 +32,7 @@ export type Database = {
           note: string | null
           program_id: string
           uses: number
+          whatsapp_url: string | null
         }
         Insert: {
           active?: boolean
@@ -40,6 +46,7 @@ export type Database = {
           note?: string | null
           program_id: string
           uses?: number
+          whatsapp_url?: string | null
         }
         Update: {
           active?: boolean
@@ -53,6 +60,7 @@ export type Database = {
           note?: string | null
           program_id?: string
           uses?: number
+          whatsapp_url?: string | null
         }
         Relationships: [
           {
@@ -391,6 +399,179 @@ export type Database = {
           },
         ]
       }
+      lesson_attachments: {
+        Row: {
+          id: string
+          kind: string
+          lesson_id: string
+          sort_order: number
+          storage_path: string | null
+          title: string
+          url: string | null
+        }
+        Insert: {
+          id?: string
+          kind?: string
+          lesson_id: string
+          sort_order?: number
+          storage_path?: string | null
+          title: string
+          url?: string | null
+        }
+        Update: {
+          id?: string
+          kind?: string
+          lesson_id?: string
+          sort_order?: number
+          storage_path?: string | null
+          title?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_attachments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_completions: {
+        Row: {
+          completed_at: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_completions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_completions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_contents: {
+        Row: {
+          body_md: string | null
+          lesson_id: string
+          updated_at: string
+          video_guid: string | null
+        }
+        Insert: {
+          body_md?: string | null
+          lesson_id: string
+          updated_at?: string
+          video_guid?: string | null
+        }
+        Update: {
+          body_md?: string | null
+          lesson_id?: string
+          updated_at?: string
+          video_guid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_contents_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          event_id: string | null
+          id: string
+          media_kind: string
+          program_id: string
+          published_at: string | null
+          section_id: string | null
+          slug: string
+          sort_order: number
+          subtitle: string | null
+          title: string
+          unlock_day: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          event_id?: string | null
+          id?: string
+          media_kind?: string
+          program_id: string
+          published_at?: string | null
+          section_id?: string | null
+          slug: string
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+          unlock_day?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          event_id?: string | null
+          id?: string
+          media_kind?: string
+          program_id?: string
+          published_at?: string | null
+          section_id?: string | null
+          slug?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
+          unlock_day?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "program_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patterns: {
         Row: {
           bpm: number | null
@@ -489,6 +670,38 @@ export type Database = {
           },
         ]
       }
+      program_sections: {
+        Row: {
+          id: string
+          program_id: string
+          slug: string
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          id?: string
+          program_id: string
+          slug: string
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          id?: string
+          program_id?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_sections_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       programs: {
         Row: {
           category: string
@@ -500,6 +713,10 @@ export type Database = {
           slug: string
           title: string
           total_exercises: number | null
+          kind: string
+          included_in_plan: string | null
+          whatsapp_url: string | null
+          sort_order: number
         }
         Insert: {
           category: string
@@ -511,6 +728,10 @@ export type Database = {
           slug: string
           title: string
           total_exercises?: number | null
+          kind?: string
+          included_in_plan?: string | null
+          whatsapp_url?: string | null
+          sort_order?: number
         }
         Update: {
           category?: string
@@ -522,6 +743,10 @@ export type Database = {
           slug?: string
           title?: string
           total_exercises?: number | null
+          kind?: string
+          included_in_plan?: string | null
+          whatsapp_url?: string | null
+          sort_order?: number
         }
         Relationships: []
       }
@@ -676,6 +901,11 @@ export type Database = {
         Returns: Json
       }
       is_admin_user: { Args: { check_uid: string }; Returns: boolean }
+      // Migration 0010 · von Hand ergänzt, nach dem Einspielen mit
+      // generate_typescript_types neu erzeugen.
+      plan_rank: { Args: { p_plan: string | null }; Returns: number }
+      has_program_access: { Args: { p_program_id: string }; Returns: boolean }
+      program_whatsapp_url: { Args: { p_program_id: string }; Returns: string | null }
       set_membership_by_customer: {
         Args: { p_customer_id: string; p_email: string; p_active: boolean }
         Returns: Json
