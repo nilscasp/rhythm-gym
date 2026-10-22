@@ -814,6 +814,63 @@ async function apply(plan: PlannedProgram[]) {
   }
 }
 
+// ── SQL statt service_role ───────────────────────────────────────────────────
+// `--sql <datei>` schreibt dasselbe wie --apply als eine idempotente SQL-Datei.
+// So lässt sich der Seed über den Supabase-MCP (execute_sql) einspielen, ohne
+// dass der service_role-Schlüssel auf diesem Rechner liegen muss.
+
+function sqlText(v: string | null | undefined): string {
+  if (v == null) return 'null'
+  let tag = 'q'
+  while (v.includes(`$${tag}$`)) tag += 'q'
+  return `$${tag}$${v}$${tag}$`
+}
+
+function sqlNum(v: number | null | undefined): string {
+  return v == null ? 'null' : String(Math.trunc(v))
+}
+
+function buildSql(plan: PlannedProgram[]): string {
+  const out: string[] = ['-- seed-kurse.ts --sql · erzeugt ' + new Date().toISOString(), 'begin;']
+  const pub = PUBLISH ? 'now()' : 'null'
+  for (const p of plan) {
+    const s = p.spec
+    const prog = `(select id from public.programs where slug = ${sqlText(s.slug)})`
+    if (!s.existing) {
+      out.push(
+        `insert into public.programs (slug, title, kind, included_in_plan, sort_order, level, category, description, published_at)
+values (${sqlText(s.slug)}, ${sqlText(s.title)}, ${sqlText(s.kind)}, ${sqlText(s.includedInPlan)}, ${sqlNum(s.sortOrder)}, ${sqlText(DEFAULT_LEVEL)}, ${sqlText(s.kind === 'library' ? CATEGORY_LIBRARY : CATEGORY_COURSE)}, ${sqlText(p.description ?? null)}, ${pub})
+on conflict (slug) do update set title = excluded.title, kind = excluded.kind, included_in_plan = excluded.included_in_plan,
+  sort_order = excluded.sort_order, description = coalesce(excluded.description, public.programs.description)${PUBLISH ? ', published_at = coalesce(public.programs.published_at, excluded.published_at)' : ''};`,
+      )
+    }
+    for (const sec of p.sections) {
+      out.push(
+        `insert into public.program_sections (program_id, slug, title, sort_order)
+values (${prog}, ${sqlText(sec.slug)}, ${sqlText(sec.title)}, ${sqlNum(sec.sortOrder)})
+on conflict (program_id, slug) do update set title = excluded.title, sort_order = excluded.sort_order;`,
+      )
+    }
+    for (const l of p.lessons) {
+      const section = l.sectionSlug
+        ? `(select id from public.program_sections where program_id = ${prog} and slug = ${sqlText(l.sectionSlug)})`
+        : 'null'
+      out.push(
+        `insert into public.lessons (program_id, slug, title, subtitle, sort_order, section_id, media_kind, duration_seconds, published_at, updated_at)
+values (${prog}, ${sqlText(l.slug)}, ${sqlText(l.title)}, ${sqlText(l.subtitle ?? null)}, ${sqlNum(l.sortOrder)}, ${section}, ${sqlText(l.mediaKind)}, ${sqlNum(l.durationSeconds)}, ${pub}, now())
+on conflict (program_id, slug) do update set title = excluded.title, subtitle = excluded.subtitle, sort_order = excluded.sort_order,
+  section_id = excluded.section_id, media_kind = excluded.media_kind,
+  duration_seconds = coalesce(excluded.duration_seconds, public.lessons.duration_seconds), updated_at = now()${PUBLISH ? ', published_at = coalesce(public.lessons.published_at, excluded.published_at)' : ''};`,
+        `insert into public.lesson_contents (lesson_id, video_guid, body_md, updated_at)
+values ((select id from public.lessons where program_id = ${prog} and slug = ${sqlText(l.slug)}), ${sqlText(l.videoGuid ?? null)}, ${sqlText(l.bodyMd ?? null)}, now())
+on conflict (lesson_id) do update set video_guid = excluded.video_guid, body_md = excluded.body_md, updated_at = now();`,
+      )
+    }
+  }
+  out.push('commit;')
+  return out.join('\n\n') + '\n'
+}
+
 // ── Lauf ─────────────────────────────────────────────────────────────────────
 
 const videos = readVideos()
@@ -829,6 +886,12 @@ if (APPLY) {
 }
 if (DURATIONS) await fillDurations(plan)
 printSummary(plan, videos, texts, attachments)
+const sqlOut = option('--sql')
+if (sqlOut) {
+  const { writeFileSync } = await import('node:fs')
+  writeFileSync(sqlOut, buildSql(plan))
+  console.log(`\nSQL geschrieben: ${sqlOut}`)
+}
 if (APPLY) {
   if (videos.length === 0) {
     console.error('\nAbbruch: keine Videos in der Quelle — nichts zu schreiben.')
