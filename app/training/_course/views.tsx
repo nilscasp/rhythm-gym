@@ -347,7 +347,7 @@ export async function LessonPage({ slug, lessonSlug }: { slug: string; lessonSlu
 
 // ── Styles ───────────────────────────────────────────────────────────────────
 
-const COURSE_CSS = `
+export const COURSE_CSS = `
   .cr-page {
     min-height: 100vh;
     background: var(--black);
