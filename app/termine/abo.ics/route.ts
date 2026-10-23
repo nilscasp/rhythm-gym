@@ -31,6 +31,8 @@ export async function GET(request: Request): Promise<Response> {
   const { data, error } = await supabase
     .from('events')
     .select(FEED_COLUMNS)
+    // Der Feed wird von Kalenderdiensten gespiegelt: nur offene Termine.
+    .in('visibility', ['public', 'members'])
     .gte('starts_at', since)
     .order('starts_at', { ascending: true })
     .limit(MAX_EVENTS)

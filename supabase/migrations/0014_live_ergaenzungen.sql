@@ -166,6 +166,9 @@ begin
     raise exception 'no_access' using errcode = '42501';
   end if;
 
+  -- Sperre je Person und Termin, damit parallele Aufrufe die Grenze nicht reißen.
+  perform pg_advisory_xact_lock(hashtext(p_event_id::text || ':' || v_uid::text));
+
   if (select count(*) from public.event_questions
        where event_id = p_event_id and user_id = v_uid) >= 3 then
     raise exception 'too_many_questions' using errcode = '22023';
@@ -198,9 +201,12 @@ begin
     return false;
   end if;
 
+  -- Nach Beginn bleibt die Frage stehen (Nils liest sie dann schon).
   delete from public.event_questions
    where id = p_question_id
-     and user_id = v_uid;
+     and user_id = v_uid
+     and exists (select 1 from public.events e
+                  where e.id = event_questions.event_id and e.starts_at > now());
 
   return found;
 end;
@@ -262,8 +268,11 @@ begin
          || to_char(v_starts_at at time zone 'Europe/Berlin', 'YYYY-MM-DD')
          || '-' || left(p_event_id::text, 8);
 
-  insert into public.lessons (program_id, slug, title, media_kind, event_id, published_at)
-  values (p_program_id, v_slug, v_title, 'video', p_event_id, now())
+  -- published_at = Termin, nicht jetzt: nachgetragene alte Calls erscheinen
+  -- nicht als „neu“. sort_order absteigend nach Tag → neueste zuerst.
+  insert into public.lessons (program_id, slug, title, media_kind, event_id, published_at, sort_order)
+  values (p_program_id, v_slug, v_title, 'video', p_event_id, least(now(), v_starts_at),
+          -(extract(epoch from v_starts_at)::bigint / 86400)::int)
   on conflict (program_id, slug) do update
      set title        = excluded.title,
          event_id     = excluded.event_id,
