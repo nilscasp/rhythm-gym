@@ -22,8 +22,8 @@ Ersetzt für den Umzug die Reihenfolge in `phasenplan-schule-des-lebens-v2.md` �
 | C | Inhalte einspielen | Seed aus der Bunny-Zuordnung + Skool-Texten: Kompass, Elemente, Kreativ, VAA, Aufzeichnungen | erledigt · 68 Lektionen live, unveröffentlicht (23.10.) |
 | D | Heute und Navigation | Startseite nach Mockup 1 (Schule-Texte statt Gym), Nav: Heute · Kurse · Üben · Live · Miteinander · Mein Weg | erledigt · Heute + Navigation |
 | E | Beiträge, Neuigkeiten, Gedanke der Woche | Tabellen + Coach-Formular für Nils, Glocke mit ungelesenen Neuigkeiten | weitgehend · 0011 live (23.10.); Gedanke der Woche noch fest im Code |
-| F | Abo über Stripe | Checkout für Premium/VIP in der App, Kundenportal, Webhook ordnet Preise per Metadaten Stufen zu, Coach: Stufe von Hand setzen. Produkte legt die Sitzung „stripe-produkte“ an (`docs/stripe-produkte.md`) | in Arbeit |
-| G | Miteinander | Profil (Telefon, Region, Über mich, offen für …), Kontaktanfragen, Challenges, Treffen | offen · Platzhalter /miteinander |
+| F | Abo über Stripe | Checkout für Premium/VIP in der App, Kundenportal, Webhook ordnet Preise per Metadaten Stufen zu, Coach: Stufe von Hand setzen. Produkte legt die Sitzung „stripe-produkte“ an (`docs/stripe-produkte.md`) | Code fertig · 0012 live (23.10.); Stripe-Testschlüssel, Webhook-Endpunkt, Kundenportal fehlen |
+| G | Miteinander | Profil (Telefon, Region, Über mich, offen für …), Kontaktanfragen, Challenges, Treffen | Code fertig · 0013 live (23.10.); Admin sieht keine Handynummern |
 | H | Live-Ergänzungen | Aufzeichnungen an Terminen, Frage vorab, Kalender-Export | offen |
 | I | Schutz und Recht | Bunny-Token-Auth und Referrer `lernen.handpan.schule`, AGB (Nummerntausch), Datenschutzangaben beim Kauf, Sicherheits-Review | offen |
 | J | Umzug | Zugänge für Skool-Mitglieder, Ankündigung, Skool parallel bis zum Stichtag | offen |
