@@ -98,9 +98,17 @@ export function CourseRoomView({ room }: { room: CourseRoom }) {
           <header className="cr-head">
             <p className="cr-kicker">{kicker(room)}</p>
             <h1 className="cr-title">{room.program.title}</h1>
-            {room.program.description ? (
-              <p className="cr-intro">{room.program.description}</p>
-            ) : null}
+            {room.program.description
+              ? room.program.description
+                  .split(/\n\s*\n/)
+                  .map((para) => para.trim())
+                  .filter(Boolean)
+                  .map((para, i) => (
+                    <p key={i} className="cr-intro">
+                      {para}
+                    </p>
+                  ))
+              : null}
           </header>
 
           {showProgress && total > 0 ? (
