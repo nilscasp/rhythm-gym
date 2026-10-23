@@ -114,9 +114,9 @@ export function extractCheckoutFields(session: CheckoutSessionLike): CheckoutFie
 // Leitregeln:
 //   · Die Stufe kommt aus den Preis-Metadaten (`platform=lernen`, `tier`),
 //     nie aus dem Produktnamen oder einer Preis-Id.
-//   · `active` / `trialing` → Stufe. `past_due` → Stufe bleibt (Nachfrist,
-//     bis Stripe nach den Wiederholungen kündigt oder auf `unpaid` stellt).
-//     Alles andere → free.
+//   · `active` / `trialing` → Stufe. Alles andere → free, auch `past_due`:
+//     schlägt eine Zahlung fehl, ist der Zugang sofort weg und kommt mit der
+//     nächsten erfolgreichen Abbuchung zurück (Nils, 23.10.2026).
 //   · Hat dieselbe Person (derselbe Stripe-Kunde) mehrere Abos, zählt das
 //     höchste noch laufende. Ein auslaufendes Premium-Abo stuft einen VIP mit
 //     laufendem VIP-Abo nicht herunter.
@@ -141,8 +141,8 @@ export interface SubscriptionLike {
   } | null
 }
 
-/** Status, in denen die Stufe gilt. `past_due` = Nachfrist. */
-const PAID_STATUSES = new Set(['active', 'trialing', 'past_due'])
+/** Status, in denen die Stufe gilt. `past_due` zählt nicht (sofort sperren). */
+const PAID_STATUSES = new Set(['active', 'trialing'])
 
 function higher(a: Plan, b: Plan): Plan {
   return PLAN_RANK[b] > PLAN_RANK[a] ? b : a

@@ -71,8 +71,8 @@ describe('planForStatus', () => {
     expect(planForStatus('premium', 'trialing')).toBe('premium')
   })
 
-  test('past_due: Stufe bleibt in der Nachfrist', () => {
-    expect(planForStatus('vip', 'past_due')).toBe('vip')
+  test('past_due: Zugang sofort weg', () => {
+    expect(planForStatus('vip', 'past_due')).toBe('free')
   })
 
   test('beendet oder nie bezahlt → free', () => {

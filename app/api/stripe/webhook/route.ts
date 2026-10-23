@@ -34,8 +34,8 @@ import { asOutcome, billingRpc } from '../../../lib/supabase/database.types.bill
 //
 // Stufen-Regeln (app/lib/stripe-events.ts, Abschnitt F; Migration 0012):
 //   · Stufe aus den Preis-Metadaten (`platform=lernen`, `tier`).
-//   · active/trialing → Stufe, past_due → Stufe bleibt (Nachfrist),
-//     canceled/unpaid/incomplete_expired (und alles andere) → free.
+//   · active/trialing → Stufe; past_due/canceled/unpaid/incomplete_expired
+//     (und alles andere) → free. Fehlgeschlagene Zahlung sperrt sofort.
 //   · Es zählt das höchste laufende Abo DESSELBEN Kunden — darum wird bei
 //     jedem Abo-Ereignis die ganze Abo-Liste des Kunden bei Stripe gelesen.
 //   · plan_source = 'manual' (von Nils gesetzt) fasst der Webhook nie an;
