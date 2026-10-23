@@ -25,9 +25,12 @@ const POST_AUDIENCE_SHORT: Record<string, string> = {
   vip: TIER_NAMES.vip,
 }
 
-export const metadata = {
-  title: 'Coach-Sicht — Rhythm Gym',
-  description: 'Schüler-Übersicht mit Stufe, Aktivität und Fortschritt.',
+export async function generateMetadata() {
+  const brand = await currentBrand()
+  return {
+    title: brand === 'schule' ? 'Coach-Sicht — Handpan Schule des Lebens' : 'Coach-Sicht — Rhythm Gym',
+    description: 'Schüler-Übersicht mit Stufe, Aktivität und Fortschritt.',
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────

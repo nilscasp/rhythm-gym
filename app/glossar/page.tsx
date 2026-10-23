@@ -10,7 +10,10 @@ export default function GlossarPage() {
 
           {/* ── HERO ── */}
           <div className="lib-hero">
-            <div className="lib-hero-kicker">Rhythm Gym · Wissen</div>
+            <div className="lib-hero-kicker">
+              <span className="wm-gym">Rhythm Gym · Wissen</span>
+              <span className="wm-schule">Handpan Schule des Lebens · Wissen</span>
+            </div>
             <h1>RHYTHMUS<br /><em>GLOSSAR</em></h1>
             <p className="lib-hero-sub">
               Alle Begriffe, Konzepte und Zusammenhänge an einem Ort.

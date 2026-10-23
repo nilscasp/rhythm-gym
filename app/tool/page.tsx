@@ -812,7 +812,7 @@ function HandpanMaschineInner() {
               lineHeight: 1.0,
             }}
           >
-            RHYTHM <span style={{ color: 'var(--amber)' }}>GYM</span> — <span style={{ color: 'var(--amber)' }}>HANDPAN</span>-MASCHINE
+            <span className="wm-gym">RHYTHM <span style={{ color: 'var(--amber)' }}>GYM</span> — </span><span style={{ color: 'var(--amber)' }}>HANDPAN</span>-MASCHINE
           </h1>
           <p
             style={{

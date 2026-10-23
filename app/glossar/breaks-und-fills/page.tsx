@@ -14,7 +14,10 @@ export default function BreaksUndFillsPage() {
 
           {/* HERO */}
           <div className="bf-hero">
-            <div className="bf-hero-kicker">Rhythm Gym · Wissen</div>
+            <div className="bf-hero-kicker">
+              <span className="wm-gym">Rhythm Gym · Wissen</span>
+              <span className="wm-schule">Handpan Schule des Lebens · Wissen</span>
+            </div>
             <h1>
               BREAKS
               <br />
