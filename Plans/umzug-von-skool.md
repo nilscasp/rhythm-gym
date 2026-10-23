@@ -17,18 +17,22 @@ Ersetzt für den Umzug die Reihenfolge in `phasenplan-schule-des-lebens-v2.md` �
 
 | # | Abschnitt | Inhalt | Stand |
 |---|---|---|---|
-| A | Kursmodell | Migration 0010: Kurse → Abschnitte → Lektionen in der DB, Fortschritt je Lektion, „im Abo ab Stufe X enthalten“, WhatsApp-Link je Kurs/Runde; `course-access.ts` prüft Enrollment oder Stufe | in Arbeit |
-| B | Kursseiten | Kursübersicht und Lektionsseite im Schule-Design (Video, Kapitel, Text, PDF, Abhaken, Kursgruppe) | offen |
-| C | Inhalte einspielen | Seed aus der Bunny-Zuordnung + Skool-Texten: Kompass, Elemente, Kreativ, VAA, Aufzeichnungen | offen |
-| D | Heute und Navigation | Startseite nach Mockup 1 (Schule-Texte statt Gym), Nav: Heute · Kurse · Üben · Live · Miteinander · Mein Weg | offen |
-| E | Beiträge, Neuigkeiten, Gedanke der Woche | Tabellen + Coach-Formular für Nils, Glocke mit ungelesenen Neuigkeiten | offen |
-| F | Abo über Stripe | Checkout für Premium/VIP in der App, Kundenportal, Webhook ordnet Preise per Metadaten Stufen zu, Coach: Stufe von Hand setzen. Produkte legt die Sitzung „stripe-produkte“ an (`docs/stripe-produkte.md`) | offen |
-| G | Miteinander | Profil (Telefon, Region, Über mich, offen für …), Kontaktanfragen, Challenges, Treffen | offen |
+| A | Kursmodell | Migration 0010: Kurse → Abschnitte → Lektionen in der DB, Fortschritt je Lektion, „im Abo ab Stufe X enthalten“, WhatsApp-Link je Kurs/Runde; `course-access.ts` prüft Enrollment oder Stufe | erledigt · 0010 live (22.10.) |
+| B | Kursseiten | Kursübersicht und Lektionsseite im Schule-Design (Video, Kapitel, Text, PDF, Abhaken, Kursgruppe) | erledigt |
+| C | Inhalte einspielen | Seed aus der Bunny-Zuordnung + Skool-Texten: Kompass, Elemente, Kreativ, VAA, Aufzeichnungen | erledigt · 68 Lektionen live, unveröffentlicht (23.10.) |
+| D | Heute und Navigation | Startseite nach Mockup 1 (Schule-Texte statt Gym), Nav: Heute · Kurse · Üben · Live · Miteinander · Mein Weg | erledigt · Heute + Navigation |
+| E | Beiträge, Neuigkeiten, Gedanke der Woche | Tabellen + Coach-Formular für Nils, Glocke mit ungelesenen Neuigkeiten | weitgehend · 0011 live (23.10.); Gedanke der Woche noch fest im Code |
+| F | Abo über Stripe | Checkout für Premium/VIP in der App, Kundenportal, Webhook ordnet Preise per Metadaten Stufen zu, Coach: Stufe von Hand setzen. Produkte legt die Sitzung „stripe-produkte“ an (`docs/stripe-produkte.md`) | in Arbeit |
+| G | Miteinander | Profil (Telefon, Region, Über mich, offen für …), Kontaktanfragen, Challenges, Treffen | offen · Platzhalter /miteinander |
 | H | Live-Ergänzungen | Aufzeichnungen an Terminen, Frage vorab, Kalender-Export | offen |
 | I | Schutz und Recht | Bunny-Token-Auth und Referrer `lernen.handpan.schule`, AGB (Nummerntausch), Datenschutzangaben beim Kauf, Sicherheits-Review | offen |
 | J | Umzug | Zugänge für Skool-Mitglieder, Ankündigung, Skool parallel bis zum Stichtag | offen |
 
 Reihenfolge: A → B → C ergeben die erste nutzbare Fassung (Kurse auf der Plattform). Danach D, F, E, G, H; I vor dem Livegang; J zuletzt.
+
+## Arbeitsweise (23.10.2026)
+
+Nils: „so weit und so lange wie möglich selbstständig“. Bauabschnitte laufen über Engineer-Agenten in eigenen Worktrees; ein Wächter (Fable, Architect) prüft jeden Abschnitt gegen diesen Plan, CLAUDE.md und das Schul-Gedächtnis, bevor er übernommen und eine Migration eingespielt wird. Push auf main und Livegang nur nach Nils’ Okay.
 
 ## Bleibt unverändert
 
