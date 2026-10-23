@@ -226,3 +226,104 @@ describe('relativeDateLabel', () => {
     expect(relativeDateLabel(iso('2026-10-24T08:00:00Z'), NOW)).toBe('heute')
   })
 })
+
+// ── Miteinander (0013): Kontaktanfragen und neue Leute in meiner Challenge ──
+
+describe('buildNews · Miteinander', () => {
+  const base = { posts: [], lessons: [], events: [], now: NOW }
+
+  test('neue Anfrage an mich ist ungelesen und führt zu „Mein Weg“', () => {
+    const news = buildNews({
+      ...base,
+      seenAt: iso('2026-10-22T10:00:00Z'),
+      connections: [
+        {
+          id: 'r1',
+          direction: 'in',
+          otherUser: 'u-anna',
+          otherName: 'Anna',
+          status: 'pending',
+          createdAt: iso('2026-10-23T08:00:00Z'),
+          answeredAt: null,
+        },
+      ],
+    })
+    expect(news.unreadCount).toBe(1)
+    expect(news.items[0]).toMatchObject({
+      id: 'connection:r1',
+      kind: 'connection',
+      title: 'Anna möchte sich mit dir verbinden',
+      href: '/mein-weg#anfragen',
+      unread: true,
+    })
+  })
+
+  test('meine angenommene Anfrage zählt ab der Antwort', () => {
+    const news = buildNews({
+      ...base,
+      seenAt: iso('2026-10-22T10:00:00Z'),
+      connections: [
+        {
+          id: 'r2',
+          direction: 'out',
+          otherUser: 'u-jan',
+          otherName: 'Jan',
+          status: 'accepted',
+          createdAt: iso('2026-10-20T08:00:00Z'),
+          answeredAt: iso('2026-10-23T09:00:00Z'),
+        },
+      ],
+    })
+    expect(news.items[0]).toMatchObject({
+      kind: 'connection',
+      title: 'Jan hat deine Anfrage angenommen',
+      href: '/miteinander/mensch/u-jan',
+      unread: true,
+    })
+  })
+
+  test('anderes taucht nicht auf', () => {
+    const c = (id: string, direction: 'in' | 'out', status: string, createdAt: string, answeredAt: string | null) => ({
+      id,
+      direction,
+      otherUser: `u-${id}`,
+      otherName: id.toUpperCase(),
+      status,
+      createdAt: iso(createdAt),
+      answeredAt: answeredAt ? iso(answeredAt) : null,
+    })
+    const news = buildNews({
+      ...base,
+      seenAt: null,
+      connections: [
+        c('a', 'in', 'accepted', '2026-10-22T08:00:00Z', '2026-10-22T09:00:00Z'), // schon beantwortet
+        c('b', 'out', 'declined', '2026-10-22T08:00:00Z', '2026-10-22T09:00:00Z'), // „Lieber nicht“ bleibt leise
+        c('c', 'out', 'pending', '2026-10-22T08:00:00Z', null), // eigene offene
+        c('d', 'in', 'pending', '2026-08-01T08:00:00Z', null), // älter als 30 Tage
+      ],
+    })
+    expect(news.items).toEqual([])
+  })
+
+  test('neue Leute in meiner Challenge, je Challenge gebündelt', () => {
+    const news = buildNews({
+      ...base,
+      seenAt: iso('2026-10-22T12:00:00Z'),
+      challengeJoins: [
+        { challengeId: 'c1', challengeTitle: '30 Tage', userName: 'Kim', joinedAt: iso('2026-10-22T10:00:00Z') },
+        { challengeId: 'c1', challengeTitle: '30 Tage', userName: 'Sam', joinedAt: iso('2026-10-23T09:00:00Z') },
+        { challengeId: 'c2', challengeTitle: 'Morgens', userName: 'Lea', joinedAt: iso('2026-10-21T09:00:00Z') },
+      ],
+    })
+    const c1 = news.items.find((i) => i.id === 'challenge:c1')
+    const c2 = news.items.find((i) => i.id === 'challenge:c2')
+    expect(c1).toMatchObject({
+      kind: 'challenge',
+      title: '2 machen neu mit bei „30 Tage“',
+      href: '/miteinander/challenge/c1',
+      unread: true,
+    })
+    expect(c2).toMatchObject({ title: 'Lea macht mit bei „Morgens“', unread: false })
+    expect(news.unreadCount).toBe(1)
+  })
+})

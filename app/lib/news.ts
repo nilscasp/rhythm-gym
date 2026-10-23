@@ -9,7 +9,9 @@
 //   (a) veröffentlichte Beiträge von Nils
 //   (b) Lektionen/Aufzeichnungen der letzten 30 Tage, je Programm gebündelt
 //   (c) Termine in den nächsten 24 Stunden
-// Ungelesen = (a)/(b) nach seen_at. (c) steht nur in der Liste.
+//   (d) Miteinander (0013): Kontaktanfragen an mich, angenommene eigene
+//       Anfragen und neue Leute in meinen Challenges (letzte 30 Tage)
+// Ungelesen = (a)/(b)/(d) nach seen_at. (c) steht nur in der Liste.
 //
 // Rein und getestet (tests/news.test.ts). Keine Imports mit Laufzeitcode:
 // die Typen reisen bis in die Glocke (Client).
@@ -48,7 +50,26 @@ export type NewsEventInput = {
   href: string
 }
 
-export type NewsKind = 'post' | 'lessons' | 'event'
+/** Eine Zeile aus my_connection_requests() (Migration 0013). */
+export type NewsConnectionInput = {
+  id: string
+  direction: 'in' | 'out'
+  otherUser: string
+  otherName: string
+  status: string
+  createdAt: string
+  answeredAt: string | null
+}
+
+/** Jemand anderes ist einer Challenge beigetreten, die ich vorgeschlagen habe. */
+export type NewsChallengeJoinInput = {
+  challengeId: string
+  challengeTitle: string
+  userName: string
+  joinedAt: string
+}
+
+export type NewsKind = 'post' | 'lessons' | 'event' | 'connection' | 'challenge'
 
 export type NewsItem = {
   id: string
@@ -84,6 +105,8 @@ export function buildNews(input: {
   posts: readonly NewsPostInput[]
   lessons: readonly NewsLessonInput[]
   events: readonly NewsEventInput[]
+  connections?: readonly NewsConnectionInput[]
+  challengeJoins?: readonly NewsChallengeJoinInput[]
   seenAt: string | null
   now: Date
 }): News {
@@ -152,7 +175,71 @@ export function buildNews(input: {
       unread: false,
     }))
 
-  const dated = [...posts, ...lessons].sort((a, b) => time(b.date) - time(a.date))
+  // (d) Miteinander — nur, was mich betrifft und eine Antwort braucht oder
+  // freut. „Lieber nicht“ bleibt leise (die Seite zeigt es, die Glocke nicht).
+  const recent = (iso: string) => {
+    const t = time(iso)
+    return t > lessonFrom && t <= now
+  }
+  const connections: NewsItem[] = (input.connections ?? []).flatMap((c): NewsItem[] => {
+    if (c.direction === 'in' && c.status === 'pending' && recent(c.createdAt)) {
+      return [
+        {
+          id: `connection:${c.id}`,
+          kind: 'connection',
+          title: `${c.otherName} möchte sich mit dir verbinden`,
+          detail: 'Annehmen oder lieber nicht, unter Mein Weg',
+          href: '/mein-weg#anfragen',
+          date: c.createdAt,
+          when: relativeDateLabel(c.createdAt, input.now),
+          unread: isAfterSeen(c.createdAt, input.seenAt),
+        },
+      ]
+    }
+    if (c.direction === 'out' && c.status === 'accepted' && c.answeredAt && recent(c.answeredAt)) {
+      return [
+        {
+          id: `connection:${c.id}`,
+          kind: 'connection',
+          title: `${c.otherName} hat deine Anfrage angenommen`,
+          detail: 'Ihr könnt euch jetzt auf WhatsApp schreiben',
+          href: `/miteinander/mensch/${c.otherUser}`,
+          date: c.answeredAt,
+          when: relativeDateLabel(c.answeredAt, input.now),
+          unread: isAfterSeen(c.answeredAt, input.seenAt),
+        },
+      ]
+    }
+    return []
+  })
+
+  const joinGroups = new Map<string, NewsChallengeJoinInput[]>()
+  for (const j of input.challengeJoins ?? []) {
+    if (!recent(j.joinedAt)) continue
+    const list = joinGroups.get(j.challengeId) ?? []
+    list.push(j)
+    joinGroups.set(j.challengeId, list)
+  }
+  const challengeJoins: NewsItem[] = [...joinGroups.values()].map((list) => {
+    const sorted = [...list].sort((a, b) => time(b.joinedAt) - time(a.joinedAt))
+    const newest = sorted[0]
+    const n = sorted.length
+    return {
+      id: `challenge:${newest.challengeId}`,
+      kind: 'challenge',
+      title:
+        n === 1
+          ? `${newest.userName} macht mit bei „${newest.challengeTitle}“`
+          : `${n} machen neu mit bei „${newest.challengeTitle}“`,
+      detail: null,
+      href: `/miteinander/challenge/${newest.challengeId}`,
+      date: newest.joinedAt,
+      when: relativeDateLabel(newest.joinedAt, input.now),
+      unread: sorted.some((j) => isAfterSeen(j.joinedAt, input.seenAt)),
+    }
+  })
+
+  const dated = [...posts, ...lessons, ...connections, ...challengeJoins].sort((a, b) => time(b.date) - time(a.date))
   const items = [...events, ...dated]
   return {
     items,
