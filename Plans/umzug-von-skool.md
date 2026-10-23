@@ -24,7 +24,7 @@ Ersetzt für den Umzug die Reihenfolge in `phasenplan-schule-des-lebens-v2.md` �
 | E | Beiträge, Neuigkeiten, Gedanke der Woche | Tabellen + Coach-Formular für Nils, Glocke mit ungelesenen Neuigkeiten | weitgehend · 0011 live (23.10.); Gedanke der Woche noch fest im Code |
 | F | Abo über Stripe | Checkout für Premium/VIP in der App, Kundenportal, Webhook ordnet Preise per Metadaten Stufen zu, Coach: Stufe von Hand setzen. Produkte legt die Sitzung „stripe-produkte“ an (`docs/stripe-produkte.md`) | Code fertig · 0012 live (23.10.); Stripe-Testschlüssel, Webhook-Endpunkt, Kundenportal fehlen |
 | G | Miteinander | Profil (Telefon, Region, Über mich, offen für …), Kontaktanfragen, Challenges, Treffen | Code fertig · 0013 live (23.10.); Admin sieht keine Handynummern |
-| H | Live-Ergänzungen | Aufzeichnungen an Terminen, Frage vorab, Kalender-Export | offen |
+| H | Live-Ergänzungen | Aufzeichnungen an Terminen, Frage vorab, Kalender-Export | Code fertig · 0014 live (23.10.), Wächter geprüft; Abo-Feed nur offene Termine |
 | I | Schutz und Recht | Bunny-Token-Auth und Referrer `lernen.handpan.schule`, AGB (Nummerntausch), Datenschutzangaben beim Kauf, Sicherheits-Review | Code fertig (dfc5f3d, 01a0e06), Wächter geprüft; offen: /agb-Seite, Freigabe der Texte, BUNNY_TOKEN_KEY, Token-Pflicht in Bunny |
 | J | Umzug | Zugänge für Skool-Mitglieder, Ankündigung, Skool parallel bis zum Stichtag | offen |
 
