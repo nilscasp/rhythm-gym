@@ -58,7 +58,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select auth.uid() is not null;
 $function$;
@@ -99,7 +99,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select exists (select 1 from public.community_blocks b where b.user_id = auth.uid());
 $function$;
@@ -153,12 +153,12 @@ drop policy if exists member_profiles_delete_own on public.member_profiles;
 create policy member_profiles_delete_own on public.member_profiles
   for delete to authenticated using (auth.uid() = user_id);
 
--- Moderation: Admin liest alles und kann ein Profil ausblenden oder löschen.
+-- Moderation ohne Telefonnummern (Wächter K2, 23.10.2026): Admin bekommt KEINE
+-- Policy auf member_profiles, sonst könnte er jede Nummer lesen. Ausblenden
+-- (admin_hide_member), Sperren (community_blocks) und Schließen laufen über
+-- eigene Funktionen/Tabellen. An `phone` kommt nur die Person selbst – und
+-- nach beidseitiger Zustimmung die verbundene Person über connection_phone().
 drop policy if exists admins_all_member_profiles on public.member_profiles;
-create policy admins_all_member_profiles on public.member_profiles
-  for all to authenticated
-  using (public.is_admin_user(auth.uid()))
-  with check (public.is_admin_user(auth.uid()));
 
 revoke all on public.member_profiles from anon, authenticated;
 grant select, insert, update, delete on public.member_profiles to authenticated;
@@ -197,7 +197,7 @@ returns boolean
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select exists (
     select 1 from public.member_moderation mm where mm.user_id = p_user_id and mm.hidden
@@ -213,7 +213,7 @@ create or replace function public.member_profiles_enforce_hidden()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   if public.member_is_hidden(new.user_id) then
@@ -237,7 +237,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   if not public.is_admin_user(auth.uid()) then
@@ -267,7 +267,7 @@ returns text
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select coalesce(
            (select nullif(btrim(mp.display_name), '')
@@ -345,7 +345,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   with q as (select lower(btrim(coalesce(p_search, ''))) as s)
   select mp.user_id,
@@ -391,7 +391,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select pr.id,
          public.member_display_name(pr.id),
@@ -432,7 +432,7 @@ returns uuid
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -446,6 +446,10 @@ begin
     raise exception 'blocked';
   end if;
   if p_to_user is null or p_to_user = v_uid then
+    raise exception 'not_allowed';
+  end if;
+  -- Vom Admin ausgeblendete Menschen fragen auch niemanden an.
+  if public.member_is_hidden(v_uid) then
     raise exception 'not_allowed';
   end if;
   if char_length(v_msg) < 1 or char_length(v_msg) > 300 then
@@ -533,7 +537,7 @@ returns text
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid    uuid := auth.uid();
@@ -568,7 +572,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -601,7 +605,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -642,7 +646,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select cr.id,
          case when cr.from_user = auth.uid() then 'out' else 'in' end,
@@ -671,7 +675,7 @@ returns text
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select mp.phone
     from public.member_profiles mp
@@ -681,6 +685,8 @@ as $function$
      and p_other_user <> auth.uid()
      and public.is_community_member()
      and not public.community_blocked()
+     -- Ist die andere Seite gesperrt, gibt es auch keine Nummer mehr.
+     and not exists (select 1 from public.community_blocks b where b.user_id = p_other_user)
      and exists (
            select 1 from public.connection_requests cr
             where cr.status = 'accepted'
@@ -799,7 +805,7 @@ create or replace function public.challenges_before_insert()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   if (select count(*) from public.challenges c
@@ -814,7 +820,7 @@ create or replace function public.challenges_after_insert()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   insert into public.challenge_members (challenge_id, user_id)
@@ -847,7 +853,7 @@ create or replace function public.challenges_before_update()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_admin boolean := public.is_admin_user(auth.uid());
@@ -893,7 +899,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   if not public.is_admin_user(auth.uid()) then
@@ -917,7 +923,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -960,7 +966,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -987,7 +993,7 @@ returns text
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select nullif(c.whatsapp_url, '')
     from public.challenges c
@@ -1018,7 +1024,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select cm.user_id,
          public.member_display_name(cm.user_id),
@@ -1132,7 +1138,7 @@ create or replace function public.meetups_before_insert()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   if (select count(*) from public.meetups m
@@ -1148,7 +1154,7 @@ create or replace function public.meetups_after_insert()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   insert into public.meetup_attendees (meetup_id, user_id)
@@ -1179,7 +1185,7 @@ create or replace function public.meetups_before_update()
 returns trigger
 language plpgsql
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_admin boolean := public.is_admin_user(auth.uid());
@@ -1225,7 +1231,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 begin
   if not public.is_admin_user(auth.uid()) then
@@ -1249,7 +1255,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -1291,7 +1297,7 @@ returns void
 language plpgsql
 volatile
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
 declare
   v_uid uuid := auth.uid();
@@ -1317,7 +1323,7 @@ returns text
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select nullif(btrim(m.exact_place), '')
     from public.meetups m
@@ -1346,7 +1352,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path to 'public', 'pg_catalog'
+set search_path to 'pg_catalog', 'public'
 as $function$
   select ma.user_id,
          public.member_display_name(ma.user_id),
