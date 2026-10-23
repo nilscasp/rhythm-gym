@@ -5,6 +5,7 @@ import { createClient } from '../../lib/supabase/server'
 import { currentBrand } from '../../lib/brand-server'
 import { toMarkdownBodyDialect } from '../../lib/lesson-markdown'
 import { BunnyVideoEmbed } from '../../training/rhythmusfundament/_components/BunnyVideoEmbed'
+import { bunnyEmbedSrc } from '../../lib/bunny-embed'
 import { MarkdownBody } from '../../training/rhythmusfundament/_components/MarkdownBody'
 import { SCHULE_PAGE_CSS } from '../../_schule/pages-css'
 import { COURSE_CSS } from '../../training/_course/views'
@@ -81,7 +82,7 @@ export default async function BeitragPage({ params }: { params: Promise<{ slug: 
 
             {post.video_guid ? (
               <section className="sp-post-video" aria-label="Video">
-                <BunnyVideoEmbed videoId={post.video_guid} title={post.title} />
+                <BunnyVideoEmbed src={bunnyEmbedSrc(post.video_guid)} title={post.title} />
               </section>
             ) : null}
 

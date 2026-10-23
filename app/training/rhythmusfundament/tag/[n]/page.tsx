@@ -23,6 +23,7 @@ import { DayCheck } from '../../_components/DayCheck'
 import { rowToHandpan, derivePitchMap, type PitchMap } from '../../../../lib/handpan'
 import { MarkdownBody } from '../../_components/MarkdownBody'
 import { PracticeVideo } from '../../_components/PracticeVideo'
+import { bunnyEmbedSrc } from '../../../../lib/bunny-embed'
 import { GrafikGalerie } from '../../_components/GrafikGalerie'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -239,7 +240,7 @@ export default async function RhythmusfundamentTagPage({ params }: PageProps) {
           {day.videoId ? (
             <section className="tag-video" aria-label="Tages-Video">
               <PracticeVideo
-                videoId={day.videoId}
+                src={bunnyEmbedSrc(day.videoId)}
                 title={`Tag ${day.number} · ${day.title}`}
                 chapters={day.chapters}
               />

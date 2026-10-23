@@ -5,6 +5,7 @@ import { createClient } from '../../lib/supabase/server'
 import { progressPercent } from '../../lib/course-progress'
 import { toMarkdownBodyDialect } from '../../lib/lesson-markdown'
 import { BunnyVideoEmbed } from '../rhythmusfundament/_components/BunnyVideoEmbed'
+import { bunnyEmbedSrc } from '../../lib/bunny-embed'
 import { MarkdownBody } from '../rhythmusfundament/_components/MarkdownBody'
 import { CourseOutline } from './CourseOutline'
 import { LessonCheck } from './LessonCheck'
@@ -254,7 +255,7 @@ export async function LessonPage({ slug, lessonSlug }: { slug: string; lessonSlu
               <>
                 {content?.video_guid ? (
                   <section className="lp-video" aria-label="Video">
-                    <BunnyVideoEmbed videoId={content.video_guid} title={lesson.title} />
+                    <BunnyVideoEmbed src={bunnyEmbedSrc(content.video_guid)} title={lesson.title} />
                   </section>
                 ) : null}
 
