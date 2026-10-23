@@ -15,6 +15,14 @@ import { createAccessCodeAction, toggleAccessCodeAction } from './_actions'
 import { PendingSubmitButton } from './_components/PendingSubmitButton'
 import { DeleteEventForm } from './_components/DeleteEventForm'
 import { EventForm } from './_components/EventForm'
+import { PostForm } from './_components/PostForm'
+import { currentBrand } from '../lib/brand-server'
+
+const POST_AUDIENCE_SHORT: Record<string, string> = {
+  members: 'Alle',
+  premium: 'Premium',
+  vip: 'VIP',
+}
 
 export const metadata = {
   title: 'Coach-Sicht — Rhythm Gym',
@@ -231,6 +239,20 @@ export default async function CoachPage() {
   const events: EventListRow[] = [...pastEvents, ...upcomingEvents]
 
   const programs = (programsRes.data ?? []) as { id: string; title: string }[]
+
+  // Beiträge von Nils — nur auf der Marke schule (Migration 0011).
+  const isSchule = (await currentBrand()) === 'schule'
+  const postsRes = isSchule
+    ? await supabase
+        .from('posts')
+        .select('id, slug, title, body_md, video_guid, audience, published_at, updated_at')
+        .order('created_at', { ascending: false })
+        .limit(100)
+    : null
+  if (postsRes?.error) {
+    console.error('[coach] posts read failed', { code: postsRes.error.code, message: postsRes.error.message })
+  }
+  const posts = postsRes?.data ?? []
   const programTitleById = new Map(programs.map((p) => [p.id, p.title]))
 
   // Aggregate maps per user
@@ -512,6 +534,75 @@ export default async function CoachPage() {
               </ul>
             )}
           </section>
+
+          {/* ── Beiträge (nur schule) ─────────────────────────────────── */}
+          {isSchule && (
+            <section className="cch-section">
+              <header className="cch-section-head">
+                <div className="cch-eyebrow">Schule · Statt Feed</div>
+                <h2>BEITRÄGE</h2>
+                <p className="cch-sub">
+                  Erscheinen unter /beitraege, oben auf „Heute“ und in der Glocke.
+                  Gespräch dazu läuft auf WhatsApp.
+                </p>
+              </header>
+
+              <details className="cch-event-new">
+                <summary>Neuen Beitrag schreiben</summary>
+                <PostForm />
+              </details>
+
+              {postsRes?.error ? (
+                <div className="cch-empty">
+                  Beiträge lassen sich nicht laden — ist Migration 0011 eingespielt?
+                </div>
+              ) : posts.length === 0 ? (
+                <div className="cch-empty">Noch kein Beitrag.</div>
+              ) : (
+                <ul className="cch-list">
+                  {posts.map((p) => {
+                    const live = p.published_at !== null && p.published_at <= nowISO
+                    const status = p.published_at === null ? 'Entwurf' : live ? 'Veröffentlicht' : 'Geplant'
+                    return (
+                      <li
+                        key={p.id}
+                        className={`cch-row cch-event-row ${live ? 'cch-event-row--next' : 'cch-event-row--past'}`}
+                      >
+                        <div className="cch-row-main">
+                          <div className="cch-row-name">
+                            {live ? <Link href={`/beitraege/${p.slug}`}>{p.title}</Link> : p.title}
+                          </div>
+                          <div className="cch-row-email">
+                            /beitraege/{p.slug}
+                            {p.published_at ? ` · ${formatEventDate(p.published_at)}` : ''}
+                          </div>
+                        </div>
+                        <div className="cch-row-stats cch-row-stats--3">
+                          <Stat label="Status" value={status} />
+                          <Stat label="Für" value={POST_AUDIENCE_SHORT[p.audience] ?? p.audience} />
+                          <Stat label="Video" value={p.video_guid ? 'ja' : '—'} />
+                        </div>
+                        <details className="cch-event-edit">
+                          <summary>Bearbeiten</summary>
+                          <PostForm
+                            post={{
+                              id: p.id,
+                              title: p.title,
+                              slug: p.slug,
+                              bodyMd: p.body_md ?? '',
+                              videoGuid: p.video_guid ?? '',
+                              audience: p.audience,
+                              published: p.published_at !== null,
+                            }}
+                          />
+                        </details>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </section>
+          )}
 
           {/* ── Termine ───────────────────────────────────────────────── */}
           <section className="cch-section">
@@ -1127,6 +1218,9 @@ const COACH_CSS = `
   }
   .cch-event-check input { accent-color: var(--amber); width: 16px; height: 16px; }
   .cch-event-check--small { font-size: 11px; }
+  .cch-post-publish { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .cch-post-publish .cch-event-check { min-height: 44px; font-size: 15px; }
+  .cch-post-body { min-height: 260px; }
   .cch-event-submit { grid-column: 1 / -1; }
   .cch-event-submit .cch-code-create { width: 100%; }
 
