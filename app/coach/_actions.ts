@@ -332,3 +332,54 @@ export async function deleteEventAction(formData: FormData): Promise<void> {
   revalidatePath('/coach')
   revalidatePath('/termine')
 }
+
+// ── Aufzeichnung an einen Termin hängen (Abschnitt H, Migration 0014) ──────
+// Eine Lektion in einer Bibliothek, verknüpft per lessons.event_id. Die
+// Funktion link_event_recording() prüft Admin, Video-ID und Bibliothek selbst
+// und legt Lektion + Inhalt in einem Schritt an (oder aktualisiert sie).
+
+export type RecordingFormState =
+  | { status: 'idle' }
+  | { status: 'ok' }
+  | { status: 'error'; message: string }
+
+const RECORDING_ERRORS: Record<string, string> = {
+  invalid_video_guid: 'Die Bunny-Video-ID sieht nicht richtig aus (Format 8-4-4-4-12).',
+  invalid_title: 'Bitte einen Titel angeben (höchstens 200 Zeichen).',
+  not_a_library: 'Bitte eine Bibliothek wählen (z. B. VIP-Calls).',
+  unknown_event: 'Diesen Termin gibt es nicht mehr.',
+}
+
+export async function linkRecordingAction(
+  _prev: RecordingFormState,
+  formData: FormData,
+): Promise<RecordingFormState> {
+  const { supabase } = await requireAdmin()
+
+  const field = (name: string) => {
+    const v = formData.get(name)
+    return typeof v === 'string' ? v.trim() : ''
+  }
+  const eventId = field('event_id')
+  const programId = field('program_id')
+  if (!eventId || !programId) {
+    return { status: 'error', message: 'Bitte Termin und Bibliothek wählen.' }
+  }
+
+  const { error } = await supabase.rpc('link_event_recording', {
+    p_event_id: eventId,
+    p_program_id: programId,
+    p_video_guid: field('video_guid'),
+    p_title: field('title'),
+  })
+
+  if (error) {
+    const known = Object.keys(RECORDING_ERRORS).find((k) => error.message?.includes(k))
+    if (!known) console.error('[coach] link_event_recording failed', { eventId, code: error.code, message: error.message })
+    return { status: 'error', message: known ? RECORDING_ERRORS[known] : 'Speichern hat nicht geklappt.' }
+  }
+
+  revalidatePath('/coach')
+  revalidatePath(`/termine/${eventId}`)
+  return { status: 'ok' }
+}
