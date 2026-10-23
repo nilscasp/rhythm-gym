@@ -5,6 +5,8 @@ import { createClient } from '../../lib/supabase/server'
 import { progressPercent } from '../../lib/course-progress'
 import { toMarkdownBodyDialect } from '../../lib/lesson-markdown'
 import { BunnyVideoEmbed } from '../rhythmusfundament/_components/BunnyVideoEmbed'
+import { bunnyEmbedSrc } from '../../lib/bunny-embed'
+import { PurchaseNote } from '../../../components/PurchaseNote'
 import { MarkdownBody } from '../rhythmusfundament/_components/MarkdownBody'
 import { CourseOutline } from './CourseOutline'
 import { LessonCheck } from './LessonCheck'
@@ -54,6 +56,7 @@ function LockedPanel({ room }: { room: CourseRoom }) {
           ? 'Die Gliederung siehst du schon. Mit dem passenden Abo öffnen sich alle Lektionen.'
           : 'Die Gliederung siehst du schon. Nach der Buchung öffnen sich die Lektionen hier.'}
       </p>
+      {viaPlan ? null : <PurchaseNote />}
       <div className="cr-actions">
         {viaPlan ? (
           <Link href="/mitgliedschaft" className="cr-btn">
@@ -254,7 +257,7 @@ export async function LessonPage({ slug, lessonSlug }: { slug: string; lessonSlu
               <>
                 {content?.video_guid ? (
                   <section className="lp-video" aria-label="Video">
-                    <BunnyVideoEmbed videoId={content.video_guid} title={lesson.title} />
+                    <BunnyVideoEmbed src={bunnyEmbedSrc(content.video_guid)} title={lesson.title} />
                   </section>
                 ) : null}
 

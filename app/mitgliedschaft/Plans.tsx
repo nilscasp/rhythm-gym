@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { BillingInterval, PriceTable } from '../lib/billing'
 import type { Plan } from '../lib/plan'
 import { TIER_CONTENT, TIER_NAMES, TIER_ORDER, type TierItem } from '../lib/tiers'
+import { PurchaseNote } from '../../components/PurchaseNote'
 
 // Die zwei Stufen nebeneinander (mobil untereinander) mit Umschalter
 // Monat/Jahr. Kaufen ist ein schlichtes Formular-POST an /api/stripe/checkout
@@ -92,6 +93,7 @@ export function Plans({
 
               {!isMember ? (
                 <form method="post" action="/api/stripe/checkout">
+                  <PurchaseNote />
                   <input type="hidden" name="kind" value="subscription" />
                   <input type="hidden" name="tier" value={tier} />
                   <input type="hidden" name="interval" value={interval} />

@@ -213,8 +213,10 @@ function LoginPageInner() {
             </Link>
           </div>
 
-          {/* Beta-Banner — gilt für Login und Registrieren */}
-          <div className="login-beta" role="note">
+          {/* Beta-Banner — gilt für Login und Registrieren, nur im Gym.
+              Die Schule hat bezahlte Kurse und Abos; „alle Funktionen frei“
+              stimmt dort nicht (wm-gym blendet auf data-brand="schule" aus). */}
+          <div className="login-beta wm-gym" role="note">
             <span className="login-beta-tag">Beta</span>
             <span className="login-beta-text">
               Kostenloser Beta-Test — alle Funktionen frei nutzbar.

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { RHYTHMUS_DAYS } from '../../data/rhythmusfundament-days'
 import { BunnyVideoEmbed } from '../training/rhythmusfundament/_components/BunnyVideoEmbed'
+import { bunnyEmbedSrc } from '../lib/bunny-embed'
 import { DayPlayer } from '../training/rhythmusfundament/_components/DayPlayer'
 import { MarkdownBody } from '../training/rhythmusfundament/_components/MarkdownBody'
 
@@ -88,7 +89,7 @@ export default async function Tag1Page({ searchParams }: PageProps) {
           {day.videoId ? (
             <section className="t1-video" aria-label="Video zu Tag 1">
               <BunnyVideoEmbed
-                videoId={day.videoId}
+                src={bunnyEmbedSrc(day.videoId)}
                 title={`Tag ${day.number} · ${day.title}`}
               />
             </section>

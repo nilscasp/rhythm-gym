@@ -18,7 +18,8 @@ import { requestPreset } from './practice-bridge';
 import { chapterIndexAt, loopStep } from './practice-loop';
 
 interface PracticeVideoProps {
-  videoId: string;
+  /** Fertige Embed-URL vom Server (bunnyEmbedSrc in app/lib/bunny-embed.ts). */
+  src: string | null;
   title: string;
   chapters?: readonly VideoChapter[];
 }
@@ -28,7 +29,7 @@ function formatTime(seconds: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-export function PracticeVideo({ videoId, title, chapters = [] }: PracticeVideoProps) {
+export function PracticeVideo({ src, title, chapters = [] }: PracticeVideoProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const playerRef = useRef<BunnyPlayer | null>(null);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -88,7 +89,7 @@ export function PracticeVideo({ videoId, title, chapters = [] }: PracticeVideoPr
 
   return (
     <div className="pv-wrap">
-      <BunnyVideoEmbed videoId={videoId} title={title} iframeRef={iframeRef} />
+      <BunnyVideoEmbed src={src} title={title} iframeRef={iframeRef} />
 
       {hasChapters ? (
         <div className="pv-station">

@@ -1,28 +1,21 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // BunnyVideoEmbed — embed eines Bunny-Stream-Videos.
 //
-// Bunny liefert pro Library einen iframe-Embed unter:
-//   https://iframe.mediadelivery.net/embed/{libraryId}/{videoGuid}
-//
-// Optional-Params (?autoplay=false&loop=false&muted=false&preload=true&responsive=true)
-// werden über die Query gehängt; showSpeed=true blendet die Tempo-Wahl im
-// Zahnrad ein (0,5× zum Mitspielen — per player.js-API geht das nicht). Library-ID kommt aus
-// `NEXT_PUBLIC_BUNNY_LIBRARY_ID` — gesetzt in .env.local sobald Nils die
-// Library angelegt hat.
-//
-// Token-Authentication (Signed URLs) — werden in einer späteren Iteration
-// dazugeschraubt. Für Closed Beta reicht Domain-Restriction im
-// Bunny-Dashboard (Allowed Referrers: rhythmgym.io, www.rhythmgym.io,
-// localhost:3000).
+// Die fertige iframe-URL kommt vom Server: `bunnyEmbedSrc(videoId)` aus
+// app/lib/bunny-embed.ts — signiert (Token, 6 h gültig), sobald
+// BUNNY_TOKEN_KEY gesetzt ist, sonst unsigniert wie bisher. Player-Optionen
+// (u. a. showSpeed=true für die Tempo-Wahl im Zahnrad) hängt
+// app/lib/bunny-token.ts an. Die Komponente bleibt rein darstellend und läuft
+// deshalb auch in Client-Komponenten (PracticeVideo); der Schlüssel verlässt
+// nie den Server. `src === null` heißt: NEXT_PUBLIC_BUNNY_LIBRARY_ID fehlt.
+// Schutz und Einrichtung: docs/bunny-schutz.md.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Ref } from 'react'
 
 interface BunnyVideoEmbedProps {
-  /** Bunny Video GUID — UUID Format. */
-  videoId: string;
-  /** Bunny Library ID — fällt zurück auf env var falls nicht übergeben. */
-  libraryId?: string;
+  /** Fertige Embed-URL vom Server (bunnyEmbedSrc); null ohne Library-ID. */
+  src: string | null;
   /** Title für a11y. */
   title?: string;
   /** Zugriff aufs iframe für die player.js-Steuerung (PracticeVideo). */
@@ -30,14 +23,11 @@ interface BunnyVideoEmbedProps {
 }
 
 export function BunnyVideoEmbed({
-  videoId,
-  libraryId,
+  src,
   title = 'Rhythmus-Fundament Video',
   iframeRef,
 }: BunnyVideoEmbedProps) {
-  const lib = libraryId ?? process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID
-
-  if (!lib) {
+  if (!src) {
     // Fail loud in dev, silent in prod — kein placeholder mit cryptic 404.
     if (process.env.NODE_ENV !== 'production') {
       return (
@@ -60,8 +50,6 @@ export function BunnyVideoEmbed({
     }
     return null
   }
-
-  const src = `https://iframe.mediadelivery.net/embed/${lib}/${videoId}?autoplay=false&loop=false&muted=false&preload=true&responsive=true&showSpeed=true`
 
   return (
     <div className="bunny-wrap">
