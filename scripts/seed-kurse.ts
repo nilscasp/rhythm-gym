@@ -457,7 +457,7 @@ function buildCourse(entry: PlannedProgram, list: Video[], texts: CourseTexts, u
       sectionSlug: section?.slug ?? null,
       mediaKind: 'video',
       videoGuid: v.guid,
-      bodyMd: text?.body || null,
+      bodyMd: toPlatformText(text?.body),
       durationSeconds: text?.durationSeconds ?? null,
       sourceFile: stem,
     })
@@ -490,7 +490,7 @@ function buildCourse(entry: PlannedProgram, list: Video[], texts: CourseTexts, u
         sectionSlug: spec.slug,
         mediaKind: 'text',
         videoGuid: null,
-        bodyMd: e.body || null,
+        bodyMd: toPlatformText(e.body),
         durationSeconds: null,
         sourceFile: label,
       })
@@ -556,7 +556,7 @@ function buildLibrary(entry: PlannedProgram, list: Video[], lk: Landkarte, texts
       sectionSlug: null,
       mediaKind: 'video',
       videoGuid: v.guid,
-      bodyMd: text?.body || null,
+      bodyMd: toPlatformText(text?.body),
       durationSeconds: text?.durationSeconds ?? null,
       sourceFile: stem,
     })
@@ -812,6 +812,28 @@ async function apply(plan: PlannedProgram[]) {
     }
     console.log(`✓ ${s.slug}: ${p.lessons.length} Lektionen geschrieben`)
   }
+}
+
+// ── Skool → Plattform ────────────────────────────────────────────────────────
+// Die Texte stammen aus Skool. Auf der Plattform gibt es keine Kommentare;
+// das Gespräch läuft auf WhatsApp (Entscheidung 22.10.2026). Dieselben
+// Ersetzungen wurden am 23.10.2026 in der Live-DB angewandt.
+const PLATFORM_REPLACEMENTS: [string, string][] = [
+  ['Schick mir eine Nachricht hier in Skool oder poste dein Video mit „Für die Pattern-Mediathek“ in der Community.',
+    'Schick mir dein Video per WhatsApp oder poste es mit „Für die Pattern-Mediathek“ in der WhatsApp-Community.'],
+  ['hier in den Kommentaren', 'in der WhatsApp-Community'],
+  ['in die Kommentare', 'in die WhatsApp-Community'],
+  ['in den Kommentaren', 'in der WhatsApp-Community'],
+  ["Schreib's in die Community.", "Schreib's in deine Kursgruppe auf WhatsApp."],
+  ['Teil deine Aufnahme hier in der Community.', 'Teil deine Aufnahme in deiner Kursgruppe auf WhatsApp.'],
+  ['Teil eine kurze Aufnahme in der Community.', 'Teil eine kurze Aufnahme in deiner Kursgruppe auf WhatsApp.'],
+]
+
+function toPlatformText(body: string | null | undefined): string | null {
+  if (!body) return null
+  let out = body
+  for (const [from, to] of PLATFORM_REPLACEMENTS) out = out.split(from).join(to)
+  return out
 }
 
 // ── SQL statt service_role ───────────────────────────────────────────────────
