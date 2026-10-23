@@ -13,8 +13,43 @@ import { redeemCodeAction, type RedeemState } from '../_actions'
 
 const initialState: RedeemState = { status: 'idle' }
 
-export function RedeemCodeCard() {
+// variant="schule": schlichtes Formular für „Heute“ der Schule — Styles aus
+// HEUTE_CSS (app/training/_schule/SchuleHeute.tsx, .sh-redeem-*), ohne Emoji
+// und ohne Gym-Texte. Dieselbe Server Action, derselbe Einlöseweg.
+export function RedeemCodeCard({ variant = 'gym' }: { variant?: 'gym' | 'schule' } = {}) {
   const [state, formAction, pending] = useActionState(redeemCodeAction, initialState)
+
+  if (variant === 'schule') {
+    return (
+      <form action={formAction} className="sh-redeem-form">
+        <label className="sh-redeem-label" htmlFor="sh-redeem-code">
+          Zugangs-Code
+        </label>
+        <div className="sh-redeem-row">
+          <input
+            id="sh-redeem-code"
+            type="text"
+            name="code"
+            required
+            placeholder="RG-XXXX-XXXX"
+            className="sh-redeem-input"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={20}
+          />
+          <button type="submit" className="cr-btn" disabled={pending}>
+            {pending ? 'Prüfe …' : 'Einlösen'}
+          </button>
+        </div>
+        {state.status === 'error' && (
+          <p className="sh-redeem-error" role="alert">
+            {state.message}
+          </p>
+        )}
+      </form>
+    )
+  }
 
   return (
     <article className="hub-card hub-locked-card">

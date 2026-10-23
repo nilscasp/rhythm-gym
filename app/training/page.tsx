@@ -5,7 +5,10 @@ import type { Metadata } from 'next'
 import { createClient } from '../lib/supabase/server'
 import type { Database } from '../lib/supabase/database.types'
 import { BRAND_HEADER, DEFAULT_BRAND, isBrand, type Brand } from '../lib/brand'
-import { getCourseAccess } from '../lib/course-access'
+import { berlinToday, getCourseAccess } from '../lib/course-access'
+import { getMessages } from '../../messages/server'
+import { loadHeute } from './_schule/load'
+import { SchuleHeute } from './_schule/SchuleHeute'
 import {
   getCompletedDaysByProgram,
   getCompletedLessonCountsByProgram,
@@ -24,9 +27,11 @@ async function currentBrand(): Promise<Brand> {
 export async function generateMetadata(): Promise<Metadata> {
   const brand = await currentBrand()
   return {
-    title: brand === 'schule' ? 'Deine Kurse — Handpan Schule des Lebens' : 'Training — Rhythm Gym',
+    title: brand === 'schule' ? 'Heute — Handpan Schule des Lebens' : 'Training — Rhythm Gym',
     description:
-      'Dein persönlicher Trainings-Hub. Aktive Programme, Praxis-Spiegel und Patterns an einem Ort.',
+      brand === 'schule'
+        ? 'Dein Raum in der Handpan Schule des Lebens: Gedanke der Woche, deine Kurse und die nächsten Live-Termine.'
+        : 'Dein persönlicher Trainings-Hub. Aktive Programme, Praxis-Spiegel und Patterns an einem Ort.',
   }
 }
 
@@ -134,6 +139,37 @@ function streakLevel(streak: number): { name: string; level: number } {
 }
 
 // ──────────────────────────────────────────────────────────────────────
+// Schule: „Heute“
+// ──────────────────────────────────────────────────────────────────────
+
+async function SchuleHeutePage({
+  supabase,
+  userId,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>
+  userId: string
+}) {
+  const [profileRes, { t }] = await Promise.all([
+    supabase.from('profiles').select('full_name, plan').eq('id', userId).maybeSingle(),
+    getMessages(),
+  ])
+  // Wie im Gym-Hub: ohne Namen erst ins Onboarding.
+  if (!profileRes.data?.full_name) redirect('/settings?onboarding=true')
+
+  // Übe-Tag in Berliner Zeit vermerken (dieselbe Tabelle wie Streak/Heatmap).
+  try {
+    await supabase
+      .from('daily_activity')
+      .upsert({ user_id: userId, day: berlinToday() }, { onConflict: 'user_id,day' })
+  } catch {
+    // nicht kritisch
+  }
+
+  const data = await loadHeute(supabase, userId, profileRes.data.plan ?? null, t)
+  return <SchuleHeute data={data} />
+}
+
+// ──────────────────────────────────────────────────────────────────────
 // Page
 // ──────────────────────────────────────────────────────────────────────
 
@@ -146,6 +182,9 @@ export default async function TrainingHubPage() {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
+
+  // Marke schule: eigene Startseite „Heute“ (Abschnitt D). Gym bleibt unten.
+  if (brand === 'schule') return <SchuleHeutePage supabase={supabase} userId={user.id} />
 
   // B. Parallel reads
   const [
@@ -314,7 +353,7 @@ export default async function TrainingHubPage() {
           {/* ── HERO ── */}
           <section className="hub-hero">
             <div className="hub-hero-kicker">
-              {brand === 'schule' ? 'Handpan Schule des Lebens · Dein Raum' : 'Rhythm Gym · Personal'}
+              Rhythm Gym · Personal
             </div>
             <h1>
               {userFirstName ? (
