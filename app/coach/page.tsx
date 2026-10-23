@@ -358,6 +358,11 @@ export default async function CoachPage() {
             <p className="cch-sub">
               <a href="/coach/mitglieder">Mitglieder und Stufen verwalten →</a>
             </p>
+            {isSchule ? (
+              <p className="cch-sub">
+                <a href="/coach/miteinander">Miteinander moderieren →</a>
+              </p>
+            ) : null}
           </header>
 
           {/* ── Aggregate Stats ───────────────────────────────────────── */}

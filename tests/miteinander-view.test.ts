@@ -6,6 +6,7 @@ import {
   firstName,
   ilikeTerm,
   insertErrorCode,
+  isFuture,
   isUuid,
   matchesRegion,
   withParam,
@@ -143,6 +144,14 @@ describe('ilikeTerm', () => {
   })
   test('kürzt lange Eingaben', () => {
     expect(ilikeTerm('x'.repeat(200)).length).toBe(80)
+  })
+})
+
+describe('isFuture', () => {
+  test('vorher und nachher', () => {
+    const now = new Date('2026-10-23T10:00:00Z')
+    expect(isFuture('2026-10-23T10:00:01Z', now)).toBe(true)
+    expect(isFuture('2026-10-23T09:59:59Z', now)).toBe(false)
   })
 })
 

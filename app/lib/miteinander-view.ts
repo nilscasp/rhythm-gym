@@ -106,6 +106,11 @@ export function ilikeTerm(raw: string): string {
     .replace(/[%_]/g, (c) => `\\${c}`)
 }
 
+/** Liegt der Zeitpunkt noch vor uns? */
+export function isFuture(iso: string, now: Date = new Date()): boolean {
+  return new Date(iso).getTime() > now.getTime()
+}
+
 /** Vorname wie in member_display_name (0013): erster Teil von full_name. */
 export function firstName(fullName: string | null | undefined): string {
   return (fullName ?? '').trim().split(/\s+/)[0] ?? ''

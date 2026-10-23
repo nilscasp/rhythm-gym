@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { meetupDateBox, peopleCountLabel, spotsLabel } from '../../../lib/miteinander'
+import { isFuture } from '../../../lib/miteinander-view'
 import { closeMeetupAction, joinMeetupAction, leaveMeetupAction } from '../../_actions'
 import { loadMeetup, loadPeople, loadSecret } from '../../_load'
 import { miteinanderSession, param } from '../../_session'
@@ -32,7 +33,7 @@ export default async function MeetupPage({
 
   const box = meetupDateBox(meetup.starts_at)
   const creator = people.find((p) => p.is_creator)
-  const open = meetup.status === 'open' && new Date(meetup.starts_at).getTime() > Date.now()
+  const open = meetup.status === 'open' && isFuture(meetup.starts_at)
   const spots = spotsLabel(people.length, meetup.max_people)
   const full = spots === 'ausgebucht'
   const where = meetup.online ? 'Online' : meetup.region
