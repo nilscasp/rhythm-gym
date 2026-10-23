@@ -10,7 +10,8 @@ export type Json =
 // access_codes.whatsapp_url, program_sections, lessons, lesson_contents,
 // lesson_attachments, lesson_completions, plan_rank, has_program_access,
 // program_whatsapp_url) ist VON HAND ERGÄNZT — nach dem Einspielen mit
-// generate_typescript_types neu erzeugen.
+// generate_typescript_types neu erzeugen. Dasselbe gilt für Migration 0011
+// (posts, news_state, can_read_post).
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -608,6 +609,78 @@ export type Database = {
         }
         Relationships: []
       }
+      // Migration 0011 (posts, news_state) · VON HAND ERGÄNZT — nach dem
+      // Einspielen mit generate_typescript_types neu erzeugen.
+      posts: {
+        Row: {
+          audience: string
+          body_md: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          title: string
+          updated_at: string
+          video_guid: string | null
+        }
+        Insert: {
+          audience?: string
+          body_md?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+          video_guid?: string | null
+        }
+        Update: {
+          audience?: string
+          body_md?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+          video_guid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_state: {
+        Row: {
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          seen_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           active_handpan_id: string | null
@@ -906,6 +979,8 @@ export type Database = {
       plan_rank: { Args: { p_plan: string | null }; Returns: number }
       has_program_access: { Args: { p_program_id: string }; Returns: boolean }
       program_whatsapp_url: { Args: { p_program_id: string }; Returns: string | null }
+      // Migration 0011 · von Hand ergänzt.
+      can_read_post: { Args: { p_audience: string }; Returns: boolean }
       set_membership_by_customer: {
         Args: { p_customer_id: string; p_email: string; p_active: boolean }
         Returns: Json

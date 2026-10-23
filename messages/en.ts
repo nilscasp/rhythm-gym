@@ -24,6 +24,13 @@ export const en: Messages = {
     language: 'Language',
     toGerman: 'Auf Deutsch',
     toEnglish: 'In English',
+    today: 'Today',
+    practice: 'Practice',
+    live: 'Live',
+    together: 'Together',
+    myPath: 'My path',
+    mainNav: 'Main navigation',
+    news: 'News',
   },
 
   events: {
