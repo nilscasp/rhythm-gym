@@ -16,6 +16,7 @@ import { PendingSubmitButton } from './_components/PendingSubmitButton'
 import { DeleteEventForm } from './_components/DeleteEventForm'
 import { EventForm } from './_components/EventForm'
 import { PostForm } from './_components/PostForm'
+import { RecordingForm } from './_components/RecordingForm'
 import { currentBrand } from '../lib/brand-server'
 import { TIER_NAMES } from '../lib/tiers'
 
@@ -230,7 +231,10 @@ export default async function CoachPage() {
         .lt('starts_at', nowISO)
         .order('starts_at', { ascending: false })
         .limit(10),
-      supabase.from('programs').select('id, title').order('title', { ascending: true }),
+      supabase
+        .from('programs')
+        .select('id, title, kind, included_in_plan')
+        .order('title', { ascending: true }),
     ])
 
   const profiles: ProfileRow[] = (profilesRes.data ?? []) as ProfileRow[]
@@ -242,7 +246,59 @@ export default async function CoachPage() {
   const upcomingEvents = (upcomingRes.data as EventListRow[] | null) ?? []
   const events: EventListRow[] = [...pastEvents, ...upcomingEvents]
 
-  const programs = (programsRes.data ?? []) as { id: string; title: string }[]
+  const programRows = (programsRes.data ?? []) as {
+    id: string
+    title: string
+    kind: string
+    included_in_plan: string | null
+  }[]
+  const programs = programRows.map((p) => ({ id: p.id, title: p.title }))
+  // Bibliotheken für „Aufzeichnung verknüpfen“ — mit der Stufe, ab der man sie sieht.
+  const libraries = programRows
+    .filter((p) => p.kind === 'library')
+    .map((p) => ({
+      id: p.id,
+      title: p.title,
+      tierLabel:
+        p.included_in_plan === 'vip'
+          ? TIER_NAMES.vip
+          : p.included_in_plan === 'premium'
+            ? TIER_NAMES.premium
+            : 'Kurs-Zugang',
+    }))
+
+  // Fragen vorab und verknüpfte Aufzeichnungen der angezeigten Termine
+  // (Migration 0014). Admin liest per RLS alle Fragen.
+  const eventIds = events.map((e) => e.id)
+  const [questionsRes, recordingsRes] = eventIds.length
+    ? await Promise.all([
+        supabase
+          .from('event_questions')
+          .select('id, event_id, user_id, body, created_at')
+          .in('event_id', eventIds)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('lessons')
+          .select('id, title, program_id, event_id')
+          .in('event_id', eventIds),
+      ])
+    : [null, null]
+  if (questionsRes?.error) {
+    console.error('[coach] event_questions read failed', { code: questionsRes.error.code, message: questionsRes.error.message })
+  }
+  const questionsByEvent = new Map<string, { id: string; user_id: string; body: string; created_at: string }[]>()
+  for (const q of questionsRes?.data ?? []) {
+    const list = questionsByEvent.get(q.event_id) ?? []
+    list.push(q)
+    questionsByEvent.set(q.event_id, list)
+  }
+  const recordingsByEvent = new Map<string, { id: string; title: string; program_id: string }[]>()
+  for (const r of recordingsRes?.data ?? []) {
+    if (!r.event_id) continue
+    const list = recordingsByEvent.get(r.event_id) ?? []
+    list.push(r)
+    recordingsByEvent.set(r.event_id, list)
+  }
 
   // Beiträge von Nils — nur auf der Marke schule (Migration 0011).
   const isSchule = (await currentBrand()) === 'schule'
@@ -706,6 +762,45 @@ export default async function CoachPage() {
                           }}
                         />
                       </details>
+
+                      {(questionsByEvent.get(e.id)?.length ?? 0) > 0 ? (
+                        <details className="cch-event-edit">
+                          <summary>Fragen vorab ({questionsByEvent.get(e.id)!.length})</summary>
+                          <ul className="cch-q-list">
+                            {questionsByEvent.get(e.id)!.map((q) => {
+                              const who = profiles.find((p) => p.id === q.user_id)
+                              return (
+                                <li key={q.id} className="cch-q-item">
+                                  <div className="cch-row-email">
+                                    {who?.full_name || who?.email || 'Mitglied'} ·{' '}
+                                    {formatEventDate(q.created_at)}
+                                  </div>
+                                  <p className="cch-q-body">{q.body}</p>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </details>
+                      ) : null}
+
+                      {isPast ? (
+                        <details className="cch-event-edit">
+                          <summary>
+                            Aufzeichnung
+                            {(recordingsByEvent.get(e.id)?.length ?? 0) > 0
+                              ? ` · ${recordingsByEvent
+                                  .get(e.id)!
+                                  .map((r) => programTitleById.get(r.program_id) ?? '—')
+                                  .join(', ')}`
+                              : ' verknüpfen'}
+                          </summary>
+                          <RecordingForm
+                            eventId={e.id}
+                            defaultTitle={recordingsByEvent.get(e.id)?.[0]?.title ?? title}
+                            libraries={libraries}
+                          />
+                        </details>
+                      ) : null}
                     </li>
                   )
                 })}
@@ -1158,6 +1253,9 @@ const COACH_CSS = `
   }
 
   /* Termine */
+  .cch-q-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .cch-q-item { border-left: 2px solid var(--border2); padding: 4px 0 4px 12px; min-width: 0; }
+  .cch-q-body { margin: 4px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; }
   .cch-event-new, .cch-event-edit {
     background: var(--card);
     border: 1px solid var(--border);
