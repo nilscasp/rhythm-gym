@@ -11,8 +11,79 @@ import {
   LESSON_NEWS_DAYS,
   buildNews,
   type News,
+  type NewsChallengeJoinInput,
+  type NewsConnectionInput,
   type NewsLessonInput,
 } from './news'
+
+type Supabase = Awaited<ReturnType<typeof createClient>>
+
+/**
+ * Miteinander (0013): Anfragen über my_connection_requests(), neue Leute in
+ * meinen offenen Challenges über challenge_people(). Höchstens fünf offene
+ * Challenges je Person (Trigger in 0013), also höchstens fünf Aufrufe.
+ * Jeder Fehler — auch „Funktion fehlt“, solange 0013 nicht eingespielt ist —
+ * endet leer und lässt die übrigen Neuigkeiten in Ruhe.
+ */
+async function loadMiteinanderNews(
+  supabase: Supabase,
+  userId: string,
+  from: string,
+): Promise<{ connections: NewsConnectionInput[]; challengeJoins: NewsChallengeJoinInput[] }> {
+  const empty = { connections: [], challengeJoins: [] }
+  try {
+    const [requestsRes, mineRes] = await Promise.all([
+      supabase.rpc('my_connection_requests'),
+      supabase.from('challenges').select('id, title').eq('created_by', userId).eq('status', 'open').limit(5),
+    ])
+    if (requestsRes.error) {
+      console.error('[news] my_connection_requests failed', { code: requestsRes.error.code })
+    }
+    if (mineRes.error) {
+      console.error('[news] challenges read failed', { code: mineRes.error.code })
+    }
+
+    type RequestRow = {
+      id: string
+      direction: string
+      other_user: string
+      other_name: string
+      status: string
+      created_at: string
+      answered_at: string | null
+    }
+    const connections: NewsConnectionInput[] = ((requestsRes.error ? [] : (requestsRes.data ?? [])) as RequestRow[])
+      .filter((r) => r.direction === 'in' || r.direction === 'out')
+      .map((r) => ({
+        id: r.id,
+        direction: r.direction as 'in' | 'out',
+        otherUser: r.other_user,
+        otherName: r.other_name,
+        status: r.status,
+        createdAt: r.created_at,
+        answeredAt: r.answered_at,
+      }))
+
+    const mine = (mineRes.error ? [] : (mineRes.data ?? [])) as { id: string; title: string }[]
+    const people = await Promise.all(
+      mine.map(async (c) => {
+        const { data, error } = await supabase.rpc('challenge_people', { p_challenge_id: c.id })
+        if (error) {
+          console.error('[news] challenge_people failed', { code: error.code })
+          return []
+        }
+        type PersonRow = { user_id: string; display_name: string; is_creator: boolean; joined_at: string }
+        return ((data ?? []) as PersonRow[])
+          .filter((p) => !p.is_creator && p.user_id !== userId && new Date(p.joined_at).getTime() > new Date(from).getTime())
+          .map((p) => ({ challengeId: c.id, challengeTitle: c.title, userName: p.display_name, joinedAt: p.joined_at }))
+      }),
+    )
+    return { connections, challengeJoins: people.flat() }
+  } catch (error) {
+    console.error('[news] miteinander load failed', { message: (error as Error)?.message })
+    return empty
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Neuigkeiten für die angemeldete Person laden (Marke schule).
@@ -22,6 +93,7 @@ import {
 //   · Beiträge: RLS (can_read_post, Migration 0011) entscheidet.
 //   · Lektionen: getProgramAccessMap + isLessonUnlocked (course-access.ts).
 //   · Termine: hasEventAccess (event-access.ts), nur mit offener Tür.
+//   · Miteinander (0013): my_connection_requests(), challenge_people().
 //
 // `cache` sorgt dafür, dass Layout (Glocke) und „Heute“ (Leiste, Karte) im
 // selben Request nur einmal lesen. Jeder Lesefehler — auch „Tabelle fehlt“,
@@ -49,7 +121,7 @@ async function load(userId: string): Promise<News> {
   const lessonsFrom = new Date(now.getTime() - LESSON_NEWS_DAYS * 86_400_000).toISOString()
   const eventsUntil = new Date(now.getTime() + EVENT_NEWS_HOURS * 3_600_000).toISOString()
 
-  const [stateRes, postsRes, lessonsRes, eventsRes, viewer] = await Promise.all([
+  const [stateRes, postsRes, lessonsRes, eventsRes, viewer, miteinander] = await Promise.all([
     supabase.from('news_state').select('seen_at').eq('user_id', userId).maybeSingle(),
     supabase
       .from('posts')
@@ -73,6 +145,7 @@ async function load(userId: string): Promise<News> {
       .order('starts_at', { ascending: true })
       .limit(20),
     currentViewer(supabase),
+    loadMiteinanderNews(supabase, userId, lessonsFrom),
   ])
 
   for (const [name, res] of [
@@ -142,6 +215,8 @@ async function load(userId: string): Promise<News> {
     ),
     lessons,
     events,
+    connections: miteinander.connections,
+    challengeJoins: miteinander.challengeJoins,
     seenAt: stateRes.error ? null : (stateRes.data?.seen_at ?? null),
     now,
   })
