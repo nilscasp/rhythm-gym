@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { contactMailto, MEMBERSHIP_PATH } from '../../lib/billing'
 import { loadMembership } from '../../lib/membership'
 import { getStripe } from '../../lib/stripe'
-import { checkoutCourseSlug, userIdFromReference } from '../../lib/stripe-events'
+import { checkoutCourseSlug, trustedCheckoutUserId } from '../../lib/stripe-events'
 import { createClient } from '../../lib/supabase/server'
+import { currentBrand } from '../../lib/brand-server'
 import { TIER_NAMES } from '../../lib/tiers'
 import { COURSE_CSS } from '../../training/_course/views'
 import { MEMBERSHIP_CSS } from '../styles'
@@ -30,7 +31,7 @@ async function readPurchase(sessionId: string | null, userId: string): Promise<P
   if (!sessionId || !SESSION_ID.test(sessionId) || !process.env.STRIPE_SECRET_KEY) return null
   try {
     const session = await getStripe().checkout.sessions.retrieve(sessionId)
-    if (userIdFromReference(session.client_reference_id) !== userId) return null
+    if (trustedCheckoutUserId(session) !== userId) return null
     if (session.mode === 'subscription') return { kind: 'subscription' }
     return { kind: 'course', slug: checkoutCourseSlug(session) }
   } catch {
@@ -43,6 +44,8 @@ export default async function ThanksPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
+  // Nur Marke schule; auf rhythmgym.io gibt es diese Seite nicht.
+  if ((await currentBrand()) !== 'schule') notFound()
   const supabase = await createClient()
   const {
     data: { user },

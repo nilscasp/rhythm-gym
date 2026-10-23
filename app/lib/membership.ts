@@ -37,6 +37,12 @@ export async function loadMembership(
     .maybeSingle()
 
   if (error) {
+    // Übergang: nach dem Einspielen von 0012 entfernen. Bis dahin laut, damit
+    // ein fehlendes Einspielen auffällt (ohne plan_source greift kein manual-Schutz-Hinweis).
+    console.error(
+      '[mitgliedschaft] profiles.plan_source nicht lesbar, Rückfall auf alte Spalten. Migration 0012 eingespielt?',
+      error.message
+    )
     ;({ data, error } = await client
       .from('profiles')
       .select('id, email, plan, stripe_customer_id')

@@ -12,6 +12,9 @@ import {
   requestOrigin,
 } from '../../../lib/billing'
 import { loadMembership } from '../../../lib/membership'
+import { BRAND_HEADER } from '../../../lib/brand'
+import { getCourseAccess } from '../../../lib/course-access'
+import { hasRunningPlatformSubscription } from '../../../lib/stripe-events'
 import { createClient } from '../../../lib/supabase/server'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -36,6 +39,11 @@ function back(origin: string, path: string, reason: string) {
 }
 
 export async function POST(request: Request) {
+  // Kaufweg gibt es nur auf der Marke schule.
+  if (request.headers.get(BRAND_HEADER) !== 'schule') {
+    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  }
+
   const origin = requestOrigin(request.headers)
   if (!origin) {
     return NextResponse.json({ error: 'bad_host' }, { status: 400 })
@@ -81,8 +89,30 @@ export async function POST(request: Request) {
     return back(origin, MEMBERSHIP_PATH, 'von-hand')
   }
 
+  // Kurs: wer schon Zugang hat (Enrollment, Abo-Stufe, Admin), zahlt nicht
+  // ein zweites Mal. Einzige Zugangsprüfung ist course-access.ts.
+  if (checkout.kind === 'course') {
+    const access = await getCourseAccess(supabase, user.id, checkout.courseSlug)
+    if (access.hasAccess) return back(origin, backPath, 'schon-dabei')
+  }
+
   try {
     const stripe = getStripe()
+
+    // Abo: profiles.plan kann hinter Stripe herlaufen (Webhook noch unterwegs,
+    // Migration nicht eingespielt). Hat der Kunde bei Stripe schon ein
+    // laufendes Abo dieser Plattform, gibt es kein zweites — dann das Portal.
+    if (checkout.kind === 'subscription' && membership.customerId) {
+      const running = await stripe.subscriptions.list({
+        customer: membership.customerId,
+        status: 'all',
+        limit: 100,
+      })
+      if (hasRunningPlatformSubscription(running.data)) {
+        return back(origin, MEMBERSHIP_PATH, 'schon-dabei')
+      }
+    }
+
     const lookupKey = lookupKeyFor(checkout)
     const prices = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 })
     const price = prices.data[0]

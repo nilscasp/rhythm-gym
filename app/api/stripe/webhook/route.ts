@@ -10,7 +10,7 @@ import {
   mergeSubscription,
   needsLineItemsForCourse,
   planFromSubscriptions,
-  userIdFromReference,
+  trustedCheckoutUserId,
   type SubscriptionLike,
 } from '../../../lib/stripe-events'
 import { createServiceClient, type ServiceClient } from '../../../lib/supabase/service'
@@ -227,14 +227,23 @@ const HANDLED_TYPES = new Set<string>([
 /**
  * Abgeschlossener Checkout.
  *
- * Abo (mode subscription): Kunde ↔ Profil verknüpfen (client_reference_id
- * setzt nur unser eigener Checkout) und die Stufe aus allen Abos des Kunden
- * nachziehen. Das macht den Weg unabhängig von der Reihenfolge, in der Stripe
- * checkout.session.completed und customer.subscription.created zustellt.
+ * Kunde ↔ Profil wird NUR verknüpft, wenn die Session nachweislich aus
+ * unserem eigenen Checkout stammt (trustedCheckoutUserId: kein Payment Link,
+ * metadata.platform = 'lernen', metadata.user_id = client_reference_id).
+ * client_reference_id allein reicht nicht — Payment Links nehmen ihn aus der
+ * URL, und wer eine fremde Profil-Id kennt, könnte sonst seinen Kunden an
+ * dieses Profil hängen.
  *
- * Kurs (mode payment): Enrollment über grant_enrollment_by_email (0007), dann
- * den Kauf für spätere Rückerstattungen merken (0012). Nur wenn bezahlt —
+ * Abo (mode subscription): verknüpfen (nur nachgewiesen eigener Checkout,
+ * dann darf ein alter Kunde ersetzt werden) und die Stufe aus allen Abos des
+ * Kunden nachziehen. Abo-Ereignisse selbst verknüpfen nie; kommen sie vor
+ * diesem Ereignis an, holt der Abgleich hier die Stufe nach.
+ *
+ * Kurs (mode payment): grant_course_purchase (0012) schaltet frei und merkt
+ * sich, welches Enrollment dieser Kauf angelegt hat. Nur wenn bezahlt —
  * verzögerte Zahlarten kommen über async_payment_succeeded noch einmal.
+ * Payment-Link-Käufe laufen weiter über die E-Mail-Adresse, verknüpfen aber
+ * keinen Kunden.
  */
 async function handleCheckoutCompleted(
   service: ServiceClient,
@@ -242,7 +251,7 @@ async function handleCheckoutCompleted(
 ): Promise<void> {
   const sessionId = session.id
   const customerId = idOf(session.customer)
-  const userId = userIdFromReference(session.client_reference_id)
+  const userId = trustedCheckoutUserId(session)
 
   if (session.mode === 'subscription') {
     if (!customerId) {
@@ -252,7 +261,10 @@ async function handleCheckoutCompleted(
     if (userId) {
       await linkCustomer(service, userId, customerId, true)
     } else {
-      console.info('[stripe/webhook] Abo-Checkout ohne client_reference_id:', sessionId)
+      console.info(
+        '[stripe/webhook] Abo-Checkout nicht aus der App, keine Verknüpfung:',
+        sessionId
+      )
     }
     await syncCustomerPlan(service, customerId, null, false)
     return
@@ -286,17 +298,22 @@ async function handleCheckoutCompleted(
     return
   }
 
-  const { data, error } = await service.rpc('grant_enrollment_by_email', {
-    p_email: email ?? '',
+  // Freischalten und Beleg in einer Transaktion (idempotent über die Session).
+  // p_user nur für den nachgewiesen eigenen Checkout; sonst über die Adresse.
+  const { data, error } = await billingRpc(service).rpc('grant_course_purchase', {
+    p_session_id: sessionId,
+    p_payment_intent: idOf(session.payment_intent),
+    p_customer: customerId,
+    p_email: email,
     p_program_slug: programSlug,
     p_drip_start: dripStart,
-    p_session_id: sessionId || null,
+    p_user: userId,
   })
 
   // Ein RPC-Fehler ist ein echter Fehler (Netz, Rechte, Ausnahme in der
   // Funktion) — werfen, damit oben zurückgerollt wird und Stripe wiederholt.
   if (error) {
-    throw new Error(`grant_enrollment_by_email: ${error.message}`)
+    throw new Error(`grant_course_purchase: ${error.message}`)
   }
 
   const outcome = asOutcome(data)
@@ -315,23 +332,9 @@ async function handleCheckoutCompleted(
     return
   }
 
-  // Kauf merken (für charge.refunded) und ggf. ein erstattetes Enrollment
-  // wieder öffnen. Ein Fehler hier ist ein echter Fehler → werfen; das
-  // Enrollment davor ist idempotent und übersteht die Wiederholung.
-  const recorded = await billingRpc(service).rpc('record_course_purchase', {
-    p_session_id: sessionId,
-    p_payment_intent: idOf(session.payment_intent),
-    p_customer: customerId,
-    p_email: email,
-    p_program_slug: programSlug,
-    p_user: userId,
-  })
-  if (recorded.error) {
-    throw new Error(`record_course_purchase: ${recorded.error.message}`)
-  }
-
   if (userId && customerId) {
-    // Für das Kundenportal; ein bestehender Kunde wird bei Kurskäufen nie ersetzt.
+    // Für das Kundenportal; nur nachgewiesen eigener Checkout, und ein
+    // bestehender Kunde wird bei Kurskäufen nie ersetzt.
     await linkCustomer(service, userId, customerId, false)
   }
 
@@ -339,10 +342,9 @@ async function handleCheckoutCompleted(
     '[stripe/webhook] Kauf verarbeitet:',
     JSON.stringify({
       program: programSlug,
-      enrolled: outcome.enrolled === true,
-      already_enrolled: outcome.already_enrolled === true,
-      pending: outcome.pending === true,
-      reactivated: asOutcome(recorded.data).reactivated === true,
+      // enrolled | reactivated | already_enrolled | pending | duplicate
+      outcome: typeof outcome.outcome === 'string' ? outcome.outcome : null,
+      from_app: userId !== null,
       drip_start: dripStart,
     })
   )
@@ -362,13 +364,11 @@ async function handleSubscriptionChange(
     return
   }
 
-  // Unser Checkout schreibt die Nutzer-Id auch ans Abo. Kommt dieses Ereignis
-  // vor checkout.session.completed an, ist der Kunde trotzdem zuordenbar.
-  const userId = userIdFromReference(subscription.metadata?.user_id)
-  if (userId) {
-    await linkCustomer(service, userId, customerId, true)
-  }
-
+  // Bewusst KEINE Verknüpfung über subscription.metadata.user_id: ob das Abo
+  // aus unserem Checkout stammt, lässt sich am Abo allein nicht nachweisen.
+  // Verknüpft wird nur in checkout.session.completed (nachgewiesene Session).
+  // Kommt dieses Ereignis zuerst, meldet set_plan_by_customer
+  // 'unknown_customer' — der Abgleich nach der Verknüpfung holt es nach.
   await syncCustomerPlan(service, customerId, subscription, deleted)
 }
 
@@ -511,13 +511,28 @@ async function handleChargeRefunded(service: ServiceClient, charge: Stripe.Charg
     return
   }
 
+  const action = typeof outcome.action === 'string' ? outcome.action : null
+
+  // Erstattet, aber der Zugang bestand schon vor diesem Kauf (Zugangscode,
+  // früherer Kauf) oder die Zeile wurde inzwischen neu angelegt: nichts
+  // gesperrt. Nils entscheidet — deshalb laut.
+  if (action === 'preexisting_enrollment' || action === 'enrollment_changed') {
+    console.error(
+      '[stripe/webhook] ACHTUNG: Kurs erstattet, Zugang NICHT gesperrt (',
+      action,
+      ') — bitte von Hand prüfen. PaymentIntent:',
+      paymentIntent
+    )
+    return
+  }
+
   console.info(
     '[stripe/webhook] Kurs erstattet:',
     JSON.stringify({
       payment_intent: paymentIntent,
+      // revoke_enrollment | close_pending | already_refunded | nothing_granted
+      action,
       enrollments: outcome.enrollments ?? 0,
-      pending: outcome.pending ?? 0,
-      already_refunded: outcome.already_refunded === true,
     })
   )
 }

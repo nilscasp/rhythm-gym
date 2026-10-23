@@ -24,12 +24,14 @@ export interface ProfileBillingRow {
 export interface BillingFunctions {
   link_stripe_customer: { p_user: string; p_customer: string; p_replace?: boolean }
   set_plan_by_customer: { p_customer: string; p_plan: Plan }
-  record_course_purchase: {
+  grant_course_purchase: {
     p_session_id: string
     p_payment_intent: string | null
     p_customer: string | null
     p_email: string | null
     p_program_slug: string
+    p_drip_start: string | null
+    /** Nur für nachgewiesen eigene Checkouts (trustedCheckoutUserId). */
     p_user: string | null
   }
   refund_course_purchase: { p_payment_intent: string }

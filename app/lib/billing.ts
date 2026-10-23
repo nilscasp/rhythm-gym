@@ -243,6 +243,26 @@ export function cancelPathFor(request: CheckoutRequest): string {
   return request.kind === 'subscription' ? MEMBERSHIP_PATH : `/training/${request.courseSlug}`
 }
 
+/** cancel_url: beim Kurs mit ?kauf=abgebrochen, damit der Kursraum es sagt. */
+export function cancelUrlPathFor(request: CheckoutRequest): string {
+  return request.kind === 'subscription'
+    ? MEMBERSHIP_PATH
+    : `${cancelPathFor(request)}?kauf=abgebrochen`
+}
+
+/** Hinweise im Kursraum zu ?kauf=… aus /api/stripe/checkout. Unbekannt → null. */
+const COURSE_NOTICES: Record<string, string> = {
+  'schon-dabei': 'Du hast diesen Kurs schon. Er ist für dich offen, eine zweite Buchung braucht es nicht.',
+  abgebrochen: 'Die Buchung wurde abgebrochen. Es wurde nichts berechnet.',
+  fehler: 'Der Weg zur Zahlung ist gerade gestört. Versuch es bitte gleich noch einmal.',
+  'nicht-verfuegbar': 'Diesen Kurs kannst du hier gerade nicht buchen. Schreib Nils, wenn du ihn möchtest.',
+  ungueltig: 'Das hat nicht geklappt. Bitte versuch es noch einmal.',
+}
+
+export function courseCheckoutNotice(kauf: string | null | undefined): string | null {
+  return (kauf && COURSE_NOTICES[kauf]) || null
+}
+
 /**
  * Die Parameter für `stripe.checkout.sessions.create` — als schlichtes Objekt,
  * damit der Test jede Regel einzeln prüfen kann:
@@ -287,7 +307,7 @@ export function buildCheckoutParams(request: CheckoutRequest, ctx: CheckoutConte
     automatic_tax: { enabled: ctx.automaticTax === true },
     locale: 'de' as const,
     success_url: `${origin}${SUCCESS_PATH}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}${cancelPathFor(request)}`,
+    cancel_url: `${origin}${cancelUrlPathFor(request)}`,
   }
 }
 

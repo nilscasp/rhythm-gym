@@ -62,5 +62,7 @@ export async function releasePlanAction(formData: FormData): Promise<void> {
   revalidatePath(PATH)
   if (error) back(q, 'fehler')
   const outcome = asOutcome(data)
-  back(q, outcome.ok === false ? String(outcome.error ?? 'fehler') : 'freigegeben')
+  if (outcome.ok === false) back(q, String(outcome.error ?? 'fehler'))
+  // Ohne Stripe-Kunden setzt die DB plan = free, plan_source = null.
+  back(q, outcome.plan_source === 'stripe' ? 'freigegeben' : 'freigegeben-ohne-stripe')
 }

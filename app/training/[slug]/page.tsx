@@ -13,7 +13,15 @@ export const metadata: Metadata = {
   title: 'Kurs — Handpan Schule des Lebens',
 }
 
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  return <CourseRoomPage slug={slug} />
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
+  const [{ slug }, query] = await Promise.all([params, searchParams])
+  // Rückmeldung aus /api/stripe/checkout (?kauf=…), siehe courseCheckoutNotice.
+  const kauf = typeof query.kauf === 'string' ? query.kauf : null
+  return <CourseRoomPage slug={slug} kauf={kauf} />
 }

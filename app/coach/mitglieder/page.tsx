@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createClient } from '../../lib/supabase/server'
+import { currentBrand } from '../../lib/brand-server'
 import type { ProfileBillingRow } from '../../lib/supabase/database.types.billing'
 import { PLANS, toPlan, type Plan } from '../../lib/plan'
 import { TIER_NAMES } from '../../lib/tiers'
@@ -25,7 +26,10 @@ const PLAN_LABEL: Record<Plan, string> = {
 
 const RESULTS: Record<string, string> = {
   gesetzt: 'Stufe gesetzt. Quelle: von Hand — Stripe ändert sie nicht mehr.',
-  freigegeben: 'Stufe wieder an Stripe übergeben. Die nächste Abo-Meldung von Stripe setzt sie.',
+  freigegeben:
+    'Die Stufe richtet sich wieder nach Stripe; sie ändert sich beim nächsten Ereignis von Stripe.',
+  'freigegeben-ohne-stripe':
+    'Kein Stripe-Kunde hinterlegt: die Stufe ist jetzt „Ohne Abo“ und richtet sich künftig nach Stripe.',
   ungueltig: 'Eingabe unvollständig.',
   unknown_email: 'Zu dieser Adresse gibt es kein Konto.',
   ambiguous_email: 'Zu dieser Adresse gibt es mehrere Konten — bitte in Supabase klären.',
@@ -59,6 +63,8 @@ export default async function MembersPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
+  // Nur Marke schule; auf rhythmgym.io gibt es diese Seite nicht.
+  if ((await currentBrand()) !== 'schule') notFound()
   const supabase = await createClient()
   const {
     data: { user },

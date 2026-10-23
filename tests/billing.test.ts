@@ -296,7 +296,9 @@ describe('buildCheckoutParams', () => {
     })
     expect(p).toHaveProperty('payment_intent_data.metadata.course_slug', 'von-anfang-an-spielen')
     expect(p).not.toHaveProperty('subscription_data')
-    expect(p.cancel_url).toBe('https://lernen.handpan.schule/training/von-anfang-an-spielen')
+    expect(p.cancel_url).toBe(
+      'https://lernen.handpan.schule/training/von-anfang-an-spielen?kauf=abgebrochen'
+    )
   })
 })
 
@@ -340,7 +342,7 @@ describe('tiers.ts', () => {
 
   test('der Weg: Persönlichkeit und Seele mit je drei Schritten', () => {
     expect(TIER_CONTENT.premium.essence).toBe('Persönlichkeit')
-    expect(TIER_CONTENT.premium.steps).toEqual(['Regelmäßigkeit', 'Ausrichtung', 'Freude am Üben'])
+    expect(TIER_CONTENT.premium.steps).toEqual(['Regelmäßigkeit', 'Ausrichtung', 'Emotion'])
     expect(TIER_CONTENT.vip.essence).toBe('Seele')
     expect(TIER_CONTENT.vip.steps).toEqual(['Emotion', 'Freiheit', 'Wahrhaftigkeit'])
   })

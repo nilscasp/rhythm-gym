@@ -184,6 +184,18 @@ export function planFromSubscriptions(subs: readonly SubscriptionLike[]): Plan |
   return seen ? plan : null
 }
 
+/** Status, in denen ein Abo noch „lebt“ (auch unbezahlt oder pausiert). */
+const LIVING_STATUSES = new Set(['active', 'trialing', 'past_due', 'incomplete', 'unpaid', 'paused'])
+
+/**
+ * Hat der Kunde schon ein nicht beendetes Abo dieser Plattform? Dann kein
+ * zweiter Checkout, sondern das Kundenportal (Wechsel, Zahlart, Kündigung).
+ * Abos anderer Produkte im selben Stripe-Konto zählen nicht.
+ */
+export function hasRunningPlatformSubscription(subs: readonly SubscriptionLike[]): boolean {
+  return subs.some((s) => tierOfSubscription(s) !== null && !!s.status && LIVING_STATUSES.has(s.status))
+}
+
 /**
  * Abo aus dem Ereignis mit der frisch abgerufenen Liste zusammenführen.
  * Die Liste gewinnt (sie ist aktueller als ein verspätet zugestelltes
@@ -239,6 +251,80 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export function userIdFromReference(value: unknown): string | null {
   const v = cleanString(value)
   return v && UUID.test(v) ? v.toLowerCase() : null
+}
+
+/**
+ * Die Nutzer-Id einer Checkout-Session — NUR, wenn die Session nachweislich
+ * aus unserem eigenen Checkout (/api/stripe/checkout) stammt.
+ *
+ * Warum so streng: Öffentliche Payment Links nehmen `?client_reference_id=…`
+ * aus der URL an. Wer eine fremde Profil-Id kennt, könnte sonst seinen
+ * Stripe-Kunden mit diesem Profil verknüpfen (oder den echten Kunden des
+ * Opfers verdrängen). Session-Metadaten dagegen setzt nur unser Server; ein
+ * Payment Link kann sie nicht per URL ändern. Also gilt die Id nur, wenn
+ *   · kein Payment Link im Spiel ist,
+ *   · metadata.platform = 'lernen' und
+ *   · metadata.user_id exakt client_reference_id ist.
+ * Sonst null — der Kauf läuft dann wie ein Payment-Link-Kauf über die
+ * E-Mail-Adresse, verknüpft aber keinen Kunden.
+ */
+export function trustedCheckoutUserId(session: {
+  payment_link?: string | { id: string } | null
+  client_reference_id?: string | null
+  metadata?: Record<string, string> | null
+}): string | null {
+  if (session.payment_link) return null
+  if (cleanString(session.metadata?.platform) !== 'lernen') return null
+  const fromRef = userIdFromReference(session.client_reference_id)
+  const fromMeta = userIdFromReference(session.metadata?.user_id)
+  return fromRef && fromMeta && fromRef === fromMeta ? fromRef : null
+}
+
+/** Was ein Kurskauf beim Freischalten bewirkt hat (course_purchases, Migration 0012). */
+export interface CoursePurchaseGrant {
+  refunded_at: string | null
+  /**
+   * Anker des Enrollments, das zu diesem Kauf gehört (neu angelegt oder schon
+   * da). `enrollments` hat keine eigene Id; in SQL ist der Anker
+   * enrolled_user_id + program_id + enrollment_started_at.
+   */
+  enrollment_id: string | null
+  /** true nur, wenn DIESER Kauf das Enrollment angelegt oder wieder geöffnet hat. */
+  created_enrollment: boolean
+  /** Geparkter Kauf ohne Konto. */
+  pending_enrollment_id: string | null
+  /** Enrollment, das claim_pending_enrollments() aus dem geparkten Kauf angelegt hat. */
+  pending_claimed_enrollment_id: string | null
+  pending_claimed: boolean
+}
+
+export type RefundDecision =
+  | { action: 'already_refunded' }
+  | { action: 'revoke_enrollment'; enrollmentId: string }
+  | { action: 'close_pending'; pendingId: string }
+  | { action: 'mark_only'; reason: 'preexisting_enrollment' | 'nothing_granted' }
+
+/**
+ * Welches Enrollment eine volle Erstattung sperren darf — genau eines, und
+ * nur, wenn es durch diesen Kauf entstand. Ein Enrollment, das vorher schon
+ * bestand (anderer Kauf, Zugangscode), bleibt stehen: dann wird nur der Kauf
+ * als erstattet markiert und Nils entscheidet. Keine Suche über die E-Mail.
+ * Spiegel von refund_course_purchase() in Migration 0012.
+ */
+export function decideRefund(p: CoursePurchaseGrant): RefundDecision {
+  if (p.refunded_at) return { action: 'already_refunded' }
+  if (p.enrollment_id) {
+    return p.created_enrollment
+      ? { action: 'revoke_enrollment', enrollmentId: p.enrollment_id }
+      : { action: 'mark_only', reason: 'preexisting_enrollment' }
+  }
+  if (p.pending_enrollment_id) {
+    if (!p.pending_claimed) return { action: 'close_pending', pendingId: p.pending_enrollment_id }
+    return p.pending_claimed_enrollment_id
+      ? { action: 'revoke_enrollment', enrollmentId: p.pending_claimed_enrollment_id }
+      : { action: 'mark_only', reason: 'preexisting_enrollment' }
+  }
+  return { action: 'mark_only', reason: 'nothing_granted' }
 }
 
 /**

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getStripe } from '../../../lib/stripe'
 import { MEMBERSHIP_PATH, isSameOrigin, requestOrigin } from '../../../lib/billing'
 import { loadMembership } from '../../../lib/membership'
+import { BRAND_HEADER } from '../../../lib/brand'
 import { createClient } from '../../../lib/supabase/server'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -15,6 +16,11 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
+  // Nur Marke schule.
+  if (request.headers.get(BRAND_HEADER) !== 'schule') {
+    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  }
+
   const origin = requestOrigin(request.headers)
   if (!origin) {
     return NextResponse.json({ error: 'bad_host' }, { status: 400 })

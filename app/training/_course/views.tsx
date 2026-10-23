@@ -9,6 +9,7 @@ import { MarkdownBody } from '../rhythmusfundament/_components/MarkdownBody'
 import { CourseOutline } from './CourseOutline'
 import { LessonCheck } from './LessonCheck'
 import { durationLabel, loadCourseRoom, lockedHint, type CourseRoom } from './load'
+import { courseCheckoutNotice } from '../../lib/billing'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Kursraum und Lektionsseite für Kurse aus der DB (Migration 0010).
@@ -79,14 +80,14 @@ function LockedPanel({ room }: { room: CourseRoom }) {
 
 // ── Kursraum ─────────────────────────────────────────────────────────────────
 
-export async function CourseRoomPage({ slug }: { slug: string }) {
+export async function CourseRoomPage({ slug, kauf = null }: { slug: string; kauf?: string | null }) {
   const { supabase, user } = await requireUser()
   const room = await loadCourseRoom(supabase, user.id, slug)
   if (!room) notFound()
-  return <CourseRoomView room={room} />
+  return <CourseRoomView room={room} notice={courseCheckoutNotice(kauf)} />
 }
 
-export function CourseRoomView({ room }: { room: CourseRoom }) {
+export function CourseRoomView({ room, notice = null }: { room: CourseRoom; notice?: string | null }) {
   const baseHref = `/training/${room.program.slug}`
   const showProgress = !room.isLibrary && room.access.hasAccess
   const total = room.lessons.length
@@ -117,6 +118,12 @@ export function CourseRoomView({ room }: { room: CourseRoom }) {
                   ))
               : null}
           </header>
+
+          {notice ? (
+            <p className="cr-locked-text cr-notice" role="status">
+              {notice}
+            </p>
+          ) : null}
 
           {showProgress && total > 0 ? (
             <div className="cr-progress">
@@ -444,6 +451,7 @@ export const COURSE_CSS = `
     line-height: 1.2;
     color: var(--cream);
   }
+  .cr-notice { padding: 14px 16px; border: 1px solid var(--border2); border-left: 2px solid var(--amber); border-radius: 2px; color: var(--text); }
   .cr-locked-text { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--muted2); }
   @media (max-width: 520px) {
     .cr-actions .cr-btn { flex: 1 1 100%; width: 100%; }

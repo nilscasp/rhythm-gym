@@ -45,7 +45,7 @@ export interface TierContent {
 export const TIER_CONTENT: Record<PaidPlan, TierContent> = {
   premium: {
     essence: 'Persönlichkeit',
-    steps: ['Regelmäßigkeit', 'Ausrichtung', 'Freude am Üben'],
+    steps: ['Regelmäßigkeit', 'Ausrichtung', 'Emotion'],
     theme:
       'Das Fundament: eine regelmäßige Praxis entwickeln, Klarheit darüber, was du übst, und Freude am Üben. So findest du Selbstvertrauen, verstehst, wie Lernen funktioniert, und gehst den direktesten Weg zu deinem eigenen Stil.',
     items: [
@@ -53,7 +53,7 @@ export const TIER_CONTENT: Record<PaidPlan, TierContent> = {
       'Jede Woche ein Video mit Lerninhalten und Impulsen',
       'Die Kurse Handpan Kompass, Elemente und Handpan Kreativ',
       'Alle Lektionen und Materialien, die in der Gemeinschaft entstehen',
-      'Die Aufnahmen der Live-Calls in der Bibliothek',
+      `Die Aufnahmen der Live-Calls in der Bibliothek, auch der Calls aus ${TIER_NAMES.vip}`,
       'Der Bereich „No Extra Time“ mit den Podcast-Aufnahmen',
     ],
     feeling: 'Beständigkeit, Sicherheit, Selbstvertrauen.',

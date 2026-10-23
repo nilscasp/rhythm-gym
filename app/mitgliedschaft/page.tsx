@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { contactMailto, hasAnyPrice, MEMBERSHIP_PATH } from '../lib/billing'
 import { loadMembership, loadSubscriptionPrices } from '../lib/membership'
 import { createClient } from '../lib/supabase/server'
+import { currentBrand } from '../lib/brand-server'
 import { TIER_NAMES } from '../lib/tiers'
 import { COURSE_CSS } from '../training/_course/views'
 import { Plans } from './Plans'
@@ -46,6 +47,8 @@ export default async function MembershipPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
+  // Nur Marke schule; auf rhythmgym.io gibt es diese Seite nicht.
+  if ((await currentBrand()) !== 'schule') notFound()
   const supabase = await createClient()
   const {
     data: { user },
