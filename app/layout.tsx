@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
@@ -8,6 +8,8 @@ import { ChromeGate } from '../components/ChromeGate';
 import { createClient } from './lib/supabase/server';
 import { BRAND_HEADER, BRAND_META, DEFAULT_BRAND, isBrand, type Brand } from './lib/brand';
 import { DEFAULT_LOCALE, LOCALE_HEADER, isLocale, type Locale } from './lib/locale';
+import type { News } from './lib/news';
+import { loadNewsForUser } from './lib/news-load';
 
 /** Liest die Marke, die `proxy.ts` als Request-Header mitgeschickt hat. */
 async function currentBrand(): Promise<Brand> {
@@ -19,6 +21,22 @@ async function currentBrand(): Promise<Brand> {
 async function currentLocale(): Promise<Locale> {
   const value = (await headers()).get(LOCALE_HEADER);
   return isLocale(value) ? value : DEFAULT_LOCALE;
+}
+
+/**
+ * Die Schule hat unten eine feste Leiste — mit viewport-fit=cover liefert iOS
+ * die safe-area-Abstände dafür. Das Gym bekommt genau den Next-Standard.
+ */
+export async function generateViewport(): Promise<Viewport> {
+  const base: Viewport = { width: 'device-width', initialScale: 1 };
+  return (await currentBrand()) === 'schule' ? { ...base, viewportFit: 'cover' } : base;
+}
+
+/** Erster Buchstabe des Namens, sonst der E-Mail — für den Profil-Knopf. */
+function initialOf(fullName: string | null | undefined, email: string | null | undefined): string {
+  const source = (fullName ?? '').trim() || (email ?? '').trim();
+  const first = Array.from(source)[0];
+  return first ? first.toLocaleUpperCase('de-DE') : '·';
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -42,7 +60,16 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   // Admin-Flag aus dem Profil ziehen — nur dann zeigt die Nav den /coach Link.
   let isAdmin = false;
-  if (user) {
+  // Schule: Initiale für den Profil-Knopf und die Neuigkeiten für die Glocke.
+  let schule: { initial: string; news: News } | null = null;
+  if (user && brand === 'schule') {
+    const [{ data: profile }, news] = await Promise.all([
+      supabase.from('profiles').select('is_admin, full_name').eq('id', user.id).maybeSingle(),
+      loadNewsForUser(user.id),
+    ]);
+    isAdmin = !!profile?.is_admin;
+    schule = { initial: initialOf(profile?.full_name, user.email), news };
+  } else if (user) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin')
@@ -75,7 +102,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body>
         <ChromeGate hideOn={['/auth']}>
-          <Nav isAuthenticated={isAuthenticated} isAdmin={isAdmin} brand={brand} locale={locale} />
+          <Nav isAuthenticated={isAuthenticated} isAdmin={isAdmin} brand={brand} locale={locale} schule={schule} />
         </ChromeGate>
         {children}
         <ChromeGate hideOn={['/auth']}>

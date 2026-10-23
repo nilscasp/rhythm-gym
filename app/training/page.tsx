@@ -9,6 +9,8 @@ import { berlinToday, getCourseAccess } from '../lib/course-access'
 import { getMessages } from '../../messages/server'
 import { loadHeute } from './_schule/load'
 import { SchuleHeute } from './_schule/SchuleHeute'
+import { NewsTop } from './_schule/NewsTop'
+import { loadNewsForUser } from '../lib/news-load'
 import {
   getCompletedDaysByProgram,
   getCompletedLessonCountsByProgram,
@@ -165,8 +167,12 @@ async function SchuleHeutePage({
     // nicht kritisch
   }
 
-  const data = await loadHeute(supabase, userId, profileRes.data.plan ?? null, t)
-  return <SchuleHeute data={data} />
+  // Neuigkeiten: derselbe (pro Request gecachte) Stand wie die Glocke im Layout.
+  const [data, news] = await Promise.all([
+    loadHeute(supabase, userId, profileRes.data.plan ?? null, t),
+    loadNewsForUser(userId),
+  ])
+  return <SchuleHeute data={data} top={<NewsTop news={news} />} />
 }
 
 // ──────────────────────────────────────────────────────────────────────

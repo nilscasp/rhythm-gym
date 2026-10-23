@@ -26,6 +26,14 @@ export const de = {
     language: 'Sprache',
     toGerman: 'Auf Deutsch',
     toEnglish: 'In English',
+    // App-Navigation der Schule (Abschnitt D)
+    today: 'Heute',
+    practice: 'Üben',
+    live: 'Live',
+    together: 'Miteinander',
+    myPath: 'Mein Weg',
+    mainNav: 'Hauptnavigation',
+    news: 'Neuigkeiten',
   },
 
   events: {

@@ -72,7 +72,7 @@ export function SchuleHeute({
                   Weiterüben
                 </Link>
               ) : (
-                <Link href="/kurse" className="cr-btn">
+                <Link href="/training/kurse" className="cr-btn">
                   Zu den Kursen
                 </Link>
               )}

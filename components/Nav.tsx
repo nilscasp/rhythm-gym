@@ -6,9 +6,12 @@ import { useState } from 'react';
 import { Logo } from './Logo';
 import type { Brand } from '../app/lib/brand';
 import { DEFAULT_LOCALE, localizeHref, switchLocaleHref, type Locale } from '../app/lib/locale';
+import type { News } from '../app/lib/news';
+import { showsSchuleAppNav } from '../app/lib/schule-nav';
 import { messagesFor } from '../messages';
+import { SchuleNav } from './SchuleNav';
 
-type NavKey = 'courses' | 'events' | 'patterns' | 'glossary' | 'profile' | 'coach' | 'tool';
+type NavKey = 'courses' | 'events' | 'patterns' | 'glossary' | 'profile' | 'coach' | 'tool' | 'today';
 type NavItem = {
   href: string;
   /** Feste Beschriftung — das Gym wird nur deutsch bedient. */
@@ -29,19 +32,10 @@ const ITEMS: Record<Brand, NavItem[]> = {
     { href: '/coach', label: 'Coach', adminOnly: true },
     { href: '/tool', label: 'Tool', cta: true },
   ],
-  // Die Schule zeigt weniger: was ein Schüler braucht, in seiner Sprache.
-  // „Profil" steht bewusst in der Navigation — im Gym führt nur der Trainings-Hub
-  // dorthin, und wer seine Handpan-Stufe oder sein Instrument ändern will, soll
-  // dafür nicht erst einen Umweg suchen müssen.
-  schule: [
-    { href: '/training', key: 'courses' },
-    { href: '/termine', key: 'events' },
-    { href: '/patterns', key: 'patterns' },
-    { href: '/glossar', key: 'glossary' },
-    { href: '/settings', key: 'profile' },
-    { href: '/coach', key: 'coach', adminOnly: true },
-    { href: '/tool', key: 'tool', cta: true },
-  ],
+  // Die Schule: angemeldet bekommt jede App-Seite die eigene Navigation
+  // (components/SchuleNav.tsx, Abschnitt D). Diese Liste greift nur noch auf
+  // Landing, Laden, Tag 1 und Pflichtseiten — dort genügt der Weg nach „Heute“.
+  schule: [{ href: '/training', key: 'today', cta: true }],
 };
 
 const linkBase: React.CSSProperties = {
@@ -103,15 +97,24 @@ export function Nav({
   isAdmin = false,
   brand = 'gym',
   locale = DEFAULT_LOCALE,
+  schule,
 }: {
   isAuthenticated?: boolean;
   isAdmin?: boolean;
   brand?: Brand;
   locale?: Locale;
+  /** Nur Marke schule, angemeldet: Initiale und Neuigkeiten für die App-Navigation. */
+  schule?: { initial: string; news: News } | null;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const t = messagesFor(locale);
+
+  // Schule, angemeldet, App-Seite → eigene Navigation (Abschnitt D).
+  // Das Gym erreicht diesen Zweig nie.
+  if (brand === 'schule' && isAuthenticated && schule && showsSchuleAppNav(pathname)) {
+    return <SchuleNav isAdmin={isAdmin} locale={locale} initial={schule.initial} news={schule.news} />;
+  }
 
   // Der Wechsler zeigt immer die jeweils ANDERE Sprache und bleibt auf
   // derselben Seite. Nur die Schule ist zweisprachig — das Gym ist englisch

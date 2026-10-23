@@ -269,6 +269,80 @@ export async function getCourseAccess(
   }
 }
 
+/**
+ * Zugang zu VIELEN Kursen auf einmal (Kursliste, Mein Weg, Neuigkeiten):
+ * zwei Lesezugriffe statt drei je Kurs, dieselbe Regel (resolveAccess).
+ * `totalDaysFor` liefert die Drip-Länge je Kurs (RF 44, Lektions-Kurse 366).
+ * Fail closed wie getCourseAccess: Enrollment-Lesefehler → alles zu.
+ */
+export async function getProgramAccessMap(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  programs: readonly { id: string; slug: string; included_in_plan: string | null }[],
+  totalDaysFor: (program: { slug: string }) => number = () => COURSE_TOTAL_DAYS,
+): Promise<{ access: Map<string, CourseAccess>; isAdmin: boolean; plan: string | null }> {
+  const today = berlinToday()
+  const [enrollmentRes, profileRes] = await Promise.all([
+    supabase
+      .from('enrollments')
+      .select('program_id, drip_start_date, status')
+      .eq('user_id', userId),
+    supabase.from('profiles').select('plan, is_admin').eq('id', userId).maybeSingle(),
+  ])
+
+  if (enrollmentRes.error) {
+    console.error('[course-access] enrollments read failed (map)', {
+      userId,
+      code: enrollmentRes.error.code,
+      message: enrollmentRes.error.message,
+    })
+  }
+  if (profileRes.error) {
+    console.error('[course-access] profile read failed (map)', {
+      userId,
+      code: profileRes.error.code,
+      message: profileRes.error.message,
+    })
+  }
+
+  const profile = profileRes.error ? null : profileRes.data
+  const isAdmin = profile?.is_admin === true
+  const plan = profile?.plan ?? null
+  const byProgram = new Map(
+    (enrollmentRes.data ?? []).map((e) => [e.program_id, e] as const),
+  )
+
+  const access = new Map<string, CourseAccess>()
+  for (const p of programs) {
+    if (enrollmentRes.error) {
+      access.set(p.id, {
+        enrolled: false,
+        hasAccess: false,
+        source: null,
+        includedInPlan: null,
+        programId: p.id,
+        dripStartDate: null,
+        maxUnlockedDay: 0,
+        today,
+      })
+      continue
+    }
+    const row = byProgram.get(p.id) ?? null
+    const resolved = resolveAccess({
+      isAdmin,
+      plan,
+      includedInPlan: p.included_in_plan,
+      enrollment: row
+        ? { status: row.status ?? null, drip_start_date: row.drip_start_date ?? null }
+        : null,
+      today,
+      totalDays: totalDaysFor(p),
+    })
+    access.set(p.id, { ...resolved, programId: p.id, today })
+  }
+  return { access, isAdmin, plan }
+}
+
 /** Darf diese Person den Kursinhalt sehen? (Enrollment aktiv, Abo-Stufe, Admin) */
 export async function hasCourseAccess(
   supabase: SupabaseClient<Database>,
