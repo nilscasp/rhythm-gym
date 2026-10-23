@@ -8,7 +8,7 @@ describe('PURCHASE_NOTE', () => {
   })
 
   test('Linkziele', () => {
-    expect(PURCHASE_NOTE.links.agb.href).toBe('/agb')
+    expect(PURCHASE_NOTE.links.agb.href).toBeNull() // bis /agb steht
     expect(PURCHASE_NOTE.links.datenschutz.href).toBe('/datenschutz')
   })
 
@@ -27,9 +27,10 @@ describe('purchaseNoteSegments', () => {
     expect(joined).toBe(PURCHASE_NOTE.text)
   })
 
-  test('genau zwei Links in Textreihenfolge', () => {
-    const links = purchaseNoteSegments().filter((s) => s.href)
-    expect(links.map((s) => s.href)).toEqual(['/agb', '/datenschutz'])
+  test('nur Datenschutz ist verlinkt, AGB bleibt Text bis /agb steht', () => {
+    const segs = purchaseNoteSegments()
+    expect(segs.filter((s) => s.href).map((s) => s.href)).toEqual(['/datenschutz'])
+    expect(segs.some((s) => s.text === 'AGB' && !s.href)).toBe(true)
   })
 
   test('fehlt ein Linkwort, bleibt es reiner Text', () => {

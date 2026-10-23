@@ -35,6 +35,7 @@ Der Schlüssel verlässt nie den Server; `BunnyVideoEmbed` bekommt nur die ferti
      - `www.rhythmgym.io`
      - `rhythmgym.io`
      - `localhost:3000`
+     - Vercel-Previews (`*.vercel.app`) laufen danach ohne Video, außer man trägt die Preview-Domain hier ein.
    - Speichern, eine Lektion neu laden, Video prüfen (Handy 390 px und Desktop).
 5. **Gegenprobe:** Eine iframe-URL ohne `token` (oder mit abgelaufenem `expires`) direkt im Browser öffnen – Bunny muss sie ablehnen.
 

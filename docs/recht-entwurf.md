@@ -23,7 +23,7 @@ Damit nur Mitglieder mit Zugang ein Video sehen, bekommt jede Video-Adresse eine
 **Wer was sieht.**
 - Region, „Über mich“ und „offen für“ sehen angemeldete Mitglieder, wenn du dein Profil sichtbar schaltest.
 - Deine Handynummer sieht niemand im Profil. Sie wird erst angezeigt, wenn eine Kontaktanfrage von beiden Seiten angenommen ist – und nur der Person, mit der du dich verbunden hast.
-- Eine Kontaktanfrage samt Nachricht sehen nur die anfragende und die angefragte Person.
+- Eine Kontaktanfrage samt Nachricht sehen die anfragende und die angefragte Person, außerdem ich als Betreiber, damit ich bei Missbrauch eingreifen kann.
 - Wer bei einer Challenge oder einem Treffen mitmacht, sehen die angemeldeten Mitglieder.
 - Ich als Betreiber sehe in der Verwaltung keine Handynummern. Ich kann Einträge schließen, Profile ausblenden und Personen sperren (siehe AGB).
 
@@ -49,7 +49,7 @@ Diese Bedingungen gelten für Kurse und Mitgliedschaften (Abos) der Handpan Schu
 ### B2 · Mitgliedschaft (Abo)
 1. Das Abo läuft monatlich oder jährlich, je nach Wahl beim Kauf, und verlängert sich jeweils um denselben Zeitraum.
 2. Du kannst jederzeit über das Kundenportal („Abo verwalten“) kündigen. Die Kündigung wirkt zum Ende des laufenden Zeitraums; bis dahin bleibt dein Zugang offen.
-3. Schlägt eine Zahlung fehl, ruht der Zugang, bis die Zahlung nachgeholt ist.
+3. Schlägt eine Abbuchung fehl, ist der Zugang ab diesem Tag gesperrt und öffnet sich wieder, sobald die Zahlung erfolgreich nachgeholt ist. Gelingt das innerhalb der Wiederholungsversuche des Zahlungsdienstleisters nicht, endet das Abo.
 4. Das Jahresabo kann auf Anfrage in Raten per Überweisung gezahlt werden. Die Raten werden im Einzelfall schriftlich vereinbart.
 5. *[Fachperson: Widerrufsrecht bei digitalen Inhalten/Dienstleistungen, Hinweis zum vorzeitigen Erlöschen, Preisänderungen.]*
 

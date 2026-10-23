@@ -17,22 +17,6 @@ export function PurchaseNote({ className = 'purchase-note' }: { className?: stri
           <span key={i}>{s.text}</span>
         ),
       )}
-      <style>{`
-        .purchase-note {
-          margin: 0 0 12px;
-          max-width: 60ch;
-          font-family: var(--font-body);
-          font-size: 13px;
-          line-height: 1.5;
-          color: var(--muted);
-        }
-        .purchase-note a {
-          color: var(--cream);
-          text-decoration: underline;
-          text-underline-offset: 2px;
-        }
-        .purchase-note a:hover { color: var(--amber); }
-      `}</style>
     </p>
   )
 }

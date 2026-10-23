@@ -106,6 +106,22 @@ body {
 [data-brand="schule"] .wm-gym { display: none !important; }
 [data-brand="gym"] .wm-schule { display: none !important; }
 
+/* Kaufhinweis (components/PurchaseNote.tsx) */
+.purchase-note {
+  margin: 0 0 12px;
+  max-width: 60ch;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.purchase-note a {
+  color: var(--cream);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.purchase-note a:hover { color: var(--amber); }
+
 /* Die lange Schul-Wortmarke drückt auf schmalen Screens die Nav-Buttons raus —
    unter 560px trägt das Logo allein. */
 @media (max-width: 560px) {

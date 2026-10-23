@@ -56,7 +56,11 @@ function LockedPanel({ room }: { room: CourseRoom }) {
           ? 'Die Gliederung siehst du schon. Mit dem passenden Abo öffnen sich alle Lektionen.'
           : 'Die Gliederung siehst du schon. Nach der Buchung öffnen sich die Lektionen hier.'}
       </p>
-      {viaPlan ? null : <PurchaseNote />}
+      {viaPlan ? null : (
+        <div className="wm-schule">
+          <PurchaseNote />
+        </div>
+      )}
       <div className="cr-actions">
         {viaPlan ? (
           <Link href="/mitgliedschaft" className="cr-btn">

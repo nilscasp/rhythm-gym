@@ -4,17 +4,18 @@
 // PURCHASE_NOTE steht über dem Kaufknopf auf /mitgliedschaft und im
 // Kurs-Kauf (LockedPanel in app/training/_course/views.tsx). Wortlaut ist ein
 // ENTWURF (docs/recht-entwurf.md) — vor dem Livegang prüft Nils bzw. eine
-// Fachperson. /agb ist bisher nur ein Link; die Seite folgt mit den AGB.
+// Fachperson. „AGB“ bleibt reiner Text, bis die Seite /agb steht; dann hier
+// `href: '/agb'` setzen.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const PURCHASE_NOTE = {
   text:
     'Mit dem Kauf gelten die AGB, bezahlt wird über Stripe. Was mit deinen Daten passiert, steht in der Datenschutzerklärung – Handynummern werden im Miteinander nur getauscht, wenn beide zustimmen.',
   links: {
-    agb: { word: 'AGB', href: '/agb' },
+    agb: { word: 'AGB', href: null },
     datenschutz: { word: 'Datenschutzerklärung', href: '/datenschutz' },
   },
-} as const
+} as const satisfies { text: string; links: Record<string, { word: string; href: string | null }> }
 
 export interface NoteSegment {
   text: string
@@ -33,7 +34,7 @@ export function purchaseNoteSegments(text: string = PURCHASE_NOTE.text): NoteSeg
   for (const hit of hits) {
     if (hit.at < pos) continue
     if (hit.at > pos) out.push({ text: text.slice(pos, hit.at) })
-    out.push({ text: hit.word, href: hit.href })
+    out.push(hit.href ? { text: hit.word, href: hit.href } : { text: hit.word })
     pos = hit.at + hit.word.length
   }
   if (pos < text.length) out.push({ text: text.slice(pos) })
