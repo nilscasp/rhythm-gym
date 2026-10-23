@@ -18,9 +18,6 @@ import { durationLabel, loadCourseRoom, lockedHint, type CourseRoom } from './lo
 // Auf rhythmgym.io greifen dieselben Variablen mit den Gym-Werten.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Wohin „Kurs buchen“ führt, solange es keinen Kauf in der App gibt (Abschnitt F). */
-const BOOK_URL = 'https://handpan.schule/'
-
 async function requireUser() {
   const supabase = await createClient()
   const {
@@ -57,11 +54,21 @@ function LockedPanel({ room }: { room: CourseRoom }) {
           : 'Die Gliederung siehst du schon. Nach der Buchung öffnen sich die Lektionen hier.'}
       </p>
       <div className="cr-actions">
-        {!viaPlan ? (
-          <a href={BOOK_URL} className="cr-btn" target="_blank" rel="noopener noreferrer">
-            Kurs buchen
-          </a>
-        ) : null}
+        {viaPlan ? (
+          <Link href="/mitgliedschaft" className="cr-btn">
+            Mitgliedschaft ansehen
+          </Link>
+        ) : (
+          // Kauf in der App (Abschnitt F): Preis über Lookup-Key lernen_<slug>.
+          // Fehlt der Preis in Stripe, führt die Route sichtbar hierher zurück.
+          <form method="post" action="/api/stripe/checkout">
+            <input type="hidden" name="kind" value="course" />
+            <input type="hidden" name="course" value={room.program.slug} />
+            <button type="submit" className="cr-btn" style={{ cursor: 'pointer' }}>
+              Kurs buchen
+            </button>
+          </form>
+        )}
         <Link href="/training" className="cr-btn cr-btn--ghost">
           Zugangs-Code einlösen
         </Link>

@@ -7,6 +7,7 @@ import {
   type CourseAccess,
 } from '../../lib/course-access'
 import { getCompletedLessons, nextOpenLesson } from '../../lib/course-progress'
+import { TIER_NAMES } from '../../lib/tiers'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Kursraum aus der DB laden (Migration 0010) — für /training/[slug] und
@@ -210,7 +211,8 @@ export function durationLabel(seconds: number | null): string | null {
 
 /** Hinweis für Menschen ohne Zugriff. */
 export function lockedHint(access: CourseAccess): string {
-  if (access.includedInPlan === 'vip') return 'Im Abo ab VIP enthalten.'
-  if (access.includedInPlan === 'premium') return 'Im Abo ab Premium enthalten.'
+  if (access.includedInPlan) {
+    return `In der Mitgliedschaft ab ${TIER_NAMES[access.includedInPlan]} enthalten.`
+  }
   return 'Dieser Kurs ist buchbar.'
 }

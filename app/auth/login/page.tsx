@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '../../lib/supabase/client'
 import { CONSENT_TEXT, CONSENT_TEXT_VERSION } from '../../lib/consent'
+import { DEFAULT_AFTER_LOGIN, safeLoginNext } from '../../lib/login-next'
 
 type Mode = 'login' | 'signup' | 'reset'
 
@@ -67,6 +68,8 @@ export default function LoginPage() {
 function LoginPageInner() {
   const searchParams = useSearchParams()
   const initialMode: Mode = searchParams.get('mode') === 'signup' ? 'signup' : 'login'
+  // Rückkehr nach dem Login, z. B. zur Mitgliedschaft. Feste Liste.
+  const next = safeLoginNext(searchParams.get('next'))
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState<Mode>(initialMode)
@@ -90,7 +93,7 @@ function LoginPageInner() {
         if (error) {
           setMessage(loginErrorText(error.message))
         } else {
-          router.push('/training')
+          router.push(next)
           router.refresh()
         }
       } else if (mode === 'reset') {
@@ -115,7 +118,10 @@ function LoginPageInner() {
           // Bestätigungs-Flow von der Dashboard-Site-URL. Ein dort
           // versehentlich kaputter Wert kann Auth so nicht mehr lahmlegen.
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo:
+              next === DEFAULT_AFTER_LOGIN
+                ? `${window.location.origin}/auth/callback`
+                : `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
             // Wandert als raw_user_meta_data in auth.users und wird von
             // handle_new_user() ins Profil kopiert (Migration 0005). Damit ist
             // protokolliert, WANN und ZU WELCHEM TEXT jemand Ja gesagt hat.

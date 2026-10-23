@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { loginNextFor } from '../login-next'
 
 /**
  * Seiten und Endpunkte, die ohne Login erreichbar sein müssen: Pflichtangaben,
@@ -108,8 +109,17 @@ export async function updateSession(
 
   if (!isPublic && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
     url.search = ''
+    // Die Mitgliedschaft ist ein Ziel, das man von außen verlinkt („Abo
+    // buchen“): dorthin führt der Login danach zurück. Feste Liste in
+    // app/lib/login-next.ts — keine offene Weiterleitung.
+    const next = loginNextFor(pathname)
+    if (next) {
+      url.pathname = '/auth/login'
+      url.searchParams.set('next', next)
+    } else {
+      url.pathname = '/'
+    }
     return NextResponse.redirect(url)
   }
 

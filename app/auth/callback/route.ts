@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '../../lib/supabase/server'
 import { isBrevoConfigured, upsertConfirmedContact } from '../../lib/brevo'
+import { LOGIN_NEXT_TARGETS } from '../../lib/login-next'
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>
 
@@ -10,7 +11,7 @@ type ServerClient = Awaited<ReturnType<typeof createClient>>
  * Steuerzeichen, und der Login wäre eine offene Weiterleitung. Alles, was nicht
  * auf der Liste steht, landet wie bisher im Training.
  */
-const NEXT_TARGETS = new Set(['/auth/passwort'])
+const NEXT_TARGETS = new Set(['/auth/passwort', ...LOGIN_NEXT_TARGETS])
 
 function safeNext(value: string | null): string {
   return value && NEXT_TARGETS.has(value) ? value : '/training'

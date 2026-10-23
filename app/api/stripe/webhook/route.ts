@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { getStripe, isStripeConfigured } from '../../../lib/stripe'
-import { extractCheckoutFields, isSubscriptionActive } from '../../../lib/stripe-events'
+import {
+  checkoutCourseSlug,
+  extractCheckoutFields,
+  idOf,
+  isCheckoutPaid,
+  isFullRefund,
+  mergeSubscription,
+  needsLineItemsForCourse,
+  planFromSubscriptions,
+  userIdFromReference,
+  type SubscriptionLike,
+} from '../../../lib/stripe-events'
 import { createServiceClient, type ServiceClient } from '../../../lib/supabase/service'
+import { asOutcome, billingRpc } from '../../../lib/supabase/database.types.billing'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/stripe/webhook — der einzige Weg vom bezahlten Checkout ins
@@ -12,6 +24,22 @@ import { createServiceClient, type ServiceClient } from '../../../lib/supabase/s
 // Stripe-Signatur über den ROHEN Body. Erst danach wird der service_role-Client
 // überhaupt angefasst — das ist die Verifikation, auf die sich der Kommentar in
 // app/lib/supabase/service.ts beruft.
+//
+// Ereignisse (Stripe → Webhook-Endpunkt abonnieren):
+//   checkout.session.completed            Abo: Kunde ↔ Profil, Stufe nachziehen
+//                                          Kurs: Enrollment (wenn bezahlt)
+//   checkout.session.async_payment_succeeded  Kurs mit verzögerter Zahlung (SEPA)
+//   customer.subscription.created|updated|deleted  → profiles.plan
+//   charge.refunded                        volle Erstattung eines Kurses → 'refunded'
+//
+// Stufen-Regeln (app/lib/stripe-events.ts, Abschnitt F; Migration 0012):
+//   · Stufe aus den Preis-Metadaten (`platform=lernen`, `tier`).
+//   · active/trialing → Stufe, past_due → Stufe bleibt (Nachfrist),
+//     canceled/unpaid/incomplete_expired (und alles andere) → free.
+//   · Es zählt das höchste laufende Abo DESSELBEN Kunden — darum wird bei
+//     jedem Abo-Ereignis die ganze Abo-Liste des Kunden bei Stripe gelesen.
+//   · plan_source = 'manual' (von Nils gesetzt) fasst der Webhook nie an;
+//     das erzwingt set_plan_by_customer() in der Datenbank.
 //
 // Antwortformen:
 //   200 { received, duplicate }  — schon verarbeitet, nichts getan
@@ -36,11 +64,10 @@ export const dynamic = 'force-dynamic'
 
 /**
  * `stripe_events` und `pending_enrollments` sind service_role-only und stehen
- * (noch) nicht in database.types.ts — dort sind bisher nur die drei neuen
- * Funktionen nachgetragen. Statt die generierte Datei von Hand zu erweitern,
- * beschreibt dieser eng geschnittene Typ genau die zwei Operationen, die der
- * Webhook auf dem Ereignis-Journal ausführt. Nach dem nächsten
- * `supabase gen types` kann er ersatzlos entfallen.
+ * (noch) nicht in database.types.ts. Statt die generierte Datei von Hand zu
+ * erweitern, beschreibt dieser eng geschnittene Typ genau die zwei
+ * Operationen, die der Webhook auf dem Ereignis-Journal ausführt. Nach dem
+ * nächsten `supabase gen types` kann er ersatzlos entfallen.
  */
 interface EventLedger {
   from(table: 'stripe_events'): {
@@ -62,17 +89,6 @@ function ledger(client: ServiceClient): EventLedger {
 
 /** Postgres: unique_violation. Genau dann war das Ereignis schon einmal da. */
 const UNIQUE_VIOLATION = '23505'
-
-/** Die Antwort der SECURITY-DEFINER-Funktionen ist jsonb — hier eingeengt. */
-interface RpcOutcome {
-  ok?: boolean
-  error?: string
-  [key: string]: unknown
-}
-
-function asOutcome(data: unknown): RpcOutcome {
-  return data && typeof data === 'object' && !Array.isArray(data) ? (data as RpcOutcome) : {}
-}
 
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {
@@ -111,6 +127,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'invalid_signature' }, { status: 400 })
   }
 
+  // Typen, die uns nichts angehen, gar nicht erst ins Journal schreiben.
+  if (!HANDLED_TYPES.has(event.type)) {
+    return NextResponse.json({ received: true, ignored: true })
+  }
+
   const service = createServiceClient()
 
   // ── Idempotenz VOR der Wirkung ────────────────────────────────────────────
@@ -140,6 +161,7 @@ export async function POST(request: Request) {
   try {
     switch (event.type) {
       case 'checkout.session.completed':
+      case 'checkout.session.async_payment_succeeded':
         await handleCheckoutCompleted(service, event.data.object as Stripe.Checkout.Session)
         break
 
@@ -153,8 +175,9 @@ export async function POST(request: Request) {
         )
         break
 
-      default:
-        return NextResponse.json({ received: true, ignored: true })
+      case 'charge.refunded':
+        await handleChargeRefunded(service, event.data.object as Stripe.Charge)
+        break
     }
   } catch (err) {
     // Die Wirkung ist gescheitert, das Journal behauptet aber „erledigt".
@@ -190,25 +213,76 @@ export async function POST(request: Request) {
   return NextResponse.json({ received: true, handled: true })
 }
 
+const HANDLED_TYPES = new Set<string>([
+  'checkout.session.completed',
+  'checkout.session.async_payment_succeeded',
+  'customer.subscription.created',
+  'customer.subscription.updated',
+  'customer.subscription.deleted',
+  'charge.refunded',
+])
+
+// ── Checkout ─────────────────────────────────────────────────────────────────
+
 /**
- * Bezahlter Checkout → Enrollment (oder ein geparkter Kauf, falls es das Konto
- * noch nicht gibt). Die Entscheidung, welches von beidem, trifft die
- * Datenbankfunktion — hier wird nur gelesen und weitergereicht.
+ * Abgeschlossener Checkout.
+ *
+ * Abo (mode subscription): Kunde ↔ Profil verknüpfen (client_reference_id
+ * setzt nur unser eigener Checkout) und die Stufe aus allen Abos des Kunden
+ * nachziehen. Das macht den Weg unabhängig von der Reihenfolge, in der Stripe
+ * checkout.session.completed und customer.subscription.created zustellt.
+ *
+ * Kurs (mode payment): Enrollment über grant_enrollment_by_email (0007), dann
+ * den Kauf für spätere Rückerstattungen merken (0012). Nur wenn bezahlt —
+ * verzögerte Zahlarten kommen über async_payment_succeeded noch einmal.
  */
 async function handleCheckoutCompleted(
   service: ServiceClient,
   session: Stripe.Checkout.Session
 ): Promise<void> {
-  const { email, programSlug, dripStart, sessionId } = extractCheckoutFields(session)
+  const sessionId = session.id
+  const customerId = idOf(session.customer)
+  const userId = userIdFromReference(session.client_reference_id)
 
-  // Nicht jeder Checkout ist ein Kurs: das Abo für den Inneren Kreis läuft über
-  // denselben Endpunkt und trägt kein program_slug. Kein Fehler, keine
-  // Wiederholung — nur eine Notiz.
-  if (!programSlug) {
+  if (session.mode === 'subscription') {
+    if (!customerId) {
+      console.error('[stripe/webhook] Abo-Checkout ohne Kundennummer:', sessionId)
+      return
+    }
+    if (userId) {
+      await linkCustomer(service, userId, customerId, true)
+    } else {
+      console.info('[stripe/webhook] Abo-Checkout ohne client_reference_id:', sessionId)
+    }
+    await syncCustomerPlan(service, customerId, null, false)
+    return
+  }
+
+  if (!isCheckoutPaid(session)) {
     console.info(
-      '[stripe/webhook] Checkout ohne program_slug, kein Kursverkauf:',
-      sessionId || '(ohne Session-Id)'
+      '[stripe/webhook] Checkout noch nicht bezahlt, warte auf async_payment_succeeded:',
+      sessionId,
+      session.payment_status
     )
+    return
+  }
+
+  const { email, dripStart } = extractCheckoutFields(session)
+
+  let linePriceMetadata: Array<Record<string, string> | null> = []
+  if (needsLineItemsForCourse(session)) {
+    // Bisherige Payment-Links tragen den Kurs nur am Preis. Ein Fehler hier
+    // ist vorübergehend (Netz) → werfen, Stripe wiederholt.
+    const items = await getStripe().checkout.sessions.listLineItems(sessionId, { limit: 20 })
+    linePriceMetadata = items.data.map((item) => item.price?.metadata ?? null)
+  }
+
+  const programSlug = checkoutCourseSlug(session, linePriceMetadata)
+
+  // Nicht jeder Checkout ist ein Kurs (z. B. ein Einzeltermin über einen
+  // anderen Link). Kein Fehler, keine Wiederholung — nur eine Notiz.
+  if (!programSlug) {
+    console.info('[stripe/webhook] Checkout ohne Kurs, nichts freizuschalten:', sessionId)
     return
   }
 
@@ -227,10 +301,8 @@ async function handleCheckoutCompleted(
 
   const outcome = asOutcome(data)
 
-  // Fachliches Nein: die Funktion hat sauber geantwortet, aber es geht nicht.
-  // 'missing_email' → Stripe hat keine Adresse mitgeschickt.
-  // 'unknown_program' → der Slug im Payment-Link passt zu keinem Programm.
-  // Beides heilt keine Wiederholung; beides muss jemand ansehen.
+  // Fachliches Nein: 'missing_email' / 'unknown_program'. Beides heilt keine
+  // Wiederholung; beides muss jemand ansehen.
   if (outcome.ok === false) {
     console.error(
       '[stripe/webhook] Kauf konnte nicht zugeordnet werden:',
@@ -238,12 +310,31 @@ async function handleCheckoutCompleted(
       '| Programm:',
       programSlug,
       '| Session:',
-      sessionId || '(ohne Session-Id)'
+      sessionId
     )
     return
   }
 
-  // enrolled | already_enrolled | pending — ohne Adresse.
+  // Kauf merken (für charge.refunded) und ggf. ein erstattetes Enrollment
+  // wieder öffnen. Ein Fehler hier ist ein echter Fehler → werfen; das
+  // Enrollment davor ist idempotent und übersteht die Wiederholung.
+  const recorded = await billingRpc(service).rpc('record_course_purchase', {
+    p_session_id: sessionId,
+    p_payment_intent: idOf(session.payment_intent),
+    p_customer: customerId,
+    p_email: email,
+    p_program_slug: programSlug,
+    p_user: userId,
+  })
+  if (recorded.error) {
+    throw new Error(`record_course_purchase: ${recorded.error.message}`)
+  }
+
+  if (userId && customerId) {
+    // Für das Kundenportal; ein bestehender Kunde wird bei Kurskäufen nie ersetzt.
+    await linkCustomer(service, userId, customerId, false)
+  }
+
   console.info(
     '[stripe/webhook] Kauf verarbeitet:',
     JSON.stringify({
@@ -251,122 +342,182 @@ async function handleCheckoutCompleted(
       enrolled: outcome.enrolled === true,
       already_enrolled: outcome.already_enrolled === true,
       pending: outcome.pending === true,
+      reactivated: asOutcome(recorded.data).reactivated === true,
       drip_start: dripStart,
     })
   )
 }
 
-/**
- * Abo angelegt, geändert oder beendet → `profiles.plan`.
- *
- * Die Kundennummer ist der Anker: `set_membership_by_customer` merkt sie sich
- * beim ersten Treffer, danach findet jedes weitere Ereignis das Profil auch
- * ohne Adresse.
- */
+// ── Abo ──────────────────────────────────────────────────────────────────────
+
+/** Abo angelegt, geändert oder beendet → `profiles.plan`. */
 async function handleSubscriptionChange(
   service: ServiceClient,
   subscription: Stripe.Subscription,
   deleted: boolean
 ): Promise<void> {
-  const customerId = customerIdOf(subscription.customer)
+  const customerId = idOf(subscription.customer)
   if (!customerId) {
     console.error('[stripe/webhook] Abo-Ereignis ohne Kundennummer, übersprungen.')
     return
   }
 
-  const active = isSubscriptionActive(subscription.status, deleted)
-  const email = await resolveCustomerEmail(subscription.customer, customerId)
+  // Unser Checkout schreibt die Nutzer-Id auch ans Abo. Kommt dieses Ereignis
+  // vor checkout.session.completed an, ist der Kunde trotzdem zuordenbar.
+  const userId = userIdFromReference(subscription.metadata?.user_id)
+  if (userId) {
+    await linkCustomer(service, userId, customerId, true)
+  }
 
-  const { data, error } = await service.rpc('set_membership_by_customer', {
-    p_customer_id: customerId,
-    p_email: email ?? '',
-    p_active: active,
+  await syncCustomerPlan(service, customerId, subscription, deleted)
+}
+
+/**
+ * Liest alle Abos des Kunden bei Stripe, rechnet die geltende Stufe aus und
+ * schreibt sie über set_plan_by_customer (manual-Schutz in der DB).
+ *
+ * Ein Fehler beim Lesen ist vorübergehend → werfen, Stripe wiederholt.
+ */
+async function syncCustomerPlan(
+  service: ServiceClient,
+  customerId: string,
+  fromEvent: SubscriptionLike | null,
+  deleted: boolean
+): Promise<void> {
+  const list = await getStripe().subscriptions.list({
+    customer: customerId,
+    status: 'all',
+    limit: 100,
   })
 
+  const subs: SubscriptionLike[] = fromEvent
+    ? mergeSubscription(list.data, fromEvent, deleted)
+    : list.data
+  const plan = planFromSubscriptions(subs)
+
+  if (plan === null) {
+    console.info(
+      '[stripe/webhook] Kein Abo dieser Plattform beim Kunden',
+      customerId,
+      '— Stufe bleibt unberührt.'
+    )
+    return
+  }
+
+  const { data, error } = await billingRpc(service).rpc('set_plan_by_customer', {
+    p_customer: customerId,
+    p_plan: plan,
+  })
   if (error) {
-    throw new Error(`set_membership_by_customer: ${error.message}`)
+    throw new Error(`set_plan_by_customer: ${error.message}`)
   }
 
   const outcome = asOutcome(data)
 
-  // 'unknown_customer' ist der Normalfall bei jemandem, der über Stripe gekauft
-  // hat, aber noch kein Konto besitzt. Eine Wiederholung ändert daran nichts —
-  // deshalb Notiz statt Fehler, sonst klopft Stripe tagelang an.
+  // Normalfall für Abos, die nicht über unseren Checkout entstanden sind
+  // (z. B. im Dashboard angelegt). Wiederholen hilft nicht.
   if (outcome.ok === false && outcome.error === 'unknown_customer') {
     console.info(
       '[stripe/webhook] Kein Profil zu Kundennummer',
       customerId,
-      '— Abo-Stand wird beim Anlegen des Kontos nachgezogen.'
+      '— Stufe kann nicht gesetzt werden (Coach → Mitglieder, von Hand).'
     )
     return
   }
 
   if (outcome.ok === false) {
+    console.error('[stripe/webhook] Stufe nicht gesetzt:', outcome.error, '| Kunde:', customerId)
+    return
+  }
+
+  console.info(
+    '[stripe/webhook] Stufe:',
+    JSON.stringify({
+      customer: customerId,
+      plan: typeof outcome.plan === 'string' ? outcome.plan : null,
+      previous: typeof outcome.previous === 'string' ? outcome.previous : null,
+      skipped: typeof outcome.skipped === 'string' ? outcome.skipped : null,
+      subscriptions: subs.length,
+    })
+  )
+}
+
+/**
+ * Kunde ↔ Profil. 'customer_taken' (Kunde hängt schon an einem anderen Profil)
+ * ist ein fachliches Nein: laut loggen, nicht wiederholen.
+ */
+async function linkCustomer(
+  service: ServiceClient,
+  userId: string,
+  customerId: string,
+  replace: boolean
+): Promise<void> {
+  const { data, error } = await billingRpc(service).rpc('link_stripe_customer', {
+    p_user: userId,
+    p_customer: customerId,
+    p_replace: replace,
+  })
+  if (error) {
+    throw new Error(`link_stripe_customer: ${error.message}`)
+  }
+  const outcome = asOutcome(data)
+  if (outcome.ok === false) {
     console.error(
-      '[stripe/webhook] Abo-Stand nicht gesetzt:',
+      '[stripe/webhook] Kunde nicht verknüpft:',
       outcome.error,
       '| Kunde:',
       customerId
+    )
+  } else if (outcome.replaced === true) {
+    console.info('[stripe/webhook] Kundennummer am Profil ersetzt durch', customerId)
+  }
+}
+
+// ── Rückerstattung ───────────────────────────────────────────────────────────
+
+/**
+ * Volle Erstattung eines Kurskaufs → Enrollment 'refunded'. Abo-Zahlungen
+ * laufen hier ebenfalls durch, finden aber keinen Kurskauf und werden nur
+ * notiert — das Abo selbst regelt Stripe über den Abo-Status.
+ */
+async function handleChargeRefunded(service: ServiceClient, charge: Stripe.Charge): Promise<void> {
+  if (!isFullRefund(charge)) {
+    console.info('[stripe/webhook] Teilerstattung, Zugang bleibt:', charge.id)
+    return
+  }
+
+  const paymentIntent = idOf(charge.payment_intent)
+  if (!paymentIntent) {
+    console.info('[stripe/webhook] Erstattung ohne PaymentIntent, nichts zuzuordnen:', charge.id)
+    return
+  }
+
+  const { data, error } = await billingRpc(service).rpc('refund_course_purchase', {
+    p_payment_intent: paymentIntent,
+  })
+  if (error) {
+    throw new Error(`refund_course_purchase: ${error.message}`)
+  }
+
+  const outcome = asOutcome(data)
+  if (outcome.ok === false) {
+    // unknown_purchase: Abo-Zahlung oder Kauf aus der Zeit vor 0012.
+    console.info(
+      '[stripe/webhook] Erstattung ohne verzeichneten Kurskauf:',
+      outcome.error,
+      '| PaymentIntent:',
+      paymentIntent
     )
     return
   }
 
   console.info(
-    '[stripe/webhook] Abo-Stand gesetzt:',
-    // `plan` kommt aus der Funktion zurück: bei VIP bleibt es 'vip', auch wenn
-    // `active` false ist (Migration 0009) — sonst sähe das Log wie ein Fehler aus.
+    '[stripe/webhook] Kurs erstattet:',
     JSON.stringify({
-      customer: customerId,
-      status: subscription.status ?? null,
-      deleted,
-      active,
-      plan: typeof outcome.plan === 'string' ? outcome.plan : null,
+      payment_intent: paymentIntent,
+      enrollments: outcome.enrollments ?? 0,
+      pending: outcome.pending ?? 0,
+      already_refunded: outcome.already_refunded === true,
     })
   )
-}
-
-/** `customer` ist mal eine Id, mal ein ausgeklapptes Objekt. */
-function customerIdOf(
-  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null
-): string | null {
-  if (!customer) return null
-  return typeof customer === 'string' ? customer : customer.id
-}
-
-/**
- * Adresse zum Kunden — nur wenn nötig.
- *
- * Liegt der Kunde schon ausgeklappt im Payload, ist die Adresse da und es
- * braucht keinen zweiten Weg zu Stripe. Erst sonst wird nachgefragt.
- *
- * Ein gelöschter Kunde hat kein `email`-Feld; das ist kein Fehler, sondern
- * gerade bei `.deleted` ein plausibler Zustand. Dann trägt die Kundennummer
- * allein — genau dafür merkt sich das Profil sie.
- *
- * Auch ein Fehlschlag hier ist nicht tödlich: ohne Adresse findet
- * `set_membership_by_customer` das Profil weiterhin über die gemerkte
- * Kundennummer. Nur der allererste Treffer braucht die Adresse.
- */
-async function resolveCustomerEmail(
-  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null,
-  customerId: string
-): Promise<string | null> {
-  if (customer && typeof customer !== 'string') {
-    if ('deleted' in customer && customer.deleted) return null
-    return (customer as Stripe.Customer).email ?? null
-  }
-
-  try {
-    const fetched = await getStripe().customers.retrieve(customerId)
-    if (fetched.deleted) return null
-    return fetched.email ?? null
-  } catch (err) {
-    console.error(
-      '[stripe/webhook] Kunde nicht abrufbar:',
-      customerId,
-      '—',
-      err instanceof Error ? err.message : 'unbekannter Fehler'
-    )
-    return null
-  }
 }
