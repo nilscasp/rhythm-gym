@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { slugify } from '../../lib/slug'
 import { createPostAction, updatePostAction } from '../_post-actions'
 import { PendingSubmitButton } from './PendingSubmitButton'
+import { TIER_NAMES } from '../../lib/tiers'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Ein Formular für Anlegen und Bearbeiten eines Beitrags (wie EventForm).
@@ -14,8 +15,8 @@ import { PendingSubmitButton } from './PendingSubmitButton'
 
 const AUDIENCE_LABELS: Record<string, string> = {
   members: 'Alle mit Konto',
-  premium: 'Ab Premium (auch VIP)',
-  vip: 'Nur VIP',
+  premium: `Ab ${TIER_NAMES.premium} (auch ${TIER_NAMES.vip})`,
+  vip: `Nur ${TIER_NAMES.vip}`,
 }
 
 export type PostFormValues = {

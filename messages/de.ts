@@ -9,6 +9,8 @@
  * Bereich hinter dem Login bleibt vorerst deutsch — die Extraktion dort ist
  * ein eigener Schritt (Phasenplan KW43), und Kursinhalt folgt in KW47.
  */
+
+import { TIER_NAMES } from '../app/lib/tiers'
 export const de = {
   nav: {
     courses: 'Kurse',
@@ -59,8 +61,8 @@ export const de = {
     doorSoon: 'Die Tür öffnet kurz vor Beginn.',
     moreOnWebsite: 'Mehr auf handpan.schule',
     hintLogin: 'Melde dich an, dann siehst du hier die Tür zum Raum.',
-    hintCircle: 'Dieser Termin gehört zum Inneren Kreis.',
-    hintVip: 'Dieser Termin ist für VIP-Mitglieder.',
+    hintCircle: `Dieser Termin gehört zu ${TIER_NAMES.premium}.`,
+    hintVip: `Dieser Termin gehört zu ${TIER_NAMES.vip}.`,
     hintProgram:
       'Dieser Termin gehört zu einem Kurs. Wer dabei ist, kommt hier hinein.',
     circleOpens: 'Dazu sage ich dir rechtzeitig Bescheid.',

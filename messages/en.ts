@@ -1,4 +1,5 @@
 import type { Messages } from './de'
+import { TIER_NAMES } from '../app/lib/tiers'
 
 /**
  * English strings for the school's public pages.
@@ -56,8 +57,8 @@ export const en: Messages = {
     doorSoon: 'The door opens shortly before we begin.',
     moreOnWebsite: 'More on handpan.schule',
     hintLogin: 'Log in and the door to the room appears here.',
-    hintCircle: 'This one belongs to the Inner Circle.',
-    hintVip: 'This one is for VIP members.',
+    hintCircle: `This one belongs to ${TIER_NAMES.premium}.`,
+    hintVip: `This one belongs to ${TIER_NAMES.vip}.`,
     hintProgram: 'This one belongs to a course. Everyone taking it comes in here.',
     circleOpens: 'I will let you know in good time.',
     toCourses: 'To your courses',

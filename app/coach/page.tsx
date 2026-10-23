@@ -17,11 +17,12 @@ import { DeleteEventForm } from './_components/DeleteEventForm'
 import { EventForm } from './_components/EventForm'
 import { PostForm } from './_components/PostForm'
 import { currentBrand } from '../lib/brand-server'
+import { TIER_NAMES } from '../lib/tiers'
 
 const POST_AUDIENCE_SHORT: Record<string, string> = {
   members: 'Alle',
-  premium: 'Premium',
-  vip: 'VIP',
+  premium: `Ab ${TIER_NAMES.premium}`,
+  vip: TIER_NAMES.vip,
 }
 
 export const metadata = {
@@ -61,8 +62,8 @@ type EventListRow = Pick<
 const VISIBILITY_SHORT: Record<string, string> = {
   public: 'Offen',
   members: 'Mit Konto',
-  premium: 'Innerer Kreis',
-  vip: 'VIP',
+  premium: TIER_NAMES.premium,
+  vip: TIER_NAMES.vip,
   program: 'Im Kurs',
 }
 
@@ -354,6 +355,9 @@ export default async function CoachPage() {
               {totalStudents} {totalStudents === 1 ? 'Schüler:in' : 'Schüler:innen'} ·{' '}
               {activeWeekly} {activeWeekly === 1 ? 'aktiv' : 'aktive'} diese Woche
             </p>
+            <p className="cch-sub">
+              <a href="/coach/mitglieder">Mitglieder und Stufen verwalten →</a>
+            </p>
           </header>
 
           {/* ── Aggregate Stats ───────────────────────────────────────── */}
@@ -426,7 +430,7 @@ export default async function CoachPage() {
                       <div className="cch-row-main">
                         <div className="cch-row-name">
                           {displayName}
-                          {s.plan === 'vip' ? ' · VIP' : s.plan === 'premium' ? ' · Innerer Kreis' : ''}
+                          {s.plan === 'vip' ? ` · ${TIER_NAMES.vip}` : s.plan === 'premium' ? ` · ${TIER_NAMES.premium}` : ''}
                         </div>
                         <div className="cch-row-email">{s.email ?? '—'}</div>
                       </div>

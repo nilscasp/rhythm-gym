@@ -5,6 +5,7 @@ import { EVENT_KINDS, EVENT_VISIBILITIES, KIND_LABELS } from '../../lib/event-ac
 import { MAX_REPEAT_WEEKS } from '../../lib/event-time'
 import { createEventAction, updateEventAction } from '../_actions'
 import { PendingSubmitButton } from './PendingSubmitButton'
+import { TIER_NAMES } from '../../lib/tiers'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Ein Formular für beides: neuen Termin anlegen und bestehenden bearbeiten.
@@ -21,16 +22,16 @@ import { PendingSubmitButton } from './PendingSubmitButton'
 const VISIBILITY_LABELS: Record<(typeof EVENT_VISIBILITIES)[number], string> = {
   public: 'Offen',
   members: 'Mit Konto',
-  premium: 'Innerer Kreis',
-  vip: 'VIP',
+  premium: TIER_NAMES.premium,
+  vip: TIER_NAMES.vip,
   program: 'Im Kurs',
 }
 
 const VISIBILITY_HINTS: Record<(typeof EVENT_VISIBILITIES)[number], string> = {
   public: 'für alle sichtbar, Tür offen',
   members: 'nur mit Konto',
-  premium: 'nur Innerer Kreis',
-  vip: 'nur VIP-Mitglieder',
+  premium: `ab ${TIER_NAMES.premium}`,
+  vip: `nur ${TIER_NAMES.vip}`,
   program: 'nur wer im Kurs ist',
 }
 
