@@ -4,6 +4,7 @@ import {
   connectionWith,
   countBy,
   firstName,
+  ilikeTerm,
   insertErrorCode,
   isUuid,
   matchesRegion,
@@ -129,6 +130,19 @@ describe('matchesRegion', () => {
     expect(matchesRegion('Raum München', 'münch')).toBe(true)
     expect(matchesRegion('Raum München', 'Berlin')).toBe(false)
     expect(matchesRegion(null, 'Berlin')).toBe(false)
+  })
+})
+
+describe('ilikeTerm', () => {
+  test('Platzhalter werden Text', () => {
+    expect(ilikeTerm('a_b%c')).toBe('a\\_b\\%c')
+  })
+  test('Zeichen, die einen PostgREST-or-Filter sprengen, fallen weg', () => {
+    expect(ilikeTerm('anna,(x).y')).toBe('annax.y')
+    expect(ilikeTerm('  lisa  ')).toBe('lisa')
+  })
+  test('kürzt lange Eingaben', () => {
+    expect(ilikeTerm('x'.repeat(200)).length).toBe(80)
   })
 })
 

@@ -93,6 +93,19 @@ export function matchesRegion(region: string | null | undefined, filter: string)
   return (region ?? '').toLocaleLowerCase('de-DE').includes(f)
 }
 
+/**
+ * Suchtext für einen ILIKE-Filter in PostgREST `.or(...)`: Komma, Klammern
+ * und Anführungszeichen trennen dort Bedingungen und fallen weg; % und _
+ * werden als Text gesucht.
+ */
+export function ilikeTerm(raw: string): string {
+  return raw
+    .trim()
+    .replace(/[,()"'\\]/g, '')
+    .slice(0, 80)
+    .replace(/[%_]/g, (c) => `\\${c}`)
+}
+
 /** Vorname wie in member_display_name (0013): erster Teil von full_name. */
 export function firstName(fullName: string | null | undefined): string {
   return (fullName ?? '').trim().split(/\s+/)[0] ?? ''
