@@ -698,6 +698,13 @@ export type Database = {
         }
         Relationships: []
       }
+      // Migration 0014 (Live-Ergänzungen) · von Hand ergänzt.
+      event_questions: {
+        Row: { body: string; created_at: string; event_id: string; id: string; user_id: string }
+        Insert: { body: string; created_at?: string; event_id: string; id?: string; user_id: string }
+        Update: { body?: string; created_at?: string; event_id?: string; id?: string; user_id?: string }
+        Relationships: []
+      }
       community_blocks: {
         Row: { created_at: string; created_by: string | null; reason: string | null; user_id: string }
         Insert: { created_at?: string; created_by?: string | null; reason?: string | null; user_id: string }
@@ -1128,6 +1135,14 @@ export type Database = {
     Functions: {
       claim_pending_enrollments: { Args: Record<string, never>; Returns: Json }
       event_zoom_url: { Args: { p_event_id: string }; Returns: string }
+      // Migration 0014 (Live-Ergänzungen) · von Hand ergänzt.
+      has_event_access: { Args: { p_event_id: string }; Returns: boolean }
+      submit_event_question: { Args: { p_event_id: string; p_body: string }; Returns: string }
+      withdraw_event_question: { Args: { p_question_id: string }; Returns: boolean }
+      link_event_recording: {
+        Args: { p_event_id: string; p_program_id: string; p_video_guid: string; p_title: string }
+        Returns: string
+      }
       grant_enrollment_by_email: {
         Args: {
           p_email: string

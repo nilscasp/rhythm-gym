@@ -98,6 +98,8 @@ export type Viewer = {
   isVip: boolean
   /** program_ids mit aktivem Enrollment */
   enrolledProgramIds: readonly string[]
+  /** auth.uid() — nur gesetzt, wenn angemeldet (eigene Fragen, Aufzeichnungs-Zugang). */
+  userId?: string
 }
 
 export const ANONYMOUS: Viewer = {
@@ -236,4 +238,67 @@ export function groupByMonth<T extends { starts_at: string }>(
     }
   }
   return groups
+}
+
+// ── Live-Ergänzungen (Abschnitt H, Migration 0014) ──────────────────────────
+
+/** Liegt der Beginn noch in der Zukunft? */
+export function isUpcoming(event: Pick<PublicEvent, 'starts_at'>, now: Date = new Date()): boolean {
+  return new Date(event.starts_at).getTime() > now.getTime()
+}
+
+export const QUESTION_MIN_LENGTH = 3
+export const QUESTION_MAX_LENGTH = 1000
+/** Höchstens so viele Fragen je Person und Termin (wie submit_event_question). */
+export const QUESTION_MAX_PER_EVENT = 3
+
+/**
+ * Darf diese Person vorab eine Frage einreichen? Angemeldet, Zugang zum
+ * Termin (dieselbe Regel wie die Tür) und der Termin hat noch nicht begonnen.
+ * Spiegel von submit_event_question()/has_event_access() — die Wahrheit hält
+ * die SQL-Funktion.
+ */
+export function canAskQuestion(
+  viewer: Viewer,
+  event: Pick<PublicEvent, 'visibility' | 'program_id' | 'starts_at'>,
+  now: Date = new Date(),
+): boolean {
+  if (!viewer.isAuthenticated) return false
+  if (!isUpcoming(event, now)) return false
+  return hasEventAccess(viewer, event).canJoin
+}
+
+/** Getrimmter Fragetext oder null, wenn er zu kurz oder zu lang ist. */
+export function normalizeQuestion(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const text = value.trim()
+  if (text.length < QUESTION_MIN_LENGTH || text.length > QUESTION_MAX_LENGTH) return null
+  return text
+}
+
+export type RecordingGate =
+  | { canWatch: true }
+  | { canWatch: false; reason: 'login' | 'premium' | 'vip' | 'program' }
+
+/**
+ * Darf diese Person die Aufzeichnung eines Termins sehen?
+ *
+ * Aufzeichnungen sind Lektionen in einer Bibliothek (lessons.event_id). Die
+ * Sichtbarkeit hängt deshalb NICHT an events.visibility, sondern am Zugang zur
+ * Bibliothek — gerechnet in course-access.ts (resolveAccess /
+ * getProgramAccessMap, Spiegel von has_program_access()). Diese Funktion
+ * übersetzt das Ergebnis nur in einen Grund für die Oberfläche.
+ * Beispiel VIP-Call: Termin 'vip' (live nur Stufe 2), Bibliothek „VIP-Calls“
+ * mit included_in_plan 'premium' (Aufzeichnung ab Stufe 1).
+ */
+export function recordingGate(
+  viewer: Pick<Viewer, 'isAuthenticated'>,
+  programAccess: { hasAccess: boolean } | undefined,
+  includedInPlan: string | null,
+): RecordingGate {
+  if (programAccess?.hasAccess) return { canWatch: true }
+  if (!viewer.isAuthenticated) return { canWatch: false, reason: 'login' }
+  if (includedInPlan === 'vip') return { canWatch: false, reason: 'vip' }
+  if (includedInPlan === 'premium') return { canWatch: false, reason: 'premium' }
+  return { canWatch: false, reason: 'program' }
 }

@@ -105,6 +105,7 @@ export async function currentViewer(
 
   return {
     isAuthenticated: true,
+    userId: user.id,
     // Rangfolge: VIP zählt auch als Premium (plan.ts ↔ plan_rank()).
     isPremium: planSatisfies(plan, 'premium'),
     isVip: planSatisfies(plan, 'vip'),
