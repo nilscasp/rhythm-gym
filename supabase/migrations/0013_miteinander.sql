@@ -33,6 +33,13 @@
 --     Tabellen-SELECT entzogen und die erlaubten Spalten einzeln vergeben.
 --   · Explizite Grants. anon bekommt nichts.
 --   · Admin (is_admin_user) darf lesen, schließen und löschen (Moderation).
+--     Moderation hält: closed_by_admin (challenges, meetups) und
+--     hidden_by_admin (member_profiles) setzt nur Admin über
+--     admin_close_challenge/admin_close_meetup/admin_hide_member; Trigger
+--     verhindern Wieder-Öffnen bzw. Sichtbar-Schalten. community_blocks sperrt
+--     Personen für Anfragen, Beitreten und Anlegen.
+--   · Kontaktanfragen: höchstens 10 offen, 5 neue je 24 h, je Paar eine in
+--     30 Tagen, nach „Lieber nicht“ 90 Tage Ruhe.
 --
 -- Fehler aus den Funktionen tragen einen kurzen Code als Meldung
 -- (z. B. 'too_many_open'); die App übersetzt ihn (app/lib/miteinander.ts,
@@ -59,6 +66,47 @@ $function$;
 revoke execute on function public.is_community_member() from public, anon;
 grant execute on function public.is_community_member() to authenticated, service_role;
 
+-- ── 0b · Sperren (Moderation) ────────────────────────────────────────────────
+-- Admin kann eine Person für Miteinander sperren: keine Anfragen, kein
+-- Beitreten, nichts Neues anlegen, nichts wieder öffnen. Lesen bleibt (die
+-- Person ist weiter Mitglied der Schule). Nur Admin sieht und pflegt die Liste.
+
+create table if not exists public.community_blocks (
+  user_id    uuid primary key references public.profiles(id) on delete cascade,
+  reason     text check (reason is null or char_length(reason) <= 500),
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+comment on table public.community_blocks is
+  'Miteinander (0013): gesperrte Personen. Nur Admin. Geprüft von community_blocked().';
+
+alter table public.community_blocks enable row level security;
+
+drop policy if exists admins_all_community_blocks on public.community_blocks;
+create policy admins_all_community_blocks on public.community_blocks
+  for all to authenticated
+  using (public.is_admin_user(auth.uid()))
+  with check (public.is_admin_user(auth.uid()));
+
+revoke all on public.community_blocks from anon, authenticated;
+grant select, insert, update, delete on public.community_blocks to authenticated;
+grant all on public.community_blocks to service_role;
+
+-- Ist die aufrufende Person gesperrt? (Fragt nur nach sich selbst.)
+create or replace function public.community_blocked()
+returns boolean
+language sql
+stable
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+  select exists (select 1 from public.community_blocks b where b.user_id = auth.uid());
+$function$;
+
+revoke execute on function public.community_blocked() from public, anon;
+grant execute on function public.community_blocked() to authenticated, service_role;
+
 -- ── 1 · Profile ──────────────────────────────────────────────────────────────
 
 create table if not exists public.member_profiles (
@@ -73,6 +121,9 @@ create table if not exists public.member_profiles (
   visible      boolean not null default false,
   open_for     text[] not null default '{}'::text[]
                check (open_for <@ array['partner', 'meetup', 'challenge']::text[]),
+  -- Moderation: vom Admin ausgeblendet. Nur über admin_hide_member() schreibbar
+  -- (nicht im Spalten-Grant). Solange true, bleibt visible false (Trigger).
+  hidden_by_admin boolean not null default false,
   updated_at   timestamptz not null default now()
 );
 
@@ -110,9 +161,63 @@ create policy admins_all_member_profiles on public.member_profiles
   using (public.is_admin_user(auth.uid()))
   with check (public.is_admin_user(auth.uid()));
 
+-- Spalten-Grants: hidden_by_admin darf niemand direkt setzen.
 revoke all on public.member_profiles from anon, authenticated;
-grant select, insert, update, delete on public.member_profiles to authenticated;
+grant select on public.member_profiles to authenticated;
+grant insert (user_id, display_name, region, about, phone, visible, open_for, updated_at)
+  on public.member_profiles to authenticated;
+grant update (display_name, region, about, phone, visible, open_for, updated_at)
+  on public.member_profiles to authenticated;
+grant delete on public.member_profiles to authenticated;
 grant all on public.member_profiles to service_role;
+
+-- Ausgeblendet heißt ausgeblendet: wer sich selbst wieder sichtbar schaltet,
+-- bleibt unsichtbar, solange hidden_by_admin gilt.
+create or replace function public.member_profiles_enforce_hidden()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+begin
+  if new.hidden_by_admin then
+    new.visible := false;
+  end if;
+  return new;
+end;
+$function$;
+
+revoke execute on function public.member_profiles_enforce_hidden() from public, anon, authenticated;
+
+drop trigger if exists member_profiles_enforce_hidden on public.member_profiles;
+create trigger member_profiles_enforce_hidden
+  before insert or update on public.member_profiles
+  for each row execute function public.member_profiles_enforce_hidden();
+
+-- Admin blendet ein Profil aus (oder wieder ein). Beim Einblenden bleibt
+-- visible false — sichtbar schaltet die Person selbst.
+create or replace function public.admin_hide_member(p_user_id uuid, p_hidden boolean)
+returns void
+language plpgsql
+volatile
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+begin
+  if not public.is_admin_user(auth.uid()) then
+    raise exception 'not_allowed';
+  end if;
+  insert into public.member_profiles (user_id, hidden_by_admin, visible)
+  values (p_user_id, p_hidden, false)
+  on conflict (user_id) do update
+    set hidden_by_admin = excluded.hidden_by_admin,
+        visible = case when excluded.hidden_by_admin then false else public.member_profiles.visible end,
+        updated_at = now();
+end;
+$function$;
+
+revoke execute on function public.admin_hide_member(uuid, boolean) from public, anon;
+grant execute on function public.admin_hide_member(uuid, boolean) to authenticated, service_role;
 
 -- ── 1b · Anzeigename (intern) ────────────────────────────────────────────────
 -- Eigener Name aus dem Profil, sonst der Vorname aus profiles.full_name, sonst
@@ -215,6 +320,7 @@ as $function$
     from public.member_profiles mp, q
    where public.is_community_member()
      and mp.visible
+     and not mp.hidden_by_admin
      and mp.user_id <> auth.uid()
      and (
           q.s = ''
@@ -229,9 +335,12 @@ $function$;
 revoke execute on function public.list_members(text) from public, anon;
 grant execute on function public.list_members(text) to authenticated, service_role;
 
--- Ein Profil (ohne Nummer). Sichtbar, wenn freigegeben — oder wenn zwischen
--- beiden eine Anfrage besteht (sonst sähe man nicht, wer einen anfragt), für
--- sich selbst und für Admin. Sonst keine Zeile.
+-- Ein Profil (ohne Nummer). Sichtbar, wenn freigegeben (und nicht vom Admin
+-- ausgeblendet), für sich selbst, für Admin — und sonst NUR, wenn
+--   · die Person mich gerade anfragt (pending, ich bin to_user: ich soll sehen,
+--     wer fragt), oder
+--   · wir verbunden sind (accepted).
+-- Abgelehnte oder zurückgezogene Anfragen öffnen ein verstecktes Profil nicht.
 
 create or replace function public.get_member(p_user_id uuid)
 returns table (
@@ -258,13 +367,20 @@ as $function$
    where pr.id = p_user_id
      and public.is_community_member()
      and (
-          coalesce(mp.visible, false)
+          (coalesce(mp.visible, false) and not coalesce(mp.hidden_by_admin, false))
        or pr.id = auth.uid()
        or public.is_admin_user(auth.uid())
        or exists (
             select 1 from public.connection_requests cr
-             where (cr.from_user = auth.uid() and cr.to_user = pr.id)
-                or (cr.to_user = auth.uid() and cr.from_user = pr.id)
+             where cr.status = 'pending'
+               and cr.to_user = auth.uid()
+               and cr.from_user = pr.id
+          )
+       or exists (
+            select 1 from public.connection_requests cr
+             where cr.status = 'accepted'
+               and ((cr.from_user = auth.uid() and cr.to_user = pr.id)
+                 or (cr.to_user = auth.uid() and cr.from_user = pr.id))
           )
      );
 $function$;
@@ -289,6 +405,9 @@ begin
   if v_uid is null or not public.is_community_member() then
     raise exception 'not_member';
   end if;
+  if public.community_blocked() then
+    raise exception 'blocked';
+  end if;
   if p_to_user is null or p_to_user = v_uid then
     raise exception 'not_allowed';
   end if;
@@ -296,9 +415,10 @@ begin
     raise exception 'message_length';
   end if;
 
-  -- Anfragen nur an sichtbare Profile.
+  -- Anfragen nur an sichtbare (und nicht ausgeblendete) Profile.
   if not exists (
-    select 1 from public.member_profiles mp where mp.user_id = p_to_user and mp.visible
+    select 1 from public.member_profiles mp
+     where mp.user_id = p_to_user and mp.visible and not mp.hidden_by_admin
   ) then
     raise exception 'not_visible';
   end if;
@@ -323,14 +443,31 @@ begin
     raise exception 'already_pending';
   end if;
 
-  -- „Lieber nicht“ gilt 90 Tage: in der Zeit keine neue Anfrage an dieselbe Person.
+  -- Abkühlzeiten je Paar (Absender → Empfänger), damit Zurückziehen und neu
+  -- Anfragen keine Schleife wird:
+  --   · „Lieber nicht“ gilt 90 Tage (gerechnet ab der Antwort).
+  --   · Sonst höchstens EINE Anfrage je Paar in 30 Tagen, egal mit welchem
+  --     Ausgang (zurückgezogen, gelöst …).
   if exists (
     select 1 from public.connection_requests cr
      where cr.from_user = v_uid and cr.to_user = p_to_user
        and cr.status = 'declined'
-       and cr.answered_at > now() - interval '90 days'
+       and coalesce(cr.answered_at, cr.created_at) > now() - interval '90 days'
   ) then
     raise exception 'declined_recently';
+  end if;
+  if exists (
+    select 1 from public.connection_requests cr
+     where cr.from_user = v_uid and cr.to_user = p_to_user
+       and cr.created_at > now() - interval '30 days'
+  ) then
+    raise exception 'cooldown';
+  end if;
+
+  -- Tagesobergrenze: höchstens 5 neue Anfragen in 24 Stunden.
+  if (select count(*) from public.connection_requests cr
+       where cr.from_user = v_uid and cr.created_at > now() - interval '24 hours') >= 5 then
+    raise exception 'daily_limit';
   end if;
 
   -- Rate-Limit: höchstens 10 offene Anfragen je Person.
@@ -531,6 +668,9 @@ create table if not exists public.challenges (
                  or whatsapp_url ~ '^https://chat\.whatsapp\.com/[A-Za-z0-9_-]{8,64}$'
                ),
   status       text not null default 'open' check (status in ('open', 'closed')),
+  -- Moderation: vom Admin geschlossen. Nur über admin_close_challenge() schreibbar
+  -- (nicht im Spalten-Grant). Solange true, lässt sich status nicht auf open setzen.
+  closed_by_admin boolean not null default false,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now(),
   constraint challenges_dates check (ends_on >= starts_on and ends_on <= starts_on + 366)
@@ -563,7 +703,8 @@ create policy challenges_select_members on public.challenges
 drop policy if exists challenges_insert_own on public.challenges;
 create policy challenges_insert_own on public.challenges
   for insert to authenticated with check (
-    public.is_community_member() and created_by = auth.uid() and status = 'open'
+    public.is_community_member() and not public.community_blocked()
+    and created_by = auth.uid() and status = 'open'
   );
 
 -- Bearbeiten und schließen: wer sie vorgeschlagen hat.
@@ -654,6 +795,67 @@ create trigger challenges_after_insert
   after insert on public.challenges
   for each row execute function public.challenges_after_insert();
 
+-- Bearbeiten/Wieder-Öffnen absichern (Moderation und Limit):
+--   · Vom Admin geschlossen → bleibt zu, bis Admin es freigibt.
+--   · Gesperrte Personen dürfen ihre Einträge nur noch schließen.
+--   · Wieder öffnen zählt wie neu anlegen (höchstens 5 offene je Person).
+create or replace function public.challenges_before_update()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+begin
+  if new.closed_by_admin and new.status = 'open' then
+    raise exception 'closed_by_admin';
+  end if;
+  if new.status <> 'closed' and public.community_blocked()
+     and not public.is_admin_user(auth.uid()) then
+    raise exception 'blocked';
+  end if;
+  if old.status = 'closed' and new.status = 'open'
+     and (select count(*) from public.challenges c
+           where c.created_by = new.created_by and c.status = 'open' and c.id <> new.id) >= 5 then
+    raise exception 'too_many_open';
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$function$;
+
+revoke execute on function public.challenges_before_update() from public, anon, authenticated;
+
+drop trigger if exists challenges_before_update on public.challenges;
+create trigger challenges_before_update
+  before update on public.challenges
+  for each row execute function public.challenges_before_update();
+
+-- Admin schließt (p_closed true) oder gibt wieder frei (false; der Status
+-- bleibt dann geschlossen, öffnen kann die Person selbst).
+create or replace function public.admin_close_challenge(p_challenge_id uuid, p_closed boolean)
+returns void
+language plpgsql
+volatile
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+begin
+  if not public.is_admin_user(auth.uid()) then
+    raise exception 'not_allowed';
+  end if;
+  update public.challenges
+     set closed_by_admin = p_closed,
+         status = case when p_closed then 'closed' else status end
+   where id = p_challenge_id;
+  if not found then
+    raise exception 'not_found';
+  end if;
+end;
+$function$;
+
+revoke execute on function public.admin_close_challenge(uuid, boolean) from public, anon;
+grant execute on function public.admin_close_challenge(uuid, boolean) to authenticated, service_role;
+
 create or replace function public.join_challenge(p_challenge_id uuid)
 returns void
 language plpgsql
@@ -667,6 +869,9 @@ declare
 begin
   if v_uid is null or not public.is_community_member() then
     raise exception 'not_member';
+  end if;
+  if public.community_blocked() then
+    raise exception 'blocked';
   end if;
 
   -- Zeile sperren, damit zwei gleichzeitige Beitritte die Platzzahl nicht sprengen.
@@ -793,6 +998,8 @@ create table if not exists public.meetups (
   max_people  integer check (max_people is null or max_people between 2 and 200),
   online      boolean not null default false,
   status      text not null default 'open' check (status in ('open', 'closed')),
+  -- Moderation wie bei challenges (admin_close_meetup()).
+  closed_by_admin boolean not null default false,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
@@ -822,7 +1029,8 @@ create policy meetups_select_members on public.meetups
 drop policy if exists meetups_insert_own on public.meetups;
 create policy meetups_insert_own on public.meetups
   for insert to authenticated with check (
-    public.is_community_member() and created_by = auth.uid() and status = 'open'
+    public.is_community_member() and not public.community_blocked()
+    and created_by = auth.uid() and status = 'open'
   );
 
 drop policy if exists meetups_update_own on public.meetups;
@@ -907,6 +1115,64 @@ create trigger meetups_after_insert
   after insert on public.meetups
   for each row execute function public.meetups_after_insert();
 
+-- Wie bei challenges: Moderation hält, Gesperrte dürfen nur schließen,
+-- Wieder-Öffnen zählt gegen das Limit (5 kommende offene Treffen).
+create or replace function public.meetups_before_update()
+returns trigger
+language plpgsql
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+begin
+  if new.closed_by_admin and new.status = 'open' then
+    raise exception 'closed_by_admin';
+  end if;
+  if new.status <> 'closed' and public.community_blocked()
+     and not public.is_admin_user(auth.uid()) then
+    raise exception 'blocked';
+  end if;
+  if old.status = 'closed' and new.status = 'open'
+     and (select count(*) from public.meetups m
+           where m.created_by = new.created_by and m.status = 'open'
+             and m.starts_at > now() and m.id <> new.id) >= 5 then
+    raise exception 'too_many_open';
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$function$;
+
+revoke execute on function public.meetups_before_update() from public, anon, authenticated;
+
+drop trigger if exists meetups_before_update on public.meetups;
+create trigger meetups_before_update
+  before update on public.meetups
+  for each row execute function public.meetups_before_update();
+
+create or replace function public.admin_close_meetup(p_meetup_id uuid, p_closed boolean)
+returns void
+language plpgsql
+volatile
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+begin
+  if not public.is_admin_user(auth.uid()) then
+    raise exception 'not_allowed';
+  end if;
+  update public.meetups
+     set closed_by_admin = p_closed,
+         status = case when p_closed then 'closed' else status end
+   where id = p_meetup_id;
+  if not found then
+    raise exception 'not_found';
+  end if;
+end;
+$function$;
+
+revoke execute on function public.admin_close_meetup(uuid, boolean) from public, anon;
+grant execute on function public.admin_close_meetup(uuid, boolean) to authenticated, service_role;
+
 create or replace function public.join_meetup(p_meetup_id uuid)
 returns void
 language plpgsql
@@ -920,6 +1186,9 @@ declare
 begin
   if v_uid is null or not public.is_community_member() then
     raise exception 'not_member';
+  end if;
+  if public.community_blocked() then
+    raise exception 'blocked';
   end if;
 
   select * into v_m from public.meetups where id = p_meetup_id for update;
