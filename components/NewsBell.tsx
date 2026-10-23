@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import type { News } from '../app/lib/news'
+import type { News, NewsKind } from '../app/lib/news'
 import { markNewsSeenAction } from '../app/lib/news-actions'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,6 +19,14 @@ import { markNewsSeenAction } from '../app/lib/news-actions'
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const OPEN_NEWS_EVENT = 'schule:open-news'
+
+const NEWS_KICKER: Record<NewsKind, string> = {
+  event: 'Bald live',
+  post: 'Beitrag von Nils',
+  lessons: 'Neu im Kurs',
+  connection: 'Miteinander',
+  challenge: 'Deine Challenge',
+}
 
 export function BellIcon() {
   return (
@@ -142,7 +150,7 @@ export function NewsBell({ news, label }: { news: News; label: string }) {
                     onClick={() => closePanel(false)}
                   >
                     <span className="nb-item-kicker">
-                      {item.kind === 'event' ? 'Bald live' : item.kind === 'post' ? 'Beitrag von Nils' : 'Neu im Kurs'}
+                      {NEWS_KICKER[item.kind]}
                       {item.when ? ` · ${item.when}` : ''}
                       {fresh ? <span className="nb-sr"> · neu</span> : null}
                     </span>

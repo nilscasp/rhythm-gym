@@ -11,7 +11,9 @@ export type Json =
 // lesson_attachments, lesson_completions, plan_rank, has_program_access,
 // program_whatsapp_url) ist VON HAND ERGÄNZT — nach dem Einspielen mit
 // generate_typescript_types neu erzeugen. Dasselbe gilt für Migration 0011
-// (posts, news_state, can_read_post).
+// (posts, news_state, can_read_post) und Migration 0013 (Miteinander:
+// member_profiles, connection_requests, challenges, meetups, community_blocks
+// und ihre Funktionen).
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -658,6 +660,168 @@ export type Database = {
           },
         ]
       }
+      // Migration 0013 (Miteinander) · VON HAND ERGÄNZT — nach dem Einspielen
+      // mit generate_typescript_types neu erzeugen. Achtung: Die Row-Typen
+      // listen alle Spalten, aber phone/whatsapp_url/exact_place/
+      // hidden_by_admin/closed_by_admin sind für authenticated teils nicht
+      // lesbar oder schreibbar (Spalten-Grants, RLS). Immer mit expliziter
+      // Spaltenliste lesen, nie select('*') auf challenges/meetups.
+      member_profiles: {
+        Row: {
+          about: string | null
+          display_name: string | null
+          open_for: string[]
+          phone: string | null
+          region: string | null
+          updated_at: string
+          user_id: string
+          visible: boolean
+        }
+        Insert: {
+          about?: string | null
+          display_name?: string | null
+          open_for?: string[]
+          phone?: string | null
+          region?: string | null
+          updated_at?: string
+          user_id: string
+          visible?: boolean
+        }
+        Update: {
+          about?: string | null
+          display_name?: string | null
+          open_for?: string[]
+          phone?: string | null
+          region?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      community_blocks: {
+        Row: { created_at: string; created_by: string | null; reason: string | null; user_id: string }
+        Insert: { created_at?: string; created_by?: string | null; reason?: string | null; user_id: string }
+        Update: { created_at?: string; created_by?: string | null; reason?: string | null; user_id?: string }
+        Relationships: []
+      }
+      connection_requests: {
+        Row: {
+          answered_at: string | null
+          created_at: string
+          from_user: string
+          id: string
+          message: string
+          status: string
+          to_user: string
+        }
+        Insert: {
+          answered_at?: string | null
+          created_at?: string
+          from_user: string
+          id?: string
+          message: string
+          status?: string
+          to_user: string
+        }
+        Update: {
+          answered_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      challenges: {
+        Row: {
+          area: string
+          closed_by_admin: boolean
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_on: string
+          id: string
+          max_members: number | null
+          starts_on: string
+          status: string
+          title: string
+          updated_at: string
+          whatsapp_url: string | null
+        }
+        Insert: {
+          area?: string
+          created_by: string
+          description?: string | null
+          ends_on: string
+          max_members?: number | null
+          starts_on: string
+          title: string
+          whatsapp_url?: string | null
+        }
+        Update: {
+          area?: string
+          description?: string | null
+          ends_on?: string
+          max_members?: number | null
+          starts_on?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          whatsapp_url?: string | null
+        }
+        Relationships: []
+      }
+      challenge_members: {
+        Row: { challenge_id: string; joined_at: string; user_id: string }
+        Insert: { challenge_id: string; joined_at?: string; user_id: string }
+        Update: { challenge_id?: string; joined_at?: string; user_id?: string }
+        Relationships: []
+      }
+      meetups: {
+        Row: {
+          closed_by_admin: boolean
+          created_at: string
+          created_by: string
+          description: string | null
+          exact_place: string | null
+          id: string
+          max_people: number | null
+          online: boolean
+          place_hint: string | null
+          region: string | null
+          starts_at: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_by: string
+          description?: string | null
+          exact_place?: string | null
+          max_people?: number | null
+          online?: boolean
+          place_hint?: string | null
+          region?: string | null
+          starts_at: string
+          title: string
+        }
+        Update: {
+          description?: string | null
+          exact_place?: string | null
+          max_people?: number | null
+          online?: boolean
+          place_hint?: string | null
+          region?: string | null
+          starts_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      meetup_attendees: {
+        Row: { joined_at: string; meetup_id: string; user_id: string }
+        Insert: { joined_at?: string; meetup_id: string; user_id: string }
+        Update: { joined_at?: string; meetup_id?: string; user_id?: string }
+        Relationships: []
+      }
       news_state: {
         Row: {
           seen_at: string
@@ -981,6 +1145,78 @@ export type Database = {
       program_whatsapp_url: { Args: { p_program_id: string }; Returns: string | null }
       // Migration 0011 · von Hand ergänzt.
       can_read_post: { Args: { p_audience: string }; Returns: boolean }
+      // Migration 0013 (Miteinander) · von Hand ergänzt.
+      is_community_member: { Args: Record<string, never>; Returns: boolean }
+      community_blocked: { Args: Record<string, never>; Returns: boolean }
+      list_members: {
+        Args: { p_search?: string | null }
+        Returns: {
+          user_id: string
+          display_name: string
+          region: string | null
+          about: string | null
+          open_for: string[]
+          updated_at: string
+        }[]
+      }
+      get_member: {
+        Args: { p_user_id: string }
+        Returns: {
+          user_id: string
+          display_name: string
+          region: string | null
+          about: string | null
+          open_for: string[]
+          visible: boolean
+        }[]
+      }
+      request_connection: { Args: { p_to_user: string; p_message: string }; Returns: string }
+      answer_connection: { Args: { p_request_id: string; p_accept: boolean }; Returns: string }
+      withdraw_connection: { Args: { p_request_id: string }; Returns: undefined }
+      end_connection: { Args: { p_request_id: string }; Returns: undefined }
+      my_connection_requests: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          direction: string
+          other_user: string
+          other_name: string
+          message: string
+          status: string
+          created_at: string
+          answered_at: string | null
+        }[]
+      }
+      connection_phone: { Args: { p_other_user: string }; Returns: string | null }
+      join_challenge: { Args: { p_challenge_id: string }; Returns: undefined }
+      leave_challenge: { Args: { p_challenge_id: string }; Returns: undefined }
+      challenge_whatsapp_url: { Args: { p_challenge_id: string }; Returns: string | null }
+      challenge_people: {
+        Args: { p_challenge_id: string }
+        Returns: {
+          user_id: string
+          display_name: string
+          is_creator: boolean
+          profile_visible: boolean
+          joined_at: string
+        }[]
+      }
+      admin_close_challenge: { Args: { p_challenge_id: string; p_closed: boolean }; Returns: undefined }
+      join_meetup: { Args: { p_meetup_id: string }; Returns: undefined }
+      leave_meetup: { Args: { p_meetup_id: string }; Returns: undefined }
+      meetup_exact_place: { Args: { p_meetup_id: string }; Returns: string | null }
+      meetup_people: {
+        Args: { p_meetup_id: string }
+        Returns: {
+          user_id: string
+          display_name: string
+          is_creator: boolean
+          profile_visible: boolean
+          joined_at: string
+        }[]
+      }
+      admin_close_meetup: { Args: { p_meetup_id: string; p_closed: boolean }; Returns: undefined }
+      admin_hide_member: { Args: { p_user_id: string; p_hidden: boolean }; Returns: undefined }
       set_membership_by_customer: {
         Args: { p_customer_id: string; p_email: string; p_active: boolean }
         Returns: Json

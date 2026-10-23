@@ -34,7 +34,7 @@
 --   · Explizite Grants. anon bekommt nichts.
 --   · Admin (is_admin_user) darf lesen, schließen und löschen (Moderation).
 --     Moderation hält: closed_by_admin (challenges, meetups) und
---     hidden_by_admin (member_profiles) setzt nur Admin über
+--     member_moderation (ausgeblendete Profile, eigene Tabelle) setzt nur Admin über
 --     admin_close_challenge/admin_close_meetup/admin_hide_member; Trigger
 --     verhindern Wieder-Öffnen bzw. Sichtbar-Schalten. community_blocks sperrt
 --     Personen für Anfragen, Beitreten und Anlegen.
@@ -121,9 +121,8 @@ create table if not exists public.member_profiles (
   visible      boolean not null default false,
   open_for     text[] not null default '{}'::text[]
                check (open_for <@ array['partner', 'meetup', 'challenge']::text[]),
-  -- Moderation: vom Admin ausgeblendet. Nur über admin_hide_member() schreibbar
-  -- (nicht im Spalten-Grant). Solange true, bleibt visible false (Trigger).
-  hidden_by_admin boolean not null default false,
+  -- Ob der Admin ein Profil ausgeblendet hat, steht NICHT hier (sonst wäre es
+  -- mit Löschen und Neu-Anlegen weg), sondern in member_moderation.
   updated_at   timestamptz not null default now()
 );
 
@@ -161,18 +160,55 @@ create policy admins_all_member_profiles on public.member_profiles
   using (public.is_admin_user(auth.uid()))
   with check (public.is_admin_user(auth.uid()));
 
--- Spalten-Grants: hidden_by_admin darf niemand direkt setzen.
 revoke all on public.member_profiles from anon, authenticated;
-grant select on public.member_profiles to authenticated;
-grant insert (user_id, display_name, region, about, phone, visible, open_for, updated_at)
-  on public.member_profiles to authenticated;
-grant update (display_name, region, about, phone, visible, open_for, updated_at)
-  on public.member_profiles to authenticated;
-grant delete on public.member_profiles to authenticated;
+grant select, insert, update, delete on public.member_profiles to authenticated;
 grant all on public.member_profiles to service_role;
 
--- Ausgeblendet heißt ausgeblendet: wer sich selbst wieder sichtbar schaltet,
--- bleibt unsichtbar, solange hidden_by_admin gilt.
+-- ── 1a · Moderation von Profilen (nur Admin) ─────────────────────────────────
+-- Eigene Tabelle, damit Ausblenden Löschen und Neu-Anlegen des Profils
+-- übersteht. Quelle für list_members, get_member und request_connection.
+
+create table if not exists public.member_moderation (
+  user_id    uuid primary key references public.profiles(id) on delete cascade,
+  hidden     boolean not null default true,
+  reason     text check (reason is null or char_length(reason) <= 500),
+  updated_by uuid references public.profiles(id) on delete set null,
+  updated_at timestamptz not null default now()
+);
+
+comment on table public.member_moderation is
+  'Miteinander (0013): vom Admin ausgeblendete Profile. Nur Admin. Geprüft von member_is_hidden().';
+
+alter table public.member_moderation enable row level security;
+
+drop policy if exists admins_all_member_moderation on public.member_moderation;
+create policy admins_all_member_moderation on public.member_moderation
+  for all to authenticated
+  using (public.is_admin_user(auth.uid()))
+  with check (public.is_admin_user(auth.uid()));
+
+revoke all on public.member_moderation from anon, authenticated;
+grant select, insert, update, delete on public.member_moderation to authenticated;
+grant all on public.member_moderation to service_role;
+
+-- Intern (kein Grant an authenticated): ist dieses Profil ausgeblendet?
+create or replace function public.member_is_hidden(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path to 'public', 'pg_catalog'
+as $function$
+  select exists (
+    select 1 from public.member_moderation mm where mm.user_id = p_user_id and mm.hidden
+  );
+$function$;
+
+revoke execute on function public.member_is_hidden(uuid) from public, anon, authenticated;
+grant execute on function public.member_is_hidden(uuid) to service_role;
+
+-- Ausgeblendet heißt ausgeblendet: visible bleibt false, auch nach Löschen
+-- und Neu-Anlegen. (Die Abfragen prüfen member_is_hidden zusätzlich.)
 create or replace function public.member_profiles_enforce_hidden()
 returns trigger
 language plpgsql
@@ -180,7 +216,7 @@ security definer
 set search_path to 'public', 'pg_catalog'
 as $function$
 begin
-  if new.hidden_by_admin then
+  if public.member_is_hidden(new.user_id) then
     new.visible := false;
   end if;
   return new;
@@ -194,8 +230,8 @@ create trigger member_profiles_enforce_hidden
   before insert or update on public.member_profiles
   for each row execute function public.member_profiles_enforce_hidden();
 
--- Admin blendet ein Profil aus (oder wieder ein). Beim Einblenden bleibt
--- visible false — sichtbar schaltet die Person selbst.
+-- Admin blendet ein Profil aus (oder gibt es wieder frei). Beim Freigeben
+-- bleibt visible false — sichtbar schaltet die Person selbst.
 create or replace function public.admin_hide_member(p_user_id uuid, p_hidden boolean)
 returns void
 language plpgsql
@@ -207,12 +243,13 @@ begin
   if not public.is_admin_user(auth.uid()) then
     raise exception 'not_allowed';
   end if;
-  insert into public.member_profiles (user_id, hidden_by_admin, visible)
-  values (p_user_id, p_hidden, false)
+  insert into public.member_moderation (user_id, hidden, updated_by, updated_at)
+  values (p_user_id, p_hidden, auth.uid(), now())
   on conflict (user_id) do update
-    set hidden_by_admin = excluded.hidden_by_admin,
-        visible = case when excluded.hidden_by_admin then false else public.member_profiles.visible end,
-        updated_at = now();
+    set hidden = excluded.hidden, updated_by = excluded.updated_by, updated_at = now();
+  if p_hidden then
+    update public.member_profiles set visible = false, updated_at = now() where user_id = p_user_id;
+  end if;
 end;
 $function$;
 
@@ -320,7 +357,7 @@ as $function$
     from public.member_profiles mp, q
    where public.is_community_member()
      and mp.visible
-     and not mp.hidden_by_admin
+     and not public.member_is_hidden(mp.user_id)
      and mp.user_id <> auth.uid()
      and (
           q.s = ''
@@ -367,7 +404,7 @@ as $function$
    where pr.id = p_user_id
      and public.is_community_member()
      and (
-          (coalesce(mp.visible, false) and not coalesce(mp.hidden_by_admin, false))
+          (coalesce(mp.visible, false) and not public.member_is_hidden(pr.id))
        or pr.id = auth.uid()
        or public.is_admin_user(auth.uid())
        or exists (
@@ -418,7 +455,7 @@ begin
   -- Anfragen nur an sichtbare (und nicht ausgeblendete) Profile.
   if not exists (
     select 1 from public.member_profiles mp
-     where mp.user_id = p_to_user and mp.visible and not mp.hidden_by_admin
+     where mp.user_id = p_to_user and mp.visible and not public.member_is_hidden(p_to_user)
   ) then
     raise exception 'not_visible';
   end if;
@@ -504,6 +541,10 @@ declare
 begin
   if v_uid is null or not public.is_community_member() then
     raise exception 'not_member';
+  end if;
+  -- Gesperrte dürfen ablehnen, aber nicht annehmen (kein Nummerntausch).
+  if p_accept and public.community_blocked() then
+    raise exception 'blocked';
   end if;
 
   update public.connection_requests
@@ -639,6 +680,7 @@ as $function$
      and auth.uid() is not null
      and p_other_user <> auth.uid()
      and public.is_community_member()
+     and not public.community_blocked()
      and exists (
            select 1 from public.connection_requests cr
             where cr.status = 'accepted'
@@ -796,22 +838,36 @@ create trigger challenges_after_insert
   for each row execute function public.challenges_after_insert();
 
 -- Bearbeiten/Wieder-Öffnen absichern (Moderation und Limit):
---   · Vom Admin geschlossen → bleibt zu, bis Admin es freigibt.
---   · Gesperrte Personen dürfen ihre Einträge nur noch schließen.
+--   · Vom Admin geschlossen → für Nicht-Admins gar nicht mehr änderbar.
+--   · Gesperrte Personen dürfen nur noch status → 'closed' setzen, sonst nichts.
 --   · Wieder öffnen zählt wie neu anlegen (höchstens 5 offene je Person).
+-- closed_by_admin selbst steht in keinem Spalten-Grant; nur
+-- admin_close_challenge() setzt es.
 create or replace function public.challenges_before_update()
 returns trigger
 language plpgsql
 security definer
 set search_path to 'public', 'pg_catalog'
 as $function$
+declare
+  v_admin boolean := public.is_admin_user(auth.uid());
 begin
+  if not v_admin then
+    if old.closed_by_admin then
+      raise exception 'closed_by_admin';
+    end if;
+    if public.community_blocked()
+       and (new.status <> 'closed'
+            or (new.title, new.description, new.area, new.starts_on, new.ends_on,
+                new.max_members, new.whatsapp_url)
+               is distinct from
+               (old.title, old.description, old.area, old.starts_on, old.ends_on,
+                old.max_members, old.whatsapp_url)) then
+      raise exception 'blocked';
+    end if;
+  end if;
   if new.closed_by_admin and new.status = 'open' then
     raise exception 'closed_by_admin';
-  end if;
-  if new.status <> 'closed' and public.community_blocked()
-     and not public.is_admin_user(auth.uid()) then
-    raise exception 'blocked';
   end if;
   if old.status = 'closed' and new.status = 'open'
      and (select count(*) from public.challenges c
@@ -1115,23 +1171,38 @@ create trigger meetups_after_insert
   after insert on public.meetups
   for each row execute function public.meetups_after_insert();
 
--- Wie bei challenges: Moderation hält, Gesperrte dürfen nur schließen,
--- Wieder-Öffnen zählt gegen das Limit (5 kommende offene Treffen).
+-- Wie bei challenges: Moderation hält, Gesperrte dürfen nur schließen.
+-- Limit (5 kommende offene Treffen) gilt, sobald ein Treffen durch das Update
+-- „kommend und offen“ WIRD — durch Wieder-Öffnen oder durch Verschieben eines
+-- vergangenen Treffens in die Zukunft.
 create or replace function public.meetups_before_update()
 returns trigger
 language plpgsql
 security definer
 set search_path to 'public', 'pg_catalog'
 as $function$
+declare
+  v_admin boolean := public.is_admin_user(auth.uid());
 begin
+  if not v_admin then
+    if old.closed_by_admin then
+      raise exception 'closed_by_admin';
+    end if;
+    if public.community_blocked()
+       and (new.status <> 'closed'
+            or (new.title, new.description, new.region, new.place_hint, new.exact_place,
+                new.starts_at, new.max_people, new.online)
+               is distinct from
+               (old.title, old.description, old.region, old.place_hint, old.exact_place,
+                old.starts_at, old.max_people, old.online)) then
+      raise exception 'blocked';
+    end if;
+  end if;
   if new.closed_by_admin and new.status = 'open' then
     raise exception 'closed_by_admin';
   end if;
-  if new.status <> 'closed' and public.community_blocked()
-     and not public.is_admin_user(auth.uid()) then
-    raise exception 'blocked';
-  end if;
-  if old.status = 'closed' and new.status = 'open'
+  if new.status = 'open' and new.starts_at > now()
+     and not (old.status = 'open' and old.starts_at > now())
      and (select count(*) from public.meetups m
            where m.created_by = new.created_by and m.status = 'open'
              and m.starts_at > now() and m.id <> new.id) >= 5 then
