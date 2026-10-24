@@ -90,6 +90,31 @@ export default function DatenschutzPage() {
         Du kannst dein Profil, deine Anfragen und Einträge jederzeit selbst löschen. Wird dein Konto
         gelöscht, verschwinden auch alle Miteinander-Daten.
       </p>
+      <h3>Lieder</h3>
+      <p>
+        In der Lieder-Bibliothek kannst du eigene Lieder als Handpan-Tab hochladen: den Tab selbst,
+        einen Titel, auf Wunsch einen Untertitel und die Schwierigkeit. Das Teilen ist freiwillig.
+        Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie, indem
+        du das Lied löschst oder mir schreibst. Der Widerruf gilt für die Zukunft.
+      </p>
+      <p>Wer was sieht:</p>
+      <ul>
+        <li>Solange ich ein Lied noch nicht freigegeben habe, sehen es nur du und ich.</li>
+        <li>
+          Nach der Freigabe sehen es alle angemeldeten Mitglieder mit Zugang zur Bibliothek, zusammen
+          mit deinem Anzeigenamen („geteilt von …“). Das ist der Name aus deinem Miteinander-Profil,
+          sonst dein Vorname.
+        </li>
+        <li>
+          Ich als Betreiber sehe jedes eingereichte Lied, um es freizugeben oder abzulehnen. Lehne ich
+          es ab, sehe ich auch meine Notiz an dich.
+        </li>
+      </ul>
+      <p>
+        Du kannst deine Lieder jederzeit bearbeiten oder löschen. Ein geändertes Lied ist bis zur
+        erneuten Freigabe wieder nur für dich und mich sichtbar. Wird dein Konto gelöscht, werden auch
+        alle deine Lieder gelöscht.
+      </p>
       <h3>Beiträge und Lesestand</h3>
       <p>
         Ich veröffentliche in der App Beiträge und Neuigkeiten. Damit die Glocke anzeigen kann, was

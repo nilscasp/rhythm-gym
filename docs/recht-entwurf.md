@@ -31,6 +31,19 @@ Damit nur Mitglieder mit Zugang ein Video sehen, bekommt jede Video-Adresse eine
 
 **Löschen.** Du kannst dein Profil, deine Anfragen und Einträge jederzeit selbst löschen. Wird dein Konto gelöscht, verschwinden auch alle Miteinander-Daten.
 
+### A5 · Lieder (freigegeben Nils, 24.10.2026, steht in `/datenschutz`)
+
+**Was du teilst.** In der Lieder-Bibliothek kannst du eigene Lieder als Handpan-Tab hochladen: den Tab selbst, einen Titel, auf Wunsch einen Untertitel und die Schwierigkeit. Das Teilen ist freiwillig.
+
+**Rechtsgrundlage.** Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du widerrufst sie, indem du das Lied löschst oder mir schreibst. Der Widerruf gilt für die Zukunft. *[Fachperson: alternativ lit. b prüfen.]*
+
+**Wer was sieht.**
+- Solange ich ein Lied noch nicht freigegeben habe, sehen es nur du und ich.
+- Nach der Freigabe sehen es alle angemeldeten Mitglieder mit Zugang zur Bibliothek, zusammen mit deinem Anzeigenamen („geteilt von …“). Das ist der Name aus deinem Miteinander-Profil, sonst dein Vorname.
+- Ich als Betreiber sehe jedes eingereichte Lied, um es freizugeben oder abzulehnen. Lehne ich es ab, sehe ich auch meine Notiz an dich.
+
+**Ändern und löschen.** Du kannst deine Lieder jederzeit bearbeiten oder löschen. Ein geändertes Lied ist bis zur erneuten Freigabe wieder nur für dich und mich sichtbar. Wird dein Konto gelöscht, werden auch alle deine Lieder gelöscht.
+
 ### A3 · Beiträge und Lesestand
 
 Ich veröffentliche auf der Plattform Beiträge und Neuigkeiten. Damit die Glocke anzeigen kann, was neu für dich ist, speichere ich, welche Beiträge und Neuigkeiten du schon gelesen hast. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Nutzung der Plattform). Die Daten werden mit deinem Konto gelöscht.
