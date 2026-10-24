@@ -42,6 +42,8 @@ export function activeSchuleNav(pathname: string | null | undefined): SchuleNavK
   // Kursliste und jeder Kursraum (/training/<kurs>/…) gehören zu „Kurse“.
   if (path.startsWith('/training/')) return 'kurse'
   if (within(path, '/tool')) return 'ueben'
+  // Die Lieder-Bibliothek (0015) gehört zum Üben.
+  if (within(path, '/lieder')) return 'ueben'
   if (within(path, '/termine')) return 'live'
   if (within(path, '/miteinander')) return 'miteinander'
   if (within(path, '/mein-weg') || within(path, '/settings')) return 'mein-weg'

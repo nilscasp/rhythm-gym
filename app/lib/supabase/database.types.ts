@@ -1185,6 +1185,57 @@ export type Database = {
           visible: boolean
         }[]
       }
+      // Lieder (0015)
+      is_song_member: { Args: Record<string, never>; Returns: boolean }
+      list_songs: {
+        Args: { p_scope?: string }
+        Returns: {
+          id: string
+          title: string
+          artist: string | null
+          difficulty: string
+          handpan: string | null
+          bpm: number | null
+          measures: number | null
+          status: string
+          review_note: string | null
+          author_name: string
+          is_mine: boolean
+          updated_at: string
+        }[]
+      }
+      get_song: {
+        Args: { p_id: string }
+        Returns: {
+          id: string
+          title: string
+          artist: string | null
+          difficulty: string
+          handpan: string | null
+          status: string
+          review_note: string | null
+          author_name: string
+          is_mine: boolean
+          data: Json
+          updated_at: string
+        }[]
+      }
+      submit_song: {
+        Args: {
+          p_id: string | null
+          p_title: string
+          p_artist: string
+          p_difficulty: string
+          p_handpan: string
+          p_bpm: number
+          p_measures: number
+          p_data: Json
+          p_own_work: boolean
+        }
+        Returns: string
+      }
+      delete_song: { Args: { p_id: string }; Returns: undefined }
+      admin_review_song: { Args: { p_id: string; p_approve: boolean; p_note?: string | null }; Returns: undefined }
       request_connection: { Args: { p_to_user: string; p_message: string }; Returns: string }
       answer_connection: { Args: { p_request_id: string; p_accept: boolean }; Returns: string }
       withdraw_connection: { Args: { p_request_id: string }; Returns: undefined }

@@ -826,6 +826,12 @@ function HandpanMaschineInner() {
           >
             Baue dein Pattern. Klick durch Pause → Ghostnote → Tonfeld → Slap → Ding. Dann auf Play.
           </p>
+          {/* Nur Marke schule (wm-schule ist bei gym ausgeblendet): Einstieg in die Lieder-Bibliothek */}
+          <p className="wm-schule" style={{ margin: '18px 0 0', fontFamily: 'var(--font-ui)', fontSize: '15px' }}>
+            <Link href="/lieder" style={{ color: 'var(--amber)', textDecoration: 'none', borderBottom: '1px solid var(--border2)' }}>
+              Lieder der Gemeinschaft: Tabs zum Mitspielen →
+            </Link>
+          </p>
         </div>
 
         {fromSource && (
