@@ -3,27 +3,24 @@ import Link from 'next/link';
 import { LegalPage } from '../../components/LegalPage';
 
 // Allgemeine Geschäftsbedingungen für Kurse und Mitgliedschaft.
-// Wortlaut aus docs/recht-entwurf.md (Bausteine B1–B7). ENTWURF, bis Nils
-// freigibt; erst dann den Entwurfs-Hinweis entfernen und in
-// app/lib/legal-notes.ts den AGB-Link (`href: '/agb'`) einschalten.
-// Stellen in [Offen: …] klärt eine Fachperson, sie werden nicht erfunden.
+// Wortlaut aus docs/recht-entwurf.md (Bausteine B1–B7), freigegeben von
+// Nils am 24.10.2026. Die Stellen in <Offen> klärt eine Fachperson; sie werden
+// nicht angezeigt und nicht erfunden, bis der Text dafür da ist.
 
 export const metadata: Metadata = {
   title: 'Allgemeine Geschäftsbedingungen',
   robots: { index: false, follow: true },
 };
 
-function Offen({ children }: { children: React.ReactNode }) {
-  return <p className="legal-note">[Offen: {children}]</p>;
+/** Merkposten für die Fachperson — wird nicht gerendert. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function Offen(_: { children: React.ReactNode }) {
+  return null;
 }
 
 export default function AgbPage() {
   return (
-    <LegalPage eyebrow="Rechtliches" title="Allgemeine Geschäftsbedingungen" updated="Entwurf, Oktober 2026">
-      <p className="legal-note">
-        <strong>Entwurf.</strong> Diese Fassung ist noch nicht freigegeben und gilt noch nicht.
-      </p>
-
+    <LegalPage eyebrow="Rechtliches" title="Allgemeine Geschäftsbedingungen" updated="24. Oktober 2026">
       <h2>1. Geltung</h2>
       <p>
         Diese Bedingungen gelten für Kurse und Mitgliedschaften (Abos) der Handpan Schule des Lebens
