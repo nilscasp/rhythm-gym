@@ -26,7 +26,7 @@ Ersetzt für den Umzug die Reihenfolge in `phasenplan-schule-des-lebens-v2.md` �
 | G | Miteinander | Profil (Telefon, Region, Über mich, offen für …), Kontaktanfragen, Challenges, Treffen | Code fertig · 0013 live (23.10.); Admin sieht keine Handynummern |
 | H | Live-Ergänzungen | Aufzeichnungen an Terminen, Frage vorab, Kalender-Export | Code fertig · 0014 live (23.10.), Wächter geprüft; Abo-Feed nur offene Termine |
 | I | Schutz und Recht | Bunny-Token-Auth und Referrer `lernen.handpan.schule`, AGB (Nummerntausch), Datenschutzangaben beim Kauf, Sicherheits-Review | Code fertig (dfc5f3d, 01a0e06), Wächter geprüft; offen: /agb-Seite, Freigabe der Texte, BUNNY_TOKEN_KEY, Token-Pflicht in Bunny |
-| J | Umzug | Zugänge für Skool-Mitglieder, Ankündigung, Skool parallel bis zum Stichtag | offen |
+| J | Umzug | Zugänge für Skool-Mitglieder, Ankündigung, Skool parallel bis zum Stichtag | offen · Zahlungen nur noch über die Plattform (Nils, 24.10.): Mitglieder buchen neu, bezahlte Restlaufzeit einmal von Hand |
 
 Reihenfolge: A → B → C ergeben die erste nutzbare Fassung (Kurse auf der Plattform). Danach D, F, E, G, H; I vor dem Livegang; J zuletzt.
 
