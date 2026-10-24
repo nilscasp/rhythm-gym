@@ -10,7 +10,7 @@ Stand Code: alles auf `feat/schule-kurse`, 42 Commits vor `main`, nicht gepusht.
 |---|---|---|
 | 1 | **Stripe Live:** Live-Schlüssel (`STRIPE_SECRET_KEY`) und Webhook-Geheimnis in Vercel eintragen. Webhook-Endpunkt `https://lernen.handpan.schule/api/stripe/webhook` mit `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.created/updated/deleted`, `charge.refunded`. Kundenportal im Live-Modus einrichten (Kündigen, Zahlungsmittel ändern). | 28.10. |
 | 2 | **Testkauf vorher:** neuen Testschlüssel in `.env.local`, damit ich den ganzen Weg in der Sandbox durchspielen kann (Kauf, Stufe da, Zahlung fehlgeschlagen → gesperrt, Kündigung). | 27.10. |
-| 3 | **Rechtstexte freigeben:** Kaufhinweis, AGB-Bausteine B1–B7, Datenschutz A1–A4 (`docs/recht-entwurf.md`); Widerruf und Haftung möglichst von einer Fachperson. Ohne AGB-Seite kein Verkauf. | 29.10. |
+| 3 | ~~Rechtstexte freigeben~~ erledigt 24.10. (AGB und Datenschutz). Offen für die Fachperson: Widerrufsbelehrung und -formular, Zugangsdauer Kurse, Sperre bei laufendem Abo, Haftung Treffen. | 29.10. |
 | 4 | **Push auf `main` freigeben** (= Deploy auf Vercel). Ich prüfe vorher Build, Tests und Handybreite. | 30.10. |
 | 5 | **Bunny-Schlüssel** `BUNNY_TOKEN_KEY` in Vercel; nach dem Deploy in Bunny die Token-Pflicht einschalten (`docs/bunny-schutz.md`). | nach 4 |
 | 6 | **WhatsApp-Community-Link** und Kursgruppen-Links. | 30.10. |
