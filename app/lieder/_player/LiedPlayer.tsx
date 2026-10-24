@@ -104,10 +104,13 @@ export function LiedPlayer({ song: initial, editable = false, onChange }: Props)
   const sections = song.sections
   const pads = useMemo(() => padsFor(song, song.handpan), [song])
   const loopRange = loopSection !== null && sections[loopSection] ? { from: sections[loopSection].start, to: sections[loopSection].end } : null
-  const currentSection = useMemo(() => {
+  const cursorSection = useMemo(() => {
     const m = locate(song, cursorStep).m
     return Math.max(0, sections.findIndex((x) => m >= x.start && m < x.end))
   }, [song, sections, cursorStep])
+  // Beim Abspielen folgt die Markierung der Abschnitte der Wiedergabe
+  const [playSection, setPlaySection] = useState<number | null>(null)
+  const currentSection = playing && playSection !== null ? playSection : cursorSection
 
   const cfg: PlayConfig = {
     song,
@@ -247,6 +250,7 @@ export function LiedPlayer({ song: initial, editable = false, onChange }: Props)
     if (!playing) return
     let raf = 0
     let lastBpm = 0
+    let lastSection = -1
     const cursor = cursorEl.current
     const frame = () => {
       const pl = playerRef.current
@@ -266,6 +270,13 @@ export function LiedPlayer({ song: initial, editable = false, onChange }: Props)
         fx.current.placeCursor(step, p.pos - step)
         fx.current.setHot(step)
         fx.current.showPanAt(step)
+        const s = cfgRef.current.song
+        const m = locate(s, step).m
+        const si = Math.max(0, s.sections.findIndex((x) => m >= x.start && m < x.end))
+        if (si !== lastSection) {
+          lastSection = si
+          setPlaySection(si)
+        }
         const b = pl.bpmAt(step)
         if (b !== lastBpm) {
           lastBpm = b
