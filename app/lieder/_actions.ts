@@ -29,9 +29,11 @@ export async function submitSongAction(formData: FormData): Promise<void> {
   if (id && !isUuid(id)) fail('/lieder', 'not_found')
   if (formData.get('own_work') !== 'on') fail(back, 'not_own_work')
 
+  const tabText = text(formData, 'tab')
+  if (tabText.length > LIMITS.bytes) fail(back, 'invalid_data')
   let raw: unknown
   try {
-    raw = JSON.parse(text(formData, 'tab'))
+    raw = JSON.parse(tabText)
   } catch {
     fail(back, 'invalid_data')
   }
@@ -81,8 +83,11 @@ export async function reviewSongAction(formData: FormData): Promise<void> {
   if (!isUuid(id)) fail('/lieder', 'not_found')
   if (!isAdmin) fail(`/lieder/${id}`, 'not_admin')
   const approve = text(formData, 'entscheidung') === 'frei'
+  // Freigabe gilt nur der geprüften Fassung (0015, admin_review_song)
+  const seen = text(formData, 'seen')
+  if (!seen || Number.isNaN(Date.parse(seen))) fail(`/lieder/${id}`, 'changed')
   const note = text(formData, 'notiz').trim().slice(0, LIMITS.note)
-  const { error } = await supabase.rpc('admin_review_song', { p_id: id, p_approve: approve, p_note: note || null })
+  const { error } = await supabase.rpc('admin_review_song', { p_id: id, p_approve: approve, p_seen: seen, p_note: note || null })
   if (error) fail(`/lieder/${id}`, errorCodeFrom(error))
   revalidatePath('/lieder')
   redirect(`/lieder?zeige=pruefen&ok=${approve ? 'freigegeben' : 'abgelehnt'}`)

@@ -154,6 +154,61 @@ $function$;
 revoke execute on function public.get_song(uuid) from public, anon;
 grant execute on function public.get_song(uuid) to authenticated, service_role;
 
+-- ── 2b · Struktur eines Tabs prüfen ──────────────────────────────────────────
+-- Spiegel der Grenzen in app/lib/lieder/model.ts (TAB_LIMITS): Takt 1–12 Schläge,
+-- Unterteilung 1–16, Wiederholung 1–64, höchstens 2000 Takte insgesamt,
+-- Zeilen höchstens 4000 Zeichen, höchstens 200 Tempowechsel/Hinweise, 40 Felder.
+
+create or replace function public.song_data_ok(p_data jsonb)
+returns boolean
+language plpgsql
+immutable
+set search_path to 'pg_catalog', 'public'
+as $function$
+declare
+  v_sec jsonb;
+  v_m jsonb;
+  v_rep integer;
+  v_total integer := 0;
+begin
+  if jsonb_typeof(p_data -> 'beats') <> 'number' or jsonb_typeof(p_data -> 'sub') <> 'number' then return false; end if;
+  if (p_data ->> 'beats')::numeric not between 1 and 12 or (p_data ->> 'beats')::numeric % 1 <> 0 then return false; end if;
+  if (p_data ->> 'sub')::numeric not between 1 and 16 or (p_data ->> 'sub')::numeric % 1 <> 0 then return false; end if;
+  if jsonb_array_length(p_data -> 'sections') not between 1 and 500 then return false; end if;
+  for v_sec in select * from jsonb_array_elements(p_data -> 'sections') loop
+    if jsonb_typeof(v_sec -> 'measures') <> 'array' then return false; end if;
+    v_rep := 1;
+    if v_sec ? 'repeat' then
+      if jsonb_typeof(v_sec -> 'repeat') <> 'number' then return false; end if;
+      if (v_sec ->> 'repeat')::numeric not between 1 and 64 or (v_sec ->> 'repeat')::numeric % 1 <> 0 then return false; end if;
+      v_rep := (v_sec ->> 'repeat')::integer;
+    end if;
+    v_total := v_total + jsonb_array_length(v_sec -> 'measures') * v_rep;
+    if v_total > 2000 then return false; end if;
+    for v_m in select * from jsonb_array_elements(v_sec -> 'measures') loop
+      if jsonb_typeof(v_m) <> 'object' then return false; end if;
+      if char_length(coalesce(v_m ->> 'R', '')) > 4000 or char_length(coalesce(v_m ->> 'L', '')) > 4000
+         or char_length(coalesce(v_m ->> 'grid', '')) > 200 then
+        return false;
+      end if;
+    end loop;
+  end loop;
+  if v_total < 1 then return false; end if;
+  if p_data ? 'tempos' and (jsonb_typeof(p_data -> 'tempos') <> 'array' or jsonb_array_length(p_data -> 'tempos') > 200) then return false; end if;
+  if p_data ? 'notes' and (jsonb_typeof(p_data -> 'notes') <> 'array' or jsonb_array_length(p_data -> 'notes') > 200) then return false; end if;
+  if p_data ? 'handpanDef' and (jsonb_typeof(p_data -> 'handpanDef' -> 'pads') <> 'array'
+     or jsonb_array_length(p_data -> 'handpanDef' -> 'pads') > 40) then
+    return false;
+  end if;
+  return true;
+exception when others then
+  return false;
+end;
+$function$;
+
+revoke execute on function public.song_data_ok(jsonb) from public, anon;
+grant execute on function public.song_data_ok(jsonb) to authenticated, service_role;
+
 -- ── 3 · Schreiben ────────────────────────────────────────────────────────────
 -- Neu (p_id null) oder eigenes Lied ändern. Danach immer 'eingereicht'.
 
@@ -187,6 +242,9 @@ begin
     raise exception 'invalid_data';
   end if;
   if coalesce((p_data ->> 'privat')::boolean, false) then raise exception 'privat_song'; end if;
+  -- Struktur prüfen (dieselben Grenzen wie TAB_LIMITS in app/lib/lieder/model.ts),
+  -- damit kein Tab gespeichert wird, der den Browser der anderen lahmlegt.
+  if not public.song_data_ok(p_data) then raise exception 'invalid_data'; end if;
 
   if p_id is null then
     select count(*) into v_pending from public.songs where owner_id = v_uid and status = 'eingereicht';
@@ -243,8 +301,11 @@ revoke execute on function public.delete_song(uuid) from public, anon;
 grant execute on function public.delete_song(uuid) to authenticated, service_role;
 
 -- ── 4 · Freigabe (Admin) ─────────────────────────────────────────────────────
+-- Die Freigabe gilt genau der Fassung, die geprüft wurde: p_seen ist updated_at
+-- aus der Ansicht. Hat die Person ihr Lied inzwischen geändert, schlägt die
+-- Freigabe fehl ('changed') und die neue Fassung muss erst angeschaut werden.
 
-create or replace function public.admin_review_song(p_id uuid, p_approve boolean, p_note text default null)
+create or replace function public.admin_review_song(p_id uuid, p_approve boolean, p_seen timestamptz, p_note text default null)
 returns void
 language plpgsql
 volatile
@@ -259,10 +320,15 @@ begin
          review_note = nullif(btrim(coalesce(p_note, '')), ''),
          reviewed_by = auth.uid(),
          reviewed_at = now()
-   where id = p_id;
-  if not found then raise exception 'not_found'; end if;
+   where id = p_id
+     and status = 'eingereicht'
+     and updated_at = p_seen;
+  if not found then
+    if exists (select 1 from public.songs where id = p_id) then raise exception 'changed'; end if;
+    raise exception 'not_found';
+  end if;
 end;
 $function$;
 
-revoke execute on function public.admin_review_song(uuid, boolean, text) from public, anon;
-grant execute on function public.admin_review_song(uuid, boolean, text) to authenticated, service_role;
+revoke execute on function public.admin_review_song(uuid, boolean, timestamptz, text) from public, anon;
+grant execute on function public.admin_review_song(uuid, boolean, timestamptz, text) to authenticated, service_role;

@@ -15,6 +15,7 @@ export const LIEDER_ERRORS = {
   invalid_title: 'Gib dem Lied einen Titel (höchstens 120 Zeichen).',
   invalid_data: 'Die Datei ist kein lesbarer Handpan-Tab.',
   invalid_note: 'Die Notiz ist zu lang (höchstens 500 Zeichen).',
+  changed: 'Das Lied wurde inzwischen geändert. Hör dir die neue Fassung an und entscheide dann.',
   privat_song: 'Dieser Tab ist nur zum Ausprobieren gedacht und kann nicht geteilt werden.',
   too_many_pending: 'Du hast schon zehn Lieder in der Prüfung. Warte, bis Nils sie angeschaut hat.',
   unknown: 'Das hat nicht geklappt. Versuch es bitte noch einmal.',

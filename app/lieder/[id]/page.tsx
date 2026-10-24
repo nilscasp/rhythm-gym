@@ -67,9 +67,10 @@ export default async function LiedRoute({
 
       <LiedAnsicht source={source} id={id} />
 
-      {isAdmin && row.status !== 'freigegeben' && (
+      {isAdmin && row.status === 'eingereicht' && (
         <form className="ld-review" action={reviewSongAction}>
           <input type="hidden" name="id" value={id} />
+          <input type="hidden" name="seen" value={row.updated_at} />
           <p className="ld-h2">Freigabe</p>
           <p className="ld-hint">Ist es ein eigenes Lied oder Arrangement des Mitglieds? Hör kurz hinein, dann entscheide.</p>
           <label className="ld-field">

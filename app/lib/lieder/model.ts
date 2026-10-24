@@ -152,11 +152,17 @@ export function cellToken(c: Cell): string {
 
 // ---------- Raster ----------
 /** Raster-Schreibweise je Schlag: "4" = 4 Zellen, "4:2" = 4 Zellen, die dritte geteilt, "3" = Triole */
+/** Obergrenzen, damit ein fremder Tab den Browser nicht lahmlegen kann. */
+export const TAB_LIMITS = { beats: 12, sub: 16, beatsPerMeasure: 16, repeat: 64, measures: 2000, tokenChars: 4000 };
+
 export function parseGrid(grid: string): number[] {
   const durs: number[] = [];
-  for (const g of grid.trim().split(/\s+/)) {
+  const beats = grid.slice(0, TAB_LIMITS.tokenChars).trim().split(/\s+/);
+  if (beats.length > TAB_LIMITS.beatsPerMeasure) throw new Error("Raster zu lang");
+  for (const g of beats) {
     const [subS, ...splits] = g.split(":");
     const sub = Number(subS);
+    if (!Number.isInteger(sub) || sub < 1 || sub > TAB_LIMITS.sub) throw new Error("Unterteilung ungültig");
     const split = new Set(splits.map(Number));
     for (let i = 0; i < sub; i++) {
       if (split.has(i)) durs.push(1 / sub / 2, 1 / sub / 2);
@@ -198,6 +204,19 @@ const sameDurs = (a: number[], b: number[]) => a.length === b.length && a.every(
 
 // ---------- Lesen / Schreiben ----------
 export function parseSong(src: SongSource): Song {
+  const int = (v: unknown, lo: number, hi: number) => Number.isInteger(v) && (v as number) >= lo && (v as number) <= hi;
+  if (!int(src.beats, 1, TAB_LIMITS.beats) || !int(src.sub, 1, TAB_LIMITS.sub)) throw new Error("Takt ungültig");
+  if (!Array.isArray(src.sections)) throw new Error("Abschnitte fehlen");
+  let planned = 0;
+  for (const sec of src.sections) {
+    if (!Array.isArray(sec?.measures)) throw new Error("Takte fehlen");
+    if (sec.repeat !== undefined && !int(sec.repeat, 1, TAB_LIMITS.repeat)) throw new Error("Wiederholung ungültig");
+    planned += sec.measures.length * (sec.repeat ?? 1);
+    if (planned > TAB_LIMITS.measures) throw new Error("Zu viele Takte");
+  }
+  if (src.tempos !== undefined && (!Array.isArray(src.tempos) || src.tempos.length > 200)) throw new Error("Zu viele Tempowechsel");
+  if (src.notes !== undefined && (!Array.isArray(src.notes) || src.notes.length > 200)) throw new Error("Zu viele Hinweise");
+  if (src.handpanDef !== undefined && (!Array.isArray(src.handpanDef?.pads) || src.handpanDef.pads.length > 40)) throw new Error("Handpan ungültig");
   const spm = src.beats * src.sub;
   const measures: Measure[] = [];
   const sections: Section[] = [];
@@ -208,7 +227,7 @@ export function parseSong(src: SongSource): Song {
         const durs = m.grid ? parseGrid(m.grid) : undefined;
         const n = durs?.length ?? spm;
         const line = (s: string, hand: string) => {
-          const toks = s.trim().split(/\s+/).filter(Boolean);
+          const toks = String(s ?? "").slice(0, TAB_LIMITS.tokenChars).trim().split(/\s+/).filter(Boolean);
           if (toks.length && toks.length !== n) console.warn(`${src.title} / ${sec.name} / Takt ${i + 1} ${hand}: ${toks.length} statt ${n} Zellen`);
           return Array.from({ length: n }, (_, k) => parseCell(toks[k] ?? "."));
         };

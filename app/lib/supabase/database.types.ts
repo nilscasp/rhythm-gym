@@ -1235,7 +1235,7 @@ export type Database = {
         Returns: string
       }
       delete_song: { Args: { p_id: string }; Returns: undefined }
-      admin_review_song: { Args: { p_id: string; p_approve: boolean; p_note?: string | null }; Returns: undefined }
+      admin_review_song: { Args: { p_id: string; p_approve: boolean; p_seen: string; p_note?: string | null }; Returns: undefined }
       request_connection: { Args: { p_to_user: string; p_message: string }; Returns: string }
       answer_connection: { Args: { p_request_id: string; p_accept: boolean }; Returns: string }
       withdraw_connection: { Args: { p_request_id: string }; Returns: undefined }

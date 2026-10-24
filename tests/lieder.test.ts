@@ -57,3 +57,14 @@ test('/lieder gehört in der Navigation zu „Üben“', () => {
   expect(activeSchuleNav('/lieder')).toBe('ueben')
   expect(activeSchuleNav('/lieder/abc')).toBe('ueben')
 })
+
+describe('Grenzen gegen überlange Tabs', () => {
+  test('zu viele Wiederholungen oder Takte werden abgewiesen', () => {
+    expect(checkTab({ ...tab, sections: [{ name: 'A', repeat: 100000, measures: tab.sections[0].measures }] })).toEqual({ ok: false, error: 'invalid_data' })
+    expect(checkTab({ ...tab, beats: 1e6 })).toEqual({ ok: false, error: 'invalid_data' })
+    expect(checkTab({ ...tab, sections: [{ name: 'A', measures: [{ R: '', L: '', grid: '999999' }] }] })).toEqual({ ok: false, error: 'invalid_data' })
+  })
+  test('Fehlercode „changed“ hat einen Text', () => {
+    expect(messageFor('changed')).toContain('geändert')
+  })
+})
