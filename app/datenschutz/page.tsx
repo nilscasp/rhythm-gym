@@ -13,13 +13,7 @@ const PHONE = ['4915', '1229', '64922'];
 
 export default function DatenschutzPage() {
   return (
-    <LegalPage eyebrow="Rechtliches" title="Datenschutzerklärung" updated="September 2026">
-      {/* VORSCHAU (24.10.2026): Ergänzungen A1–A4 aus docs/recht-entwurf.md. Nach
-          Nils' Freigabe diesen Hinweis entfernen und `updated` auf das Datum setzen. */}
-      <p className="legal-note">
-        <strong>Vorschau.</strong> Neu und noch nicht freigegeben sind die Abschnitte „Miteinander“
-        und „Beiträge und Lesestand“ sowie die Ergänzungen bei Bunny Stream und Stripe.
-      </p>
+    <LegalPage eyebrow="Rechtliches" title="Datenschutzerklärung" updated="24. Oktober 2026">
       <p>
         Hier steht, was mit deinen Daten passiert, wenn du diese App nutzt. Die Erklärung gilt für{' '}
         <strong>lernen.handpan.schule</strong> und <strong>rhythmgym.io</strong>. Beide Adressen
@@ -219,9 +213,11 @@ export default function DatenschutzPage() {
 
       <h2>5. Links nach draußen</h2>
       <p>
-        Die App verlinkt auf die Website <a href="https://handpan.schule">handpan.schule</a> und,
-        bis die Community hierher umzieht, auf die Plattform Skool. Wenn du solchen Links folgst,
-        gelten die Datenschutzbestimmungen des jeweiligen Anbieters. Ich habe darauf keinen Einfluss.
+        Die App verlinkt auf die Website <a href="https://handpan.schule">handpan.schule</a> und
+        auf die WhatsApp-Community der Schule sowie die WhatsApp-Gruppen der Kurse (WhatsApp, Meta
+        Platforms Ireland Ltd.). Wenn du einer Gruppe beitrittst, sehen die anderen in der Gruppe
+        deine Handynummer. Für WhatsApp und andere verlinkte Seiten gelten die
+        Datenschutzbestimmungen des jeweiligen Anbieters. Ich habe darauf keinen Einfluss.
       </p>
 
       <h2>6. Wie lange ich Daten behalte</h2>

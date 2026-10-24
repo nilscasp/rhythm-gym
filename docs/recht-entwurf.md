@@ -1,7 +1,7 @@
 # Rechtstexte – Entwurf für die Lernplattform
 
 > **ENTWURF – vor Veröffentlichung von Nils/Fachperson prüfen.**
-> Nichts davon steht live. `/datenschutz` bleibt unverändert, `/agb` gibt es noch nicht (nur verlinkt).
+> **Freigegeben (Nils, 24.10.2026):** A1–A4 stehen in `/datenschutz` (Stand 24.10.2026, Abschnitt 5 auf WhatsApp statt Skool), B1–B7 in `/agb`. Live erst mit dem Deploy.
 > Stand 23.10.2026 · Bauabschnitt I (`Plans/umzug-von-skool.md`).
 
 Geprüft im Code: Supabase (EU, Frankfurt), Vercel (Hosting + Web Analytics), Bunny Stream, Stripe (Checkout, Kundenportal, Webhook), Brevo (Briefe). **Resend wird nicht genutzt** (nur ein Code-Kommentar zu Stripe-„Resend“-Events). Zoom steht schon in der Datenschutzerklärung.
