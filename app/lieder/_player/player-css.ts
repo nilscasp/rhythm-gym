@@ -150,6 +150,7 @@ export const PLAYER_CSS = `
     background: var(--card); color: var(--cream); border: 1px solid var(--border2); font-family: var(--font-ui);
   }
   /* Handy: eine Zeile, Schalter seitlich wischbar */
+  @media (max-width: 767px) { .ld-tab-scroll { padding-bottom: 96px; } }
   @media (max-width: 767px) {
     .ld-transport { flex-wrap: nowrap; gap: 10px; padding: 8px 10px; }
     .ld-play { width: 48px; height: 48px; box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.12); }

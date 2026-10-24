@@ -254,6 +254,12 @@ export function LiedPlayer({ song: initial, editable = false, onChange }: Props)
       const p = pl.position()
       if (p.kind === 'count') {
         setCount(p.beatsLeft)
+        // Beim Einzählen schon das Tempo der Stelle zeigen, an der es losgeht
+        const b = pl.bpmAt(p.step)
+        if (b !== lastBpm) {
+          lastBpm = b
+          setLiveBpm(b)
+        }
       } else if (p.kind === 'play') {
         setCount(null)
         const step = Math.floor(p.pos)
@@ -295,6 +301,11 @@ export function LiedPlayer({ song: initial, editable = false, onChange }: Props)
       lastRow.current = null
       await pl.play(cursorStep)
       setPlaying(true)
+      // Schmale Bildschirme: Handpan und Tab ins Bild holen (unter der Kopfleiste)
+      const stage = scroller.current?.parentElement
+      if (stage && window.innerWidth < 1000) {
+        window.scrollTo({ top: stage.getBoundingClientRect().top + window.scrollY - 72, behavior: 'smooth' })
+      }
     }
   }
 

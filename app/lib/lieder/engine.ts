@@ -33,7 +33,7 @@ interface Anchor {
 }
 
 export type PlayPos =
-  | { kind: 'count'; beatsLeft: number }
+  | { kind: 'count'; beatsLeft: number; step: number }
   | { kind: 'play'; pos: number }
   | { kind: 'idle' }
 
@@ -201,7 +201,7 @@ export class Player {
     }
     let a = this.anchors[0]
     for (const x of this.anchors) if ((x.countFrom ?? x.time) <= now) a = x
-    if (now < a.time) return { kind: 'count', beatsLeft: Math.ceil((a.time - now) / (a.beatDur ?? 0.5)) }
+    if (now < a.time) return { kind: 'count', beatsLeft: Math.ceil((a.time - now) / (a.beatDur ?? 0.5)), step: a.step }
     const sec = index(this.c.song).sec
     const target = this.secAt(a.step) + (now - a.time) * a.factor
     let lo = a.step

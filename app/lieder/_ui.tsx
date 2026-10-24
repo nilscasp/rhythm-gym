@@ -36,7 +36,9 @@ export const LIEDER_CSS = `
   .ld-tabs a:hover { color: var(--cream); }
   .ld-tabs a[aria-current="page"] { color: var(--amber); border-bottom-color: var(--amber); }
   .ld-tabs .ld-badge { min-width: 22px; height: 22px; padding: 0 6px; display: inline-grid; place-items: center; font-size: 12px; color: var(--black); background: var(--amber); border-radius: 11px; }
-  .ld-search { display: flex; gap: 8px; flex: 1 1 320px; max-width: 520px; }
+  .ld-search { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 320px; max-width: 520px; min-width: 0; }
+  .ld-search button { flex: 0 0 auto; }
+  @media (max-width: 520px) { .ld-search input { flex: 1 1 100%; } .ld-search select { flex: 1 1 auto; } }
   .ld-search input, .ld-search select, .ld-field input, .ld-field select, .ld-field textarea {
     min-height: 44px; padding: 0 12px; border-radius: 2px; font-family: var(--font-ui); font-size: 15px;
     color: var(--cream); background: var(--card); border: 1px solid var(--border2);
