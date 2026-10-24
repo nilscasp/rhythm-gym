@@ -83,7 +83,8 @@ const LEGAL_CSS = `
   color: var(--cream);
 }
 .legal-body p { margin: 0 0 14px; }
-.legal-body ul { margin: 0 0 14px; padding-left: 20px; }
+.legal-body ul, .legal-body ol { margin: 0 0 14px; padding-left: 20px; }
+.legal-body ol { list-style: decimal; }
 .legal-body li { margin-bottom: 6px; }
 .legal-body a { color: var(--amber); text-decoration: underline; text-underline-offset: 3px; }
 .legal-body a:hover { color: var(--amber2); }

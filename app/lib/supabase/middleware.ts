@@ -11,6 +11,7 @@ import { loginNextFor } from '../login-next'
 const PUBLIC_PATHS = new Set([
   '/impressum',
   '/datenschutz',
+  '/agb',
   '/tag-1',
   '/api/briefe',
   // Der Kalender ist auch ein Schaufenster: Titel, Zeit und Ort sieht jeder,

@@ -88,5 +88,5 @@ Links: `AGB` → `/agb` (Seite fehlt noch), `Datenschutzerklärung` → `/datens
 - Widerrufsbelehrung und Muster-Widerrufsformular (digitale Inhalte, Abo).
 - Zugangsdauer bei Kursen; Folgen einer Sperre für bezahlte Abos.
 - Haftungsklausel B7 rechtssicher formulieren.
-- `/agb` als Seite anlegen, bevor der Hinweis live geht (sonst 404).
+- `/agb` steht als Entwurf (`app/agb/page.tsx`, 24.10.); nach Freigabe Entwurfs-Hinweis entfernen und in `app/lib/legal-notes.ts` den AGB-Link einschalten.
 - Ob A2 „sichtbar schalten“ exakt zum Profil-Schalter in der App passt.

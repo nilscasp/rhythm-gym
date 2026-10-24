@@ -52,7 +52,7 @@ export function activeSchuleNav(pathname: string | null | undefined): SchuleNavK
  * Seiten ohne App-Navigation: Landing, Laden, Lead-Magnet, Pflichtangaben,
  * Login. Dort bleibt die alte Kopfzeile (Logo, Sprache, Einloggen).
  */
-const PLAIN_PATHS = ['/kurse', '/tag-1', '/impressum', '/datenschutz', '/auth']
+const PLAIN_PATHS = ['/kurse', '/tag-1', '/impressum', '/datenschutz', '/agb', '/auth']
 
 export function showsSchuleAppNav(pathname: string | null | undefined): boolean {
   if (!pathname) return false
