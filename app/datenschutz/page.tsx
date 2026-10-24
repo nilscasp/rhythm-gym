@@ -14,6 +14,12 @@ const PHONE = ['4915', '1229', '64922'];
 export default function DatenschutzPage() {
   return (
     <LegalPage eyebrow="Rechtliches" title="Datenschutzerklärung" updated="September 2026">
+      {/* VORSCHAU (24.10.2026): Ergänzungen A1–A4 aus docs/recht-entwurf.md. Nach
+          Nils' Freigabe diesen Hinweis entfernen und `updated` auf das Datum setzen. */}
+      <p className="legal-note">
+        <strong>Vorschau.</strong> Neu und noch nicht freigegeben sind die Abschnitte „Miteinander“
+        und „Beiträge und Lesestand“ sowie die Ergänzungen bei Bunny Stream und Stripe.
+      </p>
       <p>
         Hier steht, was mit deinen Daten passiert, wenn du diese App nutzt. Die Erklärung gilt für{' '}
         <strong>lernen.handpan.schule</strong> und <strong>rhythmgym.io</strong>. Beide Adressen
@@ -50,6 +56,52 @@ export default function DatenschutzPage() {
         deine Trainings-Einträge und Übungsserien, gespeicherte Patterns, dein Instrument (Skala und
         Stimmung) und eingelöste Zugangscodes samt Kurs-Einschreibungen. Ohne diese Daten kann die App
         deinen Fortschritt nicht anzeigen. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO.
+      </p>
+      <h3>Miteinander</h3>
+      <p>
+        Im Bereich „Miteinander“ kannst du ein Profil anlegen: Handynummer, Region, ein paar Sätze
+        über dich und wofür du offen bist (z. B. Treffen, Challenges). Alle Angaben sind freiwillig.
+        Du kannst Kontaktanfragen mit einer kurzen Nachricht stellen, Challenges vorschlagen, Treffen
+        eintragen und dich bei beidem eintragen. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs.
+        1 lit. a DSGVO). Du kannst sie jederzeit widerrufen, indem du die Angaben löschst oder mir
+        schreibst. Der Widerruf gilt für die Zukunft.
+      </p>
+      <p>Wer was sieht:</p>
+      <ul>
+        <li>
+          Region, „Über mich“ und „offen für“ sehen angemeldete Mitglieder, wenn du dein Profil
+          sichtbar schaltest.
+        </li>
+        <li>
+          Deine Handynummer sieht niemand im Profil. Sie wird erst angezeigt, wenn eine Kontaktanfrage
+          von beiden Seiten angenommen ist, und nur der Person, mit der du dich verbunden hast.
+        </li>
+        <li>
+          Eine Kontaktanfrage samt Nachricht sehen die anfragende und die angefragte Person, außerdem
+          ich als Betreiber, damit ich bei Missbrauch eingreifen kann.
+        </li>
+        <li>Wer bei einer Challenge oder einem Treffen mitmacht, sehen die angemeldeten Mitglieder.</li>
+        <li>
+          Ich als Betreiber sehe in der Verwaltung keine Handynummern. Ich kann Einträge schließen,
+          Profile ausblenden und Personen sperren (siehe <Link href="/agb">AGB</Link>).
+        </li>
+      </ul>
+      <p>
+        Habt ihr eure Nummern getauscht und schreibt euch über WhatsApp, gilt dafür die
+        Datenschutzerklärung von WhatsApp (Meta Platforms Ireland Ltd.). Darauf habe ich keinen
+        Einfluss. Wenn du eine Verbindung löst, wird deine Nummer der anderen Person nicht mehr
+        angezeigt. Hat sie die Nummer schon gespeichert, kann ich sie dort nicht zurückholen.
+      </p>
+      <p>
+        Du kannst dein Profil, deine Anfragen und Einträge jederzeit selbst löschen. Wird dein Konto
+        gelöscht, verschwinden auch alle Miteinander-Daten.
+      </p>
+      <h3>Beiträge und Lesestand</h3>
+      <p>
+        Ich veröffentliche in der App Beiträge und Neuigkeiten. Damit die Glocke anzeigen kann, was
+        neu für dich ist, speichere ich, welche Beiträge und Neuigkeiten du schon gelesen hast.
+        Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Nutzung der App). Die Daten werden mit deinem
+        Konto gelöscht.
       </p>
       <h3>Wenn du mir schreibst</h3>
       <p>
@@ -107,7 +159,10 @@ export default function DatenschutzPage() {
         Die Videos der Kurse werden über Bunny Stream eingebettet, einen Dienst der BunnyWay d.o.o.,
         Cesta komandanta Staneta 4A, 1215 Medvode, Slowenien. Wenn du einen Kurstag öffnest, lädt dein
         Browser das Video von Bunny; dabei wird deine IP-Adresse an Bunny übermittelt. Ohne das kann
-        das Video nicht abgespielt werden (Art. 6 Abs. 1 lit. b DSGVO).{' '}
+        das Video nicht abgespielt werden (Art. 6 Abs. 1 lit. b DSGVO). Damit nur Mitglieder mit
+        Zugang ein Video sehen, bekommt jede Video-Adresse eine zeitlich begrenzte Signatur (6
+        Stunden). Sie wird auf meinem Server erzeugt und enthält keine Angaben zu deiner Person. Bunny
+        prüft außerdem, von welcher Seite das Video aufgerufen wird.{' '}
         <a href="https://bunny.net/privacy/" target="_blank" rel="noopener noreferrer">
           Datenschutzerklärung von Bunny
         </a>
@@ -151,6 +206,15 @@ export default function DatenschutzPage() {
         <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer">
           Datenschutzerklärung von Stripe
         </a>
+      </p>
+      <p>
+        Wenn du einen Kurs kaufst oder ein Abo abschließt, wirst du zu Stripe weitergeleitet und gibst
+        dort deine Zahlungsdaten ein. Stripe meldet mir danach, dass bezahlt ist, welche Stufe oder
+        welcher Kurs gekauft wurde, den Zeitraum des Abos und eine Kundenkennung. Damit schalte ich
+        deinen Zugang frei. Über „Abo verwalten“ gelangst du in das Kundenportal von Stripe; dort
+        änderst du Zahlart und Rechnungsadresse, siehst Rechnungen und kündigst. Für die
+        Rechnungsdaten gilt zusätzlich die steuerrechtliche Aufbewahrungspflicht (Art. 6 Abs. 1 lit. c
+        DSGVO).
       </p>
 
       <h2>5. Links nach draußen</h2>
