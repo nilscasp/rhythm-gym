@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { MOODS, SeaWeather } from '../app/lib/sea-weather'
 
 // Hintergrund der Schul-Anmeldung: Das Logo liegt vielfach als kleine
 // Partikel auf einer Meeresfläche und läuft in ruhigen Wellen durch. Dazu
@@ -9,45 +10,11 @@ import { useEffect, useRef } from 'react'
 //
 // Technik: das Logo (public/handpan-schule/logo.svg) wird einmal als Bild vorgezeichnet und dann pro Bild
 // mehrere hundert Mal per drawImage gesetzt. Die Fläche ist eine einfache
-// Perspektive (Horizont oben, nahe Reihen unten größer); die Höhe jedes
-// Punkts ist eine Summe aus drei Sinuswellen.
+// Perspektive (Horizont oben, nahe Reihen unten größer). Die Höhe jedes
+// Punkts liefert das Wellenwetter (app/lib/sea-weather.ts): wechselnde
+// Stimmungen mit weicher Überblendung, dazu Tropfen mit Ringen.
 
 const FPS = 30
-
-interface Wave {
-  a: number // Höhe
-  kx: number
-  kz: number
-  w: number // Geschwindigkeit
-  p: number // Phase
-}
-
-const WAVES: Wave[] = [
-  { a: 0.16, kx: 0.35, kz: 0.55, w: 0.55, p: 0 },
-  { a: 0.09, kx: -0.6, kz: 0.8, w: 0.8, p: 1.7 },
-  { a: 0.05, kx: 1.1, kz: 1.3, w: 1.25, p: 4.1 },
-]
-const A_MAX = WAVES.reduce((s, w) => s + w.a, 0)
-
-function height(x: number, z: number, t: number): number {
-  let h = 0
-  for (const w of WAVES) h += w.a * Math.sin(w.kx * x + w.kz * z - w.w * t + w.p)
-  return h
-}
-
-/** Steigung quer (∂h/∂x) */
-function slope(x: number, z: number, t: number): number {
-  let s = 0
-  for (const w of WAVES) s += w.a * w.kx * Math.cos(w.kx * x + w.kz * z - w.w * t + w.p)
-  return s
-}
-
-/** Steigung in die Tiefe (∂h/∂z) */
-function slopeZ(x: number, z: number, t: number): number {
-  let s = 0
-  for (const w of WAVES) s += w.a * w.kz * Math.cos(w.kx * x + w.kz * z - w.w * t + w.p)
-  return s
-}
 
 const LOGO_SRC = '/handpan-schule/logo.svg'
 /** Linien im Partikel dicker als im Original (0,75 px), sonst verschwinden sie klein. */
@@ -115,6 +82,11 @@ export function RosetteSea() {
     let raf = 0
     let last = 0
     const t0 = performance.now()
+    // ?meer=wind (duenung, kreuzsee, wind, stille, ringe) wählt die erste Stimmung — zum Ansehen
+    const asked = MOODS.findIndex((m) => m.name === new URLSearchParams(window.location.search).get('meer'))
+    const weather = new SeaWeather(Math.random, asked >= 0 ? asked : 0)
+    let lightPhase = 0
+    let lastT = 0
 
     function resize() {
       if (!canvas) return
@@ -143,10 +115,18 @@ export function RosetteSea() {
       const z0 = (f * hc) / (H * 1.04 - horizon)
       const sp = (gapPx * z0) / f // Netzabstand in Welt-Einheiten
       const logo = sp * LOGO_SPAN // Logo-Breite in Welt-Einheiten
-      const amp = sp * 0.55 // Wellenhöhe
-      const kScale = 1 / sp // Wellen im Maß des Netzes
-      // Lichtschimmer: ein breites Band, das in 14 s einmal über das Wasser zieht
-      const band = ((t / 14) % 1) * 2.4 - 1.2
+      const hScale = sp * 0.55 // Wellenhöhe in Welt-Einheiten je Wetter-Einheit
+      const zNear = z0 / sp
+      const sea = weather.frame(t, {
+        xMax: (W / 2 / f) * (zNear + 60),
+        zMin: zNear + 4,
+        zMax: zNear + 60,
+      })
+      // Lichtschimmer: ein breites Band, das (je nach Stimmung) etwa alle 14 s übers Wasser zieht
+      lightPhase += (Math.max(0, t - lastT) * sea.light) / 14
+      lastT = t
+      const band = (lightPhase % 1) * 2.4 - 1.2
+      const e = 0.2 // Schritt für die Neigung, Netz-Einheiten
 
       for (let j = -1; j < 400; j++) {
         const z = z0 + j * sp
@@ -156,17 +136,18 @@ export function RosetteSea() {
         const n = Math.ceil(halfX / sp)
         for (let i = -n; i <= n; i++) {
           const x = i * sp
-          const wx = x * kScale * 0.6
-          const wz = z * kScale * 0.6
-          const h = amp * height(wx, wz, t)
-          const dhdz = amp * slopeZ(wx, wz, t) * kScale * 0.6
-          const dhdx = amp * slope(wx, wz, t) * kScale * 0.6
+          const gx = i
+          const gz = z / sp
+          const hw = sea.height(gx, gz)
+          const h = hScale * hw
+          const dhdx = (0.55 * (sea.height(gx + e, gz) - hw)) / e
+          const dhdz = (0.55 * (sea.height(gx, gz + e) - hw)) / e
           const sx = W / 2 + (f * x) / z
           const sy = horizon + (f * (hc - h)) / z
           const reach = (f * logo) / z
           if (sx < -reach || sx > W + reach || sy < -reach || sy > H + reach) continue
 
-          const crest = (h / amp / A_MAX + 1) / 2 // 0 Tal … 1 Kamm
+          const crest = Math.min(1, Math.max(0, (hw / sea.amp + 1) / 2)) // 0 Tal … 1 Kamm
           const light = Math.exp(-(((sx / W) * 2 - 1 - band) ** 2) / 0.08)
           const alpha = depthFade * (0.08 + 0.26 * crest * crest + 0.16 * light * crest)
           if (alpha < 0.01) continue
