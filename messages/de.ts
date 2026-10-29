@@ -19,6 +19,7 @@ export const de = {
     coach: 'Coach',
     tool: 'Werkzeug',
     login: 'Einloggen',
+    logout: 'Abmelden',
     signup: 'Konto erstellen',
     menu: 'Menü',
     close: 'Schließen',

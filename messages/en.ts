@@ -17,6 +17,7 @@ export const en: Messages = {
     coach: 'Coach',
     tool: 'Workshop',
     login: 'Log in',
+    logout: 'Log out',
     signup: 'Create account',
     menu: 'Menu',
     close: 'Close',

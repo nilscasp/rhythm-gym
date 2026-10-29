@@ -98,6 +98,35 @@ function LocaleSwitch({
   );
 }
 
+/**
+ * Abmelden als kleines Formular: /auth/logout erwartet POST (kein Link, damit
+ * Vorladen oder ein fremder Link niemanden abmeldet).
+ */
+function LogoutButton({ label, block = false }: { label: string; block?: boolean }) {
+  return (
+    <form action="/auth/logout" method="POST" style={{ margin: 0 }}>
+      <button
+        type="submit"
+        style={{
+          ...linkBase,
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          color: 'var(--muted)',
+          padding: block ? '12px 8px 12px 14px' : 0,
+          borderLeft: block ? '3px solid transparent' : undefined,
+          fontSize: block ? 14 : 13,
+          display: block ? 'block' : 'inline',
+          width: block ? '100%' : undefined,
+          textAlign: 'left',
+        }}
+      >
+        {label}
+      </button>
+    </form>
+  );
+}
+
 export function Nav({
   isAuthenticated = false,
   isAdmin = false,
@@ -256,6 +285,9 @@ export function Nav({
                   />
                 </li>
               )}
+              <li>
+                <LogoutButton label={t.nav.logout} />
+              </li>
             </ul>
 
             <button
@@ -328,6 +360,9 @@ export function Nav({
               />
             </li>
           )}
+          <li>
+            <LogoutButton label={t.nav.logout} block />
+          </li>
         </ul>
       )}
 
