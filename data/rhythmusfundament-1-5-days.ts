@@ -81,7 +81,11 @@ const VIDEO_IDS: Record<number, DayVideos> = {
 export const RF15_PDF = {
   titel: 'Die Fingerpyramide',
   untertitel: 'Dein Baukasten für Fingerübungen',
-  /** Dateiname unter content/rhythmusfundament-1-5/. */
+  /**
+   * Ist das PDF da? Die Datei liegt fest unter
+   * content/rhythmusfundament-1-5/fingerpyramide.pdf (Pfad steht als Literal
+   * in der Route, damit Vercel sie mitbündelt). Ersetzen = Datei überschreiben.
+   */
   file: 'fingerpyramide.pdf' as string | undefined,
   downloadName: 'Rhythmus-Fundament-1.5-Fingerpyramide.pdf',
 }

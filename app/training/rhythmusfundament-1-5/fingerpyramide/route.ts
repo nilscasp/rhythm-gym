@@ -27,8 +27,10 @@ export async function GET(request: Request) {
   if (!RF15_PDF.file) return new NextResponse('PDF folgt.', { status: 404 })
 
   try {
+    // Pfad als Literal, damit das Bundling (Vercel-Dateitracing) die Datei
+    // sieht — ohne Eintrag in next.config.
     const file = await fs.readFile(
-      path.join(process.cwd(), 'content', 'rhythmusfundament-1-5', RF15_PDF.file),
+      path.join(process.cwd(), 'content/rhythmusfundament-1-5/fingerpyramide.pdf'),
     )
     return new NextResponse(new Uint8Array(file), {
       headers: {
