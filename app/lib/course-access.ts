@@ -87,10 +87,22 @@ export function formatDateDE(isoDate: string): string {
   return `${d}.${m}.${y}`
 }
 
+export type CourseAccessOptions = {
+  /** Geplante Kurslänge; Default COURSE_TOTAL_DAYS (Rhythmus-Fundament, 44). */
+  totalDays?: number
+  /**
+   * Fester Kohortenstart des Kurses. Gilt, wenn das Enrollment kein eigenes
+   * drip_start_date trägt — so bleibt ein Kurs mit festem Kalender (RF 1.5)
+   * auch dann getaktet, wenn der Code ohne Datum erzeugt wurde.
+   */
+  defaultDripStartDate?: string
+}
+
 export async function getCourseAccess(
   supabase: SupabaseClient<Database>,
   userId: string,
   courseSlug: string,
+  options: CourseAccessOptions = {},
 ): Promise<CourseAccess> {
   const today = berlinToday()
   const locked: CourseAccess = {
@@ -122,12 +134,12 @@ export async function getCourseAccess(
   const row = (data ?? [])[0]
   if (!row) return locked
 
-  const dripStartDate = row.drip_start_date ?? null
+  const dripStartDate = row.drip_start_date ?? options.defaultDripStartDate ?? null
   return {
     enrolled: true,
     programId: row.program_id,
     dripStartDate,
-    maxUnlockedDay: unlockedThroughDay(dripStartDate, today),
+    maxUnlockedDay: unlockedThroughDay(dripStartDate, today, options.totalDays),
     today,
   }
 }

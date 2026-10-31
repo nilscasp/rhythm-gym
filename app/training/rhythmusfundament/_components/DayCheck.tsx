@@ -13,8 +13,19 @@ import { toggleDayAction, type DayToggleState } from '../_actions'
 
 const INITIAL: DayToggleState = { status: 'idle' }
 
-export function DayCheck({ day, done }: { day: number; done: boolean }) {
-  const [state, formAction, pending] = useActionState(toggleDayAction, INITIAL)
+type ToggleAction = (prev: DayToggleState, formData: FormData) => Promise<DayToggleState>
+
+/** `action`: Schreibweg des jeweiligen Kurses (Default: Rhythmus-Fundament). */
+export function DayCheck({
+  day,
+  done,
+  action = toggleDayAction,
+}: {
+  day: number
+  done: boolean
+  action?: ToggleAction
+}) {
+  const [state, formAction, pending] = useActionState(action, INITIAL)
 
   return (
     <form action={formAction} className={done ? 'dc dc--done' : 'dc'}>

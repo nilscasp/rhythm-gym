@@ -62,6 +62,7 @@ type AccessCodeRow = Pick<
   Database['public']['Tables']['access_codes']['Row'],
   | 'id'
   | 'code'
+  | 'program_id'
   | 'max_uses'
   | 'uses'
   | 'expires_at'
@@ -202,7 +203,7 @@ export default async function CoachPage() {
       supabase.from('enrollments').select('user_id, program_id, status'),
       supabase
         .from('access_codes')
-        .select('id, code, max_uses, uses, expires_at, drip_start_date, active, note, created_at')
+        .select('id, code, program_id, max_uses, uses, expires_at, drip_start_date, active, note, created_at')
         .order('created_at', { ascending: false }),
       // Die nächsten 50 Termine …
       supabase
@@ -436,6 +437,13 @@ export default async function CoachPage() {
 
             <form action={createAccessCodeAction} className="cch-code-form">
               <label className="cch-code-field">
+                <span>Kurs</span>
+                <select name="program_slug" defaultValue="rhythmusfundament">
+                  <option value="rhythmusfundament">Rhythmus-Fundament</option>
+                  <option value="rhythmusfundament-1-5">Rhythmus Fundament 1.5</option>
+                </select>
+              </label>
+              <label className="cch-code-field">
                 <span>Nutzungen</span>
                 <input type="number" name="max_uses" min={1} max={1000} defaultValue={1} required />
               </label>
@@ -483,7 +491,10 @@ export default async function CoachPage() {
                     >
                       <div className="cch-row-main">
                         <div className="cch-code-value">{c.code}</div>
-                        <div className="cch-row-email">{c.note ?? '—'}</div>
+                        <div className="cch-row-email">
+                          {(c.program_id ? programTitleById.get(c.program_id) : null) ?? '—'}
+                          {c.note ? ` · ${c.note}` : ''}
+                        </div>
                       </div>
                       <div className="cch-row-stats cch-row-stats--5">
                         <Stat label="Eingelöst" value={`${c.uses}/${c.max_uses}`} />
@@ -985,7 +996,8 @@ const COACH_CSS = `
     text-transform: uppercase;
     color: var(--muted);
   }
-  .cch-code-field input {
+  .cch-code-field input,
+  .cch-code-field select {
     background: var(--black);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -994,7 +1006,8 @@ const COACH_CSS = `
     font-family: var(--font-body);
     font-size: 16px; /* ≥16px — verhindert iOS-Auto-Zoom (Mobile-Regel) */
   }
-  .cch-code-field input:focus {
+  .cch-code-field input:focus,
+  .cch-code-field select:focus {
     outline: none;
     border-color: var(--amber);
   }

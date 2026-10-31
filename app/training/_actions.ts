@@ -62,5 +62,6 @@ export async function redeemCodeAction(
 
   revalidatePath('/training')
   revalidatePath('/training/rhythmusfundament')
+  revalidatePath('/training/rhythmusfundament-1-5')
   return { status: 'idle' }
 }

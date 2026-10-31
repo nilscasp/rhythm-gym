@@ -19,6 +19,10 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const RHYTHMUSFUNDAMENT_SLUG = 'rhythmusfundament'
+// Kurse, für die /coach Zugangs-Codes erzeugen darf. Whitelist statt freiem
+// Slug aus dem Formular: ein Tippfehler soll laut scheitern, nicht still einen
+// Code für ein falsches Programm anlegen.
+const CODE_PROGRAM_SLUGS = [RHYTHMUSFUNDAMENT_SLUG, 'rhythmusfundament-1-5'] as const
 
 // Ohne mehrdeutige Zeichen (0/O, 1/I/L) — Codes werden vorgelesen/abgetippt.
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -80,13 +84,20 @@ export async function createAccessCodeAction(formData: FormData): Promise<void> 
     dripStartDate = dripTrimmed
   }
 
+  const rawSlug = formData.get('program_slug')
+  const programSlug =
+    typeof rawSlug === 'string' && rawSlug.trim() ? rawSlug.trim() : RHYTHMUSFUNDAMENT_SLUG
+  if (!(CODE_PROGRAM_SLUGS as readonly string[]).includes(programSlug)) {
+    throw new Error(`Unbekannter Kurs für Zugangs-Codes: ${programSlug}`)
+  }
+
   const { data: program, error: programErr } = await supabase
     .from('programs')
     .select('id')
-    .eq('slug', RHYTHMUSFUNDAMENT_SLUG)
+    .eq('slug', programSlug)
     .maybeSingle()
   if (programErr) throw programErr
-  if (!program) throw new Error('Rhythmusfundament-Programm nicht gefunden.')
+  if (!program) throw new Error(`Programm „${programSlug}" nicht gefunden.`)
 
   // Unique-Kollision ist bei 31^8 Codes praktisch ausgeschlossen, aber billig
   // abzufangen: bis zu 3 Versuche mit frischem Code.

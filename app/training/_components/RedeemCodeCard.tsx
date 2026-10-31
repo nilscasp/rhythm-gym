@@ -13,20 +13,33 @@ import { redeemCodeAction, type RedeemState } from '../_actions'
 
 const initialState: RedeemState = { status: 'idle' }
 
-export function RedeemCodeCard() {
+type RedeemCopy = {
+  level: string
+  title: string
+  description: string
+  hint: string
+}
+
+const RF_COPY: RedeemCopy = {
+  level: 'Anfänger',
+  title: 'Rhythmus-Fundament',
+  description:
+    '44 Tage · vier Zyklen · vom Puls bis zur eigenen Komposition. Dieser Kurs ist Teilnehmer:innen mit Zugangs-Code vorbehalten.',
+  hint: 'Du hast keinen Code? Die Standard-Pattern-Library und das Tool stehen dir trotzdem offen.',
+}
+
+/** Ohne `copy` die Karte des Rhythmus-Fundaments; der Code selbst bestimmt den Kurs. */
+export function RedeemCodeCard({ copy = RF_COPY }: { copy?: RedeemCopy }) {
   const [state, formAction, pending] = useActionState(redeemCodeAction, initialState)
 
   return (
     <article className="hub-card hub-locked-card">
       <div className="hub-card-top">
-        <span className="hub-chip">Anfänger</span>
+        <span className="hub-chip">{copy.level}</span>
         <span className="hub-chip hub-chip-muted">🔒 Mit Code freischalten</span>
       </div>
-      <h3 className="hub-card-title">Rhythmus-Fundament</h3>
-      <p className="hub-card-desc">
-        44 Tage · vier Zyklen · vom Puls bis zur eigenen Komposition. Dieser
-        Kurs ist Teilnehmer:innen mit Zugangs-Code vorbehalten.
-      </p>
+      <h3 className="hub-card-title">{copy.title}</h3>
+      <p className="hub-card-desc">{copy.description}</p>
       <form action={formAction} className="hub-redeem-form">
         <input
           type="text"
@@ -49,10 +62,7 @@ export function RedeemCodeCard() {
           {state.message}
         </p>
       )}
-      <p className="hub-redeem-hint">
-        Du hast keinen Code? Die Standard-Pattern-Library und das Tool stehen
-        dir trotzdem offen.
-      </p>
+      <p className="hub-redeem-hint">{copy.hint}</p>
     </article>
   )
 }

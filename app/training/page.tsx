@@ -12,6 +12,7 @@ import {
   progressPercent,
 } from '../lib/course-progress'
 import { COURSE_TOTAL_DAYS, RHYTHMUS_DAYS } from '../../data/rhythmusfundament-days'
+import { RF15_SLUG, RF15_TOTAL_DAYS } from '../../data/rhythmusfundament-1-5-days'
 import { RedeemCodeCard } from './_components/RedeemCodeCard'
 
 async function currentBrand(): Promise<Brand> {
@@ -242,6 +243,8 @@ export default async function TrainingHubPage() {
   const hasRhythmusfundament = enrollments.some(
     (e) => e.programs?.slug === RHYTHMUSFUNDAMENT_SLUG
   )
+  // RF 1.5 ist nur für RF-1.0-Teilnehmende: die Code-Karte dafür sehen nur sie.
+  const hasRf15 = enrollments.some((e) => e.programs?.slug === RF15_SLUG)
   // Nächster offener, noch nicht abgehakter Tag — Ziel des Hero-Knopfs.
   const rfCompleted: Set<number> = rfAccess.programId
     ? (completedDaysByProgram.get(rfAccess.programId) ?? new Set<number>())
@@ -326,20 +329,36 @@ export default async function TrainingHubPage() {
 
             <div className="hub-grid">
                 {!hasRhythmusfundament && <RedeemCodeCard />}
+                {hasRhythmusfundament && !hasRf15 && (
+                  <RedeemCodeCard
+                    copy={{
+                      level: 'Fortgeschritten',
+                      title: 'Rhythmus Fundament 1.5',
+                      description:
+                        '22 Tage für Teilnehmende von Rhythmus Fundament 1.0 · Fingerübung, kompositorisches Denken, Muskelgedächtnis. Freischalten mit deinem Zugangs-Code.',
+                      hint: 'Den Code bekommst du von Nils.',
+                    }}
+                  />
+                )}
                 {enrollments.map((enr) => {
                   const p = enr.programs
                   if (!p) return null
                   // Programme mit Tagesmodell zeigen abgehakte TAGE; sonst
                   // (alte Zählung) abgehakte Übungen. Live-Kurse ohne beides
                   // bekommen keinen Balken.
-                  const hasDays = p.slug === RHYTHMUSFUNDAMENT_SLUG
+                  const isRf = p.slug === RHYTHMUSFUNDAMENT_SLUG
+                  const hasDays = isRf || p.slug === RF15_SLUG
                   const daysDone = completedDaysByProgram.get(p.id)?.size ?? 0
-                  const total = hasDays ? COURSE_TOTAL_DAYS : (p.total_exercises ?? 0)
+                  const total = isRf
+                    ? COURSE_TOTAL_DAYS
+                    : hasDays
+                      ? RF15_TOTAL_DAYS
+                      : (p.total_exercises ?? 0)
                   const done = hasDays ? daysDone : (completionsByProgram.get(p.id) ?? 0)
                   const pct = progressPercent(done, total)
                   const unit = hasDays ? 'Tagen' : 'Übungen'
                   const cardHref =
-                    hasDays && rfContinueDay ? rfContinueHref : `/training/${p.slug}`
+                    isRf && rfContinueDay ? rfContinueHref : `/training/${p.slug}`
                   return (
                     <article key={p.id} className="hub-card hub-program-card">
                       <div className="hub-card-top">
@@ -370,7 +389,7 @@ export default async function TrainingHubPage() {
                         href={cardHref}
                         className="hub-cta-secondary"
                       >
-                        {hasDays && rfContinueDay ? `Weiter mit Tag ${rfContinueDay} →` : 'Weiter →'}
+                        {isRf && rfContinueDay ? `Weiter mit Tag ${rfContinueDay} →` : 'Weiter →'}
                       </Link>
                     </article>
                   )
