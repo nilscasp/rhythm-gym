@@ -89,9 +89,12 @@ export const RF15_PDF = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Block 1 · Fingerübung — Plan aus der Fingerpyramide
 //
-//   Hände:   ungerade Tage beide Hände, gerade Tage eine Hand
+// Gezählt wird je Zyklus (k = 1..11): Tag 12 ist gebaut wie Tag 1, Tag 13
+// wie Tag 2 usw. (Fingerpyramide, „Zyklus 2 · Geschwindigkeit und Position").
+//
+//   Hände:   k ungerade beide Hände, k gerade eine Hand
 //   Schläge: 1, 2, 3, dann wieder von vorn
-//   Finger:  ungerade Tage ein Finger, gerade Tage Fingerreihe.
+//   Finger:  k ungerade ein Finger, k gerade Fingerreihe.
 //            Zyklus 1: Zeige, Mittel, Ring, klein, Daumen, Zeige
 //            Zyklus 2: „ein Finger" — der, der am besten liegt
 //   Basis:   Tag 1–11 Geschwindigkeit + Lautstärke, Tag 12–22 Geschwindigkeit + Position
@@ -116,15 +119,16 @@ const EIN_FINGER_ZYKLUS_1 = [
 ] as const
 
 export function fingeruebungFuerTag(n: number): Fingeruebung {
-  const ungerade = n % 2 === 1
   const zyklus1 = n <= 11
+  const k = zyklus1 ? n : n - 11
+  const ungerade = k % 2 === 1
   let finger: string
   if (!ungerade) finger = 'Fingerreihe'
-  else if (zyklus1) finger = EIN_FINGER_ZYKLUS_1[(n - 1) / 2]
+  else if (zyklus1) finger = EIN_FINGER_ZYKLUS_1[(k - 1) / 2]
   else finger = 'ein Finger (der, der am besten liegt)'
   return {
     haende: ungerade ? 'beide Hände' : 'eine Hand',
-    schlaege: (((n - 1) % 3) + 1) as 1 | 2 | 3,
+    schlaege: (((k - 1) % 3) + 1) as 1 | 2 | 3,
     finger,
     basis: zyklus1 ? 'Geschwindigkeit und Lautstärke' : 'Geschwindigkeit und Position',
     weg: 'Tonleiter hoch und runter',
